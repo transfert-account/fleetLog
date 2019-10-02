@@ -1,0 +1,113 @@
+/*//////////////////////////////////
+////////////// GENERAL /////////////
+//////////////////////////////////*/
+
+h1,h2,h3,h4,h5,h6,#avatarWrapper>p{
+  font-family: 'Open Sans', !important;
+}
+body{
+  font-family: 'Open Sans', !important;
+}
+.App {
+  text-align: center;
+}
+.App-logo {
+  animation: App-logo-spin infinite 5s linear;
+  height: 60vmin;
+}
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+  
+.hide{
+  display: none;
+  visibility: hidden;
+}
+
+#app{
+  width: 100vw;
+  font-family: 'Open Sans', sans-serif;
+  background-color: #3d3d3d;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.menuItem:hover{
+  background-image: linear-gradient(315deg, #60a3bc 0%, #82ccdd 74%);
+  color:#fff;
+}
+
+.menuItemGreen{
+  color:#27ae60;
+}
+
+.menuItemRed{
+  color:#e74c3c;
+}
+
+.menuItemRed:hover{
+  background-image: linear-gradient(315deg, #b33939 0%, #ff7979 74%);
+  color:#fff;
+}
+
+.menuItemGreen:hover{
+  background-image: linear-gradient(315deg, #009432 0%, #2ecc71 74%);
+  color:#fff;
+}
+
+.menuItemActive{
+  background-image: linear-gradient(315deg, #0a3d62 0%, #60a3bc 74%);
+  color:#fff;
+}
+
+.firstWord{fill:none;stroke-width:2;stroke-miterlimit:2;}
+.secondWord{fill:none;stroke-width:2;stroke-miterlimit:2;}
+.st0c{stroke:#1e73be;stroke-dasharray:1600;stroke-dashoffset:0;-webkit-animation:dashs 3s linear forwards;-o-animation:dashs 3s linear forwards;-moz-animation:dashs 3s linear forwards;animation:dashs 3s linear forwards;}
+.st1c{stroke:#519bdb;stroke-dasharray:400;stroke-dashoffset:0;-webkit-animation:dashl 3s linear forwards;-o-animation:dashl 3s linear forwards;-moz-animation:dashl 3s linear forwards;animation:dashl 3s linear forwards;}
+.st0{stroke:#1e73be;}
+.st1{stroke:#519bdb;}
+@-webkit-keyframes dashs {
+  from {stroke-dashoffset:2000}
+  to{stroke-dashoffset:0}
+}
+@-webkit-keyframes dashl {
+  from {stroke-dashoffset:400}
+  to{stroke-dashoffset:0}
+}
+
+.ui.message p {
+  margin: 0.2em !important;
+}
+
+.gridLabel{
+  justify-self:end;
+  font-weight: 900;
+}
+
+.gridValue{
+  justify-self:start;
+}
