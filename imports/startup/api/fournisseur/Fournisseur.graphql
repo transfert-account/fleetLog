@@ -1,0 +1,17 @@
+type Fournisseur{
+    _id:String
+    name:String
+    phone:String
+    mail:String
+    address:String
+}
+
+extend type Query{
+    fournisseurs : [Fournisseur]
+}
+
+extend type Mutation{
+    addFournisseur(name:String!): Boolean
+    editFournisseur(_id:String!,name:String!,phone:String!,mail:String!,address:String!,): Boolean
+    deleteFournisseur(_id:String!): Boolean
+}

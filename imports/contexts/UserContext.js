@@ -36,6 +36,16 @@ export const UserContext = React.createContext();
 
 class Provider extends Component {
 
+    state = {
+ 
+    }
+
+    dateMonthPlusOne = date => {
+        let dateSplited = date.split("/");
+        let month = parseInt(dateSplited[1])+1;
+        return dateSplited[0]+"/"+month+"/"+dateSplited[2]
+    }
+
     toast = ({message,type}) => {
         if(type == 'error'){
             toast.error(message);
@@ -61,6 +71,7 @@ class Provider extends Component {
                 user: (this.props.user == null ? {_id:null} : this.props.user),
                 users : this.props.users,
                 client : this.props.client,
+                societes:this.props.societes,
                 toast:this.toast
             }}>
                 {this.props.children}

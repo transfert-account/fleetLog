@@ -4,6 +4,7 @@ type User{
     isAdmin: Boolean
     isOwner: Boolean
     verified: String
+    visibility: String
     firstname: String
     lastname: String
     createdAt: String
@@ -24,4 +25,5 @@ type Mutation{
     toggleActive(admin:String!,_id:String!): User
     deleteAccount(admin:String!,_id:String!): [User]
     setUserAvatar(_id:String!,avatar:String!): User
+    setVisibility(_id:String!,visibility:String!): User
 }

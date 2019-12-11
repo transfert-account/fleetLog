@@ -20,6 +20,7 @@ Accounts.onCreateUser(function(options, user) {
         user.settings.isAdmin = options.settings.isOwner;
         user.settings.activated = false;
     }
+    user.settings.visibility = "none";
 
     // Returns the user object
     return user;

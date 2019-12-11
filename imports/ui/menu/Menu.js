@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import MenuItemList from './MenuItemList';
 import { Link,withRouter } from 'react-router-dom';
 import { UserContext } from '../../contexts/UserContext';
-import { Icon } from 'semantic-ui-react';
+import { Icon, Dropdown } from 'semantic-ui-react';
 
 class Menu extends Component {
 
@@ -16,35 +16,35 @@ class Menu extends Component {
         active:"parc",
         label:"Parc",
         display:true,
-        icon:"warehouse"
+        icon:"truck"
       },
       {
         name:"commande",
         active:"commande",
         label:"Commandes",
         display:true,
-        icon:"truck"
+        icon:"box"
       },
       {
         name:"entretien",
         active:"entretien",
         label:"Entretien",
         display:true,
-        icon:"wrench"
+        icon:"clipboard check"
       },
       {
         name:"batiment",
         active:"batiment",
         label:"Batiment",
         display:true,
-        icon:"industry"
+        icon:"warehouse"
       },
       {
-        name:"fournisseur",
-        active:"fournisseur",
+        name:"fournisseurs",
+        active:"fournisseurs",
         label:"Fournisseurs",
         display:true,
-        icon:"box"
+        icon:"sitemap"
       },
     ],
     menuItemsAdmin:[
@@ -53,35 +53,35 @@ class Menu extends Component {
         active:"parc",
         label:"Parc",
         display:true,
-        icon:"warehouse"
+        icon:"truck"
       },
       {
         name:"commande",
         active:"commande",
         label:"Commandes",
         display:true,
-        icon:"truck"
+        icon:"box"
       },
       {
         name:"entretien",
         active:"entretien",
         label:"Entretien",
         display:true,
-        icon:"wrench"
+        icon:"clipboard check"
       },
       {
         name:"batiment",
         active:"batiment",
         label:"Batiment",
         display:true,
-        icon:"industry"
+        icon:"warehouse"
       },
       {
-        name:"fournisseur",
-        active:"fournisseur",
+        name:"fournisseurs",
+        active:"fournisseurs",
         label:"Fournisseurs",
         display:true,
-        icon:"box"
+        icon:"sitemap"
       },
       {
         name:"compte",

@@ -11,6 +11,7 @@ export class AccountRow extends Component {
         activated:this.props.u.activated,
         isAdmin:this.props.u.isAdmin,
         isOwner:this.props.u.isOwner,
+        visibility:this.props.u.visibility,
         toggleAdminQuery:gql`mutation toggleAdmin($admin: String!,$_id: String!){
             toggleAdmin(admin: $admin,_id: $_id){
                 _id
@@ -21,6 +22,12 @@ export class AccountRow extends Component {
             toggleActive(admin: $admin,_id: $_id){
                 _id
                 activated
+            }
+        }`,
+        setVisibility:gql`mutation setVisibility($visibility: String!,$_id: String!){
+            setVisibility(visibility: $visibility,_id: $_id){
+                _id
+                visibility
             }
         }`
     }
@@ -56,17 +63,31 @@ export class AccountRow extends Component {
     }
     
     activateAccount = _id =>{
-    this.props.client.mutate({
-        mutation : this.state.toggleActiveQuery,
-        variables:{
-        admin:Meteor.userId(),
-        _id:_id
-        }
-    }).then(({data})=>{
-        this.setState({
-            activated:data.toggleActive.activated
-        });
-    })
+        this.props.client.mutate({
+            mutation : this.state.toggleActiveQuery,
+            variables:{
+            admin:Meteor.userId(),
+            _id:_id
+            }
+        }).then(({data})=>{
+            this.setState({
+                activated:data.toggleActive.activated
+            });
+        })
+    }
+
+    setVisibility = (e, { value }) => {
+        this.props.client.mutate({
+            mutation : this.state.setVisibility,
+            variables:{
+                visibility:value,
+                _id:this.state.user._id
+            }
+        }).then(({data})=>{
+            this.setState({
+                visibility:data.setVisibility.visibility
+            });
+        })
     }
 
     render() {
@@ -118,6 +139,9 @@ export class AccountRow extends Component {
                             </Label>
                         )
                         )}
+                    </Table.Cell>
+                    <Table.Cell style={{textAlign:"center"}}>
+                        <Dropdown style={{margin:"auto 12px"}} placeholder='Choisir un société' search selection onChange={this.setVisibility} value={this.state.visibility} options={this.props.societesRaw.map(x=>{return{key:x._id,text:x.name,value:x._id}})} />
                     </Table.Cell>
                     <Table.Cell style={{textAlign:"center"}}>
                     {(user.isOwner ? "" :

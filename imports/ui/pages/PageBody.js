@@ -1,12 +1,16 @@
 import React, { Component } from 'react'
 import { Route, Switch, Redirect } from 'react-router-dom';
 import Home from './Home';
-import Vehicles from './Vechicles';
+import Vehicles from './Vehicles';
 import Controls from './Controls';
 import Licences from './Licences';
 import Rentals from './Rentals';
 import Compte from './Compte';
 import Accounts from './Accounts';
+import Content from './Content';
+import Equipements from './Equipements';
+import Fournisseurs from './Fournisseurs';
+import Pieces from './Pieces';
 import { UserContext } from '../../contexts/UserContext';
 
 class PageBody extends Component {
@@ -38,9 +42,14 @@ class PageBody extends Component {
           <Route exact path='/parc/licences' component={Licences}/>
           <Route exact path='/parc/rentals' component={Rentals}/>
 
+          <Route exact path='/fournisseurs' component={Fournisseurs}/>
+
           <Route exact path='/compte' component={Compte}/>
           
           <Route exact path='/administration/accounts' component={Accounts}/>
+          <Route exact path='/administration/content' component={Content}/>
+          <Route exact path='/administration/equipements' component={Equipements}/>
+          <Route exact path='/administration/pieces' component={Pieces}/>
           <Redirect from='*' to={'/'}/>
         </Switch>
       );
@@ -53,6 +62,8 @@ class PageBody extends Component {
           <Route exact path='/parc/controls' component={Controls}/>
           <Route exact path='/parc/licences' component={Licences}/>
           <Route exact path='/parc/rentals' component={Rentals}/>
+
+          <Route exact path='/fournisseurs' component={Fournisseurs}/>
 
           <Route exact path='/compte' component={Compte}/>
           <Redirect from='*' to={'/'}/>

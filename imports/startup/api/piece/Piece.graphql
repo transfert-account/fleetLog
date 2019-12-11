@@ -1,0 +1,19 @@
+type Piece{
+    _id:String!
+    type:String!
+    name:String!
+}
+
+extend type Query{
+    allPieces : [Piece]
+    pieces : [Piece]
+    pneus : [Piece]
+    agents : [Piece]
+    outils : [Piece]
+}
+
+extend type Mutation{
+    addPiece(name:String!,type:String!): Boolean
+    deletePiece(_id:String!): Boolean
+    editPiece(_id:String!,name:String!):Boolean
+}

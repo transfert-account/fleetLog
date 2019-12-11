@@ -12,6 +12,7 @@ export default {
         isAdmin:user=> (user._id != null ? user.settings.isAdmin : null),
         isOwner:user=> (user._id != null ? user.settings.isOwner : null),
         activated:user=> (user._id != null ? user.settings.activated : null),
+        visibility:user=> (user._id != null ? user.settings.visibility : null),
         verified:user=> (user._id != null ? user.emails[0].verified : null),
         firstname:user=> (user._id != null ? user.profile.firstname : null),
         lastname:user=> (user._id != null ? user.profile.lastname : null),
@@ -35,6 +36,21 @@ export default {
                     }
                 );
                 return res;
+            }
+            throw new Error('Unauthorized')
+        },
+        setVisibility(obj, {_id,visibility},{user}){
+            if(user._id){
+                const res = Meteor.users.update(
+                    {
+                        _id: _id
+                    }, {
+                        $set: {
+                            "settings.visibility": visibility
+                        }
+                    }
+                );
+                return Meteor.users.findOne({_id:_id});
             }
             throw new Error('Unauthorized')
         },

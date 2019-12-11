@@ -1,0 +1,19 @@
+type EquipementDescription{
+    _id:String
+    name:String
+    controlPeriodValue:Int
+    controlPeriodUnit:String
+    alertStepValue:Int
+    alertStepUnit:String
+    unitType:String
+}
+
+extend type Query{
+    equipementDescriptions : [EquipementDescription]
+}
+
+extend type Mutation{
+    addEquipementDescription(name:String,controlPeriodValue:Int,controlPeriodUnit:String,alertStepValue:Int!,alertStepUnit:String!,unitType:String!): [EquipementDescription]
+    editEquipementDescription(_id:String!,name:String,controlPeriodValue:Int,controlPeriodUnit:String,alertStepValue:Int!,alertStepUnit:String!,unitType:String!): [EquipementDescription]
+    deleteEquipementDescription(_id:String!): [EquipementDescription]
+}

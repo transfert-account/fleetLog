@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Input, Table, Menu } from 'semantic-ui-react';
+import { Input, Table, Menu, Icon } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 import AccountRow from '../molecules/AccountRow';
 import { withRouter } from 'react-router-dom';
@@ -23,6 +23,7 @@ export class Accounts extends Component {
           createdAt
           lastLogin
           activated
+          visibility
         }
       }
     `,
@@ -46,13 +47,24 @@ export class Accounts extends Component {
         createdAt
         lastLogin
         activated
+        visibility
       }
     }`,
+    societesQuery : gql`
+      query societes{
+          societes{
+              _id
+              trikey
+              name
+          }
+      }
+    `,
+    societesRaw:[],
     accounts : () => {
       let displayed = Array.from(this.state.users);
       displayed = displayed.filter(u=>u.email.toLowerCase().includes(this.state.usersFilter.toLowerCase()) || u.firstname.toLowerCase().includes(this.state.usersFilter.toLowerCase()) || u.lastname.toLowerCase().includes(this.state.usersFilter.toLowerCase()));
       return displayed.map(u=>(
-        <AccountRow deleteAccount={this.deleteAccount} setOwner={this.setOwner} key={u._id} u={u}/>
+        <AccountRow deleteAccount={this.deleteAccount} societesRaw={this.state.societesRaw} setOwner={this.setOwner} key={u._id} u={u}/>
       ))
     }
   }
@@ -77,22 +89,41 @@ export class Accounts extends Component {
     })
   }
 
+  loadSocietes = () => {
+    this.props.client.query({
+        query:this.state.societesQuery,
+        fetchPolicy:"network-only"
+    }).then(({data})=>{
+        data.societes.push({_id:"noidthisisgroupvisibility",name:"Groupe",trikey:"GRP"})
+        this.setState({
+            societesRaw:data.societes
+        })
+    })
+  }
+
   componentDidMount = () => {
     moment.locale('fr');
+    this.loadSocietes();
     this.loadAccounts();
   }
 
   getMenu = () => {
     if(this.props.user.isOwner){
       return (
-        <Menu style={{cursor:"pointer",marginBottom:"auto"}} vertical>
-          <Menu.Item color="blue" name='Comptes' active onClick={()=>{this.props.history.push("/administration/accounts")}} />
+        <Menu style={{cursor:"pointer",marginBottom:"auto"}} icon='labeled'>
+            <Menu.Item color="blue" name='comptes' active onClick={()=>{this.props.history.push("/administration/accounts")}}><Icon name='users'/>Comptes</Menu.Item>
+            <Menu.Item color="blue" name='controls' onClick={()=>{this.props.history.push("/administration/content")}}><Icon name='copy outline'/>Contenu</Menu.Item>
+            <Menu.Item color="blue" name='equipement' onClick={()=>{this.props.history.push("/administration/equipements")}}><Icon name='wrench'/>Equipements</Menu.Item>
+            <Menu.Item color="blue" name='pieces' onClick={()=>{this.props.history.push("/administration/pieces")}}><Icon name='cogs'/>Pièces</Menu.Item>
         </Menu>
       )
     }else{
       return (
-        <Menu style={{cursor:"pointer",marginBottom:"auto"}} vertical>
-          <Menu.Item color="blue" name='Comptes' active onClick={()=>{this.props.history.push("/administration/accounts")}} />
+        <Menu style={{cursor:"pointer",marginBottom:"auto"}} icon='labeled'>
+            <Menu.Item color="blue" name='comptes' active onClick={()=>{this.props.history.push("/administration/accounts")}}><Icon name='users'/>Comptes</Menu.Item>
+            <Menu.Item color="blue" name='controls' onClick={()=>{this.props.history.push("/administration/content")}}><Icon name='copy outline'/>Contenu</Menu.Item>
+            <Menu.Item color="blue" name='equipement' onClick={()=>{this.props.history.push("/administration/equipements")}}><Icon name='wrench'/>Equipements</Menu.Item>
+            <Menu.Item color="blue" name='pieces' onClick={()=>{this.props.history.push("/administration/pieces")}}><Icon name='cogs'/>Pièces</Menu.Item>
         </Menu>
       )
     }
@@ -127,21 +158,22 @@ export class Accounts extends Component {
           {this.getMenu()}
           <Input name="usersFilter" onChange={this.handleFilter} size='massive' icon='search' placeholder='Rechercher un compte ...' />
         </div>
-          <Table compact selectable striped color="blue">
-            <Table.Header>
-              <Table.Row>
-                <Table.HeaderCell width={4}>Nom</Table.HeaderCell>
-                <Table.HeaderCell width={4}>Compte créé le</Table.HeaderCell>
-                <Table.HeaderCell width={4}>E-mail</Table.HeaderCell>
-                <Table.HeaderCell style={{textAlign:"center"}} width={1}>Admin</Table.HeaderCell>
-                <Table.HeaderCell style={{textAlign:"center"}} width={1}>Compte actif</Table.HeaderCell>
-                <Table.HeaderCell style={{textAlign:"center"}} width={2}></Table.HeaderCell>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              {this.state.accounts()}
-            </Table.Body>
-          </Table>
+        <Table compact selectable striped color="blue">
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell width={3}>Nom</Table.HeaderCell>
+              <Table.HeaderCell width={3}>Compte créé le</Table.HeaderCell>
+              <Table.HeaderCell width={3}>E-mail</Table.HeaderCell>
+              <Table.HeaderCell style={{textAlign:"center"}} width={1}>Admin</Table.HeaderCell>
+              <Table.HeaderCell style={{textAlign:"center"}} width={1}>Compte actif</Table.HeaderCell>
+              <Table.HeaderCell style={{textAlign:"center"}} width={3}>Visibilité</Table.HeaderCell>
+              <Table.HeaderCell style={{textAlign:"center"}} width={2}>Actions</Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {this.state.accounts()}
+          </Table.Body>
+        </Table>
       </div>
     )
   }

@@ -1,0 +1,18 @@
+type Licence{
+    _id:String
+    societe:Societe
+    number:String
+    shiftName:String
+    vehicle:Vehicle
+}
+
+extend type Query{
+    licence(_id: String!): Licence
+    licences : [Licence]
+}
+
+extend type Mutation{
+    addLicence(societe:String!,number:String!,vehicle:String!): Boolean
+    deleteLicence(_id:String!): Boolean
+    editLicence(_id:String!,societe:String!,number:String!,vehicle:String!,shiftName:String!):Boolean
+}

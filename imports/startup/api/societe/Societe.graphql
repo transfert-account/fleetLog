@@ -1,0 +1,15 @@
+type Societe{
+    _id: String
+    trikey: String
+    name: String
+}
+
+extend type Query{
+    societe(_id: String!): Societe
+    societes : [Societe]
+}
+
+extend type Mutation{
+    addSociete(trikey:String!,name:String!): [Societe]
+    deleteSociete(_id:String!): [Societe]
+}

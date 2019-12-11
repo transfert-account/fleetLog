@@ -1,0 +1,16 @@
+type Equipement{
+    _id:String
+    equipementDescription:EquipementDescription
+    attachementDate:String
+    lastControl:String
+}
+
+extend type Query{
+    equipements : [Equipement]
+}
+
+extend type Mutation{
+    attachEquipementToVehicle(vehicle:String!,equipementDescription:String!,attachementDate:String!,lastControl:String!): Boolean
+    dissociateEquipement(id:String):Boolean
+    updateControlEquipement(id:String,updatedControlValue:String!):Boolean
+}

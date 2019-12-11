@@ -1,0 +1,30 @@
+type Vehicle{
+    _id:String
+    societe:Societe
+    registration:String
+    firstRegistrationDate:String
+    km:Int
+    lastKmUpdate:String
+    brand:String
+    model:String
+    volume:Float
+    payload:Float
+    color:String
+    cg:String
+    insurancePaid:Float
+    cv:String
+    endDate:String
+    property:Boolean
+    equipements:[Equipement]
+}
+
+extend type Query{
+    vehicle(_id: String!): Vehicle
+    vehicles : [Vehicle]
+}
+
+extend type Mutation{
+    addVehicle(societe:String!,registration:String!,firstRegistrationDate:String!,km:Int!,lastKmUpdate:String!,brand:String!,model:String!,volume:Float!,payload:Float!,color:String!,insurancePaid:Float!,endDate:String!,property:Boolean!): [Vehicle]
+    editVehicle(_id:String!,societe:String!,registration:String!,firstRegistrationDate:String!,km:Int!,lastKmUpdate:String!,brand:String!,model:String!,volume:Float!,payload:Float!,color:String!,insurancePaid:Float!,endDate:String!,property:Boolean!): [Vehicle]
+    deleteVehicle(_id:String!): [Vehicle]
+}

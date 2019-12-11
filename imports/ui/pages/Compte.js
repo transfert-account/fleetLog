@@ -139,7 +139,7 @@ export class Compte extends Component {
             <Form.Input type="password" onChange={this.handleChange} autoComplete="off" name="newPass2" label="Confirmez le nouveau mot de passe"/>
             <div style={{paddingTop:"16px",justifySelf:"stretch",display:"grid",gridTemplateColumns:"1fr auto"}}>
               {this.getModalLabel({error:error,errorContent:errorContent})}
-              <Button onClick={this.applyPassword} style={{gridColumnStart:"2",width:"160px"}} color="green" size="big" content="Valider"/>
+              <Button onClick={this.applyPassword} style={{gridColumnStart:"2",width:"160px"}} color="blue" size="big" content="Valider"/>
             </div>
           </Form>
         </Segment>

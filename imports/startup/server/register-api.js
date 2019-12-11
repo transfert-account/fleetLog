@@ -7,14 +7,50 @@ import merge from 'lodash/merge';
 import UserSchema from '../api/user/User.graphql';
 import UserResolvers from '../api/user/resolvers.js';
 
-// #0117
+import SocieteSchema from '../api/societe/Societe.graphql';
+import SocieteResolvers from '../api/societe/resolvers.js';
+
+import VehicleSchema from '../api/vehicle/Vehicle.graphql';
+import VehicleResolvers from '../api/vehicle/resolvers.js';
+
+import LicenceSchema from '../api/licence/Licence.graphql';
+import LicenceResolvers from '../api/licence/resolvers.js';
+
+import EquipementDescriptionSchema from '../api/equipementDescription/EquipementDescription.graphql';
+import EquipementDescriptionResolvers from '../api/equipementDescription/resolvers.js';
+
+import EquipementSchema from '../api/equipement/Equipement.graphql';
+import EquipementResolvers from '../api/equipement/resolvers.js';
+
+import FournisseurSchema from '../api/fournisseur/Fournisseur.graphql';
+import FournisseurResolvers from '../api/fournisseur/resolvers.js';
+
+import PieceSchema from '../api/piece/Piece.graphql';
+import PieceResolvers from '../api/piece/resolvers.js';
+
+// #0155
 
 const typeDefs = [
-    UserSchema
+    UserSchema,
+    SocieteSchema,
+    VehicleSchema,
+    EquipementDescriptionSchema,
+    EquipementSchema,
+    LicenceSchema,
+    FournisseurSchema,
+    PieceSchema
+
 ];
 
 const resolvers = merge(
-    UserResolvers
+    UserResolvers,
+    SocieteResolvers,
+    VehicleResolvers,
+    EquipementDescriptionResolvers,
+    EquipementResolvers,
+    LicenceResolvers,
+    FournisseurResolvers,
+    PieceResolvers
 );
 
 const server = new ApolloServer({
