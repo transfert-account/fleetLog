@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react'
 import { Table, Label, Dropdown, Icon, Message, Button, Modal } from 'semantic-ui-react';
+import SocietePicker from '../atoms/SocietePicker';
 import { UserContext } from '../../contexts/UserContext';
 import gql from 'graphql-tag';
 
@@ -141,7 +142,7 @@ export class AccountRow extends Component {
                         )}
                     </Table.Cell>
                     <Table.Cell style={{textAlign:"center"}}>
-                        <Dropdown style={{margin:"auto 12px"}} placeholder='Choisir un société' search selection onChange={this.setVisibility} value={this.state.visibility} options={this.props.societesRaw.map(x=>{return{key:x._id,text:x.name,value:x._id}})} />
+                        <SocietePicker groupAppears={true} onChange={this.setVisibility} value={this.state.visibility} />
                     </Table.Cell>
                     <Table.Cell style={{textAlign:"center"}}>
                     {(user.isOwner ? "" :

@@ -4,6 +4,7 @@ type Vehicle{
     registration:String
     firstRegistrationDate:String
     km:Int
+    kms:[DatedKm]
     lastKmUpdate:String
     brand:String
     model:String
@@ -18,6 +19,11 @@ type Vehicle{
     equipements:[Equipement]
 }
 
+type DatedKm{
+    reportDate:String!
+    kmValue:Int!
+}
+
 extend type Query{
     vehicle(_id: String!): Vehicle
     vehicles : [Vehicle]
@@ -25,6 +31,7 @@ extend type Query{
 
 extend type Mutation{
     addVehicle(societe:String!,registration:String!,firstRegistrationDate:String!,km:Int!,lastKmUpdate:String!,brand:String!,model:String!,volume:Float!,payload:Float!,color:String!,insurancePaid:Float!,endDate:String!,property:Boolean!): [Vehicle]
-    editVehicle(_id:String!,societe:String!,registration:String!,firstRegistrationDate:String!,km:Int!,lastKmUpdate:String!,brand:String!,model:String!,volume:Float!,payload:Float!,color:String!,insurancePaid:Float!,endDate:String!,property:Boolean!): [Vehicle]
-    deleteVehicle(_id:String!): [Vehicle]
+    editVehicle(_id:String!,societe:String!,registration:String!,firstRegistrationDate:String!,lastKmUpdate:String!,brand:String!,model:String!,volume:Float!,payload:Float!,color:String!,insurancePaid:Float!,endDate:String!,property:Boolean!): [Vehicle]
+    updateKm(_id:String!,date:String!,kmValue:Int!):Boolean
+    deleteVehicle(_id:String!): Boolean
 }

@@ -1,8 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { Modal,Dropdown,Icon,Menu,Input,Dimmer,Loader,Table,Button,Form } from 'semantic-ui-react';
+import { Modal,Icon,Menu,Input,Dimmer,Loader,Table,Button,Form } from 'semantic-ui-react';
 import ModalDatePicker from '../atoms/ModalDatePicker'
 import { UserContext } from '../../contexts/UserContext';
 import VehiclesRow from '../molecules/VehiclesRow';
+import SocietePicker from '../atoms/SocietePicker';
 import { gql } from 'apollo-server-express';
 
 export class Vehicles extends Component {
@@ -28,7 +29,6 @@ export class Vehicles extends Component {
     currentPage:1,
     vehiclesFiler:"",
     vehiclesRaw:[],
-    societesRaw:[],
     vehicles : () => {
         if(this.state.vehiclesRaw.length==0){
             return(
@@ -113,16 +113,7 @@ export class Vehicles extends Component {
                 property
             }
         }
-    `,
-    societesQuery : gql`
-        query societes{
-            societes{
-                _id
-                trikey
-                name
-            }
-        }
-    `,
+    `
   }
 
   closeAddVehicle = () => {
@@ -196,21 +187,8 @@ export class Vehicles extends Component {
     })
   }
 
-  loadSocietes = () => {
-    this.props.client.query({
-        query:this.state.societesQuery,
-        fetchPolicy:"network-only"
-    }).then(({data})=>{
-        data.societes.push({_id:"noidthisisgroupvisibility",name:"Groupe",trikey:"GRP"})
-        this.setState({
-            societesRaw:data.societes
-        })
-    })
-  }
-
   componentDidMount = () => {
     this.loadVehicles();
-    this.loadSocietes();
   }
 
   render() {
@@ -260,7 +238,9 @@ export class Vehicles extends Component {
                 </Modal.Header>
                 <Modal.Content style={{textAlign:"center"}}>
                     <Form style={{display:"grid",gridTemplateRows:"1fr 1fr 1fr",gridTemplateColumns:"1fr 1fr 1fr 1fr 1fr",gridGap:"16px"}}>
-                        <Form.Field><label>Societe</label><Dropdown placeholder='Choisir un société' search selection onChange={this.handleChangeSociete} options={this.state.societesRaw.map(x=>{return{key:x._id,text:x.name,value:x._id}})} name="newSociete" /></Form.Field>
+                        <Form.Field><label>Societe</label>
+                            <SocietePicker groupAppears={true} onChange={this.handleChangeSociete}/>
+                        </Form.Field>
                         <Form.Field><label>Registration</label><input onChange={this.handleChange} placeholder="registration" name="newRegistration"/></Form.Field>
                         <Form.Field><label>FirstRegistrationDate</label><input onChange={this.handleChange} value={this.state.newFirstRegistrationDate} onFocus={()=>{this.showDatePicker("newFirstRegistrationDate")}} placeholder="firstRegistrationDate" name="newFirstRegistrationDate"/></Form.Field>
                         <Form.Field><label>Km</label><input onChange={this.handleChange} placeholder="km" name="newKm"/></Form.Field>

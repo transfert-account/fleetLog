@@ -1,0 +1,24 @@
+type Entretien{
+    _id:String!
+    piece:Piece!
+    vehicle:Vehicle!
+    description:String!
+    archived:Boolean!
+    occurenceDay:Int!
+    occurenceMonth:Int!
+    occurenceYear:Int!
+    user:String!
+}
+
+extend type Query{
+    entretiens : [Entretien]
+    entretien(_id:String!) : Entretien
+}
+
+extend type Mutation{
+    addEntretien(vehicle:String!): Boolean
+    deleteEntretien(_id:String!): Boolean
+    archiveEntretien(_id:String!,archived:Boolean!): Boolean
+    editDesc(_id:String!,description:String!): Boolean
+    affectEntretien(_id:String!,occurenceDay:String!,occurenceMonth:String!,occurenceYear:String!): Boolean
+}

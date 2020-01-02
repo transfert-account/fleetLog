@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Icon,Menu,Input,Button,Table,Modal,Form,Dropdown } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 import LicenceRow from '../molecules/LicenceRow';
+import SocietePicker from '../atoms/SocietePicker';
 import VehiclePicker from '../atoms/VehiclePicker';
 import { gql } from 'apollo-server-express'
 
@@ -86,7 +87,6 @@ export class Licences extends Component {
     this.setState({ newVehicle:_id })
   }
 
-
   handleChangeSociete = (e, { value }) => this.setState({ newSociete:value })
 
   showAddLicence = () => {
@@ -154,7 +154,7 @@ export class Licences extends Component {
             </Menu>
             <Input style={{justifySelf:"stretch"}} name="storeFilter" onChange={e=>{this.handleFilter(e.target.value)}} icon='search' placeholder='Rechercher un item ... (3 caractères minimum)' />
             <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddLicence} icon labelPosition='right'>Ajouter une licence<Icon name='plus'/></Button>
-            <div style={{gridRowStart:"2",gridColumnEnd:"span 4",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
+            <div style={{gridRowStart:"2",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                 <Table style={{marginBottom:"0"}} celled selectable color="blue" compact>
                     <Table.Header>
                         <Table.Row textAlign='center'>
@@ -176,7 +176,10 @@ export class Licences extends Component {
                 </Modal.Header>
                 <Modal.Content style={{textAlign:"center"}}>
                     <Form style={{display:"grid",gridTemplateRows:"1fr 1fr",gridTemplateColumns:"1fr",gridGap:"16px"}}>
-                        <Form.Field><label>Societe</label><Dropdown placeholder='Choisir un société' search selection onChange={this.handleChangeSociete} options={this.state.societesRaw.map(x=>{return{key:x._id,text:x.name,value:x._id}})} name="newSociete" /></Form.Field>
+                        <Form.Field>
+                            <label>Societe</label>
+                            <SocietePicker groupAppears={false} onChange={this.handleChangeSociete}/>
+                        </Form.Field>
                         <Form.Field><label>Numero de licence</label><input onChange={this.handleChange} placeholder="Numero de licence" name="newNumber"/></Form.Field>
                         <Form.Field>
                             <label>Véhicule associé</label>

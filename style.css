@@ -111,3 +111,10 @@ body {
 .gridValue{
   justify-self:start;
 }
+
+.labelBoard{
+  color:#505050;text-align: end
+}
+.valueBoard{
+  font-weight: bold;text-align: start
+}

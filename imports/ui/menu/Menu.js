@@ -19,16 +19,9 @@ class Menu extends Component {
         icon:"truck"
       },
       {
-        name:"commande",
-        active:"commande",
-        label:"Commandes",
-        display:true,
-        icon:"box"
-      },
-      {
-        name:"entretien",
-        active:"entretien",
-        label:"Entretien",
+        name:"entretiens",
+        active:"entretiens",
+        label:"Entretiens",
         display:true,
         icon:"clipboard check"
       },
@@ -46,6 +39,13 @@ class Menu extends Component {
         display:true,
         icon:"sitemap"
       },
+      {
+        name:"planning/"+new Date().getFullYear()+"/"+parseInt(new Date().getMonth()+1),
+        active:"planning",
+        label:"Planning",
+        display:true,
+        icon:"calendar"
+      }
     ],
     menuItemsAdmin:[
       {
@@ -56,16 +56,9 @@ class Menu extends Component {
         icon:"truck"
       },
       {
-        name:"commande",
-        active:"commande",
-        label:"Commandes",
-        display:true,
-        icon:"box"
-      },
-      {
-        name:"entretien",
-        active:"entretien",
-        label:"Entretien",
+        name:"entretiens",
+        active:"entretiens",
+        label:"Entretiens",
         display:true,
         icon:"clipboard check"
       },
@@ -84,17 +77,18 @@ class Menu extends Component {
         icon:"sitemap"
       },
       {
+        name:"planning/"+new Date().getFullYear()+"/"+parseInt(new Date().getMonth()+1),
+        active:"planning",
+        label:"Planning",
+        display:true,
+        icon:"calendar"
+      },
+      {
         name:"compte",
         active:"compte",
         label:"Compte",
         display:true,
         icon:"user"
-      },{
-        name:"administration/kpi",
-        active:"kpi",
-        label:"KPI",
-        display:true,
-        icon:"chart line"
       },
       {
         name:"administration/accounts",

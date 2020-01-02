@@ -1,0 +1,13 @@
+type MechDay{
+    day:Int!
+    month:Int!
+    year:Int!
+    today: Boolean!
+    dow: Int!
+    entretiens:[Entretien]
+}
+
+extend type Query{
+    entretiensPopulatedMonth(month:Int!,year:Int!) : [MechDay]
+    entretiensPopulatedMonthByUser(month:Int!,year:Int!) : [MechDay]
+}

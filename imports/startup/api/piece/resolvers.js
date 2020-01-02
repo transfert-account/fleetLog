@@ -31,7 +31,7 @@ export default {
             }
             throw new Error('Unauthorized');
         },
-        deleteLicence(obj, {_id},{user}){
+        deletePiece(obj, {_id},{user}){
             if(user._id){
                 Pieces.remove({
                     _id:new Mongo.ObjectID(_id)
@@ -40,7 +40,7 @@ export default {
             }
             throw new Error('Unauthorized');
         },
-        editLicence(obj, {_id,name},{user}){
+        editPiece(obj, {_id,name},{user}){
             if(user._id){
                 Pieces.update(
                     {

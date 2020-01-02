@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Route, Switch, Redirect } from 'react-router-dom';
 import Home from './Home';
 import Vehicles from './Vehicles';
+import Vehicle from './Vehicle';
 import Controls from './Controls';
 import Licences from './Licences';
 import Rentals from './Rentals';
@@ -10,6 +11,9 @@ import Accounts from './Accounts';
 import Content from './Content';
 import Equipements from './Equipements';
 import Fournisseurs from './Fournisseurs';
+import Planning from './Planning';
+import Entretiens from './Entretiens';
+import Entretien from './Entretien';
 import Pieces from './Pieces';
 import { UserContext } from '../../contexts/UserContext';
 
@@ -38,11 +42,17 @@ class PageBody extends Component {
           <Route exact path='/' component={Home}/>
           
           <Route exact path='/parc/vehicles' component={Vehicles}/>
+          <Route exact path='/parc/vehicle/:_id' component={Vehicle}/>
           <Route exact path='/parc/controls' component={Controls}/>
           <Route exact path='/parc/licences' component={Licences}/>
           <Route exact path='/parc/rentals' component={Rentals}/>
 
           <Route exact path='/fournisseurs' component={Fournisseurs}/>
+
+          <Route exact path='/entretiens' component={Entretiens}/>
+          <Route exact path='/entretien/:_id' component={Entretien}/>
+
+          <Route exact path='/planning/:y/:m' component={Planning}/>
 
           <Route exact path='/compte' component={Compte}/>
           
@@ -59,11 +69,17 @@ class PageBody extends Component {
           <Route exact path='/' component={Home}/>
 
           <Route exact path='/parc/vehicles' component={Vehicles}/>
+          <Route exact path='/parc/vehicle/:_id' component={Vehicle}/>
           <Route exact path='/parc/controls' component={Controls}/>
           <Route exact path='/parc/licences' component={Licences}/>
           <Route exact path='/parc/rentals' component={Rentals}/>
 
           <Route exact path='/fournisseurs' component={Fournisseurs}/>
+
+          <Route exact path='/entretiens' component={Entretiens}/>
+          <Route exact path='/entretien/:_id' component={Entretien}/>
+
+          <Route exact path='/planning/:y/:m' component={Planning}/>
 
           <Route exact path='/compte' component={Compte}/>
           <Redirect from='*' to={'/'}/>

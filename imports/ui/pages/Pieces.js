@@ -29,7 +29,6 @@ export class Pieces extends Component {
         `,
         piecesRaw:[],
         pieces : type => {
-            console.log(this.state.piecesRaw)
             let displayed = Array.from(this.state.piecesRaw);
             if(this.state.piecesFilter.length>1){
                 displayed = displayed.filter(p =>
@@ -49,7 +48,7 @@ export class Pieces extends Component {
                 p.type == type
             );
             return displayed.map(p =>(
-                <PieceRow loadPieces={this.loadPieces} key={p._id} piece={p}/>
+                <PieceRow loadAllPieces={this.loadAllPieces} key={p._id} piece={p}/>
             ))
         }
     }

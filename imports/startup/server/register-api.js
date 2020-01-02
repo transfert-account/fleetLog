@@ -28,7 +28,19 @@ import FournisseurResolvers from '../api/fournisseur/resolvers.js';
 import PieceSchema from '../api/piece/Piece.graphql';
 import PieceResolvers from '../api/piece/resolvers.js';
 
-// #0155
+import EntretienSchema from '../api/entretien/Entretien.graphql';
+import EntretienResolvers from '../api/entretien/resolvers.js';
+
+import CommandeSchema from '../api/commande/Commande.graphql';
+import CommandeResolvers from '../api/commande/resolvers.js';
+
+import PlanningSchema from '../api/planning/Planning.graphql';
+import PlanningResolvers from '../api/planning/resolvers.js';
+
+import VolumeSchema from '../api/volume/Volume.graphql';
+import VolumeResolvers from '../api/volume/resolvers.js';
+
+// #0176
 
 const typeDefs = [
     UserSchema,
@@ -38,7 +50,11 @@ const typeDefs = [
     EquipementSchema,
     LicenceSchema,
     FournisseurSchema,
-    PieceSchema
+    PieceSchema,
+    EntretienSchema,
+    CommandeSchema,
+    PlanningSchema,
+    VolumeSchema
 
 ];
 
@@ -50,7 +66,11 @@ const resolvers = merge(
     EquipementResolvers,
     LicenceResolvers,
     FournisseurResolvers,
-    PieceResolvers
+    PieceResolvers,
+    EntretienResolvers,
+    CommandeResolvers,
+    PlanningResolvers,
+    VolumeResolvers
 );
 
 const server = new ApolloServer({

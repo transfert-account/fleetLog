@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react'
 import { Table, Dropdown, Icon, Message, Input, Button, Modal } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
-import VehiclePicker from '../atoms/VehiclePicker';
 import gql from 'graphql-tag';
 
 class FournisseurRow extends Component {

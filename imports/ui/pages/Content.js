@@ -1,6 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import { Segment, Dropdown, Modal, Menu, Button, Header, Icon, Form } from 'semantic-ui-react';
+import { Segment, Modal, Menu, Button, Header, Icon, Form } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
+import SocietePicker from '../atoms/SocietePicker';
+import VolumePicker from '../atoms/VolumePicker';
 import { withRouter } from 'react-router-dom';
 import gql from 'graphql-tag';
 
@@ -8,7 +10,9 @@ export class Content extends Component {
 
   state = {
     selected:false,
-    societesRaw:[],
+    newVolume:0.0,
+    needToRefreshSocietes:false,
+    needToRefreshVolumes:false,
     addSocieteQuery : gql`
         mutation addSociete($trikey:String!,$name:String!){
             addSociete(trikey:$trikey,name:$name){
@@ -35,18 +39,25 @@ export class Content extends Component {
                 name
             }
         }
+    `,
+    addVolumeQuery : gql`
+        mutation addVolume($meterCube:Float!){
+            addVolume(meterCube:$meterCube)
+        }
+    `,
+    deleteVolumeQuery : gql`
+        mutation deleteVolume($_id:String!){
+            deleteVolume(_id:$_id)
+        }
+    `,
+    volumesQuery : gql`
+        query volumes{
+            volumes{
+                _id
+                meterCube
+            }
+        }
     `
-  }
-
-  loadSocietes = () => {
-    this.props.client.query({
-        query:this.state.societesQuery,
-        fetchPolicy:"network-only"
-    }).then(({data})=>{
-        this.setState({
-            societesRaw:data.societes
-        })
-    })
   }
 
   handleChange = e =>{
@@ -55,8 +66,14 @@ export class Content extends Component {
     });
   }
 
-  handleChangeSociete = (e, { value }) => this.setState({ selectedSociete:value })
+  handleVolumeChange = e =>{
+    this.setState({
+      newVolume : parseFloat(e.target.value)
+    });
+  }
 
+  //Societes
+  handleChangeSociete = (e, { value }) => this.setState({ selectedSociete:value })
   showAddSociete = () => {
     this.setState({
         openAddSociete:true
@@ -77,7 +94,6 @@ export class Content extends Component {
         openDelSociete:false
     })
   }
-
   addSociete = () => {
     this.closeAddSociete()
     this.props.client.mutate({
@@ -87,10 +103,11 @@ export class Content extends Component {
             name:this.state.nameSociete
         }
     }).then(({data})=>{
-        this.loadSocietes();
+        this.setState({
+            needToRefreshSocietes:true
+        })
     })
   }
-
   deleteSociete = () => {
       this.closeDelSociete()
       this.props.client.mutate({
@@ -99,7 +116,68 @@ export class Content extends Component {
             _id:this.state.selectedSociete
         }
     }).then(({data})=>{
-        this.loadSocietes();
+        this.setState({
+            needToRefreshSocietes:true
+        })
+    })
+  }
+  didRefreshSocietes = () => {
+    this.setState({
+        needToRefreshSocietes:false
+    })
+  }
+
+  //Volume
+  handleChangeVolume = (e, { value }) => this.setState({ selectedVolume:value })
+  showAddVolume = () => {
+    this.setState({
+        openAddVolume:true
+    })
+  }
+  showDelVolume = () => {
+    this.setState({
+        openDelVolume:true
+    })
+  }
+  closeAddVolume = () => {
+    this.setState({
+        openAddVolume:false
+    })
+  }
+  closeDelVolume = () => {
+    this.setState({
+        openDelVolume:false
+    })
+  }
+  addVolume = () => {
+    this.closeAddVolume()
+    this.props.client.mutate({
+        mutation:this.state.addVolumeQuery,
+        variables:{
+            meterCube:this.state.newVolume
+        }
+    }).then(({data})=>{
+        this.setState({
+            needToRefreshVolumes:true
+        })
+    })
+  }
+  deleteVolume = () => {
+      this.closeDelVolume()
+      this.props.client.mutate({
+        mutation:this.state.deleteVolumeQuery,
+        variables:{
+            _id:this.state.selectedVolume
+        }
+    }).then(({data})=>{
+        this.setState({
+            needToRefreshVolumes:true
+        })
+    })
+  }
+  didRefreshVolumes = () => {
+    this.setState({
+        needToRefreshVolumes:false
     })
   }
 
@@ -125,32 +203,39 @@ export class Content extends Component {
     }
   }
 
-  componentDidMount = () => {
-      this.loadSocietes()
-  }
-
   render() {
     return (
         <Fragment>
             <div>
                 <div style={{display:"flex",marginBottom:"32px",justifyContent:"space-between"}}>
-                {this.getMenu()}
+                    {this.getMenu()}
                 </div>
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"32px"}}>
                     <Segment raised style={{display:"grid",gridGap:"16px",placeSelf:"stretch",marginTop:"16px",padding:"24px 0",gridTemplateColumns:"auto 1fr auto",gridTemplateRows:"auto 1fr"}}>
                         <Header style={{gridColumnStart:"2",placeSelf:"center"}} as='h2'>
                             <Icon name='sitemap' />
-                            <Header.Content>Gérer les sociétés du groupe</Header.Content>
+                            <Header.Content>Sociétés du groupe</Header.Content>
                         </Header>
                         <Form style={{gridRowStart:"2",gridColumnEnd:"span 3",placeSelf:"center",display:"grid",gridTemplateColumns:"4fr 1fr 1fr",gridTemplateRows:"1fr 1fr",gridGap:"8px",gridColumnGap:"32px",margin:"16px 48px 0 48px"}}>
-                            <Dropdown placeholder='Choisir un société' search selection onChange={this.handleChangeSociete} value={this.state.selectedSociete} options={this.state.societesRaw.map(x=>{return{key:x._id,text:x.name,value:x._id}})} />
+                            <SocietePicker didRefresh={this.didRefreshSocietes} needToRefresh={this.state.needToRefreshSocietes} groupAppears={false} onChange={this.handleChangeSociete} value={this.state.selectedSociete} />
                             <Button color="red" onClick={this.showDelSociete} icon labelPosition='right'>Supprimer<Icon name='trash'/></Button>
                             <Button color="blue" onClick={this.showAddSociete} icon labelPosition='right'>Créer<Icon name='plus'/></Button>
                         </Form>
                     </Segment>
+                    <Segment raised style={{display:"grid",gridGap:"16px",placeSelf:"stretch",marginTop:"16px",padding:"24px 0",gridTemplateColumns:"auto 1fr auto",gridTemplateRows:"auto 1fr"}}>
+                        <Header style={{gridColumnStart:"2",placeSelf:"center"}} as='h2'>
+                            <Icon name='expand arrows alternate' />
+                            <Header.Content>Volumes des véhicules</Header.Content>
+                        </Header>
+                        <Form style={{gridRowStart:"2",gridColumnEnd:"span 3",placeSelf:"center",display:"grid",gridTemplateColumns:"4fr 1fr 1fr",gridTemplateRows:"1fr 1fr",gridGap:"8px",gridColumnGap:"32px",margin:"16px 48px 0 48px"}}>
+                            <VolumePicker didRefresh={this.didRefreshVolumes} needToRefresh={this.state.needToRefreshVolumes} onChange={this.handleChangeVolume} value={this.state.selectedVolume} />
+                            <Button color="red" onClick={this.showDelVolume} icon labelPosition='right'>Supprimer<Icon name='trash'/></Button>
+                            <Button color="blue" onClick={this.showAddVolume} icon labelPosition='right'>Ajouter<Icon name='plus'/></Button>
+                        </Form>
+                    </Segment>
                 </div>
             </div>
-            <Modal size="tiny" closeOnDimmerClick={false} open={this.state.openAddSociete} onClose={this.closeAddSociete} closeIcon>
+            <Modal size="mini" closeOnDimmerClick={false} open={this.state.openAddSociete} onClose={this.closeAddSociete} closeIcon>
                 <Modal.Header>
                     Création de la société
                 </Modal.Header>
@@ -166,10 +251,31 @@ export class Content extends Component {
             </Modal>
             <Modal closeOnDimmerClick={false} open={this.state.openDelSociete} onClose={this.closeDelSociete} closeIcon>
                 <Modal.Header>
-                    Suppression de la société
+                    Suppression de la société : êtes vous sûr ?
                 </Modal.Header>
                 <Modal.Actions>
                     <Button color="red" onClick={this.deleteSociete}>Supprimer</Button>
+                </Modal.Actions>
+            </Modal>
+            <Modal size="mini" closeOnDimmerClick={false} open={this.state.openAddVolume} onClose={this.closeAddVolume} closeIcon>
+                <Modal.Header>
+                    Ajout du volume
+                </Modal.Header>
+                <Modal.Content style={{textAlign:"center"}}>
+                    <Form style={{display:"grid",gridTemplateRows:"1fr 1fr 1fr",gridTemplateColumns:"1fr 1fr 1fr 1fr 1fr",gridGap:"16px"}}>
+                        <Form.Field><label>Volume</label><input onChange={this.handleVolumeChange} name="newVolume"/></Form.Field>
+                    </Form>
+                </Modal.Content>
+                <Modal.Actions>
+                    <Button color="blue" onClick={this.addVolume}>Créer</Button>
+                </Modal.Actions>
+            </Modal>
+            <Modal closeOnDimmerClick={false} open={this.state.openDelVolume} onClose={this.closeDelVolume} closeIcon>
+                <Modal.Header>
+                    Suppression du volume
+                </Modal.Header>
+                <Modal.Actions>
+                    <Button color="red" onClick={this.deleteVolume}>Supprimer</Button>
                 </Modal.Actions>
             </Modal>
         </Fragment>

@@ -354,7 +354,7 @@ class ControlRow extends Component {
                 </Modal>
                 <Modal closeOnDimmerClick={false} open={this.state.openUpdateControl} onClose={this.closeUpdateControl} closeIcon>
                     <Modal.Header>
-                        Mise à jour la date de dernier contrôle de l'equipement :
+                        Mise à jour du contrôle de l'equipement :
                     </Modal.Header>
                     <Modal.Content style={{textAlign:"center"}}>
                         <Form style={{display:"grid",margin:"auto 25%",gridTemplateRows:"1fr",gridTemplateColumns:"1fr",gridGap:"16px"}}>

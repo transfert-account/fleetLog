@@ -94,9 +94,12 @@ export class Accounts extends Component {
         query:this.state.societesQuery,
         fetchPolicy:"network-only"
     }).then(({data})=>{
-        data.societes.push({_id:"noidthisisgroupvisibility",name:"Groupe",trikey:"GRP"})
+        let societes = Array.from([{_id:"noidthisisgroupvisibility",name:"Groupe",trikey:"GRP"}]);
+        data.societes.map(s=>{
+          societes.push(s)
+        });
         this.setState({
-            societesRaw:data.societes
+            societesRaw:societes
         })
     })
   }

@@ -1,7 +1,9 @@
 import React, { Component, Fragment } from 'react'
-import { Table, Dropdown, Icon, Message, Input, Label, Button, Modal, Form } from 'semantic-ui-react';
+import { Table, Icon, Message, Input, Label, Button, Modal, Form } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
-import ModalDatePicker from '../atoms/ModalDatePicker'
+import SocietePicker from '../atoms/SocietePicker';
+import ModalDatePicker from '../atoms/ModalDatePicker';
+import { withRouter } from 'react-router-dom';
 import gql from 'graphql-tag';
 
 class VehiclesRow extends Component {
@@ -84,21 +86,19 @@ class VehiclesRow extends Component {
         });
     }
     
+    navigateToVehicle = () => {
+        this.props.history.push("/parc/vehicle/"+this.state._id);
+    }
+
     handleChangeSociete = (e, { value }) => this.setState({ newSociete:value })    
 
-    showDelete = () => {
-        this.setState({openDelete:true})
-    }
     showDocs = () => {
         this.setState({openDocs:true})
     }
     showDatePicker = target => {
         this.setState({openDatePicker:true,datePickerTarget:target})
     }
-
-    closeDelete = () => {
-        this.setState({openDelete:false})
-    }
+ 
     closeDocs = () => {
         this.setState({openDocs:false})
     }
@@ -125,17 +125,7 @@ class VehiclesRow extends Component {
         this.setState({editing:true})
     }
 
-    deleteVehicle = () => {
-        this.closeDelete();
-        this.props.client.mutate({
-            mutation:this.state.deleteVehicleQuery,
-            variables:{
-                _id:this.state._id,
-            }
-        }).then(({data})=>{
-            this.props.loadVehicles();
-        })
-    }
+    
 
     saveEdit = () => {
         this.closeEdit();
@@ -177,7 +167,10 @@ class VehiclesRow extends Component {
                     <Table.Row>
                         <Table.Cell colSpan="14" style={{padding:"32px"}}>
                             <Form style={{display:"grid",gridTemplateRows:"1fr 1fr 1fr",gridTemplateColumns:"1fr 1fr 1fr 1fr 1fr",gridGap:"16px"}}>
-                                <Form.Field><label>Societe</label><Dropdown value={this.state.newSociete} placeholder='Choisir un société' search selection onChange={this.handleChangeSociete} options={this.props.societesRaw.map(x=>{return{key:x._id,text:x.name,value:x._id}})} name="newSociete" /></Form.Field>
+                                <Form.Field>
+                                    <label>Societe</label>
+                                    <SocietePicker groupAppears={true} onChange={this.handleChangeSociete} value={this.state.newSociete}/>
+                                </Form.Field>
                                 <Form.Field><label>Registration</label><input value={this.state.newRegistration} onChange={this.handleChange} placeholder="registration" name="newRegistration"/></Form.Field>
                                 <Form.Field><label>FirstRegistrationDate</label><input defaultValue={this.state.newFirstRegistrationDate} onFocus={()=>{this.showDatePicker("newFirstRegistrationDate")}} placeholder="firstRegistrationDate" name="newFirstRegistrationDate"/></Form.Field>
                                 <Form.Field><label>Km</label><input value={this.state.newKm} type="number" onChange={this.handleChange} placeholder="km" name="newKm"/></Form.Field>
@@ -225,8 +218,7 @@ class VehiclesRow extends Component {
                         </Table.Cell>
                         <Table.Cell style={{textAlign:"center"}}>
                             <Button circular style={{color:"#a29bfe"}} inverted icon icon='folder open' onClick={this.showDocs}/>
-                            <Button circular style={{color:"#2980b9"}} inverted icon icon='edit' onClick={this.showEdit}/>    
-                            <Button circular style={{color:"#e74c3c"}} inverted icon icon='trash' onClick={this.showDelete}/>
+                            <Button circular style={{color:"#2980b9"}} inverted icon icon='arrow right' onClick={this.navigateToVehicle}/>
                         </Table.Cell>
                     </Table.Row>
                     <Modal closeOnDimmerClick={false} open={this.state.openDocs} onClose={this.closeDocs} closeIcon>
@@ -291,4 +283,4 @@ const withUserContext = WrappedComponent => props => (
     </UserContext.Consumer>
   )
   
-export default wrappedInUserContext = withUserContext(VehiclesRow);
+export default wrappedInUserContext = withRouter(withUserContext(VehiclesRow));

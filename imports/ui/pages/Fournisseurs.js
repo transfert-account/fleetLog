@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Icon,Menu,Input,Button,Table,Modal,Form,Dropdown } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 import FournisseurRow from '../molecules/FournisseurRow';
-import VehiclePicker from '../atoms/VehiclePicker';
 import { gql } from 'apollo-server-express'
 
 class Fournisseurs extends Component {
@@ -99,7 +98,7 @@ class Fournisseurs extends Component {
     return (
         <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"32px",gridTemplateRows:"auto 1fr",gridTemplateColumns:"auto 1fr auto"}}>
             <Input style={{justifySelf:"stretch",gridColumnEnd:"span 2"}} name="storeFilter" onChange={e=>{this.handleFilter(e.target.value)}} icon='search' placeholder='Rechercher un item ... (3 caractères minimum)' />
-            <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddFournisseur} icon labelPosition='right'>Ajouter une fournisseur<Icon name='plus'/></Button>
+            <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddFournisseur} icon labelPosition='right'>Ajouter un fournisseur<Icon name='plus'/></Button>
             <div style={{gridRowStart:"2",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                 <Table style={{marginBottom:"0"}} celled selectable color="blue" compact>
                     <Table.Header>
@@ -118,7 +117,7 @@ class Fournisseurs extends Component {
             </div>
             <Modal closeOnDimmerClick={false} open={this.state.openAddFournisseur} onClose={this.closeAddFournisseur} closeIcon>
                 <Modal.Header>
-                    Création de la fournisseur
+                    Création du fournisseur
                 </Modal.Header>
                 <Modal.Content style={{textAlign:"center"}}>
                     <Form style={{display:"grid",gridTemplateRows:"1fr 1fr",gridTemplateColumns:"1fr",gridGap:"16px"}}>

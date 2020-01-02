@@ -1,0 +1,13 @@
+type Volume{
+    _id: String
+    meterCube: Float
+}
+
+extend type Query{
+    volumes : [Volume]
+}
+
+extend type Mutation{
+    addVolume(meterCube:Float!): Boolean!
+    deleteVolume(_id:String!): Boolean!
+}
