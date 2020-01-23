@@ -60,11 +60,13 @@ class Entretiens extends Component {
                         km
                         brand
                         model
-                        volume
+                        volume{
+                            _id
+                            meterCube
+                        }
                         payload
                         color
                         insurancePaid
-                        endDate
                         property
                     }
                 }

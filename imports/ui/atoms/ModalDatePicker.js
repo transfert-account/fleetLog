@@ -23,20 +23,23 @@ export class ModalDatePicker extends Component {
         </ModalHeader>
         <ModalContent style={{padding:"0"}}>
           <InfiniteCalendar
+              maxDate={this.props.maxDate}
+              max={this.props.maxDate}
               displayOptions={{
                 showHeader: false
               }}
               locale={{
-              weekStartsOn: 1,
-              locale: require('date-fns/locale/fr'),
-              headerFormat: 'dddd, D MMM',
-              weekdays: ["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"],
-              blank: 'Selectionnez une date',
-              todayLabel: {
-                long: 'Aujourd\'hui',
-                short: 'Auj.'
+                weekStartsOn: 1,
+                locale: require('date-fns/locale/fr'),
+                headerFormat: 'dddd, D MMM',
+                weekdays: ["Dim","Lun","Mar","Mer","Jeu","Ven","Sam"],
+                blank: 'Selectionnez une date',
+                todayLabel: {
+                  long: 'Aujourd\'hui',
+                  short: 'Auj.'
+                }
               }
-            }}
+            }
             theme={{
               selectionColor: 'rgba(44, 62, 80,1.0)',
               textColor: {
@@ -54,7 +57,7 @@ export class ModalDatePicker extends Component {
             width={"100%"}
             height={480}
             selected={selected}
-            disabledDays={[7,6]}
+            //disabledDays={[7,6]}
             onSelect={this.onSelect}
           />
         </ModalContent>

@@ -1,18 +1,21 @@
 import React, { Component } from 'react';
-import { Icon,Menu,Input,Button,Table,Modal,Form,Dropdown } from 'semantic-ui-react';
+import { Icon,Menu,Input,Button,Table,Modal,Form,Loader } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 import LicenceRow from '../molecules/LicenceRow';
 import SocietePicker from '../atoms/SocietePicker';
 import VehiclePicker from '../atoms/VehiclePicker';
+import ModalDatePicker from '../atoms/ModalDatePicker';
 import { gql } from 'apollo-server-express'
 
 export class Licences extends Component {
 
   state={
+    loading:true,
     licenceFilter:"",
     openAddLicence:false,
     newSociete:"",
     newNumber:"",
+    newEndDate:"",
     newVehicle:"",
     societesRaw: [],
     licencesRaw : [],
@@ -38,8 +41,8 @@ export class Licences extends Component {
       ))
     },
     addLicenceQuery : gql`
-        mutation addLicence($societe:String!,$number:String!,$vehicle:String!){
-          addLicence(societe:$societe,number:$number,vehicle:$vehicle)
+        mutation addLicence($societe:String!,$number:String!,$vehicle:String!,$endDate:String!){
+          addLicence(societe:$societe,number:$number,vehicle:$vehicle,endDate:$endDate)
         }
     `,
     licencesQuery : gql`
@@ -53,15 +56,18 @@ export class Licences extends Component {
             }
             number
             shiftName
+            endDate
             vehicle{
               _id
               registration
               km
               brand
               model
-              volume
+              volume{
+                  _id
+                  meterCube
+              }
               payload
-              property
             }
           }
         }
@@ -76,6 +82,19 @@ export class Licences extends Component {
         }
     `,
   }
+
+    onSelectDatePicker = date => {
+        this.setState({
+            [this.state.datePickerTarget]:date.getDate().toString().padStart(2, '0')+"/"+parseInt(date.getMonth()+1).toString().padStart(2, '0')+"/"+date.getFullYear().toString().padStart(4, '0')
+        })
+    }
+
+    showDatePicker = target => {
+        this.setState({openDatePicker:true,datePickerTarget:target})
+    }
+    closeDatePicker = () => {
+        this.setState({openDatePicker:false,datePickerTarget:""})
+    }
 
   handleChange = e =>{
     this.setState({
@@ -101,16 +120,17 @@ export class Licences extends Component {
     })
   }
 
-  loadLicences = () => {
-    this.props.client.query({
-        query:this.state.licencesQuery,
-        fetchPolicy:"network-only"
-    }).then(({data})=>{
-        this.setState({
-          licencesRaw:data.licences
+    loadLicences = () => {
+        this.props.client.query({
+            query:this.state.licencesQuery,
+            fetchPolicy:"network-only"
+        }).then(({data})=>{
+            this.setState({
+                loading:false,
+                licencesRaw:data.licences
+            })
         })
-    })
-  }
+    }
 
   addLicence = () => {
     this.closeAddLicence()
@@ -119,7 +139,8 @@ export class Licences extends Component {
         variables:{
             societe:this.state.newSociete,
             number:this.state.newNumber,
-            vehicle:this.state.newVehicle
+            vehicle:this.state.newVehicle,
+            endDate:this.state.newEndDate
         }
     }).then(({data})=>{
         this.loadLicences();
@@ -144,55 +165,69 @@ export class Licences extends Component {
   }
 
   render() {
-    return (
-        <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"32px",gridTemplateRows:"auto 1fr",gridTemplateColumns:"auto 1fr auto"}}>
-            <Menu style={{cursor:"pointer",marginBottom:"auto"}} icon='labeled'>
-                <Menu.Item color="blue" name='vehicules' onClick={()=>{this.props.history.push("/parc/vehicles")}}><Icon name='truck'/>Vehicules</Menu.Item>
-                <Menu.Item color="blue" name='controls' onClick={()=>{this.props.history.push("/parc/controls")}}><Icon name='clipboard check'/>Contrôles</Menu.Item>
-                <Menu.Item color="blue" name='licences' active onClick={()=>{this.props.history.push("/parc/licences")}}><Icon name='drivers license'/>Licences</Menu.Item>
-                <Menu.Item color="blue" name='rentals' onClick={()=>{this.props.history.push("/parc/rentals")}} ><Icon name="calendar alternate outline"/> Locations</Menu.Item>
-            </Menu>
-            <Input style={{justifySelf:"stretch"}} name="storeFilter" onChange={e=>{this.handleFilter(e.target.value)}} icon='search' placeholder='Rechercher un item ... (3 caractères minimum)' />
-            <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddLicence} icon labelPosition='right'>Ajouter une licence<Icon name='plus'/></Button>
-            <div style={{gridRowStart:"2",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
-                <Table style={{marginBottom:"0"}} celled selectable color="blue" compact>
-                    <Table.Header>
-                        <Table.Row textAlign='center'>
-                            <Table.HeaderCell>Societe</Table.HeaderCell>
-                            <Table.HeaderCell>Numero de licence</Table.HeaderCell>
-                            <Table.HeaderCell>Véhicule associé</Table.HeaderCell>
-                            <Table.HeaderCell>Nom de tournée</Table.HeaderCell>
-                            <Table.HeaderCell>Actions</Table.HeaderCell>
-                        </Table.Row>
-                    </Table.Header>
-                    <Table.Body>
-                        {this.state.licences()}
-                    </Table.Body>
-                </Table>
+    if(this.state.loading){
+        return (
+            <div>
+                <Loader size='massive' active={(this.state.loading)}>Chargement des licences</Loader>
             </div>
-            <Modal closeOnDimmerClick={false} open={this.state.openAddLicence} onClose={this.closeAddLicence} closeIcon>
-                <Modal.Header>
-                    Création de la licence
-                </Modal.Header>
-                <Modal.Content style={{textAlign:"center"}}>
-                    <Form style={{display:"grid",gridTemplateRows:"1fr 1fr",gridTemplateColumns:"1fr",gridGap:"16px"}}>
-                        <Form.Field>
-                            <label>Societe</label>
-                            <SocietePicker groupAppears={false} onChange={this.handleChangeSociete}/>
-                        </Form.Field>
-                        <Form.Field><label>Numero de licence</label><input onChange={this.handleChange} placeholder="Numero de licence" name="newNumber"/></Form.Field>
-                        <Form.Field>
-                            <label>Véhicule associé</label>
-                            <VehiclePicker onChange={this.handleChangeVehicle}/>
-                        </Form.Field>
-                    </Form>
-                </Modal.Content>
-                <Modal.Actions>
-                    <Button color="blue" onClick={this.addLicence}>Créer</Button>
-                </Modal.Actions>
-            </Modal>
-        </div>
-    )
+        )
+    }else{
+        return (
+            <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"32px",gridTemplateRows:"auto 1fr",gridTemplateColumns:"auto 1fr auto"}}>
+                <Menu style={{cursor:"pointer",marginBottom:"auto"}} icon='labeled'>
+                    <Menu.Item color="blue" name='vehicules' onClick={()=>{this.props.history.push("/parc/vehicles")}}><Icon name='truck'/>Vehicules</Menu.Item>
+                    <Menu.Item color="blue" name='controls' onClick={()=>{this.props.history.push("/parc/controls")}}><Icon name='clipboard check'/>Contrôles</Menu.Item>
+                    <Menu.Item color="blue" name='licences' active onClick={()=>{this.props.history.push("/parc/licences")}}><Icon name='drivers license'/>Licences</Menu.Item>
+                    <Menu.Item color="blue" name='locations' onClick={()=>{this.props.history.push("/parc/locations")}} ><Icon name="calendar alternate outline"/> Locations</Menu.Item>
+                </Menu>
+                <Input style={{justifySelf:"stretch"}} name="storeFilter" onChange={e=>{this.handleFilter(e.target.value)}} icon='search' placeholder='Rechercher un item ... (3 caractères minimum)' />
+                <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddLicence} icon labelPosition='right'>Ajouter une licence<Icon name='plus'/></Button>
+                <div style={{gridRowStart:"2",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
+                    <Table style={{marginBottom:"0"}} celled selectable color="blue" compact>
+                        <Table.Header>
+                            <Table.Row textAlign='center'>
+                                <Table.HeaderCell>Societe</Table.HeaderCell>
+                                <Table.HeaderCell>Numero de licence</Table.HeaderCell>
+                                <Table.HeaderCell>Véhicule associé</Table.HeaderCell>
+                                <Table.HeaderCell>Nom de tournée</Table.HeaderCell>
+                                <Table.HeaderCell>Fin de validité</Table.HeaderCell>
+                                <Table.HeaderCell>Actions</Table.HeaderCell>
+                            </Table.Row>
+                        </Table.Header>
+                        <Table.Body>
+                            {this.state.licences()}
+                        </Table.Body>
+                    </Table>
+                </div>
+                <Modal closeOnDimmerClick={false} open={this.state.openAddLicence} onClose={this.closeAddLicence} closeIcon>
+                    <Modal.Header>
+                        Création de la licence
+                    </Modal.Header>
+                    <Modal.Content style={{textAlign:"center"}}>
+                        <Form style={{display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"16px"}}>
+                            <Form.Field>
+                                <label>Societe</label>
+                                <SocietePicker groupAppears={false} onChange={this.handleChangeSociete}/>
+                            </Form.Field>
+                            <Form.Field><label>Numero de licence</label><input onChange={this.handleChange} placeholder="Numero de licence" name="newNumber"/></Form.Field>
+                            <Form.Field>
+                                <label>Véhicule associé</label>
+                                <VehiclePicker onChange={this.handleChangeVehicle}/>
+                            </Form.Field>
+                            <Form.Field>
+                                <label>Date de fin de validité</label>
+                                <Input value={this.state.newEndDate} placeholder="Fin de validité" onFocus={()=>{this.showDatePicker("newEndDate")}} name="newEndDate"/>
+                            </Form.Field>
+                        </Form>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <Button color="blue" onClick={this.addLicence}>Créer</Button>
+                    </Modal.Actions>
+                </Modal>
+                <ModalDatePicker onSelectDatePicker={this.onSelectDatePicker} closeDatePicker={this.closeDatePicker} open={this.state.openDatePicker}/>
+            </div>
+        )
+    }
   }
 }
 

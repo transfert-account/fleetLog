@@ -1,4 +1,4 @@
-import Vehicles from './vehicles.js';
+import Locations from './locations.js';
 import Societes from '../societe/societes.js';
 import Volumes from '../volume/volumes.js';
 import Equipements from '../equipement/equipements';
@@ -7,64 +7,64 @@ import moment from 'moment';
 import { Mongo } from 'meteor/mongo';
 export default {
     Query : {
-        vehicle(obj, {_id}, { user }){
-            let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(_id)});
-            vehicle.lastKmUpdate = vehicle.kms[vehicle.kms.length-1].reportDate
-            vehicle.km = vehicle.kms[vehicle.kms.length-1].kmValue
-            if(vehicle.payementFormat == "CRB"){
-                vehicle.property = false
+        location(obj, {_id}, { user }){
+            let location = Locations.findOne({_id:new Mongo.ObjectID(_id)});
+            location.lastKmUpdate = location.kms[location.kms.length-1].reportDate
+            location.km = location.kms[location.kms.length-1].kmValue
+            if(location.payementFormat == "CRB"){
+                location.property = false
             }else{
-                vehicle.property = true
+                location.property = true
             }
-            vehicle.property
-            if(vehicle.societe != null && vehicle.societe.length > 0){
-                vehicle.societe = Societes.findOne({_id:new Mongo.ObjectID(vehicle.societe)});
+            location.property
+            if(location.societe != null && location.societe.length > 0){
+                location.societe = Societes.findOne({_id:new Mongo.ObjectID(location.societe)});
             }else{
-                vehicle.societe = {_id:""};
+                location.societe = {_id:""};
             }
-            if(vehicle.volume != null && vehicle.volume.length > 0){
-                vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(vehicle.volume)});
+            if(location.volume != null && location.volume.length > 0){
+                location.volume = Volumes.findOne({_id:new Mongo.ObjectID(location.volume)});
             }else{
-                vehicle.volume = {_id:""};
+                location.volume = {_id:""};
             }
-            vehicle.equipements = Equipements.find({vehicle:vehicle._id._str}).fetch() || {};
-            vehicle.equipements.forEach((e,ei) => {
+            location.equipements = Equipements.find({location:location._id._str}).fetch() || {};
+            location.equipements.forEach((e,ei) => {
                 e.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)}) || {};
             });
-            return vehicle;
+            return location;
         },
-        vehicles(obj, args){
-            let vehicles = Vehicles.find().fetch() || {};
-            vehicles.forEach((v,i) => {
-                v.lastKmUpdate = v.kms[v.kms.length-1].reportDate
-                v.km = v.kms[v.kms.length-1].kmValue
-                if(v.payementFormat == "CRB"){
-                    v.property = false
+        locations(obj, args){
+            let locations = Locations.find().fetch() || {};
+            locations.forEach((l,i) => {
+                l.lastKmUpdate = l.kms[l.kms.length-1].reportDate
+                l.km = l.kms[l.kms.length-1].kmValue
+                if(l.payementFormat == "CRB"){
+                    l.property = false
                 }else{
-                    v.property = true
+                    l.property = true
                 }
-                if(v.volume != null && v.volume.length > 0){
-                    v.volume = Volumes.findOne({_id:new Mongo.ObjectID(v.volume)});
+                if(l.volume != null && l.volume.length > 0){
+                    l.volume = Volumes.findOne({_id:new Mongo.ObjectID(l.volume)});
                 }else{
-                    v.volume = {_id:""};
+                    l.volume = {_id:""};
                 }
-                if(v.societe != null && v.societe.length > 0){
-                    vehicles[i].societe = Societes.findOne({_id:new Mongo.ObjectID(v.societe)});
+                if(l.societe != null && l.societe.length > 0){
+                    locations[i].societe = Societes.findOne({_id:new Mongo.ObjectID(l.societe)});
                 }else{
-                    vehicles[i].societe = {_id:""};
+                    locations[i].societe = {_id:""};
                 }
-                v.equipements = Equipements.find({vehicle:v._id._str}).fetch() || {};
-                v.equipements.forEach((e,ei) => {
+                l.equipements = Equipements.find({location:l._id._str}).fetch() || {};
+                l.equipements.forEach((e,ei) => {
                     e.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)}) || {};
                 });
             });
-            return vehicles;
+            return locations;
         }
     },
     Mutation:{
-        addVehicle(obj, {societe,registration,firstRegistrationDate,km,lastKmUpdate,brand,model,volume,payload,color,insurancePaid,payementBeginDate,purchasePrice,monthlyPayement,payementOrg,payementFormat},{user}){
+        addLocation(obj, {societe,registration,firstRegistrationDate,km,lastKmUpdate,brand,model,volume,payload,color,insurancePaid,endDate,price,reason},{user}){
             if(user._id){
-                Vehicles.insert({
+                Locations.insert({
                     _id:new Mongo.ObjectID(),
                     societe:societe,
                     registration:registration,
@@ -80,19 +80,20 @@ export default {
                         kmValue:km,
                         reportDate:lastKmUpdate
                     }],
-                    payementBeginDate:payementBeginDate,
-                    purchasePrice:purchasePrice,
-                    monthlyPayement:monthlyPayement,
-                    payementOrg:payementOrg,
-                    payementFormat:payementFormat
+                    startDate:lastKmUpdate,
+                    endDate:endDate,
+                    price:price,
+                    reason:reason,
+                    reparation:0,
+                    rentalContract:""
                 });
                 return true;
             }
             throw new Error('Unauthorized');
         },
-        editVehicle(obj, {_id,societe,registration,firstRegistrationDate,brand,model,volume,payload,color,insurancePaid,endDate,property,purchasePrice,monthlyPayement,payementOrg,payementFormat},{user}){
+        editLocation(obj, {_id,societe,registration,firstRegistrationDate,brand,model,volume,payload,color,insurancePaid,startDate,endDate,reason,price},{user}){
             if(user._id){
-                Vehicles.update(
+                Locations.update(
                     {
                         _id: new Mongo.ObjectID(_id)
                     }, {
@@ -106,12 +107,10 @@ export default {
                             "payload":payload,
                             "color":color,
                             "insurancePaid":insurancePaid,
+                            "startDate":startDate,
                             "endDate":endDate,
-                            "property":property,
-                            "purchasePrice":purchasePrice,
-                            "monthlyPayement":monthlyPayement,
-                            "payementOrg":payementOrg,
-                            "payementFormat":payementFormat
+                            "reason":reason,
+                            "price":price
                         }
                     }
                 );                
@@ -119,19 +118,19 @@ export default {
             }
             throw new Error('Unauthorized');
         },
-        updateKm(obj, {_id,date,kmValue},{user}){
+        updateLocKm(obj, {_id,date,kmValue},{user}){
             if(user._id){
-                let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(_id)});
-                if(!moment(vehicle.kms[vehicle.kms.length-1].reportDate, "DD/MM/YYYY").diff(moment(date, "DD/MM/YYYY"))){
+                let location = Locations.findOne({_id:new Mongo.ObjectID(_id)});
+                if(!moment(location.kms[location.kms.length-1].reportDate, "DD/MM/YYYY").diff(moment(date, "DD/MM/YYYY"))){
                     throw new Error("Dernier relevé plus recent");
                 }
-                if(vehicle.kms[vehicle.kms.length-1].kmValue > kmValue){
+                if(location.kms[location.kms.length-1].kmValue > kmValue){
                     throw new Error("Kilométrage incohérent");
                 }
-                /*if(moment(vehicle.lastKmUpdate, "DD/MM/YYYY").diff(moment())){
+                /*if(moment(location.lastKmUpdate, "DD/MM/YYYY").diff(moment())){
                     throw new Error("Date de relevé dans le futur");
                 }*/
-                Vehicles.update(
+                Locations.update(
                     {
                         _id: new Mongo.ObjectID(_id)
                     }, {
@@ -141,7 +140,7 @@ export default {
                         }
                     }   
                 )
-                Vehicles.update(
+                Locations.update(
                     {
                         _id:new Mongo.ObjectID(_id)
                     },{
@@ -158,11 +157,11 @@ export default {
             }
             throw new Error('Unauthorized');
         },
-        deleteKm(obj, {vehicle,_id},{user}){
+        deleteLocKm(obj, {location,_id},{user}){
             if(user._id){
-                Vehicles.update(
+                Locations.update(
                     {
-                        _id:new Mongo.ObjectID(vehicle)
+                        _id:new Mongo.ObjectID(location)
                     },{
                         $pull: {
                             "kms": {
@@ -175,9 +174,9 @@ export default {
             }
             throw new Error('Unauthorized');
         },
-        deleteVehicle(obj, {_id},{user}){
+        deleteLocation(obj, {_id},{user}){
             if(user._id){
-                Vehicles.remove({
+                Locations.remove({
                     _id:new Mongo.ObjectID(_id)
                 });
                 return true;

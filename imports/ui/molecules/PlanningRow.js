@@ -8,23 +8,48 @@ export class PlanningRow extends Component {
         this.props.navigateToEntretien(this.props.entretien._id);
     }
 
+    triggerAffectToMe = () => {
+        this.props.triggerAffectToMe(this.props.entretien._id)
+    }
+
     render() {
-        return (
-            <Table.Row key={this.props.entretien._id}>
-                <Table.Cell style={{padding:"4px 32px"}} >{this.props.entretien.vehicle.registration}</Table.Cell>
-                <Table.Cell style={{padding:"0"}} textAlign='center'>
-                    {this.props.entretien.user}
-                </Table.Cell>
-                <Table.Cell>
-                    <Button onClick={this.navigate} color="blue" animated='fade'>
-                        <Button.Content hidden>Détails</Button.Content>
-                        <Button.Content visible>
-                            <Icon name='arrow right' />
-                        </Button.Content>
-                    </Button>
-                </Table.Cell>
-            </Table.Row>
-        )
+        if(this.props.active == "unaffected"){
+            return (
+                <Table.Row key={this.props.entretien._id}>
+                    <Table.Cell style={{padding:"4px 32px"}} >{this.props.entretien.vehicle.registration}</Table.Cell>
+                    <Table.Cell style={{padding:"4px 32px"}} >{this.props.entretien.title}</Table.Cell>
+                    <Table.Cell>
+                        <Button circular style={{color:"#3498db"}} inverted icon icon='arrow right' onClick={this.navigate}/>
+                        <Button circular style={{color:"#2ecc71"}} inverted icon icon='calendar check outline' onClick={this.triggerAffectToMe}/>
+                    </Table.Cell>
+                </Table.Row>
+            )
+        }
+        if(this.props.active == "affectedToMe"){
+            return (
+                <Table.Row key={this.props.entretien._id}>
+                    <Table.Cell style={{padding:"4px 32px"}} >{this.props.entretien.vehicle.registration}</Table.Cell>
+                    <Table.Cell style={{padding:"4px 32px"}} >{this.props.entretien.title}</Table.Cell>
+                    <Table.Cell style={{padding:"0"}} textAlign='center'>
+                        {this.props.entretien.occurenceDate}
+                    </Table.Cell>
+                    <Table.Cell>
+                        <Button circular style={{color:"#3498db"}} inverted icon icon='arrow right' onClick={this.navigate}/>
+                    </Table.Cell>
+                </Table.Row>
+            )
+        }
+        if(this.props.active == "selectedDay"){
+            return (
+                <Table.Row key={this.props.entretien._id}>
+                    <Table.Cell style={{padding:"4px 32px"}} >{this.props.entretien.vehicle.registration}</Table.Cell>
+                    <Table.Cell style={{padding:"4px 32px"}} >{this.props.entretien.title}</Table.Cell>
+                    <Table.Cell>
+                        <Button circular style={{color:"#3498db"}} inverted icon icon='arrow right' onClick={this.navigate}/>
+                    </Table.Cell>
+                </Table.Row>
+            )
+        }
     }
 }
 

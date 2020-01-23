@@ -1,0 +1,36 @@
+type Location{
+    _id:String
+    societe:Societe
+    registration:String
+    firstRegistrationDate:String
+    km:Int
+    kms:[DatedKm]
+    lastKmUpdate:String
+    brand:String
+    model:String
+    volume:Volume
+    payload:Float
+    color:String
+    cg:String
+    insurancePaid:Float
+    cv:String
+    startDate:String
+    endDate:String
+    price:Float
+    rentalContract:String
+    reason:String
+    reparation:Float
+}
+
+extend type Query{
+    location(_id: String!): Location
+    locations : [Location]
+}
+
+extend type Mutation{
+    addLocation(societe:String!,registration:String!,firstRegistrationDate:String!,km:Int!,lastKmUpdate:String!,brand:String!,model:String!,volume:String!,payload:Float!,color:String!,insurancePaid:Float!,price:Float!,endDate:String!,reason:String!): Boolean
+    editLocation(_id:String!,societe:String!,registration:String!,firstRegistrationDate:String!,brand:String!,model:String!,volume:String!,payload:Float!,color:String!,insurancePaid:Float!,price:Float!,startDate:String!,endDate:String!,reason:String!): Boolean
+    updateLocKm(_id:String!,date:String!,kmValue:Int!):Boolean
+    deleteLocKm(location:String!,_id:String!):Boolean
+    deleteLocation(_id:String!): Boolean
+}

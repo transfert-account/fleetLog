@@ -4,6 +4,7 @@ type Licence{
     number:String
     shiftName:String
     vehicle:Vehicle
+    endDate:String
 }
 
 extend type Query{
@@ -12,7 +13,7 @@ extend type Query{
 }
 
 extend type Mutation{
-    addLicence(societe:String!,number:String!,vehicle:String!): Boolean
+    addLicence(societe:String!,number:String!,vehicle:String!,endDate:String!): Boolean
     deleteLicence(_id:String!): Boolean
-    editLicence(_id:String!,societe:String!,number:String!,vehicle:String!,shiftName:String!):Boolean
+    editLicence(_id:String!,societe:String!,number:String!,vehicle:String!,shiftName:String!,endDate:String):Boolean
 }

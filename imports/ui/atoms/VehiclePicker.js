@@ -7,6 +7,7 @@ class VehiclePicker extends Component {
 
     state = {
         vehiclesRaw:[],
+        locationsRaw:[],
         vehiclesQuery : gql`
             query vehicles{
                 vehicles{
@@ -20,12 +21,40 @@ class VehiclePicker extends Component {
                     km
                     brand
                     model
-                    volume
+                    volume{
+                        _id
+                        meterCube
+                    }
                     payload
                     color
                 }
             }
-        `
+        `,
+        locationsQuery : gql`
+            query locations{
+                locations{
+                    _id
+                    societe{
+                        _id
+                        trikey
+                        name
+                    }
+                    registration
+                    km
+                    brand
+                    model
+                    volume{
+                        _id
+                        meterCube
+                    }
+                    payload
+                    color
+                }
+            }
+        `,
+        getVehiclesAndLocations : () => {
+            return this.state.vehiclesRaw.map(v=>{return ({...v,type:"vehicle"})}).concat(this.state.locationsRaw.map(l=>{return ({...l,type:"rental"})}));
+        }
     }
     
     loadVehicles = () => {
@@ -37,10 +66,22 @@ class VehiclePicker extends Component {
                 vehiclesRaw:data.vehicles
             })
         })
-      }
+    }
+
+    loadLocations = () => {
+        this.props.client.query({
+            query:this.state.locationsQuery,
+            fetchPolicy:"network-only"
+        }).then(({data})=>{
+            this.setState({
+                locationsRaw:data.locations
+            })
+        })
+    }
     
     componentDidMount = () => {
         this.loadVehicles();
+        this.loadLocations();
     }
 
     setVehicle = (e, { value }) => {
@@ -49,7 +90,7 @@ class VehiclePicker extends Component {
 
     render() {
         return (
-            <Dropdown search selection style={{marginLeft:"8px"}} defaultValue={this.props.defaultValue} options={this.state.vehiclesRaw.map(v=>{return{key:v._id,text:v.registration,value:v._id}})} placeholder=' [VEHICULE] ' onChange={this.setVehicle} />
+            <Dropdown search selection style={{marginLeft:"8px"}} defaultValue={this.props.defaultValue} options={this.state.getVehiclesAndLocations().map(v=>{return{key:v._id,text:v.registration,value:v._id}})} placeholder=' [VEHICULE] ' onChange={this.setVehicle} />
         )
     }
 }

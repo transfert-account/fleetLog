@@ -7,34 +7,34 @@ import moment from 'moment';
 import { withRouter } from 'react-router-dom';
 import gql from 'graphql-tag';
 
-class VehiclesRow extends Component {
+class LocationRow extends Component {
 
     state={
-        _id:this.props.vehicle._id,
-        newSociete:this.props.vehicle.societe._id,
-        newRegistration:this.props.vehicle.registration,
-        newFirstRegistrationDate:this.props.vehicle.firstRegistrationDate,
-        newKm:this.props.vehicle.km,
-        newLastKmUpdate:this.props.vehicle.lastKmUpdate,
-        newBrand:this.props.vehicle.brand,
-        newModel:this.props.vehicle.model,
-        newVolume:this.props.vehicle.volume.meterCube,
-        newPayload:this.props.vehicle.payload,
-        newColor:this.props.vehicle.color,
-        newInsurancePaid:this.props.vehicle.insurancePaid,
-        newPayementBeginDate:this.props.vehicle.payementBeginDate,
-        newProperty:this.props.vehicle.property,
+        _id:this.props.rental._id,
+        newSociete:this.props.rental.societe._id,
+        newRegistration:this.props.rental.registration,
+        newFirstRegistrationDate:this.props.rental.firstRegistrationDate,
+        newKm:this.props.rental.km,
+        newLastKmUpdate:this.props.rental.lastKmUpdate,
+        newBrand:this.props.rental.brand,
+        newModel:this.props.rental.model,
+        newVolume:this.props.rental.volume.meterCube,
+        newPayload:this.props.rental.payload,
+        newColor:this.props.rental.color,
+        newInsurancePaid:this.props.rental.insurancePaid,
+        newPayementBeginDate:this.props.rental.payementBeginDate,
+        newProperty:this.props.rental.property,
         openDelete:false,
         openDocs:false,
         editing:false,
-        editVehicleQuery : gql`
-            mutation editVehicle($_id:String!,$societe:String!,$registration:String!,$firstRegistrationDate:String!,$km:Int!,$lastKmUpdate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$insurancePaid:Float!,$payementBeginDate:String!,$property:Boolean!){
-                editVehicle(_id:$_id,societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,km:$km,lastKmUpdate:$lastKmUpdate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,payementBeginDate:$payementBeginDate,property:$property)
+        editLocationQuery : gql`
+            mutation editLocation($_id:String!,$societe:String!,$registration:String!,$firstRegistrationDate:String!,$km:Int!,$lastKmUpdate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$insurancePaid:Float!,$payementBeginDate:String!,$property:Boolean!){
+                editLocation(_id:$_id,societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,km:$km,lastKmUpdate:$lastKmUpdate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,payementBeginDate:$payementBeginDate,property:$property)
             }
         `,
-        deleteVehicleQuery : gql`
-            mutation deleteVehicle($_id:String!){
-                deleteVehicle(_id:$_id)
+        deleteLocationQuery : gql`
+            mutation deleteLocation($_id:String!){
+                deleteLocation(_id:$_id)
             }
         `,
     }
@@ -45,8 +45,8 @@ class VehiclesRow extends Component {
         });
     }
     
-    navigateToVehicle = () => {
-        this.props.history.push("/parc/vehicle/"+this.state._id);
+    navigateToLocation = () => {
+        this.props.history.push("/parc/location/"+this.state._id);
     }
 
     handleChangeSociete = (e, { value }) => this.setState({ newSociete:value })    
@@ -89,7 +89,7 @@ class VehiclesRow extends Component {
     saveEdit = () => {
         this.closeEdit();
         this.props.client.mutate({
-            mutation:this.state.editVehicleQuery,
+            mutation:this.state.editLocationQuery,
             variables:{
                 _id:this.state._id,
                 societe:this.state.newSociete,
@@ -107,7 +107,7 @@ class VehiclesRow extends Component {
                 property:this.state.newProperty
             }
         }).then(({data})=>{
-            this.props.loadVehicles();
+            this.props.loadLocation();
         })
     }
 
@@ -119,37 +119,40 @@ class VehiclesRow extends Component {
         
     }
 
-    getPayementProgress = () => {
-        let totalMonths = this.props.vehicle.purchasePrice/this.props.vehicle.monthlyPayement;
-        let monthsDone = parseInt(moment().diff(moment(this.props.vehicle.payementBeginDate,"DD/MM/YYYY"),'months', true));
-        let monthsLeft = totalMonths - monthsDone;
-        return <Label color={parseInt(monthsLeft) == 0 ? "green" : "orange"}> {monthsLeft} mois restant avant propriété</Label>
+    getEndDateLabel = () => {
+        let daysLeft = parseInt(moment().diff(moment(this.props.rental.endDate,"DD/MM/YYYY"),'days', true))
+        if(daysLeft >= 7){
+            return <Label color="red"> {moment(this.props.rental.endDate, "DD/MM/YYYY").fromNow()}, le {this.props.rental.endDate}</Label>
+        }
+        if(daysLeft >= 7){
+            return <Label color="orange"> {moment(this.props.rental.endDate, "DD/MM/YYYY").fromNow()}, le {this.props.rental.endDate}</Label>
+        }
+        return <Label color="green"> {moment(this.props.rental.endDate, "DD/MM/YYYY").fromNow()}, le {this.props.rental.endDate}</Label>
     }
 
     render() {
         return (
             <Fragment>
                 <Table.Row>
-                    <Table.Cell>{this.props.vehicle.societe.name}</Table.Cell>
-                    <Table.Cell>{this.props.vehicle.registration}</Table.Cell>
-                    <Table.Cell>{this.props.vehicle.firstRegistrationDate}</Table.Cell>
-                    <Table.Cell>{this.props.vehicle.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km</Table.Cell>
-                    <Table.Cell>{moment(this.props.vehicle.lastKmUpdate, "DD/MM/YYYY").fromNow()}</Table.Cell>
-                    <Table.Cell>{this.props.vehicle.brand}</Table.Cell>
-                    <Table.Cell>{this.props.vehicle.model}</Table.Cell>
-                    <Table.Cell>{this.props.vehicle.volume.meterCube+" m²"}</Table.Cell>
-                    <Table.Cell>{this.props.vehicle.payload} t.</Table.Cell>
+                    <Table.Cell>{this.props.rental.societe.name}</Table.Cell>
+                    <Table.Cell>{this.props.rental.registration}</Table.Cell>
+                    <Table.Cell>{this.props.rental.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km</Table.Cell>
+                    <Table.Cell>{moment(this.props.rental.lastKmUpdate, "DD/MM/YYYY").fromNow()}</Table.Cell>
+                    <Table.Cell>{this.props.rental.brand}</Table.Cell>
+                    <Table.Cell>{this.props.rental.model}</Table.Cell>
+                    <Table.Cell>{this.props.rental.volume.meterCube+" m²"}</Table.Cell>
+                    <Table.Cell>{this.props.rental.payload} t.</Table.Cell>
                     <Table.Cell>
-                        {this.getPayementProgress()}
+                        {this.getEndDateLabel()}
                     </Table.Cell>
                     <Table.Cell style={{textAlign:"center"}}>
                         <Button circular style={{color:"#a29bfe"}} inverted icon icon='folder open' onClick={this.showDocs}/>
-                        <Button circular style={{color:"#2980b9"}} inverted icon icon='arrow right' onClick={this.navigateToVehicle}/>
+                        <Button circular style={{color:"#2980b9"}} inverted icon icon='arrow right' onClick={this.navigateToLocation}/>
                     </Table.Cell>
                 </Table.Row>
                 <Modal closeOnDimmerClick={false} open={this.state.openDocs} onClose={this.closeDocs} closeIcon>
                     <Modal.Header>
-                        Documents relatifs au vehicle immatriculé : {this.props.vehicle.registration}
+                        Documents relatifs au location immatriculé : {this.props.rental.registration}
                     </Modal.Header>
                     <Modal.Content style={{textAlign:"center"}}>
                         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gridTemplateRows:"1fr auto 1fr",gridGap:"0 24px"}}>
@@ -189,12 +192,12 @@ class VehiclesRow extends Component {
                         <Message color='red' icon>
                             <Icon name='warning sign'/>
                             <Message.Content style={{display:"grid",gridTemplateColumns:"1fr 2fr",gridTemplateRows:"1fr 1fr"}}>
-                                Veuillez confirmer vouloir supprimer le véhicule immatriculé : {this.props.vehicle.registration}
+                                Veuillez confirmer vouloir supprimer le véhicule immatriculé : {this.props.rental.registration}
                             </Message.Content>
                         </Message>
                     </Modal.Content>
                     <Modal.Actions>
-                        <Button color="red" onClick={this.deleteVehicle}>Supprimer</Button>
+                        <Button color="red" onClick={this.deleteLocation}>Supprimer</Button>
                     </Modal.Actions>
                 </Modal>
             </Fragment>
@@ -209,4 +212,4 @@ const withUserContext = WrappedComponent => props => (
     </UserContext.Consumer>
   )
   
-export default wrappedInUserContext = withRouter(withUserContext(VehiclesRow));
+export default wrappedInUserContext = withRouter(withUserContext(LocationRow));

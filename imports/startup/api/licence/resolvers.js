@@ -1,6 +1,8 @@
 import Licences from './licences';
 import Vehicles from '../vehicle/vehicles';
 import Societes from '../societe/societes';
+import Locations from '../location/locations';
+import Volumes from '../volume/volumes';
 import { Mongo } from 'meteor/mongo';
 
 export default {
@@ -16,20 +18,29 @@ export default {
                 }else{
                     licences[i].societe = {_id:"",name:""};
                 }
-                l.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(l.vehicle)});
-
+                let vehicleId = l.vehicle
+                l.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(vehicleId)});
+                if(l.vehicle == null){
+                    l.vehicle = Locations.findOne({_id:new Mongo.ObjectID(vehicleId)});
+                }
+                if(l.vehicle.volume != null && l.vehicle.volume.length > 0){
+                    l.vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(l.vehicle.volume)});
+                }else{
+                    l.vehicle.volume = {_id:""};
+                }
             });
             return licences;
         }
     },
     Mutation:{
-        addLicence(obj, {societe,number,vehicle},{user}){
+        addLicence(obj, {societe,number,vehicle,endDate},{user}){
             if(user._id){
                 Licences.insert({
                     _id:new Mongo.ObjectID(),
                     societe:societe,
                     number:number,
-                    vehicle:vehicle
+                    vehicle:vehicle,
+                    endDate:endDate
                 });
                 return true;
             }
@@ -44,7 +55,7 @@ export default {
             }
             throw new Error('Unauthorized');
         },
-        editLicence(obj, {_id,societe,number,vehicle,shiftName},{user}){
+        editLicence(obj, {_id,societe,number,vehicle,shiftName,endDate},{user}){
             if(user._id){
                 Licences.update(
                     {
@@ -54,7 +65,8 @@ export default {
                             "societe":societe,
                             "number":number,
                             "vehicle":vehicle,
-                            "shiftName":shiftName
+                            "shiftName":shiftName,
+                            "endDate":endDate
                         }
                     }
                 ); 

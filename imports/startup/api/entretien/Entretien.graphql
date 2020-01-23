@@ -1,24 +1,27 @@
 type Entretien{
     _id:String!
-    piece:Piece!
+    piece:Piece
     vehicle:Vehicle!
-    description:String!
+    description:String
+    title:String
     archived:Boolean!
-    occurenceDay:Int!
-    occurenceMonth:Int!
-    occurenceYear:Int!
+    occurenceDate:String!
     user:String!
 }
 
 extend type Query{
     entretiens : [Entretien]
     entretien(_id:String!) : Entretien
+    unaffectedEntretiens : [Entretien]
+    entretiensOfTheDay(date:String!) : [Entretien]
+    myEntretiens : [Entretien]
 }
 
 extend type Mutation{
+    affectToMe(_id:String!,occurenceDate:String!): Boolean
     addEntretien(vehicle:String!): Boolean
     deleteEntretien(_id:String!): Boolean
     archiveEntretien(_id:String!,archived:Boolean!): Boolean
     editDesc(_id:String!,description:String!): Boolean
-    affectEntretien(_id:String!,occurenceDay:String!,occurenceMonth:String!,occurenceYear:String!): Boolean
+    editTitle(_id:String!,title:String!): Boolean
 }

@@ -7,6 +7,7 @@ import { gql } from 'apollo-server-express'
 class VolumePicker extends Component {
 
     state = {
+        value:"",
         volumesRaw:[],
         volumesQuery : gql`
             query volumes{
@@ -44,7 +45,7 @@ class VolumePicker extends Component {
 
     render() {
         return (
-            <Dropdown style={this.props.style} placeholder='Choisir un volume' search selection onChange={this.props.onChange} value={this.props.value} options={this.state.volumesRaw.map(x=>{return{key:x._id,text:x.meterCube+" m³",value:x._id}})} />
+            <Dropdown size={(this.props.size != null ? this.props.size : "")} style={this.props.style} placeholder='Choisir un volume' search selection onChange={this.props.onChange} defaultValue={this.props.defaultValue} options={this.state.volumesRaw.map(x=>{return{key:x._id,text:x.meterCube+" m³",value:x._id}})} />
         )
     }
 }

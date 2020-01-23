@@ -13,6 +13,7 @@ class Entretien extends Component {
         entretienRaw:null,
         newPiece:"",
         newDesc:"",
+        newTitle:"",
         openDelete:false,
         openArchive:false,
         newPieceType:"",
@@ -25,6 +26,7 @@ class Entretien extends Component {
                 entretien(_id:$_id){
                     _id
                     description
+                    title
                     vehicle{
                         _id
                         societe{
@@ -36,11 +38,14 @@ class Entretien extends Component {
                         km
                         brand
                         model
-                        volume
+                        volume{
+                            _id
+                            meterCube
+                        }
                         payload
                         color
                         insurancePaid
-                        endDate
+                        payementBeginDate
                         property
                     }
                 }
@@ -77,6 +82,11 @@ class Entretien extends Component {
         editDescQuery : gql`
             mutation editDesc($_id:String!,$description:String!){
                 editDesc(_id:$_id,description:$description)
+            }
+        `,
+        editTitleQuery : gql`
+            mutation editTitle($_id:String!,$title:String!){
+                editTitle(_id:$_id,title:$title)
             }
         `,
         commandes : () => {
@@ -150,6 +160,13 @@ class Entretien extends Component {
         this.editDesc();
     }
 
+    handleEditTitle = (e,{value}) => {
+        this.setState({
+            newTitle:value
+        });
+        this.editTitle();
+    }
+
     archiveEntretien = () => {
         this.closeArchive();
         this.props.client.mutate({
@@ -181,6 +198,16 @@ class Entretien extends Component {
             variables:{
                 _id:this.state._id,
                 description:this.state.newDesc
+            }
+        })
+    },400);
+
+    editTitle = _.debounce(()=>{
+        this.props.client.mutate({
+            mutation:this.state.editTitleQuery,
+            variables:{
+                _id:this.state._id,
+                title:this.state.newTitle
             }
         })
     },400);
@@ -274,7 +301,14 @@ class Entretien extends Component {
                     <div style={{display:"grid",gridGap:"32px",gridTemplateColumns:"1fr 1fr 1fr 1fr 1fr 1fr",gridTemplateRows:"auto auto"}}>
                         <Message style={{margin:"0", gridRowStart:"1",gridColumnStart:"1",gridColumnEnd:"span 2"}} icon='truck' header={this.state.entretienRaw.vehicle.registration} content={this.state.entretienRaw.vehicle.brand + " - " + this.state.entretienRaw.vehicle.model + " - " + this.state.entretienRaw.vehicle.km} />
                         <Form style={{gridRowStart:"2",gridColumnStart:"1",gridColumnEnd:"span 2"}}>
-                            <TextArea defaultValue={this.state.entretienRaw.description} rows={20} onChange={this.handleEditDesc} placeholder="Description de l'entretien"/>
+                            <Form.Field>
+                                <label>Titre de l'entretien</label>
+                                <TextArea defaultValue={this.state.entretienRaw.title} rows={1} onChange={this.handleEditTitle} placeholder="Titre ..."/>
+                            </Form.Field>
+                            <Form.Field>
+                                <label>Description détaillée</label>
+                                <TextArea defaultValue={this.state.entretienRaw.description} rows={20} onChange={this.handleEditDesc} placeholder="Description de l'entretien"/>
+                            </Form.Field>
                         </Form>
                         <Button color="red" style={{placeSelf:"stretch"}} onClick={this.showDelete} icon labelPosition='right'>Supprimer l'entretien<Icon name='trash'/></Button>
                         <Button color="orange" style={{placeSelf:"stretch"}} onClick={this.showArchive} icon labelPosition='right'>Archiver l'entretien<Icon name='archive'/></Button>

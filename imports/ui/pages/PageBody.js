@@ -5,7 +5,8 @@ import Vehicles from './Vehicles';
 import Vehicle from './Vehicle';
 import Controls from './Controls';
 import Licences from './Licences';
-import Rentals from './Rentals';
+import Locations from './Locations';
+import Location from './Location';
 import Compte from './Compte';
 import Accounts from './Accounts';
 import Content from './Content';
@@ -45,7 +46,8 @@ class PageBody extends Component {
           <Route exact path='/parc/vehicle/:_id' component={Vehicle}/>
           <Route exact path='/parc/controls' component={Controls}/>
           <Route exact path='/parc/licences' component={Licences}/>
-          <Route exact path='/parc/rentals' component={Rentals}/>
+          <Route exact path='/parc/locations' component={Locations}/>
+          <Route exact path='/parc/location/:_id' component={Location}/>
 
           <Route exact path='/fournisseurs' component={Fournisseurs}/>
 
@@ -72,7 +74,8 @@ class PageBody extends Component {
           <Route exact path='/parc/vehicle/:_id' component={Vehicle}/>
           <Route exact path='/parc/controls' component={Controls}/>
           <Route exact path='/parc/licences' component={Licences}/>
-          <Route exact path='/parc/rentals' component={Rentals}/>
+          <Route exact path='/parc/locations' component={Locations}/>
+          <Route exact path='/parc/location/:_id' component={Location}/>
 
           <Route exact path='/fournisseurs' component={Fournisseurs}/>
 

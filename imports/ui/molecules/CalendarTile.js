@@ -73,8 +73,7 @@ class CalendarTile extends Component {
     if(today == true){headerColor = "linear-gradient(315deg, #E0A235 0%, #E0861A 74%)";bodyColor = "linear-gradient(315deg, #ECC785 0%, #ECB675 74%)"}
     if(selected == true){
       headerColor = "linear-gradient(315deg, #2a2a72 0%, #009ffd 74%)";
-      bodyColor = "linear-gradient(315deg, #000000 0%, #414141 74%)";
-
+      bodyColor = "linear-gradient(315deg, #c0b4b6 0%, #a49fb3 74%)";
       return (
         <Fragment>
           <div onClick={()=>{this.selectDay()}} style={{cursor:"pointer",justifyItems:"stretch",display:"grid",gridTemplateRows:"32px 1fr",gridColumnStart:dow}}>

@@ -3,6 +3,7 @@ import { Header, Button, Icon } from 'semantic-ui-react';
 import { withRouter } from 'react-router-dom';
 import { UserContext } from '../../contexts/UserContext';
 import CalendarTile from "../molecules/CalendarTile";
+import moment from "moment";
 import gql from 'graphql-tag';
 
 
@@ -22,11 +23,8 @@ class Calendar extends Component {
           today
           entretiens{
             _id
-            piece{
-              name
-              type
-            }
             vehicle{
+              _id
               registration
               model
               brand
@@ -34,9 +32,7 @@ class Calendar extends Component {
             }
             description
             archived
-            occurenceDay
-            occurenceMonth
-            occurenceYear
+            occurenceDate
             user
           }
         }
@@ -108,7 +104,7 @@ class Calendar extends Component {
     this.setState({
       selected:new Date(y,m,d)
     })
-    this.props.loadEntretiensOfTheDay({y:y,m:m,d:d});
+    this.props.selectDate(moment(d+"/"+(m+1)+"/"+y,"DD/MM/YYYY"));
   }
 
   componentDidMount = () => {
@@ -117,7 +113,7 @@ class Calendar extends Component {
 
   render() {
     return (
-      <div style={{display:"grid",gridTemplateColumns:"1fr auto auto auto 1fr",gridTemplateRows:"auto 1fr",gridGap:"32px"}}>
+      <div style={{...this.props.style,display:"grid",gridTemplateColumns:"1fr auto auto auto 1fr",gridTemplateRows:"auto 1fr",gridGap:"32px"}}>
         <Button style={{gridRowStart:"1",gridColumnStart:"2",alignSelf:"center"}} size="small" color="blue" onClick={this.navigateToPrevMonth} icon><Icon name="left arrow"/></Button>
         <Header style={{gridRowStart:"1",gridColumnStart:"3"}} as="h2" textAlign='center'>{this.getMonthName(this.state.month)+" "+this.state.year}</Header>
         <Button style={{gridRowStart:"1",gridColumnStart:"4",alignSelf:"center"}} size="small" color="blue" onClick={this.navigateToNextMonth} icon><Icon name="right arrow"/></Button>

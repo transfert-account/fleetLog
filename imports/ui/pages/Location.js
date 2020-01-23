@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import { Loader, Label, Button, Icon, Message, Modal, Progress, Input, Form, Table, Divider, Header } from 'semantic-ui-react';
+import { Loader, Label, Button, Icon, Message, Modal, Input, Form, Table, Divider, Header, TextArea } from 'semantic-ui-react';
 import { Bar } from 'react-chartjs-2';
 import ModalDatePicker from '../atoms/ModalDatePicker';
 import { UserContext } from '../../contexts/UserContext';
@@ -10,42 +10,42 @@ import moment from 'moment';
 import { gql } from 'apollo-server-express';
 import _ from 'lodash';
 
-class Vehicle extends Component {
+class Location extends Component {
     
     constructor(props) {
         super(props);
         this.chartRef = React.createRef();
-      }
+    }
 
     state={
         newSociete:"",
         newRegistration:"",
         newFirstRegistrationDate:"",
-        newVolume:0,
-        newPayload:0,
-        newColor:"",
         newBrand:"",
         newModel:"",
-        newInsurancePaid:0,
-        newPayementBeginDate:"",
-        newProperty:null,
+        newVolume:"",
+        newPayload:"",
+        newColor:"",
+        newInsurancePaid:"",
+        newStartDate:"",
+        newEndDate:"",
+        newJustification:"",
+        newPrice:"",
         loading:true,
         editing:false,
         openDatePicker:false,
         openDelete:false,
         selectedKm:null,
-        openDeleteKm:false,
+        openDeleteLocKm:false,
         openDocs:false,
-        openUpdateKm:false,
+        openUpdateLocKm:false,
         datePickerTarget:"",
-        formats:[{triKey:"CPT",label:"Comptant"},{triKey:"CRC",label:"Crédit Classique"},{triKey:"CRB",label:"Crédit Bail"}],
         newDateReport:new Date().getDate().toString().padStart(2, '0')+"/"+parseInt(new Date().getMonth()+1).toString().padStart(2, '0')+"/"+new Date().getFullYear().toString().padStart(4, '0'),
         _id:this.props.match.params._id,
         newKm:"",
-        vehicleQuery : gql`
-            query vehicle($_id:String!){
-                vehicle(_id:$_id){
-                    
+        locationQuery : gql`
+            query location($_id:String!){
+                location(_id:$_id){
                     _id
                     societe{
                         _id
@@ -69,38 +69,40 @@ class Vehicle extends Component {
                     }
                     payload
                     color
+                    cg
                     insurancePaid
-                    payementBeginDate
-                    property
-                    purchasePrice
-                    monthlyPayement
-                    payementOrg
-                    payementFormat
+                    cv
+                    startDate
+                    endDate
+                    price
+                    rentalContract
+                    reason
+                    reparation
                 }
             }
         `,
-        updateKmQuery : gql`
-            mutation updateKm($_id:String!,$date:String!,$kmValue:Int!){
-                updateKm(_id:$_id,date:$date,kmValue:$kmValue)
+        updateLocKmQuery : gql`
+            mutation updateLocKm($_id:String!,$date:String!,$kmValue:Int!){
+                updateLocKm(_id:$_id,date:$date,kmValue:$kmValue)
             }
         `,
-        deleteKmQuery : gql`
-            mutation deleteKm($_id:String!,$vehicle:String!){
-                deleteKm(_id:$_id,vehicle:$vehicle)
+        deleteLocKmQuery : gql`
+            mutation deleteLocKm($_id:String!,$location:String!){
+                deleteLocKm(_id:$_id,location:$location)
             }
         `,
-        editVehicleQuery : gql`
-            mutation editVehicle($_id:String!,$societe:String!,$registration:String!,$firstRegistrationDate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$insurancePaid:Float!,$payementBeginDate:String!){
-                editVehicle(_id:$_id,societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,payementBeginDate:$payementBeginDate)
+        editLocationQuery : gql`
+            mutation editLocation($_id:String!,$societe:String!,$registration:String!,$firstRegistrationDate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$insurancePaid:Float!,$startDate:String!,$endDate:String!,$price:Float!,$reason:String!){
+                editLocation(_id:$_id,societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,startDate:$startDate,endDate:$endDate,price:$price,reason:$reason)
             }
         `,
-        deleteVehicleQuery : gql`
-            mutation deleteVehicle($_id:String!){
-                deleteVehicle(_id:$_id)
+        deleteLocationQuery : gql`
+            mutation deleteLocation($_id:String!){
+                deleteLocation(_id:$_id)
             }
         `,
         kmsReport : () => {
-            if(this.state.vehicle.kms.length==0){
+            if(this.state.location.kms.length==0){
                 return(
                     <Table.Row key={"none"}>
                         <Table.Cell colSpan='3' textAlign="center">
@@ -109,13 +111,13 @@ class Vehicle extends Component {
                     </Table.Row>
                 )
             }
-            return this.state.vehicle.kms.map((k,i) =>(
+            return this.state.location.kms.map((k,i) =>(
                 <Table.Row key={k.reportDate+"-"+k.kmValue}>
                     <Table.Cell>{k.reportDate}</Table.Cell>
                     <Table.Cell>{k.kmValue}</Table.Cell>
                     <Table.Cell>
-                        {this.state.vehicle.kms.length - 1 == i && this.state.vehicle.kms.length != 1 ? 
-                                <Button circular style={{color:"#e74c3c"}} inverted icon icon='cancel' onClick={()=>{this.showDeleteKm(k._id)}}/>
+                        {this.state.location.kms.length - 1 == i && this.state.location.kms.length != 1 ? 
+                                <Button circular style={{color:"#e74c3c"}} inverted icon icon='cancel' onClick={()=>{this.showDeleteLocKm(k._id)}}/>
                             :
                                 ""
                         }
@@ -135,52 +137,56 @@ class Vehicle extends Component {
 
     handleChangeVolume = (e, { value }) => this.setState({ newVolume:value })
 
-    deleteVehicle = () => {
+    deleteLocation = () => {
         this.closeDelete();
         this.props.client.mutate({
-            mutation:this.state.deleteVehicleQuery,
+            mutation:this.state.deleteLocationQuery,
             variables:{
                 _id:this.state._id,
             }
         }).then(({data})=>{
-            this.props.history.push("/parc/vehicles")
+            this.props.history.push("/parc/locations")
         })
     }
 
-    updateKm = () => {
+    updateLocKm = () => {
         this.props.client.mutate({
-            mutation:this.state.updateKmQuery,
+            mutation:this.state.updateLocKmQuery,
             variables:{
                 _id:this.state._id,
                 date:this.state.newDateReport,
                 kmValue:parseInt(this.state.newKm)
             }
         }).then(({data})=>{
-            this.closeUpdateKm();
-            this.loadVehicule();
+            this.closeUpdateLocKm();
+            this.loadLocation();
         })
     }
 
     saveEdit = () => {
         this.props.client.mutate({
-            mutation:this.state.editVehicleQuery,
+            mutation:this.state.editLocationQuery,
             variables:{
                 _id:this.state._id,
                 societe:this.state.newSociete,
                 registration:this.state.newRegistration,
                 firstRegistrationDate:this.state.newFirstRegistrationDate,
+                km:parseFloat(this.state.newKm),
+                lastKmUpdate:this.state.newLastKmUpdate,
                 brand:this.state.newBrand,
                 model:this.state.newModel,
                 volume:this.state.newVolume,
-                payload:this.state.newPayload,
+                payload:parseFloat(this.state.newPayload),
                 color:this.state.newColor,
-                insurancePaid:this.state.newInsurancePaid,
-                payementBeginDate:this.state.newPayementBeginDate,
-                property:this.state.newProperty
+                insurancePaid:parseFloat(this.state.newInsurancePaid),
+                price:parseFloat(this.state.newPrice),
+                startDate:this.state.newStartDate,
+                endDate:this.state.newEndDate,
+                reason:this.state.newJustification
             }
         }).then(({data})=>{
             this.closeEditInfos();
-            this.loadVehicule();
+            this.loadLocation();
         })
     }
 
@@ -208,27 +214,27 @@ class Vehicle extends Component {
         })
     }
 
-    showDeleteKm = selectedKm => {
+    showDeleteLocKm = selectedKm => {
         this.setState({
-            openDeleteKm:true,
+            openDeleteLocKm:true,
             selectedKm:selectedKm
         })
     }
-    closeDeleteKm = () => {
+    closeDeleteLocKm = () => {
         this.setState({
-            openDeleteKm:false,
+            openDeleteLocKm:false,
             selectedKm:null
         })
     }
 
-    showUpdateKm = () => {
+    showUpdateLocKm = () => {
         this.setState({
-            openUpdateKm:true
+            openUpdateLocKm:true
         })
     }
-    closeUpdateKm = () => {
+    closeUpdateLocKm = () => {
         this.setState({
-            openUpdateKm:false
+            openUpdateLocKm:false
         })
     }
 
@@ -252,16 +258,16 @@ class Vehicle extends Component {
         })
     }
 
-    deleteKm = () => {
-        this.closeDeleteKm()
+    deleteLocKm = () => {
+        this.closeDeleteLocKm()
         this.props.client.mutate({
-            mutation:this.state.deleteKmQuery,
+            mutation:this.state.deleteLocKmQuery,
             variables:{
                 _id:this.state.selectedKm,
-                vehicle:this.state._id
+                location:this.state._id
             }
         }).then(({data})=>{
-            this.loadVehicule();
+            this.loadLocation();
         })
     }
 
@@ -271,44 +277,32 @@ class Vehicle extends Component {
         })
     }
 
-    loadVehicule = () => {
+    loadLocation = () => {
         this.props.client.query({
-            query:this.state.vehicleQuery,
+            query:this.state.locationQuery,
             fetchPolicy:"network-only",
             variables:{
                 _id:this.props.match.params._id
             }
         }).then(({data})=>{
             this.setState({
-                vehicle:data.vehicle,
-                newSociete:data.vehicle.societe._id,
-                newRegistration:data.vehicle.registration,
-                newFirstRegistrationDate:data.vehicle.firstRegistrationDate,
-                newVolume:data.vehicle.volume._id,
-                newPayload:data.vehicle.payload,
-                newColor:data.vehicle.color,
-                newBrand:data.vehicle.brand,
-                newModel:data.vehicle.model,
-                newInsurancePaid:data.vehicle.insurancePaid,
-                newPayementBeginDate:data.vehicle.payementBeginDate,
-                newProperty:data.vehicle.property,
+                location:data.location,
+                newSociete:data.location.societe._id,
+                newRegistration:data.location.registration,
+                newFirstRegistrationDate:data.location.firstRegistrationDate,
+                newBrand:data.location.brand,
+                newModel:data.location.model,
+                newVolume:data.location.volume._id,
+                newPayload:data.location.payload,
+                newColor:data.location.color,
+                newInsurancePaid:data.location.insurancePaid,
+                newStartDate:data.location.startDate,
+                newEndDate:data.location.endDate,
+                newJustification:data.location.reason,
+                newPrice:data.location.price,
                 loading:false
             })
         })
-    }
-
-    getPayementProgress = () => {
-        if(this.state.vehicle.payementFormat == "CRB"){
-            let totalMonths = this.state.vehicle.purchasePrice/this.state.vehicle.monthlyPayement;
-            let monthsDone = parseInt(moment().diff(moment(this.state.vehicle.payementBeginDate,"DD/MM/YYYY"),'months', true));
-            let monthsLeft = totalMonths - monthsDone;
-            if(parseInt(monthsLeft) == 0){
-                return <Progress active color="green" value={parseInt(this.state.vehicle.monthlyPayement * monthsLeft)} total={this.state.vehicle.purchasePrice} progress='ratio' label="propriété, payement terminé"/>    
-            }
-            return <Progress active color="orange" value={parseInt(this.state.vehicle.monthlyPayement * monthsLeft)} total={this.state.vehicle.purchasePrice} progress='ratio' label={monthsLeft+" mois restant avant propriété"} />
-        }else{
-            return <Progress active color="green" value={this.state.vehicle.purchasePrice} total={this.state.vehicle.purchasePrice} progress='ratio' label="Propriété" />
-        }
     }
 
     getChartMonths = () => {
@@ -330,7 +324,7 @@ class Vehicle extends Component {
 
     getChartSharedValues = () => {
         if(this.state.loading){return []}
-        let kms = Array.from(this.state.vehicle.kms)
+        let kms = Array.from(this.state.location.kms)
         let sharedKms = []
         for(let y = parseInt(moment().format('YYYY'))-1; y <= parseInt(moment().format('YYYY'));y++){
             for(let m = 1; m <= 12;m++){
@@ -414,36 +408,83 @@ class Vehicle extends Component {
         }
     }
 
+    getStartDateLabel = () => {
+        let days= parseInt(moment().diff(moment(this.state.location.startDate,"DD/MM/YYYY"),'days', true))
+        if(days < 7){
+            return <Label color="orange"> {moment(this.state.location.startDate, "DD/MM/YYYY").fromNow()}, le {this.state.location.startDate}</Label>
+        }
+        return <Label color="green"> {moment(this.state.location.startDate, "DD/MM/YYYY").fromNow()}, le {this.state.location.startDate}</Label>
+    }
+
+    getEndDateLabel = () => {
+        let daysLeft = parseInt(moment().diff(moment(this.state.location.endDate,"DD/MM/YYYY"),'days', true))
+        if(daysLeft >= 7){
+            return <Label color="red"> {moment(this.state.location.endDate, "DD/MM/YYYY").fromNow()}, le {this.state.location.endDate}</Label>
+        }
+        if(daysLeft >= 7){
+            return <Label color="orange"> {moment(this.state.location.endDate, "DD/MM/YYYY").fromNow()}, le {this.state.location.endDate}</Label>
+        }
+        return <Label color="green"> {moment(this.state.location.endDate, "DD/MM/YYYY").fromNow()}, le {this.state.location.endDate}</Label>
+    }
+
     getInfoPanel = () => {
         if(this.state.editing){
             return (
                 <Form className="formBoard" style={{placeSelf:"start auto",display:"grid",gridTemplateRows:"auto",gridTemplateColumns:"1fr 1fr",gridRowStart:"3",gridColumnStart:"1",gridRowEnd:"span 2",gridGap:"6px 24px"}}>
-                    <Form.Field><label>Societé</label>
-                        <SocietePicker defaultValue={this.state.vehicle.societe._id} groupAppears={true} onChange={this.handleChangeSociete}/>
+                    <Form.Field>
+                        <label>Societé</label>
+                        <SocietePicker defaultValue={this.state.location.societe._id} groupAppears={true} onChange={this.handleChangeSociete}/>
                     </Form.Field>
-                    <Form.Field><label>Immatriculation</label>
-                        <Input defaultValue={this.state.vehicle.registration} onChange={this.handleChange} name="newRegistration"/>
+                    <Form.Field>
+                        <label>Immatriculation</label>
+                        <Input defaultValue={this.state.location.registration} onChange={this.handleChange} name="newRegistration"/>
                     </Form.Field>
-                    <Form.Field><label>1ère immatriculation</label>
-                        <Input defaultValue={this.state.vehicle.firstRegistrationDate} onChange={this.handleChange} name="newFirstRegistrationDate"/>
+                    <Form.Field>
+                        <label>1ère immatriculation</label>
+                        <Input value={this.state.newFirstRegistrationDate} onFocus={()=>{this.showDatePicker("newFirstRegistrationDate")}} name="newFirstRegistrationDate"/>
                     </Form.Field>
-                    <Form.Field><label>Marque</label>
-                        <Input defaultValue={this.state.vehicle.brand} onChange={this.handleChange} name="newBrand"/>
+                    <Form.Field>
+                        <label>Marque</label>
+                        <Input defaultValue={this.state.location.brand} onChange={this.handleChange} name="newBrand"/>
                     </Form.Field>
-                    <Form.Field><label>Modèle</label>
-                        <Input defaultValue={this.state.vehicle.model} onChange={this.handleChange} name="newModel"/>
+                    <Form.Field>
+                        <label>Modèle</label>
+                        <Input defaultValue={this.state.location.model} onChange={this.handleChange} name="newModel"/>
                     </Form.Field>
-                    <Form.Field><label>Volume</label>
-                        <VolumePicker defaultValue={this.state.vehicle.volume._id} onChange={this.handleChangeVolume} name="newVolume"/>
+                    <Form.Field>
+                        <label>Volume</label>
+                        <VolumePicker defaultValue={this.state.location.volume._id} onChange={this.handleChangeVolume} name="newVolume"/>
                     </Form.Field>
-                    <Form.Field><label>Charge utile</label>
-                        <Input defaultValue={this.state.vehicle.payload} onChange={this.handleChange} name="newPayload"/>
+                    <Form.Field>
+                        <label>Charge utile</label>
+                        <Input defaultValue={this.state.location.payload} onChange={this.handleChange} name="newPayload"/>
                     </Form.Field>
-                    <Form.Field><label>Couleur</label>
-                        <Input defaultValue={this.state.vehicle.color} onChange={this.handleChange} name="newColor"/>
+                    <Form.Field>
+                        <label>Couleur</label>
+                        <Input defaultValue={this.state.location.color} onChange={this.handleChange} name="newColor"/>
                     </Form.Field>
-                    <Button style={{placeSelf:"center stretch",gridColumnStart:"1"}} color="red" icon labelPosition='right' onClick={this.closeEditInfos}>Annuler<Icon name='cancel'/></Button>
-                    <Button style={{placeSelf:"center stretch",gridColumnStart:"2"}} color="green" icon labelPosition='right' onClick={this.saveEdit}>Sauvegarder<Icon name='check'/></Button>
+                    <Form.Field>
+                        <label>Date de retrait</label>
+                        <Input value={this.state.newStartDate} onFocus={()=>{this.showDatePicker("newStartDate")}} name="newStartDate"/>
+                    </Form.Field>
+                    <Form.Field>
+                        <label>Echéance de la location</label>
+                        <Input value={this.state.newEndDate} onChange={this.handleChange} onFocus={()=>{this.showDatePicker("newEndDate")}}  name="newEndDate"/>
+                    </Form.Field>
+                    <Form.Field style={{placeSelf:"stretch",gridRowEnd:"span 4"}}>
+                        <label>Justification de la location</label>
+                        <TextArea defaultValue={this.state.newJustification} style={{height:"100%"}} onChange={this.handleChange} name="newJustification"/>
+                    </Form.Field>
+                    <Form.Field>
+                        <label>Prix facturé</label>
+                        <Input defaultValue={this.state.location.price} onChange={this.handleChange} name="newPrice"/>
+                    </Form.Field>
+                    <Form.Field>
+                        <label>Assurance</label>
+                        <Input defaultValue={this.state.location.insurancePaid} onChange={this.handleChange} name="newInsurancePaid"/>
+                    </Form.Field>
+                    <Button style={{placeSelf:"center stretch"}} color="red" icon labelPosition='right' onClick={this.closeEditInfos}>Annuler<Icon name='cancel'/></Button>
+                    <Button style={{placeSelf:"center stretch"}} color="green" icon labelPosition='right' onClick={this.saveEdit}>Sauvegarder<Icon name='check'/></Button>
                 </Form>
             )
         }else{
@@ -451,80 +492,70 @@ class Vehicle extends Component {
                 <div className="formBoard" style={{display:"grid",gridTemplateColumns:"auto 1fr",gridRowStart:"3",gridColumnStart:"1",gridGap:"6px 24px"}}>
                     <Divider style={{gridColumnEnd:"span 2",height:"23px"}} horizontal>
                         <Header as='h4'>
+                            <Icon name='clipboard' />
+                            Location
+                        </Header>
+                    </Divider>
+                    <div className="labelBoard">Début de la location :</div><div className="valueBoard">{this.getStartDateLabel()}</div>
+                    <div className="labelBoard">Fin de la location :</div><div className="valueBoard">{this.getEndDateLabel()}</div>
+                    <Divider style={{gridColumnEnd:"span 2",height:"23px"}} horizontal>
+                        <Header as='h4'>
                             <Icon name='wrench' />
                             Technique
                         </Header>
                     </Divider>
-                    <div className="labelBoard">Societé :</div><div className="valueBoard">{this.state.vehicle.societe.name}</div>
-                    <div className="labelBoard">Immatriculation :</div><div className="valueBoard">{this.state.vehicle.registration}</div>
-                    <div className="labelBoard">Date de première immatriculation :</div><div className="valueBoard">{this.state.vehicle.firstRegistrationDate}</div>
-                    <div className="labelBoard">Marque :</div><div className="valueBoard">{this.state.vehicle.brand}</div>
-                    <div className="labelBoard">Modèle :</div><div className="valueBoard">{this.state.vehicle.model}</div>
-                    <div className="labelBoard">Volume :</div><div className="valueBoard">{this.state.vehicle.volume.meterCube+" m²"}</div>
-                    <div className="labelBoard">Charge utile :</div><div className="valueBoard">{this.state.vehicle.payload+" t."}</div>
-                    <div className="labelBoard">Couleur :</div><div className="valueBoard">{this.state.vehicle.color}</div>
+                    <div className="labelBoard">Societé :</div><div className="valueBoard">{this.state.location.societe.name}</div>
+                    <div className="labelBoard">Immatriculation :</div><div className="valueBoard">{this.state.location.registration}</div>
+                    <div className="labelBoard">Date de première immatriculation :</div><div className="valueBoard">{this.state.location.firstRegistrationDate}</div>
+                    <div className="labelBoard">Marque :</div><div className="valueBoard">{this.state.location.brand}</div>
+                    <div className="labelBoard">Modèle :</div><div className="valueBoard">{this.state.location.model}</div>
+                    <div className="labelBoard">Volume :</div><div className="valueBoard">{this.state.location.volume.meterCube+" m²"}</div>
+                    <div className="labelBoard">Charge utile :</div><div className="valueBoard">{this.state.location.payload+" t."}</div>
+                    <div className="labelBoard">Couleur :</div><div className="valueBoard">{this.state.location.color}</div>
                     <Divider style={{gridColumnEnd:"span 2",height:"23px"}} horizontal>
                         <Header as='h4'>
                             <Icon name='euro' />
                             Finances
                         </Header>
                     </Divider>
-                    <div className="labelBoard">Montant de l'assurance :</div><div className="valueBoard">{this.state.vehicle.insurancePaid} €</div>
-                    <div className="labelBoard">Propriété :</div>
-                    <div className="valueBoard">
-                        {(
-                            this.state.vehicle.property?<Label color='green' horizontal>
-                                Owned
-                            </Label>:<Label color='orange' horizontal>
-                                In Progress
-                            </Label>
-                        )}
-                    </div>
-                    <div className="labelBoard">Date de début de payement :</div><div className="valueBoard">{this.state.vehicle.payementBeginDate}</div>
-                    <div className="labelBoard">Prix d'achat :</div><div className="valueBoard">{this.state.vehicle.purchasePrice} €</div>
-                    {this.state.vehicle.payementFormat == "CRB" ?
-                        <Fragment><div className="labelBoard">Mensualité :</div><div className="valueBoard">{this.state.vehicle.monthlyPayement} €/mois</div></Fragment>
-                    :
-                        ""
-                    }
-                    <div className="labelBoard">Organisme de payement :</div><div className="valueBoard">{this.state.vehicle.payementOrg}</div>
-                    <div className="labelBoard">Type de financement :</div><div className="valueBoard">{this.state.formats.filter(f=>f.triKey == this.state.vehicle.payementFormat)[0].label}</div>
-                    <div style={{gridColumnEnd:"span 2"}}>{this.getPayementProgress()}</div>
+                    <div className="labelBoard">Montant de l'assurance :</div><div className="valueBoard">{this.state.location.insurancePaid} €</div>
+                    <div className="labelBoard">Coût de la location :</div><div className="valueBoard">{this.state.location.price} €</div>
+                    <div className="labelBoard">Montant des réparations :</div><div className="valueBoard">{this.state.location.reparation} €</div>
                 </div>
             )
         }
     }
 
     componentDidMount = () => {
-        this.loadVehicule();
+        this.loadLocation();
     }
 
     render() {
         if(this.state.loading){
             return (
                 <div>
-                    <Loader size='massive' active={(this.state.loading)}>Chargement du véhicule</Loader>
+                    <Loader size='massive' active={(this.state.loading)}>Chargement de la location</Loader>
                 </div>
             )
         }else{
             return (
                 <Fragment>
                     <div style={{display:"grid",gridGap:"24px",gridTemplateColumns:"1fr 2fr",gridTemplateRows:"auto auto 1fr"}}>
-                        <Message size='big' style={{margin:"0",gridRowStart:"1",gridColumnStart:"1"}} icon='truck' header={this.state.vehicle.registration} content={this.state.vehicle.brand + " - " + this.state.vehicle.model} />
+                        <Message size='big' style={{margin:"0",gridRowStart:"1",gridColumnStart:"1"}} icon='truck' header={this.state.location.registration} content={this.state.location.brand + " - " + this.state.location.model} />
                         <div>
                             <p style={{margin:"0",fontWeight:"bold",fontSize:"2.4em"}}>
-                                {this.state.vehicle.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km
+                                {this.state.location.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km
                             </p>
                             <p style={{margin:"0",fontWeight:"bold",fontSize:"1.1em"}}>
-                                (relevé {moment(this.state.vehicle.lastKmUpdate, "DD/MM/YYYY").fromNow()})
+                                (relevé {moment(this.state.location.lastKmUpdate, "DD/MM/YYYY").fromNow()})
                             </p>
                         </div>
                         {this.getInfoPanel()}
                         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gridRowStart:"1",gridColumnStart:"2",gridGap:"16px"}}>
-                            <Button color="green" style={{placeSelf:"stretch"}} onClick={this.showUpdateKm} icon labelPosition='right'>MaJ kilométrage<Icon name='dashboard'/></Button>
+                            <Button color="green" style={{placeSelf:"stretch"}} onClick={this.showUpdateLocKm} icon labelPosition='right'>MaJ kilométrage<Icon name='dashboard'/></Button>
                             <Button color="purple" style={{placeSelf:"stretch"}} onClick={this.showDocs} icon labelPosition='right'>Gérer les documents<Icon name='folder'/></Button>
-                            <Button color="blue" style={{placeSelf:"stretch"}} onClick={this.editInfos} icon labelPosition='right'>Editer le véhicule<Icon name='edit'/></Button>
-                            <Button color="red" style={{placeSelf:"stretch"}} onClick={this.showDelete} icon labelPosition='right'>Supprimer le vehicule<Icon name='trash'/></Button>
+                            <Button color="blue" style={{placeSelf:"stretch"}} onClick={this.editInfos} icon labelPosition='right'>Editer la location<Icon name='edit'/></Button>
+                            <Button color="red" style={{placeSelf:"stretch"}} onClick={this.showDelete} icon labelPosition='right'>Supprimer la location<Icon name='trash'/></Button>
                         </div>
                         <div style={{display:"grid",gridTemplateColumns:"1fr 4fr",gridRowStart:"2",gridRowEnd:"span 2",gridColumnStart:"2",gridGap:"16px"}}>
                             <Table style={{placeSelf:"start"}} basic="very">
@@ -544,9 +575,9 @@ class Vehicle extends Component {
                             </div>
                         </div>
                     </div>
-                    <Modal size='small' closeOnDimmerClick={false} open={this.state.openUpdateKm} onClose={this.closeUpdateKm} closeIcon>
+                    <Modal size='small' closeOnDimmerClick={false} open={this.state.openUpdateLocKm} onClose={this.closeUpdateLocKm} closeIcon>
                         <Modal.Header>
-                            Mettre à jour le kilométrage du vehicle immatriculé : {this.state.vehicle.registration}
+                            Mettre à jour le kilométrage du location immatriculé : {this.state.location.registration}
                         </Modal.Header>
                         <Modal.Content style={{textAlign:"center"}}>
                             <Form>
@@ -561,13 +592,13 @@ class Vehicle extends Component {
                             </Form>
                         </Modal.Content>
                         <Modal.Actions>
-                            <Button color="black" onClick={this.closeUpdateKm}>Annuler</Button>
-                            <Button color="blue" onClick={this.updateKm}>Mettre à jour</Button>
+                            <Button color="black" onClick={this.closeUpdateLocKm}>Annuler</Button>
+                            <Button color="blue" onClick={this.updateLocKm}>Mettre à jour</Button>
                         </Modal.Actions>
                     </Modal>
                     <Modal closeOnDimmerClick={false} open={this.state.openDocs} onClose={this.closeDocs} closeIcon>
                         <Modal.Header>
-                            Documents relatifs au vehicle immatriculé : {this.state.vehicle.registration}
+                            Documents relatifs au location immatriculé : {this.state.location.registration}
                         </Modal.Header>
                         <Modal.Content style={{textAlign:"center"}}>
                             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gridTemplateRows:"1fr auto 1fr",gridGap:"0 24px"}}>
@@ -601,23 +632,23 @@ class Vehicle extends Component {
                     </Modal>
                     <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openDelete} onClose={this.closeDelete} closeIcon>
                         <Modal.Header>
-                            Supprimer le vehicule : {this.state.vehicle.registration} ?
+                            Supprimer la location vehicule : {this.state.location.registration} ?
                         </Modal.Header>
                         <Modal.Actions>
                             <Button color="grey" onClick={this.closeDelete}>Annuler</Button>
-                            <Button color="red" onClick={this.deleteVehicle}>Supprimer</Button>
+                            <Button color="red" onClick={this.deleteLocation}>Supprimer</Button>
                         </Modal.Actions>
                     </Modal>
-                    <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openDeleteKm} onClose={this.closeDeleteKm} closeIcon>
+                    <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openDeleteLocKm} onClose={this.closeDeleteLocKm} closeIcon>
                         <Modal.Header>
-                            Supprimer le relevé kilométrique du vehicule : {this.state.vehicle.registration} datant du {/*this.state.vehicle.kms.filter(x=>x._id == this.state.selectedKm)[0].reportDate*/}?
+                            Supprimer le relevé kilométrique du vehicule : {this.state.location.registration} datant du {/*this.state.location.kms.filter(x=>x._id == this.state.selectedKm)[0].reportDate*/}?
                         </Modal.Header>
                         <Modal.Actions>
-                            <Button color="grey" onClick={this.closeDeleteKm}>Annuler</Button>
-                            <Button color="red" onClick={this.deleteKm}>Supprimer</Button>
+                            <Button color="grey" onClick={this.closeDeleteLocKm}>Annuler</Button>
+                            <Button color="red" onClick={this.deleteLocKm}>Supprimer</Button>
                         </Modal.Actions>
                     </Modal>
-                    <ModalDatePicker maxDate={new Date()} onSelectDatePicker={this.onSelectDatePicker} closeDatePicker={this.closeDatePicker} open={this.state.openDatePicker}/>
+                    <ModalDatePicker onSelectDatePicker={this.onSelectDatePicker} closeDatePicker={this.closeDatePicker} open={this.state.openDatePicker}/>
                 </Fragment>
             )
         }
@@ -630,4 +661,4 @@ const withUserContext = WrappedComponent => props => (
     </UserContext.Consumer>
 )
 
-export default wrappedInUserContext = withRouter(withUserContext(Vehicle));
+export default wrappedInUserContext = withRouter(withUserContext(Location));

@@ -7,6 +7,7 @@ import { gql } from 'apollo-server-express'
 class SocietePicker extends Component {
 
     state = {
+        value:"",
         societesRaw:[],
         societesQuery : gql`
             query societes{
@@ -54,7 +55,7 @@ class SocietePicker extends Component {
 
     render() {
         return (
-            <Dropdown style={this.props.style} placeholder='Choisir un société' search selection onChange={this.props.onChange} value={this.props.value} options={this.state.societesRaw.map(x=>{return{key:x._id,text:x.name,value:x._id}})} />
+            <Dropdown size={(this.props.size != null ? this.props.size : "")} style={this.props.style} placeholder='Choisir un société' search selection onChange={this.props.onChange} defaultValue={this.props.defaultValue} options={this.state.societesRaw.map(x=>{return{key:x._id,text:x.name,value:x._id}})} />
         )
     }
 }
