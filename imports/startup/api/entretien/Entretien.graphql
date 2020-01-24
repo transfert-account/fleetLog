@@ -7,6 +7,8 @@ type Entretien{
     archived:Boolean!
     occurenceDate:String!
     user:String!
+    time:Float!
+    status:Int!
 }
 
 extend type Query{
@@ -24,4 +26,5 @@ extend type Mutation{
     archiveEntretien(_id:String!,archived:Boolean!): Boolean
     editDesc(_id:String!,description:String!): Boolean
     editTitle(_id:String!,title:String!): Boolean
+    editInfos(_id:String!,time:Float!,status:Int!): Boolean
 }

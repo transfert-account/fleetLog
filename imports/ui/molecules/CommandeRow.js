@@ -126,6 +126,7 @@ class CommandeRow extends Component {
             <Fragment>
                 <Table.Row>
                     <Table.Cell>{this.props.commande.piece.name}</Table.Cell>
+                    <Table.Cell textAlign="center">{this.props.commande.price} €</Table.Cell>
                     <Table.Cell>
                         <Progress size="small" value={this.props.commande.status} color={this.getProgressColor()} total='4' >{this.getProgressLabel()}</Progress>
                     </Table.Cell>

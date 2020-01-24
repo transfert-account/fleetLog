@@ -12,6 +12,7 @@ import Accounts from './Accounts';
 import Content from './Content';
 import Equipements from './Equipements';
 import Fournisseurs from './Fournisseurs';
+import Accidentologie from './Accidentologie';
 import Planning from './Planning';
 import Entretiens from './Entretiens';
 import Entretien from './Entretien';
@@ -49,12 +50,14 @@ class PageBody extends Component {
           <Route exact path='/parc/locations' component={Locations}/>
           <Route exact path='/parc/location/:_id' component={Location}/>
 
-          <Route exact path='/fournisseurs' component={Fournisseurs}/>
-
           <Route exact path='/entretiens' component={Entretiens}/>
           <Route exact path='/entretien/:_id' component={Entretien}/>
 
           <Route exact path='/planning/:y/:m' component={Planning}/>
+
+          <Route exact path='/accidentologie' component={Accidentologie}/>
+
+          <Route exact path='/fournisseurs' component={Fournisseurs}/>
 
           <Route exact path='/compte' component={Compte}/>
           
@@ -77,12 +80,14 @@ class PageBody extends Component {
           <Route exact path='/parc/locations' component={Locations}/>
           <Route exact path='/parc/location/:_id' component={Location}/>
 
-          <Route exact path='/fournisseurs' component={Fournisseurs}/>
-
           <Route exact path='/entretiens' component={Entretiens}/>
           <Route exact path='/entretien/:_id' component={Entretien}/>
 
           <Route exact path='/planning/:y/:m' component={Planning}/>
+
+          <Route exact path='/accidentologie' component={Accidentologie}/>
+
+          <Route exact path='/fournisseurs' component={Fournisseurs}/>
 
           <Route exact path='/compte' component={Compte}/>
           <Redirect from='*' to={'/'}/>

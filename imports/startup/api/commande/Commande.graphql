@@ -3,6 +3,7 @@ type Commande{
     piece:Piece!
     entretien:String!
     status:Int!
+    price:Float!
 }
 
 extend type Query{
@@ -10,7 +11,7 @@ extend type Query{
 }
 
 extend type Mutation{
-    addCommande(entretien:String!,piece:String!): Boolean
+    addCommande(entretien:String!,piece:String!,price:Float!): Boolean
     editCommandeStatus(_id:String!,status:Int!): Boolean
     deleteCommande(_id:String!): Boolean
 }

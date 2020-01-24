@@ -13,13 +13,14 @@ export default {
         },
     },
     Mutation:{
-        addCommande(obj, {entretien,piece},{user}){
+        addCommande(obj, {entretien,piece,price},{user}){
             if(user._id){
                 Commandes.insert({
                     _id:new Mongo.ObjectID(),
                     entretien:entretien,
                     piece:piece,
-                    status:1
+                    status:1,
+                    price:price
                 });
                 return true;
             }

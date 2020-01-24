@@ -48,6 +48,7 @@ class Entretiens extends Component {
                     _id
                     description
                     archived
+                    title
                     vehicle{
                         _id
                         societe{
@@ -178,7 +179,8 @@ class Entretiens extends Component {
                         <Table.Header>
                             <Table.Row textAlign='center'>
                                 <Table.HeaderCell width="2">Vehicle</Table.HeaderCell>
-                                <Table.HeaderCell width="12">Description de l'entretien</Table.HeaderCell>
+                                <Table.HeaderCell width="4">Title</Table.HeaderCell>
+                                <Table.HeaderCell width="8">Description de l'entretien</Table.HeaderCell>
                                 <Table.HeaderCell width="2">Actions</Table.HeaderCell>
                             </Table.Row>
                         </Table.Header>

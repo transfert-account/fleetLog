@@ -14,12 +14,14 @@ export default {
                 if(Vehicles.findOne({_id:new Mongo.ObjectID(e.vehicle)}) == undefined){
                     e.vehicle = Locations.findOne({_id:new Mongo.ObjectID(e.vehicle)});
                 }else{
-                    e.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(e.vehicle)});    
+                    e.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(e.vehicle)});
                 }
+                e.vehicle.lastKmUpdate = e.vehicle.kms[e.vehicle.kms.length-1].reportDate
+                e.vehicle.km = e.vehicle.kms[e.vehicle.kms.length-1].kmValue
                 if(e.vehicle.societe != null && e.vehicle.societe.length > 0){
-                    entretiens[i].societe = Societes.findOne({_id:new Mongo.ObjectID(e.vehicle.societe)});
+                    entretiens[i].vehicle.societe = Societes.findOne({_id:new Mongo.ObjectID(e.vehicle.societe)});
                 }else{
-                    entretiens[i].societe = {_id:"",name:""};
+                    entretiens[i].vehicle.societe = {_id:"",name:""};
                 }
                 e.piece = Pieces.findOne({_id:new Mongo.ObjectID(e.piece)});
             });
@@ -83,10 +85,12 @@ export default {
             }else{
                 entretien.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(entretien.vehicle)});    
             }
+            entretien.vehicle.lastKmUpdate = entretien.vehicle.kms[entretien.vehicle.kms.length-1].reportDate
+            entretien.vehicle.km = entretien.vehicle.kms[entretien.vehicle.kms.length-1].kmValue
             if(entretien.vehicle.societe != null && entretien.vehicle.societe.length > 0){
-                entretien.societe = Societes.findOne({_id:new Mongo.ObjectID(entretien.vehicle.societe)});
+                entretien.vehicle.societe = Societes.findOne({_id:new Mongo.ObjectID(entretien.vehicle.societe)});
             }else{
-                entretien.societe = {_id:"",name:""};
+                entretien.vehicle.societe = {_id:"",name:""};
             }
             entretien.piece = Pieces.findOne({_id:new Mongo.ObjectID(entretien.piece)});
             return entretien;
@@ -102,7 +106,9 @@ export default {
                     description:"",
                     archived:false,
                     occurenceDate:null,
-                    user:""
+                    user:"",
+                    time:0,
+                    status:1
                 });
                 return true;
             }
@@ -155,6 +161,22 @@ export default {
                     }, {
                         $set: {
                             "title":title
+                        }
+                    }
+                ); 
+                return true;
+            }
+            throw new Error('Unauthorized');
+        },
+        editInfos(obj, {_id,time,status},{user}){
+            if(user._id){
+                Entretiens.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "time":time,
+                            "status":status
                         }
                     }
                 ); 

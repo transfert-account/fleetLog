@@ -26,6 +26,13 @@ class Menu extends Component {
         icon:"clipboard check"
       },
       {
+        name:"planning/"+new Date().getFullYear()+"/"+parseInt(new Date().getMonth()+1),
+        active:"planning",
+        label:"Planning",
+        display:true,
+        icon:"calendar"
+      },
+      {
         name:"batiment",
         active:"batiment",
         label:"Batiment",
@@ -40,11 +47,11 @@ class Menu extends Component {
         icon:"sitemap"
       },
       {
-        name:"planning/"+new Date().getFullYear()+"/"+parseInt(new Date().getMonth()+1),
-        active:"planning",
-        label:"Planning",
+        name:"accidentologie",
+        active:"accidentologie",
+        label:"Accidentologie",
         display:true,
-        icon:"calendar"
+        icon:"fire"
       }
     ],
     menuItemsAdmin:[
@@ -63,6 +70,13 @@ class Menu extends Component {
         icon:"clipboard check"
       },
       {
+        name:"planning/"+new Date().getFullYear()+"/"+parseInt(new Date().getMonth()+1),
+        active:"planning",
+        label:"Planning",
+        display:true,
+        icon:"calendar"
+      },
+      {
         name:"batiment",
         active:"batiment",
         label:"Batiment",
@@ -77,11 +91,11 @@ class Menu extends Component {
         icon:"sitemap"
       },
       {
-        name:"planning/"+new Date().getFullYear()+"/"+parseInt(new Date().getMonth()+1),
-        active:"planning",
-        label:"Planning",
+        name:"accidentologie",
+        active:"accidentologie",
+        label:"Accidentologie",
         display:true,
-        icon:"calendar"
+        icon:"fire"
       },
       {
         name:"compte",

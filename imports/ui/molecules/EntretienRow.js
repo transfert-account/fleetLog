@@ -62,7 +62,8 @@ class EntretienRow extends Component {
             <Fragment>
                 <Table.Row>
                     <Table.Cell>{this.props.entretien.vehicle.registration}</Table.Cell>
-                    <Table.Cell>{this.props.entretien.description}</Table.Cell>
+                    <Table.Cell>{this.props.entretien.title}</Table.Cell>
+                    <Table.Cell>{this.props.entretien.description.substring(0,128)}</Table.Cell>
                     <Table.Cell style={{textAlign:"center"}}>
                         <Button circular style={{color:"#2980b9"}} inverted icon icon='arrow right' onClick={this.navigateToEntretien}/>
                         <Button circular style={{color:"#e74c3c"}} inverted icon icon='trash' onClick={this.showDelete}/>
