@@ -134,7 +134,7 @@ export class Home extends Component {
     }
     if(this.props.user._id != null){
       return (
-        <div style={{display:"grid",marginTop:"40px",gridTemplateColumns:"1fr 250px 480px 250px 1fr",gridTemplateRows:"400px 60px 60px 240px 80px",flexWrap:"wrap",justifyContent:"center",width:"100%"}}>
+        <div style={{display:"grid",marginTop:"40px",gridTemplateColumns:"1fr 250px 512px 250px 1fr",gridTemplateRows:"512px 60px 60px 240px 80px",flexWrap:"wrap",justifyContent:"center",width:"100%"}}>
           <img style={{width:"800px",gridColumnStart:"2",gridColumnEnd:"span 3",placeSelf:"center"}} src={"/res/semanticui.png"} alt="titleLogo"/>
           <p style={{placeSelf:"center",gridColumnStart:"2",gridColumnEnd:"span 3",gridRowStart:"4",}}>
             Optimisé pour Google Chome <Image style={{margin:"0 12px",display:"inline",width:"48px",height:"48px"}} src="/res/chrome.png"/>

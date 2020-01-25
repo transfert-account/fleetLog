@@ -55,7 +55,7 @@ class AppBody extends Component{
                         backgroundAttachment:"fixed"
                     }}>
                         <div style={{display:"grid",marginTop:"80px",gridTemplateColumns:"1fr 250px 480px 250px 1fr",gridTemplateRows:"400px 80px 80px",flexWrap:"wrap",justifyContent:"center",width:"100%"}}>
-                            <img style={{gridColumnStart:"2",gridColumnEnd:"span 3",placeSelf:"center"}} src={"/res/title.png"} alt="titleLogo"/>
+                            <img style={{gridColumnStart:"2",gridColumnEnd:"span 3",placeSelf:"center"}} src={"/res/forbidden.png"} alt="titleLogo"/>
                             <NeedActivation/>
                             <Button basic style={{marginTop:"24px",width:"128px",gridColumnStart:"2",gridColumnEnd:"span 3",placeSelf:"center"}} onClick={this.logout} color="red">
                                 Déconnexion
