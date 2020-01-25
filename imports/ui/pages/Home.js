@@ -124,10 +124,10 @@ export class Home extends Component {
       error = true;
       errorContent = "Les mots de passe sont different";
     }
-    if(!mail.endsWith('@exemple.com')){
+    /*if(!mail.endsWith('@exemple.com')){
       error = true;
       errorContent = "Le format de l'adresse mail n'est pas user@exemple.com";
-    }
+    }*/
     if(firstname == "" || lastname == "" || password == "" || passwordAgain == "" || mail == ""){
       error = true;
       errorContent = "Tous les champs doivent être renseignés";
