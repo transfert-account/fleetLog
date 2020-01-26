@@ -338,25 +338,33 @@ class Vehicle extends Component {
             }
         }
         for(let y = parseInt(moment().format('YYYY'))-1; y <= parseInt(moment().format('YYYY'));y++){
-            console.log("=========== FOR YEAR : " + y + " ===========")
             for(let m = 1; m <= 12;m++){
-                console.log("=========== FOR MONTH : " + m + " ===========")
                 kms.map((k,i) =>{
                     if(i>0){
                         let prevDate = moment(kms[i-1].reportDate,"DD/MM/YYYY");
                         let currDate = moment(k.reportDate,"DD/MM/YYYY")
                         let daysBetweenPrevAndCurr = parseInt(currDate.diff(prevDate, 'days'))
                         let daysToAffect = daysBetweenPrevAndCurr;
-                        console.log("daysBetweenPrevAndCurr : " + daysBetweenPrevAndCurr)
                         let localDaysRepartition = [];
                         if(parseInt(currDate.format('M')) == m && parseInt(currDate.format('YYYY')) == y){
                             if(localDaysRepartition[m+"/"+y] == undefined){
-                                localDaysRepartition[m+"/"+y] = {month:m +"/"+ y,days:parseInt(currDate.format("D"))};
+                                if(daysBetweenPrevAndCurr < parseInt(currDate.format("D"))){
+                                    localDaysRepartition[m+"/"+y] = {month:m +"/"+ y,days:daysBetweenPrevAndCurr};
+                                }else{
+                                    localDaysRepartition[m+"/"+y] = {month:m +"/"+ y,days:parseInt(currDate.format("D"))};
+                                }
                             }else{
-                                localDaysRepartition[m+"/"+y] = {month:m +"/"+ y,days:localDaysRepartition[m+"/"+y].days + parseInt(currDate.format("D"))};    
+                                if(daysBetweenPrevAndCurr < parseInt(currDate.format("D"))){
+                                    localDaysRepartition[m+"/"+y] = {month:m +"/"+ y,days:localDaysRepartition[m+"/"+y].days + daysBetweenPrevAndCurr};
+                                }else{
+                                    localDaysRepartition[m+"/"+y] = {month:m +"/"+ y,days:localDaysRepartition[m+"/"+y].days + parseInt(currDate.format("D"))};
+                                }
                             }
-                            daysToAffect = daysToAffect - parseInt(currDate.format("D"));
-                            console.log("daysToAffect : " + daysToAffect )
+                            if(daysBetweenPrevAndCurr < parseInt(currDate.format("D"))){
+                                daysToAffect = daysToAffect - daysBetweenPrevAndCurr;
+                            }else{
+                                daysToAffect = daysToAffect - parseInt(currDate.format("D"));
+                            }
                             let mo = m - 1;
                             let ye = y;
                             while(daysToAffect > 0){
@@ -369,10 +377,8 @@ class Vehicle extends Component {
                                     willAffect = parseInt(moment(mo+"/"+ye, "MM/YYYY").daysInMonth());
                                 }
                                 if(localDaysRepartition[mo+"/"+ye] == undefined){
-                                    console.log("will affect " + willAffect + " days to month " + mo+"/"+ye)
                                     localDaysRepartition[mo+"/"+ye] = {month:mo +"/"+ ye,days:willAffect};
                                 }else{
-                                    console.log("will affect " + willAffect + " days to month " + mo+"/"+ye)
                                     localDaysRepartition[mo+"/"+ye] = {month:mo +"/"+ ye,days:localDaysRepartition[mo+"/"+ye].days + willAffect};
                                 }
                                 mo = mo - 1
