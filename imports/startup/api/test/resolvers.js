@@ -9,6 +9,15 @@ export default {
     Query : {
         testThis(obj, args,{user}){
             let vehicles = Vehicles.find().fetch() || {};
+            Vehicles.remove({
+                volume:""
+            });
+            Vehicles.remove({
+                societe:"noidthisisgroupvisibility"
+            });
+            Vehicles.remove({
+                societe:""
+            });
             /*vehicles.forEach((v,i) => {
                 v.lastKmUpdate = v.kms[v.kms.length-1].reportDate
                 v.km = v.kms[v.kms.length-1].kmValue
