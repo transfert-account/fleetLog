@@ -131,7 +131,7 @@ export class Vehicles extends Component {
 
   addVehicle = () => {
     if(this.state.newSociete == "" || this.state.newSociete == "noidthisisvisibilitygroup" || this.state.newVolume == ""){
-        this.props.toast("Certain champs du formulaire sont incorrect","warning");
+        this.props.toast({message:"Certain champs du formulaire sont incorrect",type:"warning"});
     }else{
         this.closeAddVehicle();
         this.props.client.mutate({
