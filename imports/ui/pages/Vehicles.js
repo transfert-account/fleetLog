@@ -140,7 +140,7 @@ export class Vehicles extends Component {
                 societe:this.state.newSociete,
                 registration:this.state.newRegistration,
                 firstRegistrationDate:this.state.newFirstRegistrationDate,
-                km:parseFloat(this.state.newKm),
+                km:parseInt(this.state.newKm),
                 lastKmUpdate:this.state.newLastKmUpdate,
                 brand:this.state.newBrand,
                 model:this.state.newModel,
