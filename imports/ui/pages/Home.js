@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 import { Button, Input, Icon, Modal, Form, Message, Image } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 import anime from "animejs";
@@ -65,7 +65,8 @@ export class Home extends Component {
     Meteor.loginWithPassword(this.state.email, this.state.pass,
       error=>{
         if(!error){
-          this.props.client.resetStore();
+          this.props.client.cache.reset();
+          this.props.reloadUser()
         }else{
           this.props.toast({
             message: error.reason,
@@ -98,8 +99,8 @@ export class Home extends Component {
       targets: '#titleLogo .st0,.st1',
       strokeDashoffset: [anime.setDashoffset, 0],
       easing: 'easeInOutSine',
-      duration: 1500,
-      delay: function(el, i) { return i * 300 },
+      duration: 1000,
+      delay: function(el, i) { return i * 180 },
       direction: 'normal',
       changeComplete: anim => {
         anime({
@@ -173,7 +174,7 @@ export class Home extends Component {
                 </g>
               </svg>
             </div>
-            <form style={{gridRowStart:"2",gridColumnStart:"2",display:"grid",gridGap:"16px",gridTemplateRows:"1fr 1fr 1fr",alignSelf:"center"}} onSubmit={this.loginUser}>
+            <form style={{gridRowStart:"2",gridColumnStart:"2",display:"grid",gridGap:"16px",gridTemplateRows:"1fr 1fr 1fr",alignSelf:"center"}}>
               <Input onChange={this.handleChange} name="email" type="email" style={{justifySelf:"stretch",alignSelf:"center"}} icon="user" size='huge' placeholder='Adresse mail' />
               <Input onChange={this.handleChange} name="pass" type="password" style={{justifySelf:"stretch",alignSelf:"center"}} icon="key" size='huge' placeholder='Mot de passe' />
               <Button basic size="small" type="submit" style={{justifySelf:"stretch",alignSelf:"center",fontSize:"1.2em",cursor:"pointer"}} onClick={e=>{this.loginUser(e)}} color="black" animated='fade'>

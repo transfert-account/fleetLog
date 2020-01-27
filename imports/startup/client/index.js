@@ -9,7 +9,7 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 import { BrowserRouter } from 'react-router-dom';
 import { ApolloClient } from 'apollo-client'
 
-import { UserProvider } from '../../contexts/UserContext';
+import UserProvider from '../../contexts/UserContext';
 import App from '../../ui/App';
 
 const client = new ApolloClient({
@@ -22,15 +22,15 @@ const client = new ApolloClient({
     cache: new InMemoryCache()
   })
 
-const ApolloApp = () => (
-    <ApolloProvider client={client}>
-        <BrowserRouter>
-            <UserProvider>
-                <App/>
-            </UserProvider>
-        </BrowserRouter>
-    </ApolloProvider>
-)
+    const ApolloApp = () => (
+        <ApolloProvider client={client}>
+            <BrowserRouter>
+                <UserProvider>
+                    <App/>
+                </UserProvider>
+            </BrowserRouter>
+        </ApolloProvider>
+    )
 
 Meteor.startup(()=>{
     render(<ApolloApp />, document.getElementById("app"));

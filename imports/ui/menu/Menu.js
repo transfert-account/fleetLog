@@ -167,7 +167,7 @@ class Menu extends Component {
             </Link>
             <hr style={{width:"80%",margin:"16px auto"}}/>
             <MenuItemList menuItems={this.getMenuItemsList()}/>
-            <li onClick={()=>{Meteor.logout();this.props.client.resetStore();this.props.history.push("/")}} className={"menuItemRed"} style={{cursor:"pointer"}}>
+            <li onClick={()=>{Meteor.logout();this.props.client.cache.reset();this.props.history.push("/")}} className={"menuItemRed"} style={{cursor:"pointer"}}>
               <p style={{textAlign:"right",padding:"8px 16px 8px 0",fontSize:"1.1em",fontWeight:"800",fontFamily: "'Open Sans', sans-serif"}}>
                 DECONNEXION
               </p>

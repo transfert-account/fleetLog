@@ -5,6 +5,7 @@ type User{
     isOwner: Boolean
     verified: String
     visibility: String
+    societe: Societe
     firstname: String
     lastname: String
     createdAt: String

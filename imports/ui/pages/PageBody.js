@@ -38,7 +38,8 @@ class PageBody extends Component {
   }
 
   getAvailableRoutes = () =>{
-    if(this.props.user.isAdmin){
+    console.log(this.props.user)
+    if(this.props.user.isAdmin){//Si l'utilisateur est administrateur
       return(
         <Switch>
           <Route exact path='/' component={Home}/>
@@ -68,7 +69,7 @@ class PageBody extends Component {
           <Redirect from='*' to={'/'}/>
         </Switch>
       );
-    }else{
+    }else{//Si l'utilisateur est user
       return(
         <Switch>
           <Route exact path='/' component={Home}/>

@@ -7,43 +7,41 @@ import { toast } from 'react-toastify';
 
 export const UserContext = React.createContext();
 
-    const userQuery = gql`
-        query User{
-            user{
-                _id
-                email
-                firstname
-                lastname
-                isAdmin
-                isOwner
-                activated
-                avatar
-            }
-            users{
-                _id
-                email
-                isAdmin
-                isOwner
-                verified
-                firstname
-                lastname
-                createdAt
-                lastLogin
-                activated
-            }
-        }
-    `;
-
 class Provider extends Component {
 
     state = {
- 
-    }
-
-    dateMonthPlusOne = date => {
-        let dateSplited = date.split("/");
-        let month = parseInt(dateSplited[1])+1;
-        return dateSplited[0]+"/"+month+"/"+dateSplited[2]
+        userQuery : gql`
+            query user{
+                user{
+                    _id
+                    email
+                    firstname
+                    lastname
+                    isAdmin
+                    isOwner
+                    visibility
+                    societe{
+                        _id
+                        name
+                        trikey
+                    }
+                    activated
+                    avatar
+                }
+                users{
+                    _id
+                    email
+                    isAdmin
+                    isOwner
+                    verified
+                    firstname
+                    lastname
+                    createdAt
+                    lastLogin
+                    activated
+                }
+            }
+        `
     }
 
     toast = ({message,type}) => {
@@ -61,17 +59,44 @@ class Provider extends Component {
         }
     }
 
-    componentWillMount = () => {
-        
+    componentDidMount = () => {
+        this.props.client.query({
+            query:this.state.userQuery,
+            fetchPolicy:'network-only'
+        }).then(({data})=>{
+            this.setState({
+                user:data.user,
+                users:data.users
+            })      
+        })
+    }
+
+    reloadUser = () => {
+        this.props.client.query({
+            query:this.state.userQuery,
+            fetchPolicy:'network-only'
+        }).then(({data})=>{
+            if(data.user._id != this.state.user._id){
+                this.setState({
+                    user:data.user,
+                    users:data.users
+                })
+            }
+        })
+    }
+    
+    componentDidUpdate = () => {
+        this.reloadUser()
     }
 
     render(){
         return (
             <UserContext.Provider value={{
-                user: (this.props.user == null ? {_id:null} : this.props.user),
+                user: (this.state.user == null ? {_id:null} : this.state.user),
                 users : this.props.users,
                 client : this.props.client,
                 societes:this.props.societes,
+                reloadUser:this.reloadUser,
                 toast:this.toast
             }}>
                 {this.props.children}
@@ -80,8 +105,4 @@ class Provider extends Component {
     }
 }
 
-export const UserProvider =
-    graphql(userQuery,{
-        props:({data}) =>({...data})
-    })
-(withApollo(withRouter(Provider)))
+export default withApollo(withRouter(Provider))

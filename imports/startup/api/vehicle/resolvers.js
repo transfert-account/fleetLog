@@ -16,7 +16,6 @@ export default {
             }else{
                 vehicle.property = true
             }
-            vehicle.property
             if(vehicle.societe != null && vehicle.societe.length > 0){
                 vehicle.societe = Societes.findOne({_id:new Mongo.ObjectID(vehicle.societe)});
             }else{

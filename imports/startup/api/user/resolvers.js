@@ -1,10 +1,34 @@
+import Societes from '../societe/societes.js';
+
 export default {
     Query : {
         user(obj, args, { user }){
-            return user || {}
+            let userFull = {};
+            if(user != undefined){
+                userFull = Meteor.users.findOne({_id:user._id})
+                if(userFull.settings.visibility != "noidthisisgroupvisibility"){
+
+                    if(userFull.settings.visibility != null && userFull.settings.visibility.length > 0){
+                        userFull.societe = Societes.findOne({_id:new Mongo.ObjectID(userFull.settings.visibility)});
+                    }else{
+                        userFull.societe = {_id:""};
+                    }
+                }else{
+                    userFull.societe = {_id:"noidthisisgroupvisibility",triKey:'GRP',name:"Groupe"};
+                }
+            }
+            return userFull || {}
         },
         users(obj, args){
-            return Meteor.users.find({}).fetch() || {};
+            let users = Meteor.users.find({}).fetch() || {};
+            users.map(u=>{
+                if(u.visibility != null && u.visibility.length > 0){
+                    u.societe = Societes.findOne({_id:new Mongo.ObjectID(u.visibility)});
+                }else{
+                    u.societe = {_id:""};
+                }
+            })
+            return users
         }
     },
     User:{

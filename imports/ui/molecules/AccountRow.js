@@ -142,7 +142,7 @@ export class AccountRow extends Component {
                         )}
                     </Table.Cell>
                     <Table.Cell style={{textAlign:"center"}}>
-                        <SocietePicker groupAppears={true} onChange={this.setVisibility} value={this.state.visibility} />
+                        <SocietePicker groupAppears={true} onChange={this.setVisibility} defaultValue={this.state.visibility} />
                     </Table.Cell>
                     <Table.Cell style={{textAlign:"center"}}>
                     {(user.isOwner ? "" :
