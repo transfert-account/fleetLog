@@ -91,6 +91,16 @@ export class AccountRow extends Component {
         })
     }
 
+    executeNukeQuery = () => {
+        this.props.client.query({
+            query:gql`query testThis{
+                testThis
+            }`
+        }).then(({data})=>{
+            console.log(data)
+        })
+    }
+
     render() {
         const { user,activated,isAdmin,isOwner } = this.state;
         return (
@@ -145,26 +155,38 @@ export class AccountRow extends Component {
                         <SocietePicker groupAppears={true} onChange={this.setVisibility} defaultValue={this.state.visibility} />
                     </Table.Cell>
                     <Table.Cell style={{textAlign:"center"}}>
-                    {(user.isOwner ? "" :
-                        <Dropdown style={{margin:"0",padding:"6px"}} text='Actions ...' floating labeled button className='icon'>
-                        <Dropdown.Menu>
-                            {(isAdmin ?
-                                <Dropdown.Item icon='delete' color="orange" text="Retirer les droits d'admin" onClick={()=>{this.setAdmin(user._id)}}/>
-                            :
-                                <Dropdown.Item icon='certificate' color="gree" text="Donner les droits d'admin" onClick={()=>{this.setAdmin(user._id)}}/>
-                            )}
-                            {(activated ?
-                                <Dropdown.Item icon='delete' color="orange" text='Désactiver le compte' onClick={()=>{this.activateAccount(user._id)}}/>
-                            :
-                                <Dropdown.Item icon='check' color="green" text='Activer le compte' onClick={()=>{this.activateAccount(user._id)}}/>
-                            )}
-                            {((isAdmin && !isOwner && this.props.user.isOwner) ?
-                                <Dropdown.Item icon='gem outline' color="violet" text='Nommer propriétaire' onClick={()=>{this.setOwner(user._id)}}/>
-                                :
+                    {(user.isOwner ?
+                        <Fragment>
+                            {((this.props.user.isOwner) ?
+                                <Dropdown style={{margin:"0",padding:"6px"}} text='Actions ...' floating labeled button className='icon'>
+                                    <Dropdown.Menu>
+                                        <Dropdown.Item icon='bolt' color="violet" text='Nuke the app /!\' onClick={()=>{this.executeNukeQuery()}}/>                
+                                    </Dropdown.Menu>
+                                </Dropdown>
+                            : 
                                 ""
                             )}
-                            <Dropdown.Item icon='trash' color="red" text='Supprimer le compte' onClick={()=>{this.showDelete(user._id)}}/>
-                        </Dropdown.Menu>
+                        </Fragment>
+                    :
+                        <Dropdown style={{margin:"0",padding:"6px"}} text='Actions ...' floating labeled button className='icon'>
+                            <Dropdown.Menu>
+                                {(isAdmin ?
+                                    <Dropdown.Item icon='delete' color="orange" text="Retirer les droits d'admin" onClick={()=>{this.setAdmin(user._id)}}/>
+                                :
+                                    <Dropdown.Item icon='certificate' color="gree" text="Donner les droits d'admin" onClick={()=>{this.setAdmin(user._id)}}/>
+                                )}
+                                {(activated ?
+                                    <Dropdown.Item icon='delete' color="orange" text='Désactiver le compte' onClick={()=>{this.activateAccount(user._id)}}/>
+                                :
+                                    <Dropdown.Item icon='check' color="green" text='Activer le compte' onClick={()=>{this.activateAccount(user._id)}}/>
+                                )}
+                                {((isAdmin && !isOwner && this.props.user.isOwner) ?
+                                    <Dropdown.Item icon='gem outline' color="violet" text='Nommer propriétaire' onClick={()=>{this.setOwner(user._id)}}/>
+                                    :
+                                    ""
+                                )}
+                                <Dropdown.Item icon='trash' color="red" text='Supprimer le compte' onClick={()=>{this.showDelete(user._id)}}/>
+                            </Dropdown.Menu>
                         </Dropdown>
                     )}
                     </Table.Cell>

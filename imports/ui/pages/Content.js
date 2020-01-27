@@ -211,7 +211,7 @@ export class Content extends Component {
                     {this.getMenu()}
                 </div>
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"32px"}}>
-                    <Segment raised style={{display:"grid",gridGap:"16px",placeSelf:"stretch",marginTop:"16px",padding:"24px 0",gridTemplateColumns:"auto 1fr auto",gridTemplateRows:"auto 1fr"}}>
+                    <Segment raised style={{placeSelf:"stretch",display:"grid",gridGap:"16px",placeSelf:"stretch",margin:"0",padding:"24px 0",gridTemplateColumns:"auto 1fr auto",gridTemplateRows:"auto 1fr"}}>
                         <Header style={{gridColumnStart:"2",placeSelf:"center"}} as='h2'>
                             <Icon name='sitemap' />
                             <Header.Content>Sociétés du groupe</Header.Content>
@@ -222,7 +222,7 @@ export class Content extends Component {
                             <Button color="blue" onClick={this.showAddSociete} icon labelPosition='right'>Créer<Icon name='plus'/></Button>
                         </Form>
                     </Segment>
-                    <Segment raised style={{display:"grid",gridGap:"16px",placeSelf:"stretch",marginTop:"16px",padding:"24px 0",gridTemplateColumns:"auto 1fr auto",gridTemplateRows:"auto 1fr"}}>
+                    <Segment raised style={{placeSelf:"stretch",display:"grid",gridGap:"16px",placeSelf:"stretch",margin:"0",padding:"24px 0",gridTemplateColumns:"auto 1fr auto",gridTemplateRows:"auto 1fr"}}>
                         <Header style={{gridColumnStart:"2",placeSelf:"center"}} as='h2'>
                             <Icon name='expand arrows alternate' />
                             <Header.Content>Volumes des véhicules</Header.Content>
@@ -240,9 +240,9 @@ export class Content extends Component {
                     Création de la société
                 </Modal.Header>
                 <Modal.Content style={{textAlign:"center"}}>
-                    <Form style={{display:"grid",gridTemplateRows:"1fr 1fr 1fr",gridTemplateColumns:"1fr 1fr 1fr 1fr 1fr",gridGap:"16px"}}>
-                        <Form.Field><label>Nom de la société</label><input onChange={this.handleChange} name="nameSociete"/></Form.Field>
-                        <Form.Field><label>Trigramme</label><input onChange={this.handleChange} name="trikeySociete"/></Form.Field>
+                    <Form style={{display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"16px"}}>
+                        <Form.Field style={{placeSelf:"stretch"}}><label>Nom de la société</label><input onChange={this.handleChange} name="nameSociete"/></Form.Field>
+                        <Form.Field style={{placeSelf:"stretch"}}><label>Trigramme</label><input onChange={this.handleChange} name="trikeySociete"/></Form.Field>
                     </Form>
                 </Modal.Content>
                 <Modal.Actions>
@@ -262,8 +262,8 @@ export class Content extends Component {
                     Ajout du volume
                 </Modal.Header>
                 <Modal.Content style={{textAlign:"center"}}>
-                    <Form style={{display:"grid",gridTemplateRows:"1fr 1fr 1fr",gridTemplateColumns:"1fr 1fr 1fr 1fr 1fr",gridGap:"16px"}}>
-                        <Form.Field><label>Volume</label><input onChange={this.handleVolumeChange} name="newVolume"/></Form.Field>
+                    <Form style={{display:"grid",gridTemplateColumns:"1fr",gridGap:"16px"}}>
+                        <Form.Field style={{placeSelf:"stretch"}}><label>Volume</label><input onChange={this.handleVolumeChange} name="newVolume"/></Form.Field>
                     </Form>
                 </Modal.Content>
                 <Modal.Actions>

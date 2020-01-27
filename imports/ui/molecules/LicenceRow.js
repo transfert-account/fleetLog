@@ -114,11 +114,11 @@ class LicenceRow extends Component {
     }
 
     getEndDateLabel = () => {
-        let daysLeft = parseInt(moment().diff(moment(this.props.licence.endDate,"DD/MM/YYYY"),'days', true))
-        if(daysLeft >= 7){
+        let daysLeft = parseInt(moment(this.props.licence.endDate,"DD/MM/YYYY").diff(moment(),'days', true))
+        if(daysLeft <= 7){
             return <Label color="red"> {moment(this.props.licence.endDate, "DD/MM/YYYY").fromNow()}, le {this.props.licence.endDate}</Label>
         }
-        if(daysLeft >= 7){
+        if(daysLeft > 7 && daysLeft <= 28){
             return <Label color="orange"> {moment(this.props.licence.endDate, "DD/MM/YYYY").fromNow()}, le {this.props.licence.endDate}</Label>
         }
         return <Label color="green"> {moment(this.props.licence.endDate, "DD/MM/YYYY").fromNow()}, le {this.props.licence.endDate}</Label>
@@ -134,7 +134,7 @@ class LicenceRow extends Component {
                         <Table.Cell textAlign="center"><VehiclePicker defaultValue={this.state.newVehicle} onChange={this.handleChangeVehicle}/></Table.Cell>
                         <Table.Cell textAlign="center"><Input defaultValue={this.state.newShiftName} onChange={this.handleChange} placeholder="Nom de tournée" name="newShiftName"/></Table.Cell>
                         <Table.Cell textAlign="center"><Input value={this.state.newEndDate} onChange={this.handleChange} onFocus={()=>{this.showDatePicker("newEndDate")}} name="newEndDate"/></Table.Cell>
-                        <Table.Cell style={{textAlign:"center"}}>
+                        <Table.Cell textAlign="center">
                             <Button onClick={this.closeEdit} color="red">Annuler</Button>
                             <Button onClick={this.saveEdit} color="blue">Sauvegarder</Button>
                         </Table.Cell>
@@ -146,12 +146,12 @@ class LicenceRow extends Component {
             return (
                 <Fragment>
                     <Table.Row>
-                        <Table.Cell>{this.props.licence.societe.name}</Table.Cell>
-                        <Table.Cell>{this.props.licence.number}</Table.Cell>
-                        <Table.Cell>{this.props.licence.vehicle.registration}</Table.Cell>
-                        <Table.Cell>{this.props.licence.shiftName}</Table.Cell>
-                        <Table.Cell>{this.getEndDateLabel()}</Table.Cell>
-                        <Table.Cell style={{textAlign:"center"}}>
+                        <Table.Cell textAlign="center">{this.props.licence.societe.name}</Table.Cell>
+                        <Table.Cell textAlign="center">{this.props.licence.number}</Table.Cell>
+                        <Table.Cell textAlign="center">{this.props.licence.vehicle.registration}</Table.Cell>
+                        <Table.Cell textAlign="center">{this.props.licence.shiftName}</Table.Cell>
+                        <Table.Cell textAlign="center">{this.getEndDateLabel()}</Table.Cell>
+                        <Table.Cell textAlign="center">
                             <Button circular style={{color:"#a29bfe"}} inverted icon icon='folder open' onClick={this.showDocs}/>
                             <Button circular style={{color:"#2980b9"}} inverted icon icon='edit' onClick={this.showEdit}/>    
                             <Button circular style={{color:"#e74c3c"}} inverted icon icon='trash' onClick={this.showDelete}/>

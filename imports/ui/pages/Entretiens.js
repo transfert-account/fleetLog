@@ -194,7 +194,7 @@ class Entretiens extends Component {
                         Création de l'entretien
                     </Modal.Header>
                     <Modal.Content style={{textAlign:"center"}}>
-                        <Form style={{display:"grid",gridTemplateRows:"1fr 1fr",gridTemplateColumns:"1fr",gridGap:"16px"}}>
+                        <Form style={{display:"grid",gridTemplateRows:"1fr",gridTemplateColumns:"1fr",gridGap:"16px"}}>
                             <Form.Field>
                                 <label>Véhicule associé</label>
                                 <VehiclePicker onChange={this.handleChangeVehicle}/>

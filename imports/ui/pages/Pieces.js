@@ -117,6 +117,8 @@ export class Pieces extends Component {
             name:this.state.newName,
             type:this.state.currentTypePiece
         }
+    }).then(({data})=>{
+        this.loadAllPieces()
     })
     this.closeAddPiece();
   }

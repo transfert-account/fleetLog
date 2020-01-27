@@ -298,16 +298,20 @@ class Vehicle extends Component {
     }
 
     getPayementProgress = () => {
+        let totalMonths = parseInt(this.state.vehicle.purchasePrice/this.state.vehicle.monthlyPayement);
+        let monthsDone = parseInt(moment().diff(moment(this.state.vehicle.payementBeginDate,"DD/MM/YYYY"),'months', true));
+        if(monthsDone>totalMonths){monthsDone=totalMonths}
+        let monthsLeft = totalMonths - monthsDone;
         if(this.state.vehicle.payementFormat == "CRB"){
-            let totalMonths = this.state.vehicle.purchasePrice/this.state.vehicle.monthlyPayement;
-            let monthsDone = parseInt(moment().diff(moment(this.state.vehicle.payementBeginDate,"DD/MM/YYYY"),'months', true));
-            let monthsLeft = totalMonths - monthsDone;
             if(parseInt(monthsLeft) == 0){
-                return <Progress active color="green" value={parseInt(this.state.vehicle.monthlyPayement * monthsLeft)} total={this.state.vehicle.purchasePrice} progress='ratio' label="propriété, payement terminé"/>    
+                return <Progress active color="green" value={parseInt(this.state.vehicle.monthlyPayement * monthsDone)} total={this.state.vehicle.purchasePrice} progress='ratio' label="Propriété, payement terminé"/>    
             }
-            return <Progress active color="orange" value={parseInt(this.state.vehicle.monthlyPayement * monthsLeft)} total={this.state.vehicle.purchasePrice} progress='ratio' label={monthsLeft+" mois restant avant propriété"} />
+            return <Progress active color="orange" value={parseInt(this.state.vehicle.monthlyPayement * monthsDone)} total={this.state.vehicle.purchasePrice} progress='ratio' label={monthsLeft+" mois restant avant propriété"} />
         }else{
-            return <Progress active color="green" value={this.state.vehicle.purchasePrice} total={this.state.vehicle.purchasePrice} progress='ratio' label="Propriété" />
+            if(parseInt(monthsLeft) == 0){
+                return <Progress active color="green" value={parseInt(this.state.vehicle.monthlyPayement * monthsDone)} total={this.state.vehicle.purchasePrice} progress='ratio' label="Propriété, payement terminé"/>    
+            }
+            return <Progress active color="green" value={parseInt(this.state.vehicle.monthlyPayement * monthsDone)} total={this.state.vehicle.purchasePrice} progress='ratio' label={"Propriété, fin de payement dans "+parseInt(monthsLeft)+" mois."} />
         }
     }
 
