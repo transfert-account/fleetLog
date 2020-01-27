@@ -123,7 +123,7 @@ class VehiclesRow extends Component {
         let totalMonths = this.props.vehicle.purchasePrice/this.props.vehicle.monthlyPayement;
         let monthsDone = parseInt(moment().diff(moment(this.props.vehicle.payementBeginDate,"DD/MM/YYYY"),'months', true));
         let monthsLeft = totalMonths - monthsDone;
-        return <Label color={parseInt(monthsLeft) == 0 ? "green" : "orange"}> {monthsLeft} mois restant avant propriété</Label>
+        return <Label color={parseInt(monthsLeft) == 0 ? "green" : "orange"}> {parseInt(monthsLeft)} mois restant avant propriété</Label>
     }
 
     render() {

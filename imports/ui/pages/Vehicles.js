@@ -130,30 +130,34 @@ export class Vehicles extends Component {
   }
 
   addVehicle = () => {
-    this.closeAddVehicle()
-    this.props.client.mutate({
-        mutation:this.state.addVehicleQuery,
-        variables:{
-            societe:this.state.newSociete,
-            registration:this.state.newRegistration,
-            firstRegistrationDate:this.state.newFirstRegistrationDate,
-            km:parseFloat(this.state.newKm),
-            lastKmUpdate:this.state.newLastKmUpdate,
-            brand:this.state.newBrand,
-            model:this.state.newModel,
-            volume:this.state.newVolume,
-            payload:parseFloat(this.state.newPayload),
-            color:this.state.newColor,
-            insurancePaid:parseFloat(this.state.newInsurancePaid),
-            payementBeginDate:this.state.newPayementBeginDate,
-            purchasePrice:parseFloat(this.state.newPurchasePrice),
-            monthlyPayement:parseFloat(this.state.newMonthlyPayement),
-            payementOrg:this.state.newPayementOrg,
-            payementFormat:this.state.newPayementFormat
-        }
-    }).then(({data})=>{
-        this.loadVehicles();
-    })
+    if(this.state.newSociete == "" || this.state.newSociete == "noidthisisvisibilitygroup" || this.state.newVolume == ""){
+        this.props.toast("Certain champs du formulaire sont incorrect","warning");
+    }else{
+        this.closeAddVehicle();
+        this.props.client.mutate({
+            mutation:this.state.addVehicleQuery,
+            variables:{
+                societe:this.state.newSociete,
+                registration:this.state.newRegistration,
+                firstRegistrationDate:this.state.newFirstRegistrationDate,
+                km:parseFloat(this.state.newKm),
+                lastKmUpdate:this.state.newLastKmUpdate,
+                brand:this.state.newBrand,
+                model:this.state.newModel,
+                volume:this.state.newVolume,
+                payload:parseFloat(this.state.newPayload),
+                color:this.state.newColor,
+                insurancePaid:parseFloat(this.state.newInsurancePaid),
+                payementBeginDate:this.state.newPayementBeginDate,
+                purchasePrice:parseFloat(this.state.newPurchasePrice),
+                monthlyPayement:parseFloat(this.state.newMonthlyPayement),
+                payementOrg:this.state.newPayementOrg,
+                payementFormat:this.state.newPayementFormat
+            }
+        }).then(({data})=>{
+            this.loadVehicles();
+        })
+    }
   }
 
   handleChange = e =>{
@@ -177,14 +181,6 @@ export class Vehicles extends Component {
   handleChangeVolume = (e, { value }) => this.setState({ newVolume:value })
 
   loadVehicles = () => {
-    this.props.client.query({
-        query: gql`
-            query testThis{
-                testThis
-            }`
-    }).then(({data})=>{
-        console.log(JSON.parse(data.testThis))
-    })
     this.props.client.query({
         query:this.state.vehiclesQuery,
         fetchPolicy:"network-only"
