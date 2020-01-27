@@ -341,6 +341,7 @@ class ControlRow extends Component {
                         </Form>
                     </Modal.Content>
                     <Modal.Actions>
+                        <Button color="black" onClick={this.closeAttachEquipement}>Annuler</Button>
                         <Button color="blue" onClick={this.attachEquipement}>Attacher</Button>
                     </Modal.Actions>
                 </Modal>
@@ -349,6 +350,7 @@ class ControlRow extends Component {
                         Dissocier cet equipement du véhicule :
                     </Modal.Header>
                     <Modal.Actions>
+                        <Button color="black" onClick={this.closeDissociateEquipement}>Annuler</Button>
                         <Button color="red" onClick={this.dissociateEquipement}>Dissocier</Button>
                     </Modal.Actions>
                 </Modal>
@@ -363,6 +365,7 @@ class ControlRow extends Component {
                         </Form>
                     </Modal.Content>
                     <Modal.Actions>
+                        <Button color="black" onClick={this.closeUpdateControl}>Annuler</Button>
                         <Button color="green" onClick={this.updateControlEquipement}>Mettre à jour</Button>
                     </Modal.Actions>
                 </Modal>

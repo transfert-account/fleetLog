@@ -81,22 +81,34 @@ class Vehicle extends Component {
         `,
         updateKmQuery : gql`
             mutation updateKm($_id:String!,$date:String!,$kmValue:Int!){
-                updateKm(_id:$_id,date:$date,kmValue:$kmValue)
+                updateKm(_id:$_id,date:$date,kmValue:$kmValue){
+                    status
+                    message
+                }
             }
         `,
         deleteKmQuery : gql`
             mutation deleteKm($_id:String!,$vehicle:String!){
-                deleteKm(_id:$_id,vehicle:$vehicle)
+                deleteKm(_id:$_id,vehicle:$vehicle){
+                    status
+                    message
+                }
             }
         `,
         editVehicleQuery : gql`
             mutation editVehicle($_id:String!,$societe:String!,$registration:String!,$firstRegistrationDate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$insurancePaid:Float!,$payementBeginDate:String!){
-                editVehicle(_id:$_id,societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,payementBeginDate:$payementBeginDate)
+                editVehicle(_id:$_id,societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,payementBeginDate:$payementBeginDate){
+                    status
+                    message
+                }
             }
         `,
         deleteVehicleQuery : gql`
             mutation deleteVehicle($_id:String!){
-                deleteVehicle(_id:$_id)
+                deleteVehicle(_id:$_id){
+                    status
+                    message
+                }
             }
         `,
         kmsReport : () => {
@@ -143,7 +155,14 @@ class Vehicle extends Component {
                 _id:this.state._id,
             }
         }).then(({data})=>{
-            this.props.history.push("/parc/vehicles")
+            data.deleteVehicle.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.history.push("/parc/vehicles")
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     }
 
@@ -156,8 +175,15 @@ class Vehicle extends Component {
                 kmValue:parseInt(this.state.newKm)
             }
         }).then(({data})=>{
-            this.closeUpdateKm();
-            this.loadVehicule();
+            data.updateKm.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.closeUpdateKm();
+                    this.loadVehicule();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     }
 
@@ -179,8 +205,35 @@ class Vehicle extends Component {
                 property:this.state.newProperty
             }
         }).then(({data})=>{
-            this.closeEditInfos();
-            this.loadVehicule();
+            data.editVehicle.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.closeEditInfos();
+                    this.loadVehicule();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+
+    deleteKm = () => {
+        this.closeDeleteKm()
+        this.props.client.mutate({
+            mutation:this.state.deleteKmQuery,
+            variables:{
+                _id:this.state.selectedKm,
+                vehicle:this.state._id
+            }
+        }).then(({data})=>{
+            data.deleteKm.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.loadVehicule();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     }
 
@@ -249,19 +302,6 @@ class Vehicle extends Component {
     editInfos = () => {
         this.setState({
             editing:true
-        })
-    }
-
-    deleteKm = () => {
-        this.closeDeleteKm()
-        this.props.client.mutate({
-            mutation:this.state.deleteKmQuery,
-            variables:{
-                _id:this.state.selectedKm,
-                vehicle:this.state._id
-            }
-        }).then(({data})=>{
-            this.loadVehicule();
         })
     }
 

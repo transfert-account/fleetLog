@@ -20,14 +20,15 @@ class SocietePicker extends Component {
         `,
     }
 
-
-    
     loadSocietes = () => {
         this.props.client.query({
             query:this.state.societesQuery,
             fetchPolicy:"network-only"
         }).then(({data})=>{
-            let societes = [{_id:"noidthisisgroupvisibility",name:"Groupe",trikey:"GRP"}];
+            let societes = [];
+            if(this.props.groupAppears){
+                societes = [{_id:"noidthisisgroupvisibility",name:"Groupe",trikey:"GRP"}];
+            }
             data.societes.map(s=>{
               societes.push(s)
             });

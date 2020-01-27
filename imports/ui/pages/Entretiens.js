@@ -39,7 +39,10 @@ class Entretiens extends Component {
         },
         addEntretienQuery : gql`
             mutation addEntretien($vehicle:String!){
-              addEntretien(vehicle:$vehicle)
+                addEntretien(vehicle:$vehicle){
+                    status
+                    message
+                }
             }
         `,
         entretiensQuery : gql`
@@ -160,7 +163,14 @@ class Entretiens extends Component {
                 vehicle:this.state.newVehicle
             }
         }).then(({data})=>{
-            this.loadEntretiens();
+            data.addEntretien.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.loadEntretiens();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     }
 

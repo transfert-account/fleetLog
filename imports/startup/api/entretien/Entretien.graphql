@@ -20,11 +20,11 @@ extend type Query{
 }
 
 extend type Mutation{
-    affectToMe(_id:String!,occurenceDate:String!): Boolean
-    addEntretien(vehicle:String!): Boolean
-    deleteEntretien(_id:String!): Boolean
-    archiveEntretien(_id:String!,archived:Boolean!): Boolean
-    editDesc(_id:String!,description:String!): Boolean
-    editTitle(_id:String!,title:String!): Boolean
-    editInfos(_id:String!,time:Float!,status:Int!): Boolean
+    affectToMe(_id:String!,occurenceDate:String!): [QueryResultMessage]
+    addEntretien(vehicle:String!): [QueryResultMessage]
+    deleteEntretien(_id:String!): [QueryResultMessage]
+    archiveEntretien(_id:String!,archived:Boolean!): [QueryResultMessage]
+    editDesc(_id:String!,description:String!): [QueryResultMessage]
+    editTitle(_id:String!,title:String!): [QueryResultMessage]
+    editInfos(_id:String!,time:Float!,status:Int!): [QueryResultMessage]
 }

@@ -1,6 +1,7 @@
 import Entretiens from './entretiens';
 import Vehicles from '../vehicle/vehicles';
 import Locations from '../location/locations';
+import Commandes from '../commande/commandes';
 import Pieces from '../piece/pieces';
 import Societes from '../societe/societes';
 import moment from 'moment';
@@ -110,16 +111,23 @@ export default {
                     time:0,
                     status:1
                 });
-                return true;
+                return [{status:true,message:'Création réussie'}];
             }
             throw new Error('Unauthorized');
         },
         deleteEntretien(obj, {_id},{user}){
             if(user._id){
-                Entretiens.remove({
-                    _id:new Mongo.ObjectID(_id)
-                });
-                return true;
+                let nC = Commandes.find({entretien:_id}).fetch().length
+                if(nC > 0){
+                    let qrm = [];
+                    if(nC > 0){qrm.push({status:false,message:'Suppresion impossible, ' + nC + ' commande(s) liée(s)'})}
+                    return qrm;
+                }else{
+                    Entretiens.remove({
+                        _id:new Mongo.ObjectID(_id)
+                    });
+                    return [{status:true,message:'Suppression réussie'}];
+                }
             }
             throw new Error('Unauthorized');
         },
@@ -134,7 +142,7 @@ export default {
                         }
                     }
                 ); 
-                return true;
+                return [{status:true,message:'Entretien archivé'}];
             }
             throw new Error('Unauthorized');
         },
@@ -149,7 +157,7 @@ export default {
                         }
                     }
                 ); 
-                return true;
+                return [{status:true,message:'Description sauvegardée'}];
             }
             throw new Error('Unauthorized');
         },
@@ -164,7 +172,7 @@ export default {
                         }
                     }
                 ); 
-                return true;
+                return [{status:true,message:'Titre sauvegardé'}];
             }
             throw new Error('Unauthorized');
         },
@@ -180,7 +188,7 @@ export default {
                         }
                     }
                 ); 
-                return true;
+                return [{status:true,message:'Informations sauvegardées'}];
             }
             throw new Error('Unauthorized');
         },
@@ -196,7 +204,7 @@ export default {
                         }
                     }
                 ); 
-                return true;
+                return [{status:true,message:'Entretien affecté'}];
             }
             throw new Error('Unauthorized');
         }

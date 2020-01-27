@@ -10,6 +10,6 @@ extend type Query{
 }
 
 extend type Mutation{
-    addSociete(trikey:String!,name:String!): [Societe]
-    deleteSociete(_id:String!): [Societe]
+    addSociete(trikey:String!,name:String!): [QueryResultMessage]
+    deleteSociete(_id:String!): [QueryResultMessage]
 }

@@ -3,7 +3,7 @@ import { Mongo } from 'meteor/mongo';
 export default {
     Query : {
         testThis(obj, args,{user}){
-            Entretiens.remove({})
+            //Entretiens.remove({})
             return "true";
         }
     }

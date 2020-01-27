@@ -16,18 +16,16 @@ export class Content extends Component {
     addSocieteQuery : gql`
         mutation addSociete($trikey:String!,$name:String!){
             addSociete(trikey:$trikey,name:$name){
-                _id
-                trikey
-                name
+                status
+                message
             }
         }
     `,
     deleteSocieteQuery : gql`
         mutation deleteSociete($_id:String!){
             deleteSociete(_id:$_id){
-                _id
-                trikey
-                name
+                status
+                message
             }
         }
     `,
@@ -103,8 +101,15 @@ export class Content extends Component {
             name:this.state.nameSociete
         }
     }).then(({data})=>{
-        this.setState({
-            needToRefreshSocietes:true
+        data.addSociete.map(qrm=>{
+            if(qrm.status){
+                this.props.toast({message:qrm.message,type:"success"});
+                this.setState({
+                    needToRefreshSocietes:true
+                })
+            }else{
+                this.props.toast({message:qrm.message,type:"error"});
+            }
         })
     })
   }
@@ -116,8 +121,15 @@ export class Content extends Component {
             _id:this.state.selectedSociete
         }
     }).then(({data})=>{
-        this.setState({
-            needToRefreshSocietes:true
+        data.deleteSociete.map(qrm=>{
+            if(qrm.status){
+                this.props.toast({message:qrm.message,type:"success"});
+                this.setState({
+                    needToRefreshSocietes:true
+                })
+            }else{
+                this.props.toast({message:qrm.message,type:"error"});
+            }
         })
     })
   }

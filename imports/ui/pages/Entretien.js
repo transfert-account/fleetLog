@@ -57,12 +57,18 @@ class Entretien extends Component {
         `,
         deleteEntretienQuery : gql`
             mutation deleteEntretien($_id:String!){
-                deleteEntretien(_id:$_id)
+                deleteEntretien(_id:$_id){
+                    status
+                    message
+                }
             }
         `,
         archiveEntretienQuery : gql`
             mutation archiveEntretien($_id:String!,$archived:Boolean!){
-                archiveEntretien(_id:$_id,archived:$archived)
+                archiveEntretien(_id:$_id,archived:$archived){
+                    status
+                    message
+                }
             }
         `,
         commandesByEntretienQuery : gql`
@@ -81,22 +87,34 @@ class Entretien extends Component {
         `,
         addCommandeQuery : gql`
             mutation addCommande($entretien:String!,$piece:String!,$price:Float!){
-                addCommande(entretien:$entretien,piece:$piece,price:$price)
+                addCommande(entretien:$entretien,piece:$piece,price:$price){
+                    status
+                    message
+                }
             }
         `,
         editInfosQuery : gql`
             mutation editInfos($_id:String!,$time:Float!,$status:Int!){
-                editInfos(_id:$_id,time:$time,status:$status)
+                editInfos(_id:$_id,time:$time,status:$status){
+                    status
+                    message
+                }
             }
         `,
         editDescQuery : gql`
             mutation editDesc($_id:String!,$description:String!){
-                editDesc(_id:$_id,description:$description)
+                editDesc(_id:$_id,description:$description){
+                    status
+                    message
+                }
             }
         `,
         editTitleQuery : gql`
             mutation editTitle($_id:String!,$title:String!){
-                editTitle(_id:$_id,title:$title)
+                editTitle(_id:$_id,title:$title){
+                    status
+                    message
+                }
             }
         `,
         commandes : () => {
@@ -194,7 +212,14 @@ class Entretien extends Component {
                 archived:true
             }
         }).then(({data})=>{
-            this.props.history.push("/entretiens");
+            data.archiveEntretien.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.history.push("/entretiens");
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     }
 
@@ -206,7 +231,14 @@ class Entretien extends Component {
                 _id:this.state._id,
             }
         }).then(({data})=>{
-            this.props.history.push("/entretiens");
+            data.deleteEntretien.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.history.push("/entretiens");
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     }
 
@@ -217,6 +249,14 @@ class Entretien extends Component {
                 _id:this.state._id,
                 description:this.state.newDesc
             }
+        }).then(({data})=>{
+            data.editDesc.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     },400);
 
@@ -227,6 +267,14 @@ class Entretien extends Component {
                 _id:this.state._id,
                 title:this.state.newTitle
             }
+        }).then(({data})=>{
+            data.editTitle.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     },400);
 
@@ -275,7 +323,14 @@ class Entretien extends Component {
                 status:parseInt(this.state.newStatus)
             }
         }).then(({data})=>{
-            this.loadEntretien();
+            data.editTitle.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.loadEntretien();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     }
 

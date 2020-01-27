@@ -35,9 +35,9 @@ extend type Query{
 }
 
 extend type Mutation{
-    addVehicle(societe:String!,registration:String!,firstRegistrationDate:String!,km:Int!,lastKmUpdate:String!,brand:String!,model:String!,volume:String!,payload:Float!,color:String!,insurancePaid:Float!,payementBeginDate:String!,purchasePrice:Float,monthlyPayement:Float,payementOrg:String,payementFormat:String): Boolean
-    editVehicle(_id:String!,societe:String!,registration:String!,firstRegistrationDate:String!,brand:String!,model:String!,volume:String!,payload:Float!,color:String!,insurancePaid:Float!,payementBeginDate:String!): Boolean
-    updateKm(_id:String!,date:String!,kmValue:Int!):Boolean
-    deleteKm(vehicle:String!,_id:String!):Boolean
-    deleteVehicle(_id:String!): Boolean
+    addVehicle(societe:String!,registration:String!,firstRegistrationDate:String!,km:Int!,lastKmUpdate:String!,brand:String!,model:String!,volume:String!,payload:Float!,color:String!,insurancePaid:Float!,payementBeginDate:String!,purchasePrice:Float,monthlyPayement:Float,payementOrg:String,payementFormat:String): [QueryResultMessage]
+    editVehicle(_id:String!,societe:String!,registration:String!,firstRegistrationDate:String!,brand:String!,model:String!,volume:String!,payload:Float!,color:String!,insurancePaid:Float!,payementBeginDate:String!): [QueryResultMessage]
+    updateKm(_id:String!,date:String!,kmValue:Int!):[QueryResultMessage]
+    deleteKm(vehicle:String!,_id:String!):[QueryResultMessage]
+    deleteVehicle(_id:String!): [QueryResultMessage]
 }

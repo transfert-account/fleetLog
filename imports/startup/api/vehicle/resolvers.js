@@ -1,5 +1,7 @@
 import Vehicles from './vehicles.js';
+import Entretiens from '../entretien/entretiens';
 import Societes from '../societe/societes.js';
+import Licences from '../licence/licences';
 import Volumes from '../volume/volumes.js';
 import Equipements from '../equipement/equipements';
 import EquipementDescriptions from '../equipementDescription/equipementDescriptions';
@@ -85,7 +87,7 @@ export default {
                     payementOrg:payementOrg,
                     payementFormat:payementFormat
                 });
-                return true;
+                return [{status:true,message:'Création réussie'}];
             }
             throw new Error('Unauthorized');
         },
@@ -114,7 +116,7 @@ export default {
                         }
                     }
                 );                
-                return true;
+                return [{status:true,message:'Modifications sauvegardées'}];
             }
             throw new Error('Unauthorized');
         },
@@ -122,10 +124,10 @@ export default {
             if(user._id){
                 let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(_id)});
                 if(!moment(vehicle.kms[vehicle.kms.length-1].reportDate, "DD/MM/YYYY").diff(moment(date, "DD/MM/YYYY"))){
-                    throw new Error("Dernier relevé plus recent");
+                    return [{status:false,message:'Dernier relevé plus recent'}];
                 }
                 if(vehicle.kms[vehicle.kms.length-1].kmValue > kmValue){
-                    throw new Error("Kilométrage incohérent");
+                    return [{status:false,message:'Kilométrage du dernier relevé plus élevé'}];
                 }
                 /*if(moment(vehicle.lastKmUpdate, "DD/MM/YYYY").diff(moment())){
                     throw new Error("Date de relevé dans le futur");
@@ -153,7 +155,7 @@ export default {
                         }
                     }
                 )
-                return true;
+                return [{status:true,message:'Nouveau relevé enregsitré'}];
             }
             throw new Error('Unauthorized');
         },
@@ -170,16 +172,27 @@ export default {
                         }
                     }
                 )
-                return true;
+                return [{status:true,message:'Relevé supprimé'}];
             }
             throw new Error('Unauthorized');
         },
         deleteVehicle(obj, {_id},{user}){
             if(user._id){
-                Vehicles.remove({
-                    _id:new Mongo.ObjectID(_id)
-                });
-                return true;
+                let nL = Licences.find({vehicle:_id}).fetch().length
+                let nE = Entretiens.find({vehicle:_id}).fetch().length
+                let nQ = Equipements.find({vehicle:_id}).fetch().length
+                if(nL + nE + nQ > 0){
+                    let qrm = [];
+                    if(nL > 0){qrm.push({status:false,message:'Suppresion impossible, ' + nL + ' licence(s) liée(s)'})}
+                    if(nE > 0){qrm.push({status:false,message:'Suppresion impossible, ' + nE + ' entretien(s) lié(s)'})}
+                    if(nQ > 0){qrm.push({status:false,message:'Suppresion impossible, ' + nQ + ' equipement(s) lié(s)'})}
+                    return qrm;
+                }else{
+                    Vehicles.remove({
+                        _id:new Mongo.ObjectID(_id)
+                    });
+                    return [{status:true,message:'Suppression réussie'}];
+                }
             }
             throw new Error('Unauthorized');
         },

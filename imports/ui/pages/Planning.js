@@ -106,7 +106,10 @@ class Planning extends Component {
   `,
   affectToMeQuery : gql`
     mutation affectToMe($_id:String!,$occurenceDate:String!){
-      affectToMe(_id:$_id,occurenceDate:$occurenceDate)
+      affectToMe(_id:$_id,occurenceDate:$occurenceDate){
+        status
+        message
+      }
     }
   `
   }
@@ -189,8 +192,15 @@ class Planning extends Component {
         occurenceDate:this.state.newAffectDate
       }
     }).then(({data})=>{
-      this.loadMyEntretiens();
-      this.loadUnaffectedEntretiens();
+      data.affectToMe.map(qrm=>{
+        if(qrm.status){
+          this.props.toast({message:qrm.message,type:"success"});
+          this.loadMyEntretiens();
+          this.loadUnaffectedEntretiens();
+        }else{
+          this.props.toast({message:qrm.message,type:"error"});
+        }
+      })
     })
   }
 
@@ -247,9 +257,9 @@ class Planning extends Component {
           <Table color="green" style={{gridColumnStart:"2",placeSelf:"start stretch"}} striped celled compact="very">
             <Table.Header>
               <Table.Row textAlign='center'>
-                <Table.HeaderCell width={3}>Véhicule</Table.HeaderCell>
+                <Table.HeaderCell width={4}>Véhicule</Table.HeaderCell>
                 <Table.HeaderCell width={6}>Entretien</Table.HeaderCell>
-                <Table.HeaderCell width={3}>Date</Table.HeaderCell>
+                <Table.HeaderCell width={4}>Date</Table.HeaderCell>
                 <Table.HeaderCell width={2}>Actions</Table.HeaderCell>
               </Table.Row>
             </Table.Header>
@@ -269,8 +279,8 @@ class Planning extends Component {
             <Table.Header>
               <Table.Row textAlign='center'>
                 <Table.HeaderCell width={4}>Véhicule</Table.HeaderCell>
-                <Table.HeaderCell width={10}>Entretien</Table.HeaderCell>
-                <Table.HeaderCell width={2}>Actions</Table.HeaderCell>
+                <Table.HeaderCell width={8}>Entretien</Table.HeaderCell>
+                <Table.HeaderCell width={4}>Actions</Table.HeaderCell>
               </Table.Row>
             </Table.Header>
             <Table.Body>
