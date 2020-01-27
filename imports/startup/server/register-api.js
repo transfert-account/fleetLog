@@ -43,6 +43,9 @@ import VolumeResolvers from '../api/volume/resolvers.js';
 import LocationSchema from '../api/location/Location.graphql';
 import LocationResolvers from '../api/location/resolvers.js';
 
+import TestSchema from '../api/test/Test.graphql';
+import TestResolvers from '../api/test/resolvers.js';
+
 // #0208
 
 const typeDefs = [
@@ -58,7 +61,8 @@ const typeDefs = [
     CommandeSchema,
     PlanningSchema,
     VolumeSchema,
-    LocationSchema
+    LocationSchema,
+    TestSchema
 ];
 
 const resolvers = merge(
@@ -74,7 +78,8 @@ const resolvers = merge(
     CommandeResolvers,
     PlanningResolvers,
     VolumeResolvers,
-    LocationResolvers
+    LocationResolvers,
+    TestResolvers
 );
 
 const server = new ApolloServer({

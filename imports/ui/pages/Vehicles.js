@@ -178,6 +178,14 @@ export class Vehicles extends Component {
 
   loadVehicles = () => {
     this.props.client.query({
+        query: gql`
+            query testThis{
+                testThis
+            }`
+    }).then(({data})=>{
+        console.log(JSON.parse(data.testThis))
+    })
+    this.props.client.query({
         query:this.state.vehiclesQuery,
         fetchPolicy:"network-only"
     }).then(({data})=>{

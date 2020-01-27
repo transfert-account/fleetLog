@@ -38,7 +38,6 @@ class PageBody extends Component {
   }
 
   getAvailableRoutes = () =>{
-    console.log(this.props.user)
     if(this.props.user.isAdmin){//Si l'utilisateur est administrateur
       return(
         <Switch>
