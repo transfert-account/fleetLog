@@ -5,7 +5,7 @@ type Entretien{
     description:String
     title:String
     archived:Boolean!
-    occurenceDate:String!
+    occurenceDate:String
     user:String!
     time:Float!
     status:Int!

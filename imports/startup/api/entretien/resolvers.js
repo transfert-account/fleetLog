@@ -106,7 +106,7 @@ export default {
                     vehicle:vehicle,
                     description:"",
                     archived:false,
-                    occurenceDate:null,
+                    occurenceDate:"",
                     user:"",
                     time:0,
                     status:1
