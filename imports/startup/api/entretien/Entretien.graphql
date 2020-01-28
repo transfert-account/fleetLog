@@ -21,9 +21,11 @@ extend type Query{
 
 extend type Mutation{
     affectToMe(_id:String!,occurenceDate:String!): [QueryResultMessage]
+    release(_id:String!): [QueryResultMessage]
     addEntretien(vehicle:String!): [QueryResultMessage]
     deleteEntretien(_id:String!): [QueryResultMessage]
     archiveEntretien(_id:String!,archived:Boolean!): [QueryResultMessage]
+    disArchiveEntretien(_id:String!,archived:Boolean!): [QueryResultMessage]
     editDesc(_id:String!,description:String!): [QueryResultMessage]
     editTitle(_id:String!,title:String!): [QueryResultMessage]
     editInfos(_id:String!,time:Float!,status:Int!): [QueryResultMessage]

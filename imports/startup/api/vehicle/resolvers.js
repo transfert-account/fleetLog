@@ -60,6 +60,34 @@ export default {
                 });
             });
             return vehicles;
+        },
+        buVehicles(obj, args,{user}){
+            let userFull = Meteor.users.findOne({_id:user._id});
+            let vehicles = Vehicles.find({societe:userFull.settings.visibility}).fetch() || {};
+            vehicles.forEach((v,i) => {
+                v.lastKmUpdate = v.kms[v.kms.length-1].reportDate
+                v.km = v.kms[v.kms.length-1].kmValue
+                if(v.payementFormat == "CRB"){
+                    v.property = false
+                }else{
+                    v.property = true
+                }
+                if(v.volume != null && v.volume.length > 0){
+                    v.volume = Volumes.findOne({_id:new Mongo.ObjectID(v.volume)});
+                }else{
+                    v.volume = {_id:""};
+                }
+                if(v.societe != null && v.societe.length > 0){
+                    vehicles[i].societe = Societes.findOne({_id:new Mongo.ObjectID(v.societe)});
+                }else{
+                    vehicles[i].societe = {_id:""};
+                }
+                v.equipements = Equipements.find({vehicle:v._id._str}).fetch() || {};
+                v.equipements.forEach((e,ei) => {
+                    e.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)}) || {};
+                });
+            });
+            return vehicles;
         }
     },
     Mutation:{

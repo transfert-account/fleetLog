@@ -146,6 +146,21 @@ export default {
             }
             throw new Error('Unauthorized');
         },
+        disArchiveEntretien(obj, {_id,archived},{user}){
+            if(user._id){
+                Entretiens.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "archived":archived
+                        }
+                    }
+                ); 
+                return [{status:true,message:'Entretien de nouveau ouvert'}];
+            }
+            throw new Error('Unauthorized');
+        },
         editDesc(obj, {_id,description},{user}){
             if(user._id){
                 Entretiens.update(
@@ -205,6 +220,22 @@ export default {
                     }
                 ); 
                 return [{status:true,message:'Entretien affecté'}];
+            }
+            throw new Error('Unauthorized');
+        },
+        release(obj, {_id},{user}){
+            if(user._id){
+                Entretiens.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "user":"",
+                            "occurenceDate":""
+                        }
+                    }
+                ); 
+                return [{status:true,message:'Entretien relaché'}];
             }
             throw new Error('Unauthorized');
         }

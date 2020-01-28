@@ -83,6 +83,12 @@ class Calendar extends Component {
     this.loadMonth({year:year,month:month});
   }
 
+  componentDidUpdate = () => {
+    if(this.props.needToRefreshMonth == true){
+      this.loadMonth({year:this.state.year,month:this.state.month});
+    }
+  }
+
   loadMonth = ({year,month}) => {
     this.props.client.query({
       query:this.state.entretiensPopulatedMonthQuery,
@@ -92,6 +98,7 @@ class Calendar extends Component {
       },
       fetchPolicy:"network-only"
     }).then(({data})=>{
+      this.props.didRefreshMonth()
       this.setState({
         daysOfTheMonth:data.entretiensPopulatedMonth,
         year:year,
@@ -119,7 +126,7 @@ class Calendar extends Component {
         <Button style={{gridRowStart:"1",gridColumnStart:"4",alignSelf:"center"}} size="small" color="blue" onClick={this.navigateToNextMonth} icon><Icon name="right arrow"/></Button>
         <div style={{gridRowStart:"2",gridColumnStart:"1",gridColumnEnd:"span 5",display:"grid",gridGap:"6px",gridTemplateColumns:"1fr 1fr 1fr 1fr 1fr 1fr 1fr",gridTemplateRows:"120px 120px 120px 120px 120px 120px"}}>
           {this.state.daysOfTheMonth.map(day => (
-            <CalendarTile key={day.year+"/"+day.month+"/"+day.day} selected={this.dateIsSelected({d:day.day,m:day.month,y:day.year})} day={day} selectDate={this.selectDate} />
+            <CalendarTile key={day.year+"/"+day.month+"/"+day.day+"/"+day.entretiens.length} selected={this.dateIsSelected({d:day.day,m:day.month,y:day.year})} day={day} selectDate={this.selectDate} />
           ))}
         </div>
       </div>

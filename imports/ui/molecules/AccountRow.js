@@ -88,6 +88,7 @@ export class AccountRow extends Component {
             this.setState({
                 visibility:data.setVisibility.visibility
             });
+            this.props.forceReloadUser();
         })
     }
 

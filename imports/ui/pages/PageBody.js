@@ -1,7 +1,10 @@
 import React, { Component } from 'react'
 import { Route, Switch, Redirect } from 'react-router-dom';
 import Home from './Home';
+
 import Vehicles from './Vehicles';
+import BUVehicles from './BUVehicles';
+
 import Vehicle from './Vehicle';
 import Controls from './Controls';
 import Licences from './Licences';
@@ -39,36 +42,68 @@ class PageBody extends Component {
 
   getAvailableRoutes = () =>{
     if(this.props.user.isAdmin){//Si l'utilisateur est administrateur
-      return(
-        <Switch>
-          <Route exact path='/' component={Home}/>
-          
-          <Route exact path='/parc/vehicles' component={Vehicles}/>
-          <Route exact path='/parc/vehicle/:_id' component={Vehicle}/>
-          <Route exact path='/parc/controls' component={Controls}/>
-          <Route exact path='/parc/licences' component={Licences}/>
-          <Route exact path='/parc/locations' component={Locations}/>
-          <Route exact path='/parc/location/:_id' component={Location}/>
+      if(this.props.user.visibility == "noidthisisgroupvisibility"){//Si l'utilisateur a une visibilité groupe
+        return(
+          <Switch>
+            <Route exact path='/' component={Home}/>
+            
+            <Route exact path='/parc/vehicles' component={Vehicles}/>
+            <Route exact path='/parc/vehicle/:_id' component={Vehicle}/>
+            <Route exact path='/parc/controls' component={Controls}/>
+            <Route exact path='/parc/licences' component={Licences}/>
+            <Route exact path='/parc/locations' component={Locations}/>
+            <Route exact path='/parc/location/:_id' component={Location}/>
 
-          <Route exact path='/entretiens' component={Entretiens}/>
-          <Route exact path='/entretien/:_id' component={Entretien}/>
+            <Route exact path='/entretiens' component={Entretiens}/>
+            <Route exact path='/entretien/:_id' component={Entretien}/>
 
-          <Route exact path='/planning/:y/:m' component={Planning}/>
+            <Route exact path='/planning/:y/:m' component={Planning}/>
 
-          <Route exact path='/accidentologie' component={Accidentologie}/>
+            <Route exact path='/accidentologie' component={Accidentologie}/>
 
-          <Route exact path='/fournisseurs' component={Fournisseurs}/>
+            <Route exact path='/fournisseurs' component={Fournisseurs}/>
 
-          <Route exact path='/compte' component={Compte}/>
-          
-          <Route exact path='/administration/accounts' component={Accounts}/>
-          <Route exact path='/administration/content' component={Content}/>
-          <Route exact path='/administration/equipements' component={Equipements}/>
-          <Route exact path='/administration/pieces' component={Pieces}/>
-          <Redirect from='*' to={'/'}/>
-        </Switch>
-      );
-    }else{//Si l'utilisateur est user
+            <Route exact path='/compte' component={Compte}/>
+            
+            <Route exact path='/administration/accounts' component={Accounts}/>
+            <Route exact path='/administration/content' component={Content}/>
+            <Route exact path='/administration/equipements' component={Equipements}/>
+            <Route exact path='/administration/pieces' component={Pieces}/>
+            <Redirect from='*' to={'/'}/>
+          </Switch>
+        );
+      }else{//Si l'utilisateur a une visibilité societé définie
+        return(
+          <Switch>
+            <Route exact path='/' component={Home}/>
+            
+            <Route exact path='/parc/vehicles' component={BUVehicles}/>
+            <Route exact path='/parc/vehicle/:_id' component={Vehicle}/>
+            <Route exact path='/parc/controls' component={Controls}/>
+            <Route exact path='/parc/licences' component={Licences}/>
+            <Route exact path='/parc/locations' component={Locations}/>
+            <Route exact path='/parc/location/:_id' component={Location}/>
+
+            <Route exact path='/entretiens' component={Entretiens}/>
+            <Route exact path='/entretien/:_id' component={Entretien}/>
+
+            <Route exact path='/planning/:y/:m' component={Planning}/>
+
+            <Route exact path='/accidentologie' component={Accidentologie}/>
+
+            <Route exact path='/fournisseurs' component={Fournisseurs}/>
+
+            <Route exact path='/compte' component={Compte}/>
+            
+            <Route exact path='/administration/accounts' component={Accounts}/>
+            <Route exact path='/administration/content' component={Content}/>
+            <Route exact path='/administration/equipements' component={Equipements}/>
+            <Route exact path='/administration/pieces' component={Pieces}/>
+            <Redirect from='*' to={'/'}/>
+          </Switch>
+        );
+      }
+    }else{//Si l'utilisateur est user, et a donc une visibilité societé définie
       return(
         <Switch>
           <Route exact path='/' component={Home}/>

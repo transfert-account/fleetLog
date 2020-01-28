@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { Table,Button,Modal,Form,Input,Menu,Segment } from 'semantic-ui-react';
 import PlanningRow from '../molecules/PlanningRow';
 import Calendar from '../molecules/Calendar';
-import ModalDatePicker from '../atoms/ModalDatePicker'
+import ModalDatePicker from '../atoms/ModalDatePicker';
 import { withRouter } from 'react-router-dom';
 import { UserContext } from '../../contexts/UserContext';
 import moment from "moment";
@@ -12,11 +12,15 @@ class Planning extends Component {
 
   state={
   entretienToAffect:"",
+  entretienToRealse:"",
   selectedDate:moment(),
   activeItem:"selectedDay",
   newAffectDate:"",
+  needToRefreshMonth:false,
   entretiensOfTheDayRaw:[],
   unaffectedEntretiensRaw:[],
+  openAffectToMe:false,
+  openRelease:false,
   myEntretiensRaw:[],
   sideTableSelected:true,
   month:parseInt(this.props.match.params.m),
@@ -78,35 +82,43 @@ class Planning extends Component {
     }
   `,
   unaffectedEntretiensQuery : gql`
-  query unaffectedEntretiens{
-    unaffectedEntretiens{
-      _id
-      description
-      title
-      vehicle{
+    query unaffectedEntretiens{
+      unaffectedEntretiens{
         _id
-        societe{
+        description
+        title
+        vehicle{
           _id
-          trikey
-          name
+          societe{
+            _id
+            trikey
+            name
+          }
+          registration
+          km
+          brand
+          model
+          volume{
+            _id
+            meterCube
+          }
+          payload
+          color
         }
-        registration
-        km
-        brand
-        model
-        volume{
-          _id
-          meterCube
-        }
-        payload
-        color
       }
     }
-  }
   `,
   affectToMeQuery : gql`
     mutation affectToMe($_id:String!,$occurenceDate:String!){
       affectToMe(_id:$_id,occurenceDate:$occurenceDate){
+        status
+        message
+      }
+    }
+  `,
+  releaseQuery : gql`
+    mutation release($_id:String!){
+      release(_id:$_id){
         status
         message
       }
@@ -183,6 +195,31 @@ class Planning extends Component {
     this.showAffectToMe();
   }
 
+  showRelease = () => {
+    this.setState({
+      openRelease : true
+    })
+  }
+
+  closeRelease = () => {
+    this.setState({
+      openRelease : false
+    })
+  }
+
+  triggerReleaseEntretien = _id => {
+    this.setState({
+      entretienToRealse:_id
+    })
+    this.showRelease();
+  }
+
+  didRefreshMonth = () => {
+    this.setState({
+      needToRefreshMonth:false
+    })
+  }
+
   affectToMe = () => {
     this.closeAffectToMe();
     this.props.client.mutate({
@@ -195,6 +232,32 @@ class Planning extends Component {
       data.affectToMe.map(qrm=>{
         if(qrm.status){
           this.props.toast({message:qrm.message,type:"success"});
+          this.setState({
+            needToRefreshMonth:true
+          })
+          this.loadMyEntretiens();
+          this.loadUnaffectedEntretiens();
+        }else{
+          this.props.toast({message:qrm.message,type:"error"});
+        }
+      })
+    })
+  }
+
+  release = () => {
+    this.closeRelease();
+    this.props.client.mutate({
+      mutation:this.state.releaseQuery,
+      variables:{
+        _id:this.state.entretienToRealse
+      }
+    }).then(({data})=>{
+      data.release.map(qrm=>{
+        if(qrm.status){
+          this.props.toast({message:qrm.message,type:"success"});
+          this.setState({
+            needToRefreshMonth:true
+          })
           this.loadMyEntretiens();
           this.loadUnaffectedEntretiens();
         }else{
@@ -244,7 +307,7 @@ class Planning extends Component {
             </Table.Header>
             <Table.Body>
               {this.state.entretiensOfTheDayRaw.map(e=>{
-                return (<PlanningRow key={e._id+"unaffected"} active={this.state.activeItem} triggerAffectToMe={this.triggerAffectToMe} navigateToEntretien={this.navigateToEntretien} entretien={e} />)
+                return (<PlanningRow key={e._id+"unaffected"} active={this.state.activeItem} triggerReleaseEntretien={this.triggerReleaseEntretien} navigateToEntretien={this.navigateToEntretien} entretien={e} />)
               })}
             </Table.Body>
           </Table>
@@ -265,7 +328,7 @@ class Planning extends Component {
             </Table.Header>
             <Table.Body>
               {this.state.myEntretiensRaw.map(e=>{
-                return (<PlanningRow active={this.state.activeItem} key={e._id} navigateToEntretien={this.navigateToEntretien} entretien={e} />)
+                return (<PlanningRow active={this.state.activeItem} triggerReleaseEntretien={this.triggerReleaseEntretien} key={e._id} navigateToEntretien={this.navigateToEntretien} entretien={e} />)
               })}
             </Table.Body>
           </Table>
@@ -279,8 +342,8 @@ class Planning extends Component {
             <Table.Header>
               <Table.Row textAlign='center'>
                 <Table.HeaderCell width={4}>Véhicule</Table.HeaderCell>
-                <Table.HeaderCell width={8}>Entretien</Table.HeaderCell>
-                <Table.HeaderCell width={4}>Actions</Table.HeaderCell>
+                <Table.HeaderCell width={10}>Entretien</Table.HeaderCell>
+                <Table.HeaderCell width={2}>Actions</Table.HeaderCell>
               </Table.Row>
             </Table.Header>
             <Table.Body>
@@ -304,7 +367,7 @@ class Planning extends Component {
     return (
       <Fragment>
         <div style={{display:"grid",gridTemplateColumns:"3fr 2fr",gridTemplateRows:"auto 1fr",gridGap:"32px"}}>
-          <Calendar style={{gridRowEnd:"span 2"}} selectDate={this.selectDate} month={this.state.month} year={this.state.year}/>
+          <Calendar didRefreshMonth={this.didRefreshMonth} needToRefreshMonth={this.state.needToRefreshMonth} style={{gridRowEnd:"span 2"}} selectDate={this.selectDate} month={this.state.month} year={this.state.year}/>
           <div style={{gridRowEnd:"span 2"}}>
           <Menu widths={3} attached='top' tabular>
             <Menu.Item color="blue" name='selectedDay' active={this.state.activeItem === 'selectedDay'} onClick={()=>this.setState({activeItem:"selectedDay"})}>{this.state.selectedDate.format("DD/MM/YYYY")}</Menu.Item>
@@ -330,7 +393,19 @@ class Planning extends Component {
             <Button color="black" onClick={this.closeAffectToMe}>Annuler</Button>
             <Button color="blue" onClick={this.affectToMe}>Affecter l'entretien</Button>
           </Modal.Actions>
-            </Modal>
+        </Modal>
+        <Modal size="mini" closeOnDimmerClick={false} open={this.state.openRelease} onClose={this.closeRelease} closeIcon>
+          <Modal.Header>
+            Relacher l'entretien ?
+          </Modal.Header>
+          <Modal.Content style={{textAlign:"center"}}>
+            L'entretien ne vous sera plus affecté et sera de nouveau en attente de prise en charge
+          </Modal.Content>
+          <Modal.Actions>
+            <Button color="black" onClick={this.closeRelease}>Annuler</Button>
+            <Button color="red" onClick={this.release}>Relacher l'entretien</Button>
+          </Modal.Actions>
+        </Modal>
         <ModalDatePicker onSelectDatePicker={this.onSelectDatePicker} closeDatePicker={this.closeDatePicker} open={this.state.openDatePicker}/>
       </Fragment>
     )

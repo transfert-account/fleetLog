@@ -84,6 +84,18 @@ class Provider extends Component {
             }
         })
     }
+
+    forceReloadUser = () => {
+        this.props.client.query({
+            query:this.state.userQuery,
+            fetchPolicy:'network-only'
+        }).then(({data})=>{
+            this.setState({
+                user:data.user,
+                users:data.users
+            })
+        })
+    }
     
     componentDidUpdate = () => {
         this.reloadUser()
@@ -97,6 +109,7 @@ class Provider extends Component {
                 client : this.props.client,
                 societes:this.props.societes,
                 reloadUser:this.reloadUser,
+                forceReloadUser:this.forceReloadUser,
                 toast:this.toast
             }}>
                 {this.props.children}

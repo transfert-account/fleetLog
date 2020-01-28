@@ -40,7 +40,9 @@ class SocietePicker extends Component {
             this.setState({
                 societesRaw:Array.from(societes)
             })
-            this.props.didRefresh()
+            if(this.props.didRefresh != undefined){
+                this.props.didRefresh()
+            }
         })
     }
     

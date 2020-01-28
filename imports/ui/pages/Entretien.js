@@ -4,6 +4,7 @@ import { UserContext } from '../../contexts/UserContext';
 import CommandeRow from '../molecules/CommandeRow';
 import PiecePicker from '../atoms/PiecePicker';
 import { withRouter } from 'react-router-dom';
+import ModalDatePicker from '../atoms/ModalDatePicker'
 import { gql } from 'apollo-server-express';
 import _ from 'lodash';
 
@@ -17,21 +18,45 @@ class Entretien extends Component {
         newPrice:"",
         newTitle:"",
         newTime:0,
+        newAffectDate:"",
+        openDatePicker:false,
         newStatus:0,
         openDelete:false,
+        openAffectToMe:false,
+        openRelease:false,
         openArchive:false,
+        openDisArchive:false,
         newPieceType:"",
         commandesRaw:[],
         _id:this.props.match.params._id,
         loadingEntretien:true,
         loadingCommandes:true,
         status:[{status:1,label:"En cours"},{status:2,label:"Réalisé"},{status:3,label:"Archivé"}],
+        affectToMeQuery : gql`
+            mutation affectToMe($_id:String!,$occurenceDate:String!){
+                affectToMe(_id:$_id,occurenceDate:$occurenceDate){
+                    status
+                    message
+                }
+            }
+        `,
+        releaseQuery : gql`
+            mutation release($_id:String!){
+                release(_id:$_id){
+                    status
+                    message
+                }
+            }
+        `,
         entretienQuery : gql`
             query entretien($_id:String!){
                 entretien(_id:$_id){
                     _id
                     description
                     title
+                    archived
+                    occurenceDate
+                    user
                     time
                     status
                     vehicle{
@@ -66,6 +91,14 @@ class Entretien extends Component {
         archiveEntretienQuery : gql`
             mutation archiveEntretien($_id:String!,$archived:Boolean!){
                 archiveEntretien(_id:$_id,archived:$archived){
+                    status
+                    message
+                }
+            }
+        `,
+        disArchiveEntretienQuery : gql`
+            mutation disArchiveEntretien($_id:String!,$archived:Boolean!){
+                disArchiveEntretien(_id:$_id,archived:$archived){
                     status
                     message
                 }
@@ -215,13 +248,34 @@ class Entretien extends Component {
             data.archiveEntretien.map(qrm=>{
                 if(qrm.status){
                     this.props.toast({message:qrm.message,type:"success"});
-                    this.props.history.push("/entretiens");
+                    this.loadEntretien();
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
                 }
             })
         })
     }
+
+    disArchiveEntretien = () => {
+        this.closeDisArchive();
+        this.props.client.mutate({
+            mutation:this.state.disArchiveEntretienQuery,
+            variables:{
+                _id:this.state._id,
+                archived:false
+            }
+        }).then(({data})=>{
+            data.disArchiveEntretien.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.loadEntretien();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+
 
     deleteEntretien = () => {
         this.closeDelete();
@@ -258,7 +312,7 @@ class Entretien extends Component {
                 }
             })
         })
-    },400);
+    },1000);
 
     editTitle = _.debounce(()=>{
         this.props.client.mutate({
@@ -276,7 +330,21 @@ class Entretien extends Component {
                 }
             })
         })
-    },400);
+    },1000);
+
+    showDatePicker = target => {
+        this.setState({openDatePicker:true,datePickerTarget:target})
+    }
+
+    closeDatePicker = target => {
+        this.setState({openDatePicker:false,datePickerTarget:""})
+    }
+
+    onSelectDatePicker = date => {
+        this.setState({
+            [this.state.datePickerTarget]:date.getDate().toString().padStart(2, '0')+"/"+parseInt(date.getMonth()+1).toString().padStart(2, '0')+"/"+date.getFullYear().toString().padStart(4, '0')
+        })
+    }
 
     showDelete = () => {
         this.setState({openDelete:true})
@@ -286,12 +354,40 @@ class Entretien extends Component {
         this.setState({openDelete:false})
     }
 
+    showAffectToMe = () => {
+        this.setState({openAffectToMe:true})
+    }
+
+    closeAffectToMe = () => {
+        this.setState({openAffectToMe:false})
+    }
+
+    showRelease = () => {
+        this.setState({
+            openRelease : true
+        })
+    }
+    
+      closeRelease = () => {
+        this.setState({
+            openRelease : false
+        })
+    }
+
     showArchive = () => {
         this.setState({openArchive:true})
     }
 
     closeArchive = () => {
         this.setState({openArchive:false})
+    }
+
+    showDisArchive = () => {
+        this.setState({openDisArchive:true})
+    }
+
+    closeDisArchive = () => {
+        this.setState({openDisArchive:false})
     }
 
     componentDidMount = () => {
@@ -310,6 +406,45 @@ class Entretien extends Component {
             }
         }).then(({data})=>{
             this.loadCommandes();
+        })
+    }
+
+    affectToMe = () => {
+        this.closeAffectToMe();
+        this.props.client.mutate({
+        mutation:this.state.affectToMeQuery,
+        variables:{
+            _id:this.state._id,
+            occurenceDate:this.state.newAffectDate
+        }
+        }).then(({data})=>{
+            data.affectToMe.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.loadEntretien();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+
+    release = () => {
+        this.closeRelease();
+        this.props.client.mutate({
+        mutation:this.state.releaseQuery,
+        variables:{
+            _id:this.state._id
+        }
+        }).then(({data})=>{
+            data.release.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.loadEntretien();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     }
 
@@ -432,6 +567,36 @@ class Entretien extends Component {
         }
     }
 
+    getArchiveButton = () => {
+        if(this.state.entretienRaw.archived){
+            return (
+                <Button color="green" style={{placeSelf:"stretch"}} onClick={this.showDisArchive} icon labelPosition='right'>Ré-ouvrir l'entretien<Icon name='folder open outline'/></Button>
+            )
+        }else{
+            return (
+                <Button color="orange" style={{placeSelf:"stretch"}} onClick={this.showArchive} icon labelPosition='right'>Archiver l'entretien<Icon name='archive'/></Button>
+            )
+        }
+    }
+    
+    getAffectButton = () => {
+        if(this.state.entretienRaw.user == ""){
+            return (
+                <Button color="violet" style={{placeSelf:"stretch"}} onClick={this.showAffectToMe} icon labelPosition='right'>Affecter l'entretien<Icon name='clipboard'/></Button>
+            )
+        }else{
+            if(this.state.entretienRaw.user == Meteor.userId()){
+                return (
+                    <Button color="violet" style={{placeSelf:"stretch"}} onClick={this.showRelease} icon labelPosition='right'>Relacher l'entretien<Icon name='clipboard'/></Button>
+                )
+            }else{
+                return (
+                    <Button color="grey" style={{placeSelf:"stretch"}} disabled icon labelPosition='right'>Entretien pris en charge<Icon name='user'/></Button>
+                )
+            }
+        }
+    }
+
     render() {
         if(this.state.loadingCommandes || this.state.loadingEntretien){
             return (
@@ -456,9 +621,9 @@ class Entretien extends Component {
                             </Form.Field>
                         </Form>
                         <Button color="red" style={{placeSelf:"stretch"}} onClick={this.showDelete} icon labelPosition='right'>Supprimer l'entretien<Icon name='trash'/></Button>
-                        <Button color="orange" style={{placeSelf:"stretch"}} onClick={this.showArchive} icon labelPosition='right'>Archiver l'entretien<Icon name='archive'/></Button>
+                        {this.getArchiveButton()}
                         <Button color="blue" style={{placeSelf:"stretch"}} onClick={this.showAddCommande} icon labelPosition='right'>Ajouter une piece à la commande<Icon name='plus'/></Button>
-                        <Button color="violet" style={{placeSelf:"stretch"}} onClick={()=>{console.log("click4")}} icon labelPosition='right'>Affecter l'entretien<Icon name='clipboard'/></Button>
+                        {this.getAffectButton()}
                         <div style={{gridRowStart:"2",gridColumnStart:"3",gridColumnEnd:"span 4"}}>
                             <Table celled>
                                 <Table.Header>
@@ -524,10 +689,49 @@ class Entretien extends Component {
                             Archiver l'entretien du vehicule : {this.state.entretienRaw.vehicle.registration} ?
                         </Modal.Header>
                         <Modal.Actions>
-                            <Button color="grey" onClick={this.closeArchive}>Annuler</Button>
+                            <Button color="black" onClick={this.closeArchive}>Annuler</Button>
                             <Button color="orange" onClick={this.archiveEntretien}>Archiver</Button>
                         </Modal.Actions>
                     </Modal>
+                    <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openDisArchive} onClose={this.closeDisArchive} closeIcon>
+                        <Modal.Header>
+                            Sortir l'entretien du vehicule : {this.state.entretienRaw.vehicle.registration} des archives ?
+                        </Modal.Header>
+                        <Modal.Actions>
+                            <Button color="black" onClick={this.closeDisArchive}>Annuler</Button>
+                            <Button color="green" onClick={this.disArchiveEntretien}>Réactiver</Button>
+                        </Modal.Actions>
+                    </Modal>
+                    <Modal size="mini" closeOnDimmerClick={false} open={this.state.openAffectToMe} onClose={this.closeAffectToMe} closeIcon>
+                        <Modal.Header>
+                            A quelle date voulez vous vous affecter l'entretien ?
+                        </Modal.Header>
+                        <Modal.Content style={{textAlign:"center"}}>
+                            <Form style={{display:"grid",gridTemplateColumns:"1fr",gridGap:"16px"}}>
+                                <Form.Field style={{placeSelf:"stretch"}}>
+                                    <label>Date de l'entretien</label>
+                                    <Input value={this.state.newAffectDate} onFocus={()=>{this.showDatePicker("newAffectDate")}} name="newAffectDate"/>
+                                </Form.Field>
+                            </Form>
+                        </Modal.Content>
+                        <Modal.Actions>
+                            <Button color="black" onClick={this.closeAffectToMe}>Annuler</Button>
+                            <Button color="blue" onClick={this.affectToMe}>Affecter l'entretien</Button>
+                        </Modal.Actions>
+                    </Modal>
+                    <Modal size="mini" closeOnDimmerClick={false} open={this.state.openRelease} onClose={this.closeRelease} closeIcon>
+                        <Modal.Header>
+                            Relacher l'entretien ?
+                        </Modal.Header>
+                        <Modal.Content style={{textAlign:"center"}}>
+                            L'entretien ne vous sera plus affecté et sera de nouveau en attente de prise en charge
+                        </Modal.Content>
+                        <Modal.Actions>
+                            <Button color="black" onClick={this.closeRelease}>Annuler</Button>
+                            <Button color="red" onClick={this.release}>Relacher l'entretien</Button>
+                        </Modal.Actions>
+                    </Modal>
+                    <ModalDatePicker onSelectDatePicker={this.onSelectDatePicker} closeDatePicker={this.closeDatePicker} open={this.state.openDatePicker}/>
                 </Fragment>
             )
         }

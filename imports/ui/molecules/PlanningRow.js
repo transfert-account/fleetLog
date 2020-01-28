@@ -12,6 +12,10 @@ export class PlanningRow extends Component {
         this.props.triggerAffectToMe(this.props.entretien._id)
     }
 
+    triggerReleaseEntretien = () => {
+        this.props.triggerReleaseEntretien(this.props.entretien._id)
+    }
+
     render() {
         if(this.props.active == "unaffected"){
             return (
@@ -33,8 +37,9 @@ export class PlanningRow extends Component {
                     <Table.Cell style={{padding:"0"}} textAlign='center'>
                         {this.props.entretien.occurenceDate}
                     </Table.Cell>
-                    <Table.Cell style={{display:"grid",gridTemplateColumns:"1fr"}}>
+                    <Table.Cell style={{display:"grid",gridTemplateColumns:"1fr 1fr"}}>
                         <Button circular style={{color:"#3498db"}} inverted icon icon='arrow right' onClick={this.navigate}/>
+                        <Button circular style={{color:"#e74c3c"}} inverted icon icon='calendar times outline' onClick={this.triggerReleaseEntretien}/>
                     </Table.Cell>
                 </Table.Row>
             )
@@ -44,8 +49,9 @@ export class PlanningRow extends Component {
                 <Table.Row key={this.props.entretien._id}>
                     <Table.Cell style={{padding:"4px 32px"}} >{this.props.entretien.vehicle.registration}</Table.Cell>
                     <Table.Cell style={{padding:"4px 32px"}} >{this.props.entretien.title}</Table.Cell>
-                    <Table.Cell style={{display:"grid",gridTemplateColumns:"1fr"}}>
+                    <Table.Cell style={{display:"grid",gridTemplateColumns:"1fr 1fr"}}>
                         <Button circular style={{color:"#3498db"}} inverted icon icon='arrow right' onClick={this.navigate}/>
+                        <Button circular style={{color:"#e74c3c"}} inverted icon icon='calendar times outline' onClick={this.triggerReleaseEntretien}/>
                     </Table.Cell>
                 </Table.Row>
             )

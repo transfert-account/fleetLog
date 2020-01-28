@@ -32,6 +32,7 @@ type DatedKm{
 extend type Query{
     vehicle(_id: String!): Vehicle
     vehicles : [Vehicle]
+    buVehicles : [Vehicle]
 }
 
 extend type Mutation{
