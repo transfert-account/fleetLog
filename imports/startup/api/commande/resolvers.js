@@ -22,7 +22,7 @@ export default {
                     status:1,
                     price:price
                 });
-                return true;
+                return [{status:true,message:'Commande ajoutée'}];
             }
             throw new Error('Unauthorized');
         },
@@ -31,7 +31,7 @@ export default {
                 Commandes.remove({
                     _id:new Mongo.ObjectID(_id)
                 });
-                return true;
+                return [{status:true,message:'Commande supprimée'}];
             }
             throw new Error('Unauthorized');
         },
@@ -46,7 +46,7 @@ export default {
                         }
                     }
                 ); 
-                return true;
+                return [{status:true,message:'Commande modifiée'}];
             }
             throw new Error('Unauthorized');
         }

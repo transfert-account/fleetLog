@@ -276,7 +276,6 @@ class Entretien extends Component {
         })
     }
 
-
     deleteEntretien = () => {
         this.closeDelete();
         this.props.client.mutate({
@@ -405,7 +404,14 @@ class Entretien extends Component {
                 price:parseFloat(this.state.newPrice)
             }
         }).then(({data})=>{
-            this.loadCommandes();
+            data.addCommande.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.loadCommandes();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     }
 

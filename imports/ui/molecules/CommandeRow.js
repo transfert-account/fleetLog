@@ -11,12 +11,18 @@ class CommandeRow extends Component {
         buttonStatusEdition:false,
         deleteCommandeQuery : gql`
             mutation deleteCommande($_id:String!){
-                deleteCommande(_id:$_id)
+                deleteCommande(_id:$_id){
+                    status
+                    message
+                }
             }
         `,
         editCommandeStatusQuery : gql`
             mutation editCommandeStatus($_id:String!,$status:Int!){
-                editCommandeStatus(_id:$_id,status:$status)
+                editCommandeStatus(_id:$_id,status:$status){
+                    status
+                    message
+                }
             }
         `,
     }
@@ -53,7 +59,14 @@ class CommandeRow extends Component {
                 _id:this.state._id,
             }
         }).then(({data})=>{
-            this.props.loadCommandes();
+            data.deleteCommande.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.loadCommandes();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     }
 
@@ -66,7 +79,14 @@ class CommandeRow extends Component {
                 status:newStatus
             }
         }).then(({data})=>{
-            this.props.loadCommandes();
+            data.editCommandeStatus.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.loadCommandes();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     }
 
