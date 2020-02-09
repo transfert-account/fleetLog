@@ -59,6 +59,7 @@ export default {
                     e.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)}) || {};
                 });
             });
+            console.log(vehicles)
             return vehicles;
         },
         buVehicles(obj, args,{user}){
