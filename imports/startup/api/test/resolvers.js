@@ -10,7 +10,7 @@ export default {
                         "archiveReason":"",
                         "archiveDate":""
                     }
-                }
+                },{multi:true}
             );
             return "true";
         }
