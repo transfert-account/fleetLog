@@ -40,13 +40,17 @@ export default {
                 }else{
                     e.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(e.vehicle)});
                 }
+                e.commandes = Commandes.find({entretien:e._id._str}).fetch() || [];
+                e.commandes.forEach(c => {
+                    c.piece = Pieces.findOne({_id:new Mongo.ObjectID(c.piece)});
+                });
                 if(e.vehicle.societe != null && e.vehicle.societe.length > 0){
                     entretiens[i].societe = Societes.findOne({_id:new Mongo.ObjectID(e.vehicle.societe)});
                 }else{
                     entretiens[i].societe = {_id:"",name:""};
                 }
-                e.piece = Pieces.findOne({_id:new Mongo.ObjectID(e.piece)});
             });
+            console.log(entretiens)
             return entretiens;
         },
         myEntretiens(obj, args,{user}){

@@ -32,6 +32,17 @@ class Planning extends Component {
         _id
         description
         title
+        commandes{
+          _id
+          piece{
+            _id
+            name
+            type
+          }
+          entretien
+          status
+          price
+        }
         vehicle{
           _id
           societe{
