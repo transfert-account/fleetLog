@@ -122,7 +122,6 @@ class CommandeRow extends Component {
                     <Button circular style={{color:"#95a5a6"}} inverted icon icon='clipboard check' onClick={()=>{this.editCommandeStatus(1)}}/>
                     <Button circular style={{color:"#e67e22"}} inverted icon icon='truck' onClick={()=>{this.editCommandeStatus(2)}}/>
                     <Button circular style={{color:"#2ecc71"}} inverted icon icon='check' onClick={()=>{this.editCommandeStatus(3)}}/>
-                    <Button circular style={{color:"#e74c3c"}} inverted icon icon='archive' onClick={()=>{this.editCommandeStatus(4)}}/>
                 </Table.Cell>
             )
         }else{
