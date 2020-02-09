@@ -1,5 +1,7 @@
 import Locations from './locations.js';
 import Societes from '../societe/societes.js';
+import Licences from '../licence/licences.js';
+import Entretiens from '../entretien/entretiens';
 import Volumes from '../volume/volumes.js';
 import Equipements from '../equipement/equipements';
 import EquipementDescriptions from '../equipementDescription/equipementDescriptions';
