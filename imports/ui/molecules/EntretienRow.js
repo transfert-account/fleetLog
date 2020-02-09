@@ -15,7 +15,6 @@ class EntretienRow extends Component {
     }
 
     getOrderState = state => {
-        console.log(this.props.entretien.commandes);
         if(state == 1){
             let q = this.props.entretien.commandes.filter(c=>c.status == 1).length;
             if(q>0){

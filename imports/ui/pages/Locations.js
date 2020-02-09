@@ -70,7 +70,10 @@ export class Locations extends Component {
     },
     addLocationQuery : gql`
         mutation addLocation($societe:String!,$registration:String!,$firstRegistrationDate:String!,$km:Int!,$lastKmUpdate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$insurancePaid:Float!,$price:Float!,$endDate:String!,$reason:String!){
-            addLocation(societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,km:$km,lastKmUpdate:$lastKmUpdate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,price:$price,endDate:$endDate,reason:$reason)
+            addLocation(societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,km:$km,lastKmUpdate:$lastKmUpdate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,price:$price,endDate:$endDate,reason:$reason){
+                status
+                message
+            }
         }
     `,
     locationsQuery : gql`
@@ -159,7 +162,14 @@ export class Locations extends Component {
             reason:this.state.newJustification
         }
     }).then(({data})=>{
-        this.loadLocations();
+        data.addLocation.map(qrm=>{
+            if(qrm.status){
+                this.props.toast({message:qrm.message,type:"success"});
+                this.loadLocations();
+            }else{
+                this.props.toast({message:qrm.message,type:"error"});
+            }
+        })
     })
   }
 
