@@ -639,7 +639,7 @@ class Location extends Component {
     getInfoPanel = () => {
         if(this.state.editing){
             return (
-                <Form className="formBoard" style={{placeSelf:"start auto",display:"grid",gridTemplateRows:"auto",gridTemplateColumns:"1fr 1fr",gridRowStart:"3",gridColumnStart:"1",gridRowEnd:"span 2",gridColumnEnd:"span 2",gridGap:"6px 24px"}}>
+                <Form className="formBoard" style={{placeSelf:"start auto",display:"grid",gridTemplateRows:"auto",gridTemplateColumns:"1fr 1fr",gridColumnStart:"1",gridRowEnd:"span 2",gridColumnEnd:"span 2",gridGap:"6px 24px"}}>
                     <Form.Field>
                         <label>Societé</label>
                         <SocietePicker defaultValue={this.state.location.societe._id} groupAppears={true} onChange={this.handleChangeSociete}/>
@@ -698,7 +698,7 @@ class Location extends Component {
             )
         }else{
             return (
-                <div className="formBoard" style={{display:"grid",gridTemplateColumns:"auto 1fr",gridColumnEnd:"span 2",gridRowStart:"3",gridColumnStart:"1",gridGap:"6px 24px"}}>
+                <div className="formBoard" style={{display:"grid",gridTemplateColumns:"auto 1fr",gridColumnEnd:"span 2",gridColumnStart:"1",gridGap:"6px 24px"}}>
                     <Divider style={{gridColumnEnd:"span 2",height:"23px"}} horizontal>
                         <Header as='h4'>
                             <Icon name='clipboard' />
@@ -738,7 +738,7 @@ class Location extends Component {
     getArchivePanel = () => {
         if(this.state.location.archived){
             return (
-                <Message color="orange" style={{margin:"0"}} icon='archive' header={"Archivé depuis le : " + this.state.location.archiveDate} content={"Justificaion : " + this.state.location.archiveReason} />
+                <Message color="orange" style={{margin:"0",gridColumnEnd:"span 2"}} icon='archive' header={"Archivé depuis le : " + this.state.location.archiveDate} content={"Justificaion : " + this.state.location.archiveReason} />
             )
         }
     }

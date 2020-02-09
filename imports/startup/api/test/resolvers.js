@@ -3,7 +3,7 @@ import { Mongo } from 'meteor/mongo';
 export default {
     Query : {
         testThis(obj, args,{user}){
-            Vehicles.update(
+            /*Vehicles.update(
                 {}, {
                     $set: {
                         "archived":false,
@@ -11,7 +11,7 @@ export default {
                         "archiveDate":""
                     }
                 },{multi:true}
-            );
+            );*/
             return "true";
         }
     }
