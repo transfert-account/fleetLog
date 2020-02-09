@@ -1,4 +1,4 @@
-import Entretiens from '../entretien/entretiens'
+import Vehicles from '../vehicle/vehicles'
 import { Mongo } from 'meteor/mongo';
 export default {
     Query : {
