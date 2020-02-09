@@ -19,7 +19,7 @@ class PayementFormatPicker extends Component {
 
     render() {
         return (
-            <Dropdown style={{marginLeft:"8px"}} onChange={(e,{value})=>{this.props.change(value)}} options={this.state.formats.map(f=>{return{key:f.triKey,text:f.label,value:f.triKey}})} selection/>
+            <Dropdown defaultValue={this.props.defaultValue} style={{marginLeft:"8px"}} onChange={(e,{value})=>{this.props.change(value)}} options={this.state.formats.map(f=>{return{key:f.triKey,text:f.label,value:f.triKey}})} selection/>
         )
     }
 }

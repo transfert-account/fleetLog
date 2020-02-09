@@ -132,7 +132,7 @@ class VehiclesRow extends Component {
             if(this.props.vehicle.payementFormat == "CRC"){
                 return <Label color="green"> {parseInt(monthsLeft)} mois restant avant fin de payement</Label>
             }
-            if(this.props.vehicle.payementFormat == "CRB"){
+            if(this.props.vehicle.payementFormat == "CPT"){
                 return <Label color="green"> Payement terminé</Label>
             }
         }

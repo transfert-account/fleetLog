@@ -30,10 +30,16 @@ class Location extends Component {
         newStartDate:"",
         newEndDate:"",
         newJustification:"",
+        newReparation:0,
         newPrice:"",
+        newArchiveReason:"",
         loading:true,
         editing:false,
         openDatePicker:false,
+        openEndOfLocation:false,
+        openCancelEndOfLocation:false,
+        openArchive:false,
+        openUnArchive:false,
         openDelete:false,
         selectedKm:null,
         openDeleteLocKm:false,
@@ -78,27 +84,75 @@ class Location extends Component {
                     rentalContract
                     reason
                     reparation
+                    archived
+                    archiveReason
+                    archiveDate
+                    returned
                 }
             }
         `,
         updateLocKmQuery : gql`
             mutation updateLocKm($_id:String!,$date:String!,$kmValue:Int!){
-                updateLocKm(_id:$_id,date:$date,kmValue:$kmValue)
+                updateLocKm(_id:$_id,date:$date,kmValue:$kmValue){
+                    status
+                    message
+                }
             }
         `,
         deleteLocKmQuery : gql`
             mutation deleteLocKm($_id:String!,$location:String!){
-                deleteLocKm(_id:$_id,location:$location)
+                deleteLocKm(_id:$_id,location:$location){
+                    status
+                    message
+                }
             }
         `,
         editLocationQuery : gql`
             mutation editLocation($_id:String!,$societe:String!,$registration:String!,$firstRegistrationDate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$insurancePaid:Float!,$startDate:String!,$endDate:String!,$price:Float!,$reason:String!){
-                editLocation(_id:$_id,societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,startDate:$startDate,endDate:$endDate,price:$price,reason:$reason)
+                editLocation(_id:$_id,societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,startDate:$startDate,endDate:$endDate,price:$price,reason:$reason){
+                    status
+                    message
+                }
             }
         `,
         deleteLocationQuery : gql`
             mutation deleteLocation($_id:String!){
-                deleteLocation(_id:$_id)
+                deleteLocation(_id:$_id){
+                    status
+                    message
+                }
+            }
+        `,
+        archiveLocationQuery : gql`
+            mutation archiveLocation($_id:String!,$archiveReason:String!){
+                archiveLocation(_id:$_id,archiveReason:$archiveReason){
+                    status
+                    message
+                }
+            }
+        `,
+        unArchiveLocationQuery : gql`
+            mutation unArchiveLocation($_id:String!){
+                unArchiveLocation(_id:$_id){
+                    status
+                    message
+                }
+            }
+        `,
+        endOfLocationQuery : gql`
+            mutation endOfLocation($_id:String!,$reparation:Float!,$archive:Boolean!){
+                endOfLocation(_id:$_id,reparation:$reparation,archive:$archive){
+                    status
+                    message
+                }
+            }
+        `,
+        cancelEndOfLocationQuery : gql`
+            mutation cancelEndOfLocation($_id:String!){
+                cancelEndOfLocation(_id:$_id){
+                    status
+                    message
+                }
             }
         `,
         kmsReport : () => {
@@ -145,7 +199,15 @@ class Location extends Component {
                 _id:this.state._id,
             }
         }).then(({data})=>{
-            this.props.history.push("/parc/locations")
+            data.deleteLocation.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.history.push("/parc/locations")
+                    this.loadLocation();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     }
 
@@ -158,8 +220,15 @@ class Location extends Component {
                 kmValue:parseInt(this.state.newKm)
             }
         }).then(({data})=>{
-            this.closeUpdateLocKm();
-            this.loadLocation();
+            data.updateLocKm.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.closeUpdateLocKm();
+                    this.loadLocation();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     }
 
@@ -185,8 +254,94 @@ class Location extends Component {
                 reason:this.state.newJustification
             }
         }).then(({data})=>{
-            this.closeEditInfos();
-            this.loadLocation();
+            data.editLocation.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.closeEditInfos();
+                    this.loadLocation();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+
+    archiveLocation = () => {
+        this.closeArchive();
+        this.props.client.mutate({
+            mutation:this.state.archiveLocationQuery,
+            variables:{
+                _id:this.state._id,
+                archiveReason:this.state.newArchiveReason
+            }
+        }).then(({data})=>{
+            data.archiveLocation.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.history.push("/parc/locations")
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+
+    unArchiveLocation = () => {
+        this.closeUnArchive();
+        this.props.client.mutate({
+            mutation:this.state.unArchiveLocationQuery,
+            variables:{
+                _id:this.state._id
+            }
+        }).then(({data})=>{
+            data.unArchiveLocation.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.history.push("/parc/locations")
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+
+    endLocation = archive => {
+        this.props.client.mutate({
+            mutation:this.state.endOfLocationQuery,
+            variables:{
+                _id:this.state._id,
+                reparation:parseFloat(this.state.newReparation),
+                archive:archive
+            }
+        }).then(({data})=>{
+            data.endOfLocation.map(qrm=>{
+                if(qrm.status){
+                    this.closeEndOfLocation();
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.loadLocation();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+
+    cancelEndLocation = () => {
+        this.props.client.mutate({
+            mutation:this.state.cancelEndOfLocationQuery,
+            variables:{
+                _id:this.state._id
+            }
+        }).then(({data})=>{
+            data.cancelEndOfLocation.map(qrm=>{
+                if(qrm.status){
+                    this.closeCancelEndOfLocation();
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.loadLocation();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     }
 
@@ -214,6 +369,28 @@ class Location extends Component {
         })
     }
 
+    showArchive = () => {
+        this.setState({
+            openArchive:true
+        })
+    }
+    closeArchive = () => {
+        this.setState({
+            openArchive:false
+        })
+    }
+
+    showUnArchive = () => {
+        this.setState({
+            openUnArchive:true
+        })
+    }
+    closeUnArchive = () => {
+        this.setState({
+            openUnArchive:false
+        })
+    }
+
     showDeleteLocKm = selectedKm => {
         this.setState({
             openDeleteLocKm:true,
@@ -235,6 +412,30 @@ class Location extends Component {
     closeUpdateLocKm = () => {
         this.setState({
             openUpdateLocKm:false
+        })
+    }
+
+    
+
+    showCancelEndOfLocation = () => {
+        this.setState({
+            openCancelEndOfLocation:true
+        })
+    }
+    closeCancelEndOfLocation = () => {
+        this.setState({
+            openCancelEndOfLocation:false
+        })
+    }
+
+    showEndOfLocation = () => {
+        this.setState({
+            openEndOfLocation:true
+        })
+    }
+    closeEndOfLocation = () => {
+        this.setState({
+            openEndOfLocation:false
         })
     }
 
@@ -267,7 +468,15 @@ class Location extends Component {
                 location:this.state._id
             }
         }).then(({data})=>{
-            this.loadLocation();
+            data.deleteLocKm.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.closeEditInfos();
+                    this.loadLocation();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     }
 
@@ -430,7 +639,7 @@ class Location extends Component {
     getInfoPanel = () => {
         if(this.state.editing){
             return (
-                <Form className="formBoard" style={{placeSelf:"start auto",display:"grid",gridTemplateRows:"auto",gridTemplateColumns:"1fr 1fr",gridRowStart:"3",gridColumnStart:"1",gridRowEnd:"span 2",gridGap:"6px 24px"}}>
+                <Form className="formBoard" style={{placeSelf:"start auto",display:"grid",gridTemplateRows:"auto",gridTemplateColumns:"1fr 1fr",gridRowStart:"3",gridColumnStart:"1",gridRowEnd:"span 2",gridColumnEnd:"span 2",gridGap:"6px 24px"}}>
                     <Form.Field>
                         <label>Societé</label>
                         <SocietePicker defaultValue={this.state.location.societe._id} groupAppears={true} onChange={this.handleChangeSociete}/>
@@ -489,7 +698,7 @@ class Location extends Component {
             )
         }else{
             return (
-                <div className="formBoard" style={{display:"grid",gridTemplateColumns:"auto 1fr",gridRowStart:"3",gridColumnStart:"1",gridGap:"6px 24px"}}>
+                <div className="formBoard" style={{display:"grid",gridTemplateColumns:"auto 1fr",gridColumnEnd:"span 2",gridRowStart:"3",gridColumnStart:"1",gridGap:"6px 24px"}}>
                     <Divider style={{gridColumnEnd:"span 2",height:"23px"}} horizontal>
                         <Header as='h4'>
                             <Icon name='clipboard' />
@@ -526,6 +735,61 @@ class Location extends Component {
         }
     }
 
+    getArchivePanel = () => {
+        if(this.state.location.archived){
+            return (
+                <Message color="orange" style={{margin:"0"}} icon='archive' header={"Archivé depuis le : " + this.state.location.archiveDate} content={"Justificaion : " + this.state.location.archiveReason} />
+            )
+        }
+    }
+
+    getDeleteOptions = () => {
+        if(this.props.user.isOwner){
+            if(this.state.location.archived){
+                return(
+                    <Fragment>
+                        <Button color="orange" style={{placeSelf:"stretch"}} onClick={this.showUnArchive} icon labelPosition='right'>Désarchiver la location<Icon name='share square'/></Button>
+                        <Button color="red" style={{placeSelf:"stretch"}} onClick={this.showDelete} icon labelPosition='right'>Supprimer la location<Icon name='trash'/></Button>
+                    </Fragment>
+                )
+            }else{
+                return(
+                    <Fragment>
+                        <Button color="orange" style={{placeSelf:"stretch"}} onClick={this.showArchive} icon labelPosition='right'>Archiver la location<Icon name='archive'/></Button>
+                        <Button color="red" style={{placeSelf:"stretch"}} onClick={this.showDelete} icon labelPosition='right'>Supprimer la location<Icon name='trash'/></Button>
+                    </Fragment>
+                )
+            }
+        }else{
+            if(this.state.location.archived){
+                return(
+                    <Fragment>
+                        <Button color="orange" style={{placeSelf:"stretch",gridColumnEnd:"span 2"}} onClick={this.showUnArchive} icon labelPosition='right'>Désarchiver la location<Icon name='share square'/></Button>
+                    </Fragment>
+                )
+            }else{
+                return(
+                    <Fragment>
+                        <Button color="orange" style={{placeSelf:"stretch",gridColumnEnd:"span 2"}} onClick={this.showArchive} icon labelPosition='right'>Archiver la location<Icon name='archive'/></Button>
+                    </Fragment>
+                )
+            }
+        }
+    }
+
+    getEndOfLocationButton = () => {
+        if(this.state.location.returned){
+            return (
+                <Button color="black" style={{placeSelf:"stretch"}} onClick={this.showCancelEndOfLocation} icon labelPosition='right'>Annuler le retour<Icon name='sign-in'/></Button>
+            )
+        }else{
+            return (
+                <Button color="black" style={{placeSelf:"stretch"}} onClick={this.showEndOfLocation} icon labelPosition='right'>Retour de la location<Icon name='sign-out'/></Button>
+            )
+        }
+        
+    }
+
     componentDidMount = () => {
         this.loadLocation();
     }
@@ -541,24 +805,36 @@ class Location extends Component {
             return (
                 <Fragment>
                     <div style={{display:"grid",gridGap:"24px",gridTemplateColumns:"1fr 2fr",gridTemplateRows:"auto auto 1fr"}}>
-                        <Message size='big' style={{margin:"0",gridRowStart:"1",gridColumnStart:"1"}} icon='truck' header={this.state.location.registration} content={this.state.location.brand + " - " + this.state.location.model} />
-                        <div>
-                            <p style={{margin:"0",fontWeight:"bold",fontSize:"2.4em"}}>
-                                {this.state.location.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km
-                            </p>
-                            <p style={{margin:"0",fontWeight:"bold",fontSize:"1.1em"}}>
-                                (relevé {moment(this.state.location.lastKmUpdate, "DD/MM/YYYY").fromNow()})
-                            </p>
+                        <div style={{display:"grid",gridGap:"8px",gridTemplateColumns:"auto 1fr"}}>
+                            <Button animated='fade' inverted onClick={()=>{this.props.history.push("/parc/locations");}} style={{margin:"0",gridRowStart:"1",gridColumnStart:"1"}} color="grey" size="huge">
+                                <Button.Content hidden>
+                                    <Icon color="black" style={{margin:"0"}} name='list ul' />
+                                </Button.Content>
+                                <Button.Content visible>
+                                    <Icon color="black" style={{margin:"0"}} name='angle double left' />
+                                </Button.Content>
+                            </Button>
+                            <Message style={{margin:"0",gridRowStart:"1",gridColumnStart:"2"}} icon='truck' header={this.state.location.registration} content={this.state.location.brand + " - " + this.state.location.model} />
+                            {this.getArchivePanel()}
+                            <div style={{gridColumnEnd:"span 2"}}>
+                                <p style={{margin:"0",fontWeight:"bold",fontSize:"2.4em"}}>
+                                    {this.state.location.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km
+                                </p>
+                                <p style={{margin:"0",fontWeight:"bold",fontSize:"1.1em"}}>
+                                    (relevé {moment(this.state.location.lastKmUpdate, "DD/MM/YYYY").fromNow()})
+                                </p>
+                            </div>
+                            {this.getInfoPanel()}
                         </div>
-                        {this.getInfoPanel()}
-                        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gridRowStart:"1",gridColumnStart:"2",gridGap:"16px"}}>
-                            <Button color="green" style={{placeSelf:"stretch"}} onClick={this.showUpdateLocKm} icon labelPosition='right'>MaJ kilométrage<Icon name='dashboard'/></Button>
-                            <Button color="purple" style={{placeSelf:"stretch"}} onClick={this.showDocs} icon labelPosition='right'>Gérer les documents<Icon name='folder'/></Button>
-                            <Button color="blue" style={{placeSelf:"stretch"}} onClick={this.editInfos} icon labelPosition='right'>Editer la location<Icon name='edit'/></Button>
-                            <Button color="red" style={{placeSelf:"stretch"}} onClick={this.showDelete} icon labelPosition='right'>Supprimer la location<Icon name='trash'/></Button>
-                        </div>
-                        <div style={{display:"grid",gridTemplateColumns:"1fr 4fr",gridRowStart:"2",gridRowEnd:"span 2",gridColumnStart:"2",gridGap:"16px"}}>
-                            <Table style={{placeSelf:"start"}} basic="very">
+                        <div style={{display:"grid",gridTemplateColumns:"256px 1fr",gridTemplateRows:"auto 640px 1fr",gridColumnStart:"2",gridGap:"16px"}}>
+                            <div style={{display:"grid",gridColumnEnd:"span 2",gridTemplateColumns:"1fr 1fr 1fr 1fr",gridGap:"16px"}}>
+                                <Button color="green" style={{placeSelf:"stretch",gridColumnEnd:"span 2"}} onClick={this.showUpdateLocKm} icon labelPosition='right'>MaJ kilométrage<Icon name='dashboard'/></Button>
+                                {this.getEndOfLocationButton()}
+                                <Button color="purple" style={{placeSelf:"stretch"}} onClick={this.showDocs} icon labelPosition='right'>Gérer les documents<Icon name='folder'/></Button>
+                                <Button color="blue" style={{placeSelf:"stretch",gridColumnEnd:"span 2"}} onClick={this.editInfos} icon labelPosition='right'>Editer la location<Icon name='edit'/></Button>
+                                {this.getDeleteOptions()}
+                            </div>
+                            <Table style={{placeSelf:"start",gridRowEnd:"span 2"}} basic="very">
                                 <Table.Header>
                                     <Table.Row>
                                         <Table.HeaderCell>Date</Table.HeaderCell>
@@ -632,7 +908,7 @@ class Location extends Component {
                     </Modal>
                     <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openDelete} onClose={this.closeDelete} closeIcon>
                         <Modal.Header>
-                            Supprimer la location vehicule : {this.state.location.registration} ?
+                            Supprimer la location : {this.state.location.registration} ?
                         </Modal.Header>
                         <Modal.Actions>
                             <Button color="grey" onClick={this.closeDelete}>Annuler</Button>
@@ -641,11 +917,64 @@ class Location extends Component {
                     </Modal>
                     <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openDeleteLocKm} onClose={this.closeDeleteLocKm} closeIcon>
                         <Modal.Header>
-                            Supprimer le relevé kilométrique du vehicule : {this.state.location.registration} datant du {/*this.state.location.kms.filter(x=>x._id == this.state.selectedKm)[0].reportDate*/}?
+                            Supprimer le relevé kilométrique de la location : {this.state.location.registration} datant du {/*this.state.location.kms.filter(x=>x._id == this.state.selectedKm)[0].reportDate*/}?
                         </Modal.Header>
                         <Modal.Actions>
                             <Button color="grey" onClick={this.closeDeleteLocKm}>Annuler</Button>
                             <Button color="red" onClick={this.deleteLocKm}>Supprimer</Button>
+                        </Modal.Actions>
+                    </Modal>
+                    <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openArchive} onClose={this.closeArchive} closeIcon>
+                        <Modal.Header>
+                            Archiver la location : {this.state.location.registration} ?
+                        </Modal.Header>
+                        <Modal.Content>
+                            <Form style={{display:"grid",gridTemplateColumns:"1fr",gridGap:"16px"}}>
+                                <Form.Field>
+                                    <label>Justification</label>
+                                    <TextArea rows={5} onChange={this.handleChange} name="newArchiveReason"/>
+                                </Form.Field>
+                            </Form>
+                        </Modal.Content>
+                        <Modal.Actions>
+                            <Button color="grey" onClick={this.closeArchive}>Annuler</Button>
+                            <Button color="orange" onClick={this.archiveLocation}>Archiver</Button>
+                        </Modal.Actions>
+                    </Modal>
+                    <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openEndOfLocation} onClose={this.closeEndOfLocation} closeIcon>
+                        <Modal.Header>
+                            Cloture de la location : {this.state.location.registration}
+                        </Modal.Header>
+                        <Modal.Content>
+                            <Form style={{display:"grid",gridTemplateColumns:"1fr",gridGap:"16px"}}>
+                                <Form.Field>
+                                    <label>Montant des réparations à la réstitution</label>
+                                    <Input onChange={this.handleChange} name="newReparation"/>
+                                </Form.Field>
+                            </Form>
+                        </Modal.Content>
+                        <Modal.Actions>
+                            <Button color="grey" onClick={this.closeEndOfLocation}>Annuler</Button>
+                            <Button color="black" onClick={()=>{this.endLocation(false)}}>Clore sans archiver</Button>
+                            <Button color="orange" onClick={()=>{this.endLocation(true)}}>Clore et archiver</Button>
+                        </Modal.Actions>
+                    </Modal>
+                    <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openCancelEndOfLocation} onClose={this.closeCancelEndOfLocation} closeIcon>
+                        <Modal.Header>
+                            Annuler le retourn de la location : {this.state.location.registration}
+                        </Modal.Header>
+                        <Modal.Actions>
+                            <Button color="grey" onClick={this.closeCancelEndOfLocation}>Annuler</Button>
+                            <Button color="black" onClick={this.cancelEndLocation}>Annuler le retour</Button>
+                        </Modal.Actions>
+                    </Modal>
+                    <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openUnArchive} onClose={this.closeUnArchive} closeIcon>
+                        <Modal.Header>
+                            Désarchiver la location : {this.state.location.registration} ?
+                        </Modal.Header>
+                        <Modal.Actions>
+                            <Button color="grey" onClick={this.closeUnArchive}>Annuler</Button>
+                            <Button color="green" onClick={this.unArchiveLocation}>Désarchiver</Button>
                         </Modal.Actions>
                     </Modal>
                     <ModalDatePicker onSelectDatePicker={this.onSelectDatePicker} closeDatePicker={this.closeDatePicker} open={this.state.openDatePicker}/>

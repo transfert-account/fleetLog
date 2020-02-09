@@ -34,7 +34,7 @@ export default {
             });
             return vehicle;
         },
-        vehicles(obj, args){
+        vehicles(obj, args, { user }){
             let vehicles = Vehicles.find().fetch() || {};
             vehicles.forEach((v,i) => {
                 v.lastKmUpdate = v.kms[v.kms.length-1].reportDate
@@ -113,13 +113,15 @@ export default {
                     purchasePrice:purchasePrice,
                     monthlyPayement:monthlyPayement,
                     payementOrg:payementOrg,
-                    payementFormat:payementFormat
+                    payementFormat:payementFormat,
+                    archived:false,
+                    archiveReason:""
                 });
                 return [{status:true,message:'Création réussie'}];
             }
             throw new Error('Unauthorized');
         },
-        editVehicle(obj, {_id,societe,registration,firstRegistrationDate,brand,model,volume,payload,color,insurancePaid,endDate,property,purchasePrice,monthlyPayement,payementOrg,payementFormat},{user}){
+        editVehicle(obj, {_id,societe,registration,firstRegistrationDate,brand,model,volume,payload,color,insurancePaid,endDate,property,purchasePrice,payementOrg,payementBeginDate,payementFormat,monthlyPayement},{user}){
             if(user._id){
                 Vehicles.update(
                     {
@@ -140,7 +142,8 @@ export default {
                             "purchasePrice":purchasePrice,
                             "monthlyPayement":monthlyPayement,
                             "payementOrg":payementOrg,
-                            "payementFormat":payementFormat
+                            "payementFormat":payementFormat,
+                            "payementBeginDate":payementBeginDate
                         }
                     }
                 );                
@@ -224,5 +227,42 @@ export default {
             }
             throw new Error('Unauthorized');
         },
+        archiveVehicle(obj, {_id,archiveReason},{user}){
+            if(archiveReason == ""){
+                archiveReason = "Aucune données"
+            }
+            if(user._id){
+                Vehicles.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "archived":true,
+                            "archiveReason":archiveReason,
+                            "archiveDate": new Date().getDate().toString().padStart(2,0) + '/' + parseInt(new Date().getMonth()+1).toString().padStart(2,0) + '/' + new Date().getFullYear()
+                        }
+                    }   
+                )
+                return [{status:true,message:'Archivage réussi'}];
+            }
+            throw new Error('Unauthorized');
+        },
+        unArchiveVehicle(obj, {_id},{user}){
+            if(user._id){
+                Vehicles.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "archived":false,
+                            "archiveReason":"",
+                            "archiveDate":""
+                        }
+                    }   
+                )
+                return [{status:true,message:'Désarchivage réussi'}];
+            }
+            throw new Error('Unauthorized');
+        }
     }
 }

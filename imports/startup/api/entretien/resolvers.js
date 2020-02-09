@@ -12,6 +12,10 @@ export default {
         entretiens(obj, args,{user}){
             let entretiens = Entretiens.find().fetch() || {};
             entretiens.forEach((e,i) => {
+                e.commandes = Commandes.find({entretien:e._id._str}).fetch() || [];
+                e.commandes.forEach(c => {
+                    c.piece = Pieces.findOne({_id:new Mongo.ObjectID(c.piece)});
+                });
                 if(Vehicles.findOne({_id:new Mongo.ObjectID(e.vehicle)}) == undefined){
                     e.vehicle = Locations.findOne({_id:new Mongo.ObjectID(e.vehicle)});
                 }else{

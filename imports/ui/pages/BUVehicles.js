@@ -27,6 +27,7 @@ export class BUVehicles extends Component {
     newMonthlyPayement:"",
     newPayementOrg:"",
     newPayementFormat:"",
+    archiveFilter:false,
     openAddVehicle:false,
     openDatePicker:false,
     datePickerTarget:"",
@@ -45,6 +46,9 @@ export class BUVehicles extends Component {
             )
         }
         let displayed = Array.from(this.state.vehiclesRaw);
+        displayed = displayed.filter(v =>
+            v.archived == this.state.archiveFilter
+        );
         if(this.state.vehiclesFiler.length>1){
             displayed = displayed.filter(i =>
                 i.societe.name.toLowerCase().includes(this.state.vehiclesFiler.toLowerCase()) ||
@@ -105,6 +109,9 @@ export class BUVehicles extends Component {
                 monthlyPayement
                 payementOrg
                 payementFormat
+                archived
+                archiveReason
+                archiveDate
             }
         }
     `
@@ -201,6 +208,43 @@ export class BUVehicles extends Component {
     })
   }
 
+    getArchiveButtonContent = () => {
+        if(this.state.archiveFilter){
+            return "Affiché : archives"
+        }else{
+            return "Affiché : valides"
+        }
+    }
+
+    getArchiveFilterColor = () => {
+        if(this.state.archiveFilter){
+            return "orange"
+        }else{
+            return "green"
+        }
+    }
+
+    getArchiveButtonIcon = () => {
+        if(this.state.archiveFilter){
+            return "truck"
+        }else{
+            return "archive"
+        }
+    }
+
+    switchArchiveFilter = () => {
+        if(this.state.archiveFilter){
+            this.setState({
+                archiveFilter:false
+            })
+        }else{
+            this.setState({
+                archiveFilter:true
+            })
+        }
+        this.loadVehicles();
+    }
+
   componentDidMount = () => {
     this.loadVehicles();
   }
@@ -215,10 +259,11 @@ export class BUVehicles extends Component {
                     <Menu.Item color="blue" name='licences' onClick={()=>{this.props.history.push("/parc/licences")}}><Icon name='drivers license'/>Licences</Menu.Item>
                     <Menu.Item color="blue" name='locations' onClick={()=>{this.props.history.push("/parc/locations")}} ><Icon name="calendar alternate outline"/> Locations</Menu.Item>
                 </Menu>
-                <Input style={{justifySelf:"stretch",gridColumnEnd:"span 2"}} name="vehiclesFiler" onChange={e=>{this.handleFilter(e.target.value)}} icon='search' placeholder='Rechercher un vehicule ... (3 caractères minimum)' />
+                <Input style={{justifySelf:"stretch"}} name="vehiclesFiler" onChange={e=>{this.handleFilter(e.target.value)}} icon='search' placeholder='Rechercher un vehicule ... (3 caractères minimum)' />
+                <Button color={this.getArchiveFilterColor()} style={{justifySelf:"stretch"}} onClick={this.switchArchiveFilter} icon labelPosition='right'>{this.getArchiveButtonContent()} <Icon name={this.getArchiveButtonIcon()} /></Button>
                 <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddVehicle} icon labelPosition='right'>Ajouter un véhicule<Icon name='plus'/></Button>
                 <div style={{gridRowStart:"2",gridColumnEnd:"span 4",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
-                    <Table style={{marginBottom:"0"}} celled selectable color="blue" compact>
+                    <Table style={{marginBottom:"0"}} celled selectable color={this.getArchiveFilterColor()} compact>
                         <Table.Header>
                             <Table.Row textAlign='center'>
                                 <Table.HeaderCell>Societe</Table.HeaderCell>

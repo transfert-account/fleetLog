@@ -1,10 +1,11 @@
 import React, { Component, Fragment } from 'react'
-import { Loader, Label, Button, Icon, Message, Modal, Progress, Input, Form, Table, Divider, Header } from 'semantic-ui-react';
+import { Loader, Label, Button, Icon, Message, Modal, Progress, Input, Form, Table, Divider, Header, TextArea } from 'semantic-ui-react';
 import { Bar } from 'react-chartjs-2';
 import ModalDatePicker from '../atoms/ModalDatePicker';
 import { UserContext } from '../../contexts/UserContext';
 import SocietePicker from '../atoms/SocietePicker';
 import VolumePicker from '../atoms/VolumePicker';
+import PayementFormatPicker from '../atoms/PayementFormatPicker';
 import { withRouter } from 'react-router-dom';
 import moment from 'moment';
 import { gql } from 'apollo-server-express';
@@ -26,17 +27,24 @@ class Vehicle extends Component {
         newColor:"",
         newBrand:"",
         newModel:"",
+        newPurchasePrice:0,
+        newMonthlyPayement:0,
+        newPayementOrg:"",
         newInsurancePaid:0,
         newPayementBeginDate:"",
+        newPayementFormat:"",
+        newArchiveReason:"",
         newProperty:null,
         loading:true,
         editing:false,
         openDatePicker:false,
+        openUnArchive:false,
         openDelete:false,
         selectedKm:null,
         openDeleteKm:false,
         openDocs:false,
         openUpdateKm:false,
+        openArchive:false,
         datePickerTarget:"",
         formats:[{triKey:"CPT",label:"Comptant"},{triKey:"CRC",label:"Crédit Classique"},{triKey:"CRB",label:"Crédit Bail"}],
         newDateReport:new Date().getDate().toString().padStart(2, '0')+"/"+parseInt(new Date().getMonth()+1).toString().padStart(2, '0')+"/"+new Date().getFullYear().toString().padStart(4, '0'),
@@ -76,6 +84,9 @@ class Vehicle extends Component {
                     monthlyPayement
                     payementOrg
                     payementFormat
+                    archived
+                    archiveReason
+                    archiveDate
                 }
             }
         `,
@@ -96,8 +107,8 @@ class Vehicle extends Component {
             }
         `,
         editVehicleQuery : gql`
-            mutation editVehicle($_id:String!,$societe:String!,$registration:String!,$firstRegistrationDate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$insurancePaid:Float!,$payementBeginDate:String!){
-                editVehicle(_id:$_id,societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,payementBeginDate:$payementBeginDate){
+            mutation editVehicle($_id:String!,$societe:String!,$registration:String!,$firstRegistrationDate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$insurancePaid:Float!,$payementBeginDate:String!,$purchasePrice:Float!,$payementOrg:String!,$payementFormat:String!,$monthlyPayement:Float!){
+                editVehicle(_id:$_id,societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,purchasePrice:$purchasePrice,payementBeginDate:$payementBeginDate,payementOrg:$payementOrg,payementFormat:$payementFormat,monthlyPayement:$monthlyPayement){
                     status
                     message
                 }
@@ -106,6 +117,22 @@ class Vehicle extends Component {
         deleteVehicleQuery : gql`
             mutation deleteVehicle($_id:String!){
                 deleteVehicle(_id:$_id){
+                    status
+                    message
+                }
+            }
+        `,
+        archiveVehicleQuery : gql`
+            mutation archiveVehicle($_id:String!,$archiveReason:String!){
+                archiveVehicle(_id:$_id,archiveReason:$archiveReason){
+                    status
+                    message
+                }
+            }
+        `,
+        unArchiveVehicleQuery : gql`
+            mutation unArchiveVehicle($_id:String!){
+                unArchiveVehicle(_id:$_id){
                     status
                     message
                 }
@@ -143,6 +170,10 @@ class Vehicle extends Component {
         });
     }
 
+    handleChangePayementFormat = value => {
+        this.setState({ newPayementFormat:value })
+    }
+
     handleChangeSociete = (e, { value }) => this.setState({ newSociete:value })
 
     handleChangeVolume = (e, { value }) => this.setState({ newVolume:value })
@@ -156,6 +187,45 @@ class Vehicle extends Component {
             }
         }).then(({data})=>{
             data.deleteVehicle.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.history.push("/parc/vehicles")
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+
+    archiveVehicle = () => {
+        this.closeArchive();
+        this.props.client.mutate({
+            mutation:this.state.archiveVehicleQuery,
+            variables:{
+                _id:this.state._id,
+                archiveReason:this.state.newArchiveReason
+            }
+        }).then(({data})=>{
+            data.archiveVehicle.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.history.push("/parc/vehicles")
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+
+    unArchiveVehicle = () => {
+        this.closeUnArchive();
+        this.props.client.mutate({
+            mutation:this.state.unArchiveVehicleQuery,
+            variables:{
+                _id:this.state._id
+            }
+        }).then(({data})=>{
+            data.unArchiveVehicle.map(qrm=>{
                 if(qrm.status){
                     this.props.toast({message:qrm.message,type:"success"});
                     this.props.history.push("/parc/vehicles")
@@ -200,9 +270,14 @@ class Vehicle extends Component {
                 volume:this.state.newVolume,
                 payload:this.state.newPayload,
                 color:this.state.newColor,
-                insurancePaid:this.state.newInsurancePaid,
+                property:this.state.newProperty,
+                purchasePrice:parseFloat(this.state.newPurchasePrice),
+                insurancePaid:parseFloat(this.state.newInsurancePaid),
                 payementBeginDate:this.state.newPayementBeginDate,
-                property:this.state.newProperty
+                payementOrg:this.state.newPayementOrg,
+                payementBeginDate:this.state.newPayementBeginDate,
+                payementFormat:this.state.newPayementFormat,
+                monthlyPayement:parseFloat(this.state.newMonthlyPayement)
             }
         }).then(({data})=>{
             data.editVehicle.map(qrm=>{
@@ -258,6 +333,28 @@ class Vehicle extends Component {
     closeDelete = () => {
         this.setState({
             openDelete:false
+        })
+    }
+
+    showArchive = () => {
+        this.setState({
+            openArchive:true
+        })
+    }
+    closeArchive = () => {
+        this.setState({
+            openArchive:false
+        })
+    }
+
+    showUnArchive = () => {
+        this.setState({
+            openUnArchive:true
+        })
+    }
+    closeUnArchive = () => {
+        this.setState({
+            openUnArchive:false
         })
     }
 
@@ -332,6 +429,10 @@ class Vehicle extends Component {
                 newInsurancePaid:data.vehicle.insurancePaid,
                 newPayementBeginDate:data.vehicle.payementBeginDate,
                 newProperty:data.vehicle.property,
+                newPurchasePrice:data.vehicle.purchasePrice,
+                newMonthlyPayement:data.vehicle.monthlyPayement,
+                newPayementOrg:data.vehicle.payementOrg,
+                newPayementFormat:data.vehicle.payementFormat,
                 loading:false
             })
         })
@@ -470,10 +571,44 @@ class Vehicle extends Component {
         }
     }
 
+    getDeleteOptions = () => {
+        if(this.props.user.isOwner){
+            if(this.state.vehicle.archived){
+                return(
+                    <Fragment>
+                        <Button color="orange" style={{placeSelf:"stretch"}} onClick={this.showUnArchive} icon labelPosition='right'>Désarchiver le vehicule<Icon name='share square'/></Button>
+                        <Button color="red" style={{placeSelf:"stretch"}} onClick={this.showDelete} icon labelPosition='right'>Supprimer le vehicule<Icon name='trash'/></Button>
+                    </Fragment>
+                )
+            }else{
+                return(
+                    <Fragment>
+                        <Button color="orange" style={{placeSelf:"stretch"}} onClick={this.showArchive} icon labelPosition='right'>Archiver le vehicule<Icon name='archive'/></Button>
+                        <Button color="red" style={{placeSelf:"stretch"}} onClick={this.showDelete} icon labelPosition='right'>Supprimer le vehicule<Icon name='trash'/></Button>
+                    </Fragment>
+                )
+            }
+        }else{
+            if(this.state.vehicle.archived){
+                return(
+                    <Fragment>
+                        <Button color="orange" style={{placeSelf:"stretch",gridColumnEnd:"span 2"}} onClick={this.showUnArchive} icon labelPosition='right'>Désarchiver le vehicule<Icon name='share square'/></Button>
+                    </Fragment>
+                )
+            }else{
+                return(
+                    <Fragment>
+                        <Button color="orange" style={{placeSelf:"stretch",gridColumnEnd:"span 2"}} onClick={this.showArchive} icon labelPosition='right'>Archiver le vehicule<Icon name='archive'/></Button>
+                    </Fragment>
+                )
+            }
+        }
+    }
+
     getInfoPanel = () => {
         if(this.state.editing){
             return (
-                <Form className="formBoard" style={{placeSelf:"start auto",display:"grid",gridTemplateRows:"auto",gridTemplateColumns:"1fr 1fr",gridRowStart:"3",gridColumnStart:"1",gridRowEnd:"span 2",gridGap:"6px 24px"}}>
+                <Form className="formBoard" style={{placeSelf:"start auto",display:"grid",gridTemplateRows:"auto",gridTemplateColumns:"1fr 1fr",gridRowStart:"3",gridColumnStart:"1",gridRowEnd:"span 2",gridColumnEnd:"span 2",gridGap:"0 24px"}}>
                     <Form.Field><label>Societé</label>
                         <SocietePicker defaultValue={this.state.vehicle.societe._id} groupAppears={true} onChange={this.handleChangeSociete}/>
                     </Form.Field>
@@ -498,13 +633,32 @@ class Vehicle extends Component {
                     <Form.Field><label>Couleur</label>
                         <Input defaultValue={this.state.vehicle.color} onChange={this.handleChange} name="newColor"/>
                     </Form.Field>
+                    <Divider style={{gridColumnEnd:"span 2",height:"23px"}} horizontal/>
+                    <Form.Field><label>Prix à l'achat</label>
+                        <Input defaultValue={this.state.vehicle.purchasePrice} onChange={this.handleChange} name="newPurchasePrice"/>
+                    </Form.Field>
+                    <Form.Field><label>Mensualité</label>
+                        <Input defaultValue={this.state.vehicle.monthlyPayement} onChange={this.handleChange} name="newMonthlyPayement"/>
+                    </Form.Field>
+                    <Form.Field><label>Organisme de financement</label>
+                        <Input defaultValue={this.state.vehicle.payementOrg} onChange={this.handleChange} name="newPayementOrg"/>
+                    </Form.Field>
+                    <Form.Field><label>Montant de l'assurance</label>
+                        <Input defaultValue={this.state.vehicle.insurancePaid} onChange={this.handleChange} name="newInsurancePaid"/>
+                    </Form.Field>
+                    <Form.Field><label>Type de financement</label>
+                        <PayementFormatPicker defaultValue={this.state.vehicle.payementFormat} change={this.handleChangePayementFormat}/>
+                    </Form.Field>
+                    <Form.Field><label>Date de début du payement</label>
+                        <Input onChange={this.handleChange} value={this.state.newPayementBeginDate} onFocus={()=>{this.showDatePicker("newPayementBeginDate")}} name="newPayementBeginDate"/>
+                    </Form.Field>
                     <Button style={{placeSelf:"center stretch",gridColumnStart:"1"}} color="red" icon labelPosition='right' onClick={this.closeEditInfos}>Annuler<Icon name='cancel'/></Button>
                     <Button style={{placeSelf:"center stretch",gridColumnStart:"2"}} color="green" icon labelPosition='right' onClick={this.saveEdit}>Sauvegarder<Icon name='check'/></Button>
                 </Form>
             )
         }else{
             return (
-                <div className="formBoard" style={{display:"grid",gridTemplateColumns:"auto 1fr",gridRowStart:"3",gridColumnStart:"1",gridGap:"6px 24px"}}>
+                <div className="formBoard" style={{display:"grid",gridTemplateColumns:"auto 1fr",gridColumnEnd:"span 2",gridRowStart:"3",gridColumnStart:"1",gridGap:"6px 24px"}}>
                     <Divider style={{gridColumnEnd:"span 2",height:"23px"}} horizontal>
                         <Header as='h4'>
                             <Icon name='wrench' />
@@ -551,6 +705,14 @@ class Vehicle extends Component {
         }
     }
 
+    getArchivePanel = () => {
+        if(this.state.vehicle.archived){
+            return (
+                <Message color="orange" style={{margin:"0"}} icon='archive' header={"Archivé depuis le : " + this.state.vehicle.archiveDate} content={"Justificaion : " + this.state.vehicle.archiveReason} />
+            )
+        }
+    }
+
     componentDidMount = () => {
         this.loadVehicule();
     }
@@ -565,25 +727,36 @@ class Vehicle extends Component {
         }else{
             return (
                 <Fragment>
-                    <div style={{display:"grid",gridGap:"24px",gridTemplateColumns:"1fr 2fr",gridTemplateRows:"auto auto 1fr"}}>
-                        <Message size='big' style={{margin:"0",gridRowStart:"1",gridColumnStart:"1"}} icon='truck' header={this.state.vehicle.registration} content={this.state.vehicle.brand + " - " + this.state.vehicle.model} />
-                        <div>
-                            <p style={{margin:"0",fontWeight:"bold",fontSize:"2.4em"}}>
-                                {this.state.vehicle.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km
-                            </p>
-                            <p style={{margin:"0",fontWeight:"bold",fontSize:"1.1em"}}>
-                                (relevé {moment(this.state.vehicle.lastKmUpdate, "DD/MM/YYYY").fromNow()})
-                            </p>
+                    <div style={{display:"grid",gridGap:"24px",gridTemplateColumns:"1fr 2fr"}}>
+                        <div style={{display:"grid",gridGap:"8px",gridTemplateColumns:"auto 1fr"}}>
+                            <Button animated='fade' inverted onClick={()=>{this.props.history.push("/parc/vehicles");}} style={{margin:"0",gridRowStart:"1",gridColumnStart:"1"}} color="grey" size="huge">
+                                <Button.Content hidden>
+                                    <Icon color="black" style={{margin:"0"}} name='list ul' />
+                                </Button.Content>
+                                <Button.Content visible>
+                                    <Icon color="black" style={{margin:"0"}} name='angle double left' />
+                                </Button.Content>
+                            </Button>
+                            <Message style={{margin:"0"}} icon='truck' header={this.state.vehicle.registration} content={this.state.vehicle.brand + " - " + this.state.vehicle.model} />
+                            {this.getArchivePanel()}
+                            <div style={{gridColumnEnd:"span 2"}}>
+                                <p style={{margin:"0",fontWeight:"bold",fontSize:"2.4em"}}>
+                                    {this.state.vehicle.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km
+                                </p>
+                                <p style={{margin:"0",fontWeight:"bold",fontSize:"1.1em"}}>
+                                    (relevé {moment(this.state.vehicle.lastKmUpdate, "DD/MM/YYYY").fromNow()})
+                                </p>
+                            </div>
+                            {this.getInfoPanel()}
                         </div>
-                        {this.getInfoPanel()}
-                        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gridRowStart:"1",gridColumnStart:"2",gridGap:"16px"}}>
-                            <Button color="green" style={{placeSelf:"stretch"}} onClick={this.showUpdateKm} icon labelPosition='right'>MaJ kilométrage<Icon name='dashboard'/></Button>
-                            <Button color="purple" style={{placeSelf:"stretch"}} onClick={this.showDocs} icon labelPosition='right'>Gérer les documents<Icon name='folder'/></Button>
-                            <Button color="blue" style={{placeSelf:"stretch"}} onClick={this.editInfos} icon labelPosition='right'>Editer le véhicule<Icon name='edit'/></Button>
-                            <Button color="red" style={{placeSelf:"stretch"}} onClick={this.showDelete} icon labelPosition='right'>Supprimer le vehicule<Icon name='trash'/></Button>
-                        </div>
-                        <div style={{display:"grid",gridTemplateColumns:"1fr 4fr",gridRowStart:"2",gridRowEnd:"span 2",gridColumnStart:"2",gridGap:"16px"}}>
-                            <Table style={{placeSelf:"start"}} basic="very">
+                        <div style={{display:"grid",gridTemplateColumns:"256px 1fr",gridTemplateRows:"auto 640px 1fr",gridColumnStart:"2",gridGap:"16px"}}>
+                            <div style={{display:"grid",gridColumnEnd:"span 2",gridTemplateColumns:"1fr 1fr 1fr 1fr",gridGap:"16px"}}>
+                                <Button color="green" style={{placeSelf:"stretch",gridColumnEnd:"span 2"}} onClick={this.showUpdateKm} icon labelPosition='right'>MaJ kilométrage<Icon name='dashboard'/></Button>
+                                <Button color="purple" style={{placeSelf:"stretch",gridColumnEnd:"span 2"}} onClick={this.showDocs} icon labelPosition='right'>Gérer les documents<Icon name='folder'/></Button>
+                                <Button color="blue" style={{placeSelf:"stretch",gridColumnEnd:"span 2"}} onClick={this.editInfos} icon labelPosition='right'>Editer le véhicule<Icon name='edit'/></Button>
+                                {this.getDeleteOptions()}
+                            </div>
+                            <Table style={{placeSelf:"start",gridRowEnd:"span 2"}} basic="very">
                                 <Table.Header>
                                     <Table.Row>
                                         <Table.HeaderCell>Date</Table.HeaderCell>
@@ -662,6 +835,32 @@ class Vehicle extends Component {
                         <Modal.Actions>
                             <Button color="grey" onClick={this.closeDelete}>Annuler</Button>
                             <Button color="red" onClick={this.deleteVehicle}>Supprimer</Button>
+                        </Modal.Actions>
+                    </Modal>
+                    <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openArchive} onClose={this.closeArchive} closeIcon>
+                        <Modal.Header>
+                            Archiver le vehicule : {this.state.vehicle.registration} ?
+                        </Modal.Header>
+                        <Modal.Content>
+                            <Form style={{display:"grid",gridTemplateColumns:"1fr",gridGap:"16px"}}>
+                                <Form.Field>
+                                    <label>Justification</label>
+                                    <TextArea rows={5} onChange={this.handleChange} name="newArchiveReason"/>
+                                </Form.Field>
+                            </Form>
+                        </Modal.Content>
+                        <Modal.Actions>
+                            <Button color="grey" onClick={this.closeArchive}>Annuler</Button>
+                            <Button color="orange" onClick={this.archiveVehicle}>Archiver</Button>
+                        </Modal.Actions>
+                    </Modal>
+                    <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openUnArchive} onClose={this.closeUnArchive} closeIcon>
+                        <Modal.Header>
+                            Désarchiver le vehicule : {this.state.vehicle.registration} ?
+                        </Modal.Header>
+                        <Modal.Actions>
+                            <Button color="grey" onClick={this.closeUnArchive}>Annuler</Button>
+                            <Button color="green" onClick={this.unArchiveVehicle}>Désarchiver</Button>
                         </Modal.Actions>
                     </Modal>
                     <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openDeleteKm} onClose={this.closeDeleteKm} closeIcon>

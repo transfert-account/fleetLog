@@ -100,9 +100,6 @@ class CommandeRow extends Component {
         if(this.props.commande.status == 3){
             return "green"
         }
-        if(this.props.commande.status == 4){
-            return "red"
-        }
     }
 
     getProgressLabel = () =>  {
@@ -113,10 +110,7 @@ class CommandeRow extends Component {
             return "Commandé"
         }
         if(this.props.commande.status == 3){
-            return "Récéptioné"
-        }
-        if(this.props.commande.status == 4){
-            return "Archivé"
+            return "Prêt"
         }
     }
 
@@ -148,7 +142,7 @@ class CommandeRow extends Component {
                     <Table.Cell>{this.props.commande.piece.name}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.commande.price} €</Table.Cell>
                     <Table.Cell>
-                        <Progress size="small" value={this.props.commande.status} color={this.getProgressColor()} total='4' >{this.getProgressLabel()}</Progress>
+                        <Progress size="small" value={this.props.commande.status} color={this.getProgressColor()} total='3' >{this.getProgressLabel()}</Progress>
                     </Table.Cell>
                     {this.getActionsButtons()}
                 </Table.Row>

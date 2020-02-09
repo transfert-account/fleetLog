@@ -20,6 +20,10 @@ type Location{
     rentalContract:String
     reason:String
     reparation:Float
+    archived:Boolean
+    archiveReason:String
+    archiveDate:String
+    returned:Boolean
 }
 
 extend type Query{
@@ -28,9 +32,13 @@ extend type Query{
 }
 
 extend type Mutation{
-    addLocation(societe:String!,registration:String!,firstRegistrationDate:String!,km:Int!,lastKmUpdate:String!,brand:String!,model:String!,volume:String!,payload:Float!,color:String!,insurancePaid:Float!,price:Float!,endDate:String!,reason:String!): Boolean
-    editLocation(_id:String!,societe:String!,registration:String!,firstRegistrationDate:String!,brand:String!,model:String!,volume:String!,payload:Float!,color:String!,insurancePaid:Float!,price:Float!,startDate:String!,endDate:String!,reason:String!): Boolean
-    updateLocKm(_id:String!,date:String!,kmValue:Int!):Boolean
-    deleteLocKm(location:String!,_id:String!):Boolean
-    deleteLocation(_id:String!): Boolean
+    addLocation(societe:String!,registration:String!,firstRegistrationDate:String!,km:Int!,lastKmUpdate:String!,brand:String!,model:String!,volume:String!,payload:Float!,color:String!,insurancePaid:Float!,price:Float!,endDate:String!,reason:String!): [QueryResultMessage]
+    editLocation(_id:String!,societe:String!,registration:String!,firstRegistrationDate:String!,brand:String!,model:String!,volume:String!,payload:Float!,color:String!,insurancePaid:Float!,price:Float!,startDate:String!,endDate:String!,reason:String!): [QueryResultMessage]
+    updateLocKm(_id:String!,date:String!,kmValue:Int!):[QueryResultMessage]
+    archiveLocation(_id:String!,archiveReason:String!):[QueryResultMessage]
+    unArchiveLocation(_id:String!):[QueryResultMessage]
+    deleteLocKm(location:String!,_id:String!):[QueryResultMessage]
+    deleteLocation(_id:String!):[QueryResultMessage]
+    endOfLocation(_id:String!,reparation:Float!,archive:Boolean):[QueryResultMessage]
+    cancelEndOfLocation(_id:String!):[QueryResultMessage]
 }

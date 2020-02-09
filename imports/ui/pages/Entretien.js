@@ -32,22 +32,6 @@ class Entretien extends Component {
         loadingEntretien:true,
         loadingCommandes:true,
         status:[{status:1,label:"En cours"},{status:2,label:"Réalisé"},{status:3,label:"Archivé"}],
-        affectToMeQuery : gql`
-            mutation affectToMe($_id:String!,$occurenceDate:String!){
-                affectToMe(_id:$_id,occurenceDate:$occurenceDate){
-                    status
-                    message
-                }
-            }
-        `,
-        releaseQuery : gql`
-            mutation release($_id:String!){
-                release(_id:$_id){
-                    status
-                    message
-                }
-            }
-        `,
         entretienQuery : gql`
             query entretien($_id:String!){
                 entretien(_id:$_id){
@@ -353,26 +337,6 @@ class Entretien extends Component {
         this.setState({openDelete:false})
     }
 
-    showAffectToMe = () => {
-        this.setState({openAffectToMe:true})
-    }
-
-    closeAffectToMe = () => {
-        this.setState({openAffectToMe:false})
-    }
-
-    showRelease = () => {
-        this.setState({
-            openRelease : true
-        })
-    }
-    
-      closeRelease = () => {
-        this.setState({
-            openRelease : false
-        })
-    }
-
     showArchive = () => {
         this.setState({openArchive:true})
     }
@@ -408,45 +372,6 @@ class Entretien extends Component {
                 if(qrm.status){
                     this.props.toast({message:qrm.message,type:"success"});
                     this.loadCommandes();
-                }else{
-                    this.props.toast({message:qrm.message,type:"error"});
-                }
-            })
-        })
-    }
-
-    affectToMe = () => {
-        this.closeAffectToMe();
-        this.props.client.mutate({
-        mutation:this.state.affectToMeQuery,
-        variables:{
-            _id:this.state._id,
-            occurenceDate:this.state.newAffectDate
-        }
-        }).then(({data})=>{
-            data.affectToMe.map(qrm=>{
-                if(qrm.status){
-                    this.props.toast({message:qrm.message,type:"success"});
-                    this.loadEntretien();
-                }else{
-                    this.props.toast({message:qrm.message,type:"error"});
-                }
-            })
-        })
-    }
-
-    release = () => {
-        this.closeRelease();
-        this.props.client.mutate({
-        mutation:this.state.releaseQuery,
-        variables:{
-            _id:this.state._id
-        }
-        }).then(({data})=>{
-            data.release.map(qrm=>{
-                if(qrm.status){
-                    this.props.toast({message:qrm.message,type:"success"});
-                    this.loadEntretien();
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
                 }
@@ -535,26 +460,27 @@ class Entretien extends Component {
                         <label>Status de l'entretien</label>
                         <Dropdown defaultValue={this.state.entretienRaw.status} onChange={this.handleChangeStatus} fluid selection options={this.state.status.map(s=>{return{key:s.status,text:s.label,value:s.status}})}/>
                     </Form.Field>
-                    <div style={{placeSelf:"center"}}>
-                        <Button color="red" icon onClick={()=>this.setState({editing:false})}>
-                            <Icon name='cancel' />
-                        </Button>
-                        <Button color="green" icon onClick={this.saveEdit}>
-                            <Icon name='check' />
-                        </Button>
-                    </div>
+                    <Button color="red" icon labelPosition="left" onClick={()=>this.setState({editing:false})}>
+                        Annuler
+                        <Icon name='cancel' />
+                    </Button>
+                    <Button color="green" icon labelPosition="left" onClick={this.saveEdit}>
+                        Valider
+                        <Icon name='check' />
+                    </Button>
                 </Fragment>
             )
         }else{
             return (
                 <Fragment>
                     <Form.Field>
-                        Temps sur l'entretien : <span style={{fontWeight:'bold'}}>{this.state.entretienRaw.time} heures</span>
+                        Temps sur l'entretien : <span style={{fontWeight:'bold'}}>{this.state.entretienRaw.time + " heures"}</span>
                     </Form.Field>
                     <Form.Field>
                         Status de l'entretien : <span style={{fontWeight:'bold'}}>{this.getStatusLabel()}</span>
                     </Form.Field>
-                    <Button color="blue" icon style={{placeSelf:"center"}} onClick={()=>this.setState({editing:true})}>
+                    <Button color="blue" icon labelPosition="left" style={{placeSelf:"stretch",gridColumnEnd:"span 2"}} onClick={()=>this.setState({editing:true})}>
+                        Editer temps et status
                         <Icon name='edit' />
                     </Button>
                 </Fragment>
@@ -584,24 +510,6 @@ class Entretien extends Component {
             )
         }
     }
-    
-    getAffectButton = () => {
-        if(this.state.entretienRaw.user == ""){
-            return (
-                <Button color="violet" style={{placeSelf:"stretch"}} onClick={this.showAffectToMe} icon labelPosition='right'>Affecter l'entretien<Icon name='clipboard'/></Button>
-            )
-        }else{
-            if(this.state.entretienRaw.user == Meteor.userId()){
-                return (
-                    <Button color="violet" style={{placeSelf:"stretch"}} onClick={this.showRelease} icon labelPosition='right'>Relacher l'entretien<Icon name='clipboard'/></Button>
-                )
-            }else{
-                return (
-                    <Button color="grey" style={{placeSelf:"stretch"}} disabled icon labelPosition='right'>Entretien pris en charge<Icon name='user'/></Button>
-                )
-            }
-        }
-    }
 
     render() {
         if(this.state.loadingCommandes || this.state.loadingEntretien){
@@ -613,38 +521,49 @@ class Entretien extends Component {
         }else{
             return (
                 <Fragment>
-                    <div style={{display:"grid",gridGap:"32px",gridTemplateColumns:"1fr 1fr 1fr 1fr 1fr 1fr",gridTemplateRows:"auto auto"}}>
-                        <Message style={{margin:"0", gridRowStart:"1",gridColumnStart:"1",gridColumnEnd:"span 2"}} icon='truck' header={this.state.entretienRaw.vehicle.registration} content={this.state.entretienRaw.vehicle.brand + " - " + this.state.entretienRaw.vehicle.model + " - " + this.state.entretienRaw.vehicle.km + " km"}/>
-                        <Form style={{gridRowStart:"2",gridColumnStart:"1",gridColumnEnd:"span 2",display:"grid",gridGap:"8px",gridTemplateColumns:"1fr 1fr auto"}}>
-                            {this.getEditionPanel()}
-                            <Form.Field style={{gridColumnEnd:"span 3"}}>
-                                <label>Titre de l'entretien</label>
-                                <TextArea defaultValue={this.state.entretienRaw.title} rows={1} onChange={this.handleEditTitle} placeholder="Titre ..."/>
-                            </Form.Field>
-                            <Form.Field style={{gridColumnEnd:"span 3"}}>
-                                <label>Description détaillée</label>
-                                <TextArea defaultValue={this.state.entretienRaw.description} rows={16} onChange={this.handleEditDesc} placeholder="Description de l'entretien"/>
-                            </Form.Field>
-                        </Form>
-                        <Button color="red" style={{placeSelf:"stretch"}} onClick={this.showDelete} icon labelPosition='right'>Supprimer l'entretien<Icon name='trash'/></Button>
-                        {this.getArchiveButton()}
-                        <Button color="blue" style={{placeSelf:"stretch"}} onClick={this.showAddCommande} icon labelPosition='right'>Ajouter une piece à la commande<Icon name='plus'/></Button>
-                        {this.getAffectButton()}
-                        <div style={{gridRowStart:"2",gridColumnStart:"3",gridColumnEnd:"span 4"}}>
-                            <Table celled>
-                                <Table.Header>
-                                    <Table.Row textAlign='center'>
-                                        <Table.HeaderCell width="4">Piece</Table.HeaderCell>
-                                        <Table.HeaderCell width="4">Prix</Table.HeaderCell>
-                                        <Table.HeaderCell width="4">Status</Table.HeaderCell>
-                                        <Table.HeaderCell width="4">Actions</Table.HeaderCell>
-                                    </Table.Row>
-                                </Table.Header>
-                                <Table.Body>
-                                    {this.state.commandes()}
-                                    {this.getCommandesTotalLine()}
-                                </Table.Body>
-                            </Table>
+                    <div style={{display:"grid",gridGap:"32px",gridTemplateColumns:"1fr 2fr"}}>
+                        <div style={{display:"grid",gridGap:"8px",gridTemplateColumns:"auto 1fr"}}>
+                            <Button animated='fade' inverted onClick={()=>{this.props.history.push("/entretiens");}} style={{margin:"0",gridRowStart:"1",gridColumnStart:"1"}} color="grey" size="huge">
+                                <Button.Content hidden>
+                                    <Icon color="black" style={{margin:"0"}} name='list ul' />
+                                </Button.Content>
+                                <Button.Content visible>
+                                    <Icon color="black" style={{margin:"0"}} name='angle double left' />
+                                </Button.Content>
+                            </Button>
+                            <Message style={{margin:"0",gridRowStart:"1",gridColumnStart:"2"}} icon='truck' header={this.state.entretienRaw.vehicle.registration} content={this.state.entretienRaw.vehicle.brand + " - " + this.state.entretienRaw.vehicle.model + " - " + this.state.entretienRaw.vehicle.km + " km"}/>
+                            <Form style={{gridRowStart:"2",gridColumnStart:"1",gridColumnEnd:"span 2",display:"grid",gridGap:"8px",gridTemplateColumns:"1fr 1fr"}}>
+                                {this.getEditionPanel()}
+                                <Form.Field style={{gridColumnEnd:"span 2"}}>
+                                    <label>Titre de l'entretien</label>
+                                    <TextArea defaultValue={this.state.entretienRaw.title} rows={1} onChange={this.handleEditTitle} placeholder="Titre ..."/>
+                                </Form.Field>
+                                <Form.Field style={{gridColumnEnd:"span 2"}}>
+                                    <label>Description détaillée</label>
+                                    <TextArea defaultValue={this.state.entretienRaw.description} rows={16} onChange={this.handleEditDesc} placeholder="Description de l'entretien"/>
+                                </Form.Field>
+                            </Form>
+                        </div>
+                        <div style={{display:"grid",gridGap:"16px",gridTemplateColumns:"1fr 1fr 1fr",gridTemplateRows:"auto 1fr"}}>
+                            <Button color="red" style={{placeSelf:"stretch"}} onClick={this.showDelete} icon labelPosition='right'>Supprimer l'entretien<Icon name='trash'/></Button>
+                            {this.getArchiveButton()}
+                            <Button color="blue" style={{placeSelf:"stretch"}} onClick={this.showAddCommande} icon labelPosition='right'>Ajouter une piece à la commande<Icon name='plus'/></Button>
+                            <div style={{gridRowStart:"2",gridColumnEnd:"span 3"}}>
+                                <Table celled>
+                                    <Table.Header>
+                                        <Table.Row textAlign='center'>
+                                            <Table.HeaderCell width="4">Piece</Table.HeaderCell>
+                                            <Table.HeaderCell width="4">Prix</Table.HeaderCell>
+                                            <Table.HeaderCell width="4">Status</Table.HeaderCell>
+                                            <Table.HeaderCell width="4">Actions</Table.HeaderCell>
+                                        </Table.Row>
+                                    </Table.Header>
+                                    <Table.Body>
+                                        {this.state.commandes()}
+                                        {this.getCommandesTotalLine()}
+                                    </Table.Body>
+                                </Table>
+                            </div>
                         </div>
                     </div>
                     <Modal size="small" closeOnDimmerClick={false} open={this.state.openAddCommande} onClose={this.closeAddCommande} closeIcon>
@@ -706,35 +625,6 @@ class Entretien extends Component {
                         <Modal.Actions>
                             <Button color="black" onClick={this.closeDisArchive}>Annuler</Button>
                             <Button color="green" onClick={this.disArchiveEntretien}>Réactiver</Button>
-                        </Modal.Actions>
-                    </Modal>
-                    <Modal size="mini" closeOnDimmerClick={false} open={this.state.openAffectToMe} onClose={this.closeAffectToMe} closeIcon>
-                        <Modal.Header>
-                            A quelle date voulez vous vous affecter l'entretien ?
-                        </Modal.Header>
-                        <Modal.Content style={{textAlign:"center"}}>
-                            <Form style={{display:"grid",gridTemplateColumns:"1fr",gridGap:"16px"}}>
-                                <Form.Field style={{placeSelf:"stretch"}}>
-                                    <label>Date de l'entretien</label>
-                                    <Input value={this.state.newAffectDate} onFocus={()=>{this.showDatePicker("newAffectDate")}} name="newAffectDate"/>
-                                </Form.Field>
-                            </Form>
-                        </Modal.Content>
-                        <Modal.Actions>
-                            <Button color="black" onClick={this.closeAffectToMe}>Annuler</Button>
-                            <Button color="blue" onClick={this.affectToMe}>Affecter l'entretien</Button>
-                        </Modal.Actions>
-                    </Modal>
-                    <Modal size="mini" closeOnDimmerClick={false} open={this.state.openRelease} onClose={this.closeRelease} closeIcon>
-                        <Modal.Header>
-                            Relacher l'entretien ?
-                        </Modal.Header>
-                        <Modal.Content style={{textAlign:"center"}}>
-                            L'entretien ne vous sera plus affecté et sera de nouveau en attente de prise en charge
-                        </Modal.Content>
-                        <Modal.Actions>
-                            <Button color="black" onClick={this.closeRelease}>Annuler</Button>
-                            <Button color="red" onClick={this.release}>Relacher l'entretien</Button>
                         </Modal.Actions>
                     </Modal>
                     <ModalDatePicker onSelectDatePicker={this.onSelectDatePicker} closeDatePicker={this.closeDatePicker} open={this.state.openDatePicker}/>

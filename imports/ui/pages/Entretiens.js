@@ -52,6 +52,17 @@ class Entretiens extends Component {
                     description
                     archived
                     title
+                    commandes{
+                        _id
+                        piece{
+                            _id
+                            name
+                            type
+                        }
+                        entretien
+                        status
+                        price
+                    }
                     vehicle{
                         _id
                         societe{
@@ -108,21 +119,13 @@ class Entretiens extends Component {
 
     getArchiveButtonContent = () => {
         if(this.state.filterArchive){
-            return "Afficher les entretiens en cours"
+            return "Affiché : archives"
         }else{
-            return "Afficher les archives"
+            return "Affiché : en cours"
         }
     }
 
-    getArchiveButtonColor = () => {
-        if(this.state.filterArchive){
-            return "green"
-        }else{
-            return "orange"
-        }
-    }
-
-    getEntretienTableColor = () => {
+    getArchiveFilterColor = () => {
         if(this.state.filterArchive){
             return "orange"
         }else{
@@ -132,9 +135,9 @@ class Entretiens extends Component {
 
     getArchiveButtonIcon = () => {
         if(this.state.filterArchive){
-            return "truck"
-        }else{
             return "archive"
+        }else{
+            return "truck"
         }
     }
     
@@ -181,16 +184,19 @@ class Entretiens extends Component {
     render() {
         return (
             <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"32px",gridTemplateRows:"auto 1fr",gridTemplateColumns:"auto 1fr auto"}}>
-                <Button color={this.getArchiveButtonColor()} style={{justifySelf:"stretch"}} onClick={this.filterArchive} icon labelPosition='right'>{this.getArchiveButtonContent()}<Icon name={this.getArchiveButtonIcon()}/></Button>
+                <Button color={this.getArchiveFilterColor()} style={{justifySelf:"stretch"}} onClick={this.filterArchive} icon labelPosition='right'>{this.getArchiveButtonContent()}<Icon name={this.getArchiveButtonIcon()}/></Button>
                 <Input style={{justifySelf:"stretch"}} name="entretienFilter" onChange={this.handleChange} icon='search' placeholder='Rechercher un entretien ...' />
                 <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddEntretien} icon labelPosition='right'>Créer un entretien<Icon name='plus'/></Button>
                 <div style={{gridRowStart:"2",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
-                    <Table style={{marginBottom:"0"}} celled selectable color={this.getEntretienTableColor()} compact>
+                    <Table style={{marginBottom:"0"}} celled selectable color={this.getArchiveFilterColor()} compact>
                         <Table.Header>
                             <Table.Row textAlign='center'>
                                 <Table.HeaderCell width="2">Vehicle</Table.HeaderCell>
-                                <Table.HeaderCell width="4">Title</Table.HeaderCell>
-                                <Table.HeaderCell width="8">Description de l'entretien</Table.HeaderCell>
+                                <Table.HeaderCell width="3">Title</Table.HeaderCell>
+                                <Table.HeaderCell width="6">Description de l'entretien</Table.HeaderCell>
+                                <Table.HeaderCell width="1">A commander</Table.HeaderCell>
+                                <Table.HeaderCell width="1">Commandé</Table.HeaderCell>
+                                <Table.HeaderCell width="1">Prêt</Table.HeaderCell>
                                 <Table.HeaderCell width="2">Actions</Table.HeaderCell>
                             </Table.Row>
                         </Table.Header>

@@ -21,6 +21,9 @@ type Vehicle{
     monthlyPayement:Float
     payementOrg:String
     payementFormat:String
+    archived:Boolean!
+    archiveReason:String!
+    archiveDate:String!
 }
 
 type DatedKm{
@@ -37,8 +40,10 @@ extend type Query{
 
 extend type Mutation{
     addVehicle(societe:String!,registration:String!,firstRegistrationDate:String!,km:Int!,lastKmUpdate:String!,brand:String!,model:String!,volume:String!,payload:Float!,color:String!,insurancePaid:Float!,payementBeginDate:String!,purchasePrice:Float,monthlyPayement:Float,payementOrg:String,payementFormat:String): [QueryResultMessage]
-    editVehicle(_id:String!,societe:String!,registration:String!,firstRegistrationDate:String!,brand:String!,model:String!,volume:String!,payload:Float!,color:String!,insurancePaid:Float!,payementBeginDate:String!): [QueryResultMessage]
+    editVehicle(_id:String!,societe:String!,registration:String!,firstRegistrationDate:String!,brand:String!,model:String!,volume:String!,payload:Float!,color:String!,insurancePaid:Float!,payementOrg:String!,payementBeginDate:String!,purchasePrice:Float,payementFormat:String!,monthlyPayement:Float!): [QueryResultMessage]
     updateKm(_id:String!,date:String!,kmValue:Int!):[QueryResultMessage]
     deleteKm(vehicle:String!,_id:String!):[QueryResultMessage]
+    archiveVehicle(_id:String!,archiveReason:String!):[QueryResultMessage]
+    unArchiveVehicle(_id:String!):[QueryResultMessage]
     deleteVehicle(_id:String!): [QueryResultMessage]
 }

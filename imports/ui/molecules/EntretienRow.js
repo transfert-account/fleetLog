@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import { Table, Button } from 'semantic-ui-react';
+import { Table, Button, Label, Icon } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 import { withRouter } from 'react-router-dom';
 import gql from 'graphql-tag';
@@ -14,6 +14,55 @@ class EntretienRow extends Component {
         this.props.history.push("/entretien/"+this.state._id);
     }
 
+    getOrderState = state => {
+        console.log(this.props.entretien.commandes);
+        if(state == 1){
+            let q = this.props.entretien.commandes.filter(c=>c.status == 1).length;
+            if(q>0){
+                return (
+                    <Table.Cell textAlign="center">
+                        <Label image>
+                            <Icon style={{margin:"0"}} name='clipboard' />
+                            <Label.Detail>{q}</Label.Detail>
+                        </Label>
+                    </Table.Cell>
+                )
+            }else{
+                return(<Table.Cell textAlign="center">-</Table.Cell>)
+            }
+        }
+        if(state == 2){
+            let q = this.props.entretien.commandes.filter(c=>c.status == 2).length;
+            if(q>0){
+                return(
+                    <Table.Cell textAlign="center">
+                        <Label color="orange" image>
+                            <Icon style={{margin:"0"}} name='truck' />
+                            <Label.Detail>{q}</Label.Detail>
+                        </Label>
+                    </Table.Cell>
+                )
+            }else{
+                return(<Table.Cell textAlign="center">-</Table.Cell>)
+            }
+        }
+        if(state == 3){
+            let q = this.props.entretien.commandes.filter(c=>c.status == 3).length;
+            if(q>0){
+                return(
+                    <Table.Cell textAlign="center">
+                        <Label color="green" image>
+                            <Icon style={{margin:"0"}} name='check' />
+                            <Label.Detail>{q}</Label.Detail>
+                        </Label>
+                    </Table.Cell>
+                )
+            }else{
+                return(<Table.Cell textAlign="center">-</Table.Cell>)
+            }
+        }
+    }
+
     render() {
         return (
             <Fragment>
@@ -21,6 +70,9 @@ class EntretienRow extends Component {
                     <Table.Cell>{this.props.entretien.vehicle.registration}</Table.Cell>
                     <Table.Cell>{this.props.entretien.title}</Table.Cell>
                     <Table.Cell>{this.props.entretien.description.substring(0,128)}</Table.Cell>
+                    {this.getOrderState(1)}
+                    {this.getOrderState(2)}
+                    {this.getOrderState(3)}
                     <Table.Cell style={{textAlign:"center"}}>
                         <Button circular style={{color:"#2980b9"}} inverted icon icon='arrow right' onClick={this.navigateToEntretien}/>
                     </Table.Cell>

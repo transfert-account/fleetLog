@@ -9,6 +9,7 @@ type Entretien{
     user:String!
     time:Float!
     status:Int!
+    commandes:[Commande]
 }
 
 extend type Query{

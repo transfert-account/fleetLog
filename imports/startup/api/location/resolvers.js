@@ -85,9 +85,13 @@ export default {
                     price:price,
                     reason:reason,
                     reparation:0,
-                    rentalContract:""
+                    rentalContract:"",
+                    archived:false,
+                    archiveReason:"",
+                    archiveDate:""
+
                 });
-                return true;
+                return [{status:true,message:'Création réussie'}];
             }
             throw new Error('Unauthorized');
         },
@@ -114,7 +118,7 @@ export default {
                         }
                     }
                 );                
-                return true;
+                return [{status:true,message:'Modifications sauvegardées'}];
             }
             throw new Error('Unauthorized');
         },
@@ -153,7 +157,7 @@ export default {
                         }
                     }
                 )
-                return true;
+                return [{status:true,message:'Nouveau relevé enregsitré'}];
             }
             throw new Error('Unauthorized');
         },
@@ -170,18 +174,98 @@ export default {
                         }
                     }
                 )
-                return true;
+                return [{status:true,message:'Relevé supprimé'}];
             }
             throw new Error('Unauthorized');
         },
         deleteLocation(obj, {_id},{user}){
             if(user._id){
-                Locations.remove({
-                    _id:new Mongo.ObjectID(_id)
-                });
-                return true;
+                let nL = Licences.find({vehicle:_id}).fetch().length
+                let nE = Entretiens.find({vehicle:_id}).fetch().length
+                let nQ = Equipements.find({vehicle:_id}).fetch().length
+                if(nL + nE + nQ > 0){
+                    let qrm = [];
+                    if(nL > 0){qrm.push({status:false,message:'Suppresion impossible, ' + nL + ' licence(s) liée(s)'})}
+                    if(nE > 0){qrm.push({status:false,message:'Suppresion impossible, ' + nE + ' entretien(s) lié(s)'})}
+                    if(nQ > 0){qrm.push({status:false,message:'Suppresion impossible, ' + nQ + ' equipement(s) lié(s)'})}
+                    return qrm;
+                }else{
+                    Locations.remove({
+                        _id:new Mongo.ObjectID(_id)
+                    });
+                    return [{status:true,message:'Suppression réussie'}];
+                }
             }
             throw new Error('Unauthorized');
         },
+        archiveLocation(obj, {_id,archiveReason},{user}){
+            if(archiveReason == ""){
+                archiveReason = "Aucune données"
+            }
+            if(user._id){
+                Locations.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "archived":true,
+                            "archiveReason":archiveReason,
+                            "archiveDate": new Date().getDate().toString().padStart(2,0) + '/' + parseInt(new Date().getMonth()+1).toString().padStart(2,0) + '/' + new Date().getFullYear()
+                        }
+                    }   
+                )
+                return [{status:true,message:'Archivage réussi'}];
+            }
+            throw new Error('Unauthorized');
+        },
+        unArchiveLocation(obj, {_id},{user}){
+            if(user._id){
+                Locations.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "archived":false,
+                            "archiveReason":"",
+                            "archiveDate":""
+                        }
+                    }   
+                )
+                return [{status:true,message:'Désarchivage réussi'}];
+            }
+            throw new Error('Unauthorized');
+        },
+        endOfLocation(obj, {_id,reparation,archive},{user}){
+            if(user._id){
+                Locations.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "reparation":reparation,
+                            "archived":archive,
+                            "returned":true
+                        }
+                    }   
+                )
+                return [{status:true,message:'Location retournée, montant des réparations affecté'}];
+            }
+            throw new Error('Unauthorized');
+        },
+        cancelEndOfLocation(obj, {_id},{user}){
+            if(user._id){
+                Locations.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "returned":false
+                        }
+                    }   
+                )
+                return [{status:true,message:'Retour de location annulé'}];
+            }
+            throw new Error('Unauthorized');
+        }
     }
 }
