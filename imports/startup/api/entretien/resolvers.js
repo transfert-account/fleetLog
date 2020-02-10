@@ -33,7 +33,11 @@ export default {
             return entretiens;
         },
         entretiensOfTheDay(obj, {date},{user}){
-            let entretiens = Entretiens.find({user:user._id}).fetch().filter(e=>moment(e.occurenceDate,"DD/MM/YYYY").isSame(date, 'day'))
+            let entretiens = Entretiens.find({user:user._id}).fetch().filter(e=>moment(e.occurenceDate,"DD/MM/YYYY").isSame(date, 'day'))//log this
+            console.log("UNFILTERED : ")
+            console.log(Entretiens.find({user:user._id}).fetch())
+            console.log("DATE : ")
+            console.log(date)
             entretiens.forEach((e,i) => {
                 if(Vehicles.findOne({_id:new Mongo.ObjectID(e.vehicle)}) == undefined){
                     e.vehicle = Locations.findOne({_id:new Mongo.ObjectID(e.vehicle)});
