@@ -160,10 +160,16 @@ class Planning extends Component {
   }
 
   loadEntretiensOfTheDay = (date) => {
+    let formatedDate = "";
+    if(date != null){
+      formatedDate = date;
+    }else{
+      formatedDate = this.state.selectedDate;
+    }
     this.props.client.query({
       query:this.state.entretiensOfTheDayQuery,
       variables:{
-        date:(date != null ? date : this.state.selectedDate)
+        date: formatedDate.format('DD/MM/YYYY')
       },
       fetchPolicy:"network-only"
     }).then(({data})=>{
@@ -269,6 +275,7 @@ class Planning extends Component {
           this.setState({
             needToRefreshMonth:true
           })
+          this.loadEntretiensOfTheDay();
           this.loadMyEntretiens();
           this.loadUnaffectedEntretiens();
         }else{
