@@ -50,7 +50,6 @@ export default {
                     entretiens[i].societe = {_id:"",name:""};
                 }
             });
-            console.log(entretiens)
             return entretiens;
         },
         myEntretiens(obj, args,{user}){
@@ -72,6 +71,26 @@ export default {
         },
         unaffectedEntretiens(obj, args,{user}){
             let entretiens = Entretiens.find({user:""}).fetch() || {};
+            entretiens.forEach((e,i) => {
+                e.commandes = Commandes.find({entretien:e._id._str}).fetch() || [];
+                e.commandes.forEach(c => {
+                    c.piece = Pieces.findOne({_id:new Mongo.ObjectID(c.piece)});
+                });
+            });
+            entretiens.map(e=>{
+                let lowestStatus = 3;
+                e.commandes.map(c=>{
+                    if(c.status != 3){
+                        lowestStatus = c.status
+                    }
+                })
+                if(lowestStatus != 3){
+                    e.ready = false
+                }else{
+                    e.ready = true
+                }
+            })
+            entretiens = entretiens.filter(e=>e.ready);
             entretiens.forEach((e,i) => {
                 if(Vehicles.findOne({_id:new Mongo.ObjectID(e.vehicle)}) == undefined){
                     e.vehicle = Locations.findOne({_id:new Mongo.ObjectID(e.vehicle)});
