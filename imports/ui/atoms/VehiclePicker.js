@@ -53,6 +53,9 @@ class VehiclePicker extends Component {
             }
         `,
         getVehiclesAndLocations : () => {
+            if(this.props.hideLocations){
+                return this.state.vehiclesRaw.map(v=>{return ({...v,type:"vehicle"})});    
+            }
             return this.state.vehiclesRaw.map(v=>{return ({...v,type:"vehicle"})}).concat(this.state.locationsRaw.map(l=>{return ({...l,type:"rental"})}));
         }
     }
