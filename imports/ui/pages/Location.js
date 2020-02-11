@@ -3,6 +3,7 @@ import { Loader, Label, Button, Icon, Message, Modal, Input, Form, Table, Divide
 import { Bar } from 'react-chartjs-2';
 import ModalDatePicker from '../atoms/ModalDatePicker';
 import { UserContext } from '../../contexts/UserContext';
+import RegistrationInput from '../atoms/RegistrationInput';
 import SocietePicker from '../atoms/SocietePicker';
 import VolumePicker from '../atoms/VolumePicker';
 import { withRouter } from 'react-router-dom';
@@ -190,6 +191,12 @@ class Location extends Component {
     handleChangeSociete = (e, { value }) => this.setState({ newSociete:value })
 
     handleChangeVolume = (e, { value }) => this.setState({ newVolume:value })
+
+    handleRegistrationChange = value => {
+        this.setState({
+            newRegistration : value
+        })
+    }
 
     deleteLocation = () => {
         this.closeDelete();
@@ -414,8 +421,6 @@ class Location extends Component {
             openUpdateLocKm:false
         })
     }
-
-    
 
     showCancelEndOfLocation = () => {
         this.setState({
@@ -644,10 +649,7 @@ class Location extends Component {
                         <label>Societé</label>
                         <SocietePicker defaultValue={this.state.location.societe._id} groupAppears={true} onChange={this.handleChangeSociete}/>
                     </Form.Field>
-                    <Form.Field>
-                        <label>Immatriculation</label>
-                        <Input defaultValue={this.state.location.registration} onChange={this.handleChange} name="newRegistration"/>
-                    </Form.Field>
+                    <RegistrationInput onChange={this.handleRegistrationChange} defaultValue={this.state.location.registration} name="newRegistration"/>
                     <Form.Field>
                         <label>1ère immatriculation</label>
                         <Input value={this.state.newFirstRegistrationDate} onFocus={()=>{this.showDatePicker("newFirstRegistrationDate")}} name="newFirstRegistrationDate"/>

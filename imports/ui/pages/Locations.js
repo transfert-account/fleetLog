@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Modal,Icon,Menu,Input,Dimmer,Loader,Table,Button,Form,Divider,Header,TextArea } from 'semantic-ui-react';
 import ModalDatePicker from '../atoms/ModalDatePicker'
+import RegistrationInput from '../atoms/RegistrationInput';
 import { UserContext } from '../../contexts/UserContext';
 import LocationsRow from '../molecules/LocationRow';
 import SocietePicker from '../atoms/SocietePicker';
@@ -185,6 +186,12 @@ export class Locations extends Component {
     });
   }
 
+  handleRegistrationChange = value => {
+    this.setState({
+        newRegistration : value
+    })
+  }
+
   handleChangeSociete = (e, { value }) => this.setState({ newSociete:value })
 
   handleChangePayementFormat = value => {
@@ -193,42 +200,42 @@ export class Locations extends Component {
 
   handleChangeVolume = (e, { value }) => this.setState({ newVolume:value })
 
-    getArchiveButtonContent = () => {
-        if(this.state.archiveFilter){
-            return "Affiché : archives"
-        }else{
-            return "Affiché : valides"
-        }
+  getArchiveButtonContent = () => {
+    if(this.state.archiveFilter){
+        return "Affiché : archives"
+    }else{
+        return "Affiché : valides"
     }
+  }
 
-    getArchiveFilterColor = () => {
-        if(this.state.archiveFilter){
-            return "orange"
-        }else{
-            return "green"
-        }
+  getArchiveFilterColor = () => {
+    if(this.state.archiveFilter){
+        return "orange"
+    }else{
+        return "green"
     }
+  }
 
-    getArchiveButtonIcon = () => {
-        if(this.state.archiveFilter){
-            return "truck"
-        }else{
-            return "archive"
-        }
+  getArchiveButtonIcon = () => {
+    if(this.state.archiveFilter){
+        return "truck"
+    }else{
+        return "archive"
     }
+  }
 
-    switchArchiveFilter = () => {
-        if(this.state.archiveFilter){
-            this.setState({
-                archiveFilter:false
-            })
-        }else{
-            this.setState({
-                archiveFilter:true
-            })
-        }
-        this.loadLocations();
+  switchArchiveFilter = () => {
+    if(this.state.archiveFilter){
+        this.setState({
+            archiveFilter:false
+        })
+    }else{
+        this.setState({
+            archiveFilter:true
+        })
     }
+    this.loadLocations();
+  }
 
   loadLocations = () => {
     this.props.client.query({
@@ -290,7 +297,7 @@ export class Locations extends Component {
                 <Modal.Content style={{textAlign:"center"}}>
                     <Form style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gridGap:"16px"}}>
                         <Form.Field style={{gridColumnStart:"2"}}><label>Societe</label>
-                            <SocietePicker groupAppears={true} onChange={this.handleChangeSociete}/>
+                            <SocietePicker groupAppears={false} onChange={this.handleChangeSociete}/>
                         </Form.Field>
                         <Divider style={{gridColumnEnd:"span 3",height:"23px"}} horizontal>
                             <Header as='h4'>
@@ -298,7 +305,7 @@ export class Locations extends Component {
                                 Details
                             </Header>
                         </Divider>
-                        <Form.Field><label>Immatriculation</label><input onChange={this.handleChange} name="newRegistration"/></Form.Field>
+                        <RegistrationInput onChange={this.handleRegistrationChange} name="newRegistration"/>
                         <Form.Field><label>Date de première immatriculation</label><input value={this.state.newFirstRegistrationDate} onFocus={()=>{this.showDatePicker("newFirstRegistrationDate")}} name="newFirstRegistrationDate"/></Form.Field>
                         <Form.Field><label>Kilométrage au retrait</label><input onChange={this.handleChange} name="newKm"/></Form.Field>
                         <Form.Field><label>Date de retrait</label><input onChange={this.handleChange} value={this.state.newLastKmUpdate} onFocus={()=>{this.showDatePicker("newLastKmUpdate")}} name="newLastKmUpdate"/></Form.Field>

@@ -5,6 +5,7 @@ import ModalDatePicker from '../atoms/ModalDatePicker';
 import { UserContext } from '../../contexts/UserContext';
 import SocietePicker from '../atoms/SocietePicker';
 import VolumePicker from '../atoms/VolumePicker';
+import RegistrationInput from '../atoms/RegistrationInput';
 import PayementFormatPicker from '../atoms/PayementFormatPicker';
 import { withRouter } from 'react-router-dom';
 import moment from 'moment';
@@ -168,6 +169,12 @@ class Vehicle extends Component {
         this.setState({
             [e.target.name]:e.target.value
         });
+    }
+
+    handleRegistrationChange = value => {
+        this.setState({
+            newRegistration : value
+        })
     }
 
     handleChangePayementFormat = value => {
@@ -612,9 +619,7 @@ class Vehicle extends Component {
                     <Form.Field><label>Societé</label>
                         <SocietePicker defaultValue={this.state.vehicle.societe._id} groupAppears={true} onChange={this.handleChangeSociete}/>
                     </Form.Field>
-                    <Form.Field><label>Immatriculation</label>
-                        <Input defaultValue={this.state.vehicle.registration} onChange={this.handleChange} name="newRegistration"/>
-                    </Form.Field>
+                    <RegistrationInput onChange={this.handleRegistrationChange} defaultValue={this.state.vehicle.registration} name="newRegistration"/>
                     <Form.Field><label>1ère immatriculation</label>
                         <Input defaultValue={this.state.vehicle.firstRegistrationDate} onChange={this.handleChange} name="newFirstRegistrationDate"/>
                     </Form.Field>

@@ -115,7 +115,8 @@ export default {
                     payementOrg:payementOrg,
                     payementFormat:payementFormat,
                     archived:false,
-                    archiveReason:""
+                    archiveReason:"",
+                    archiveDate:""
                 });
                 return [{status:true,message:'Création réussie'}];
             }

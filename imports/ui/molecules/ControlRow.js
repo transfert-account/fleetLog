@@ -225,9 +225,9 @@ class ControlRow extends Component {
     }
     getDetailShowAndHideButton = () => {
         if(this.state.detailed){
-            return <Button size="tiny" style={{gridColumnStart:"5"}} icon color="teal" onClick={()=>{this.setState({detailed:false})}} labelPosition='right'> Equipements <Icon name='angle double up' /></Button>
+            return <Button size="tiny" style={{gridColumnStart:"5"}} icon color="teal" onClick={()=>{this.setState({detailed:false})}} labelPosition='right'> Contrôles <Icon name='angle double up' /></Button>
         }else{
-            return <Button size="tiny" style={{gridColumnStart:"5"}} icon color="teal" onClick={()=>{this.setState({detailed:true})}} labelPosition='right'> Equipements <Icon name='angle double down' /></Button>
+            return <Button size="tiny" style={{gridColumnStart:"5"}} icon color="teal" onClick={()=>{this.setState({detailed:true})}} labelPosition='right'> Contrôles <Icon name='angle double down' /></Button>
         }
     }
     getRed = () => {
@@ -324,13 +324,13 @@ class ControlRow extends Component {
                     </div>
                     {this.getAlertLabel()}
                     <div style={{placeSelf:"center"}}>{"["+this.props.vehicle.societe.name + "] "}    <Header style={{margin:"auto 32px",display:"inline"}} size='medium'>{this.props.vehicle.brand + " - " +this.props.vehicle.model}</Header>{" (" + this.props.vehicle.km + " km)"}</div>
-                    <Button size="tiny" style={{gridColumnStart:"4"}} icon color="blue" onClick={this.showAttachEquipement} labelPosition='right'> Attacher un equipement <Icon name='plus' /></Button>
+                    <Button size="tiny" style={{gridColumnStart:"4"}} icon color="blue" onClick={this.showAttachEquipement} labelPosition='right'> Attacher un contrôle <Icon name='plus' /></Button>
                     {this.getDetailShowAndHideButton()}
                 </Segment>
                 {this.getEquipementRows()}
                 <Modal closeOnDimmerClick={false} open={this.state.openAttachEquipement} onClose={this.closeAttachEquipement} closeIcon>
                     <Modal.Header>
-                        Attacher un equipement à ce véhicule :
+                        Attacher un contrôle à ce véhicule :
                     </Modal.Header>
                     <Modal.Content style={{textAlign:"center"}}>
                         <Form style={{display:"grid",margin:"auto 25%",gridTemplateRows:"1fr 1fr 1fr",gridTemplateColumns:"1fr",gridGap:"16px"}}>
@@ -347,7 +347,7 @@ class ControlRow extends Component {
                 </Modal>
                 <Modal closeOnDimmerClick={false} open={this.state.openDissociateEquipement} onClose={this.closeDissociateEquipement} closeIcon>
                     <Modal.Header>
-                        Dissocier cet equipement du véhicule :
+                        Dissocier ce contrôle du véhicule :
                     </Modal.Header>
                     <Modal.Actions>
                         <Button color="black" onClick={this.closeDissociateEquipement}>Annuler</Button>

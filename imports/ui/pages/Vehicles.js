@@ -4,6 +4,7 @@ import ModalDatePicker from '../atoms/ModalDatePicker'
 import { UserContext } from '../../contexts/UserContext';
 import VehiclesRow from '../molecules/VehiclesRow';
 import SocietePicker from '../atoms/SocietePicker';
+import RegistrationInput from '../atoms/RegistrationInput';
 import PayementFormatPicker from '../atoms/PayementFormatPicker';
 import VolumePicker from '../atoms/VolumePicker';
 import { gql } from 'apollo-server-express';
@@ -195,6 +196,12 @@ export class Vehicles extends Component {
       this.setState({ newPayementFormat:value })
   }
 
+  handleRegistrationChange = value => {
+      this.setState({
+          newRegistration : value
+      })
+  }
+
   handleChangeVolume = (e, { value }) => this.setState({ newVolume:value })
 
   loadVehicles = () => {
@@ -298,7 +305,7 @@ export class Vehicles extends Component {
                 <Modal.Content style={{textAlign:"center"}}>
                     <Form style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gridGap:"16px"}}>
                         <Form.Field style={{gridColumnStart:"2"}}><label>Societe</label>
-                            <SocietePicker groupAppears={true} onChange={this.handleChangeSociete}/>
+                            <SocietePicker groupAppears={false} onChange={this.handleChangeSociete}/>
                         </Form.Field>
                         <Divider style={{gridColumnEnd:"span 3",height:"23px"}} horizontal>
                             <Header as='h4'>
@@ -306,7 +313,7 @@ export class Vehicles extends Component {
                                 Details
                             </Header>
                         </Divider>
-                        <Form.Field><label>Immatriculation</label><input onChange={this.handleChange} name="newRegistration"/></Form.Field>
+                        <RegistrationInput onChange={this.handleRegistrationChange} name="newRegistration"/>
                         <Form.Field><label>Date de première immatriculation</label><input onChange={this.handleChange} value={this.state.newFirstRegistrationDate} onFocus={()=>{this.showDatePicker("newFirstRegistrationDate")}} placeholder="firstRegistrationDate" name="newFirstRegistrationDate"/></Form.Field>
                         <Form.Field><label>Kilométrage</label><input onChange={this.handleChange} name="newKm"/></Form.Field>
                         <Form.Field><label>Date de relevé</label><input onChange={this.handleChange} value={this.state.newLastKmUpdate} onFocus={()=>{this.showDatePicker("newLastKmUpdate")}} name="newLastKmUpdate"/></Form.Field>
