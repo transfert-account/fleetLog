@@ -18,10 +18,10 @@ export class ModalDatePicker extends Component {
     const { selected,open } = this.props;
     return (
       <Modal size='mini' onClose={this.props.close} dimmer="inverted" open={open} closeOnDimmerClick closeOnEscape>
-        <ModalHeader>
+        <Modal.Header>
           {this.props.header}
-        </ModalHeader>
-        <ModalContent style={{padding:"0"}}>
+        </Modal.Header>
+        <Modal.Content style={{padding:"0"}}>
           <InfiniteCalendar
               maxDate={this.props.maxDate}
               max={this.props.maxDate}
@@ -60,7 +60,7 @@ export class ModalDatePicker extends Component {
             //disabledDays={[7,6]}
             onSelect={this.onSelect}
           />
-        </ModalContent>
+        </Modal.Content>
       </Modal>
     )
   }

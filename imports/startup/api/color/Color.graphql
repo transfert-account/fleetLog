@@ -1,0 +1,14 @@
+type Color{
+    _id:String!
+    hex:String!
+    name:String!
+}
+
+extend type Query{
+    colors : [Color]
+}
+
+extend type Mutation{
+    addColor(name:String!,hex:String!): [QueryResultMessage]
+    deleteColor(_id:String!): [QueryResultMessage]
+}

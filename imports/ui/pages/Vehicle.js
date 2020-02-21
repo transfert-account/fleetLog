@@ -3,6 +3,10 @@ import { Loader, Label, Button, Icon, Message, Modal, Progress, Input, Form, Tab
 import { Bar } from 'react-chartjs-2';
 import ModalDatePicker from '../atoms/ModalDatePicker';
 import { UserContext } from '../../contexts/UserContext';
+import ColorPicker from '../atoms/ColorPicker';
+import ModelPicker from '../atoms/ModelPicker';
+import BrandPicker from '../atoms/BrandPicker';
+import OrganismPicker from '../atoms/OrganismPicker';
 import SocietePicker from '../atoms/SocietePicker';
 import VolumePicker from '../atoms/VolumePicker';
 import RegistrationInput from '../atoms/RegistrationInput';
@@ -70,20 +74,33 @@ class Vehicle extends Component {
                         kmValue
                     }
                     lastKmUpdate
-                    brand
-                    model
+                    brand{
+                        _id
+                        name
+                    }
+                    model{
+                        _id
+                        name
+                    }
                     volume{
                         _id
                         meterCube
                     }
                     payload
-                    color
+                    color{
+                        _id
+                        name
+                        hex
+                    }
                     insurancePaid
                     payementBeginDate
                     property
                     purchasePrice
                     monthlyPayement
-                    payementOrg
+                    payementOrg{
+                        _id
+                        name
+                    }
                     payementFormat
                     archived
                     archiveReason
@@ -184,6 +201,14 @@ class Vehicle extends Component {
     handleChangeSociete = (e, { value }) => this.setState({ newSociete:value })
 
     handleChangeVolume = (e, { value }) => this.setState({ newVolume:value })
+
+    handleChangeBrand = (e, { value }) => this.setState({ newBrand:value })
+
+    handleChangeModel = (e, { value }) => this.setState({ newModel:value })
+  
+    handleChangeOrganism = (e, { value }) => this.setState({ newPayementOrg:value })
+  
+    handleChangeColor = (e, { value }) => this.setState({ newColor:value })
 
     deleteVehicle = () => {
         this.closeDelete();
@@ -430,15 +455,15 @@ class Vehicle extends Component {
                 newFirstRegistrationDate:data.vehicle.firstRegistrationDate,
                 newVolume:data.vehicle.volume._id,
                 newPayload:data.vehicle.payload,
-                newColor:data.vehicle.color,
-                newBrand:data.vehicle.brand,
-                newModel:data.vehicle.model,
+                newColor:data.vehicle.color._id,
+                newBrand:data.vehicle.brand._id,
+                newModel:data.vehicle.model._id,
                 newInsurancePaid:data.vehicle.insurancePaid,
                 newPayementBeginDate:data.vehicle.payementBeginDate,
                 newProperty:data.vehicle.property,
                 newPurchasePrice:data.vehicle.purchasePrice,
                 newMonthlyPayement:data.vehicle.monthlyPayement,
-                newPayementOrg:data.vehicle.payementOrg,
+                newPayementOrg:data.vehicle.payementOrg._id,
                 newPayementFormat:data.vehicle.payementFormat,
                 loading:false
             })
@@ -624,19 +649,19 @@ class Vehicle extends Component {
                         <Input defaultValue={this.state.vehicle.firstRegistrationDate} onChange={this.handleChange} name="newFirstRegistrationDate"/>
                     </Form.Field>
                     <Form.Field><label>Marque</label>
-                        <Input defaultValue={this.state.vehicle.brand} onChange={this.handleChange} name="newBrand"/>
+                        <BrandPicker defaultValue={this.state.vehicle.brand._id} onChange={this.handleChangeBrand}/>
                     </Form.Field>
                     <Form.Field><label>Modèle</label>
-                        <Input defaultValue={this.state.vehicle.model} onChange={this.handleChange} name="newModel"/>
+                        <ModelPicker defaultValue={this.state.vehicle.model._id} onChange={this.handleChangeModel}/>
                     </Form.Field>
                     <Form.Field><label>Volume</label>
-                        <VolumePicker defaultValue={this.state.vehicle.volume._id} onChange={this.handleChangeVolume} name="newVolume"/>
+                        <VolumePicker defaultValue={this.state.vehicle.volume._id} onChange={this.handleChangeVolume}/>
                     </Form.Field>
                     <Form.Field><label>Charge utile</label>
                         <Input defaultValue={this.state.vehicle.payload} onChange={this.handleChange} name="newPayload"/>
                     </Form.Field>
                     <Form.Field><label>Couleur</label>
-                        <Input defaultValue={this.state.vehicle.color} onChange={this.handleChange} name="newColor"/>
+                        <ColorPicker defaultValue={this.state.vehicle.color._id} onChange={this.handleChangeColor}/>
                     </Form.Field>
                     <Divider style={{gridColumnEnd:"span 2",height:"23px"}} horizontal/>
                     <Form.Field><label>Prix à l'achat</label>
@@ -646,7 +671,7 @@ class Vehicle extends Component {
                         <Input defaultValue={this.state.vehicle.monthlyPayement} onChange={this.handleChange} name="newMonthlyPayement"/>
                     </Form.Field>
                     <Form.Field><label>Organisme de financement</label>
-                        <Input defaultValue={this.state.vehicle.payementOrg} onChange={this.handleChange} name="newPayementOrg"/>
+                        <OrganismPicker defaultValue={this.state.vehicle.payementOrg._id} onChange={this.handleChangeOrganism}/>
                     </Form.Field>
                     <Form.Field><label>Montant de l'assurance</label>
                         <Input defaultValue={this.state.vehicle.insurancePaid} onChange={this.handleChange} name="newInsurancePaid"/>
@@ -673,11 +698,11 @@ class Vehicle extends Component {
                     <div className="labelBoard">Societé :</div><div className="valueBoard">{this.state.vehicle.societe.name}</div>
                     <div className="labelBoard">Immatriculation :</div><div className="valueBoard">{this.state.vehicle.registration}</div>
                     <div className="labelBoard">Date de première immatriculation :</div><div className="valueBoard">{this.state.vehicle.firstRegistrationDate}</div>
-                    <div className="labelBoard">Marque :</div><div className="valueBoard">{this.state.vehicle.brand}</div>
-                    <div className="labelBoard">Modèle :</div><div className="valueBoard">{this.state.vehicle.model}</div>
+                    <div className="labelBoard">Marque :</div><div className="valueBoard">{this.state.vehicle.brand.name}</div>
+                    <div className="labelBoard">Modèle :</div><div className="valueBoard">{this.state.vehicle.model.name}</div>
                     <div className="labelBoard">Volume :</div><div className="valueBoard">{this.state.vehicle.volume.meterCube+" m²"}</div>
                     <div className="labelBoard">Charge utile :</div><div className="valueBoard">{this.state.vehicle.payload+" t."}</div>
-                    <div className="labelBoard">Couleur :</div><div className="valueBoard">{this.state.vehicle.color}</div>
+                    <div className="labelBoard">Couleur :</div><div className="valueBoard">{this.state.vehicle.color.name}</div>
                     <Divider style={{gridColumnEnd:"span 2",height:"23px"}} horizontal>
                         <Header as='h4'>
                             <Icon name='euro' />
@@ -702,7 +727,7 @@ class Vehicle extends Component {
                     :
                         ""
                     }
-                    <div className="labelBoard">Organisme de payement :</div><div className="valueBoard">{this.state.vehicle.payementOrg}</div>
+                    <div className="labelBoard">Organisme de payement :</div><div className="valueBoard">{this.state.vehicle.payementOrg.name}</div>
                     <div className="labelBoard">Type de financement :</div><div className="valueBoard">{this.state.formats.filter(f=>f.triKey == this.state.vehicle.payementFormat)[0].label}</div>
                     <div style={{gridColumnEnd:"span 2"}}>{this.getPayementProgress()}</div>
                 </div>
@@ -742,7 +767,7 @@ class Vehicle extends Component {
                                     <Icon color="black" style={{margin:"0"}} name='angle double left' />
                                 </Button.Content>
                             </Button>
-                            <Message style={{margin:"0"}} icon='truck' header={this.state.vehicle.registration} content={this.state.vehicle.brand + " - " + this.state.vehicle.model} />
+                            <Message style={{margin:"0"}} icon='truck' header={this.state.vehicle.registration} content={this.state.vehicle.brand.name + " - " + this.state.vehicle.model.name} />
                             {this.getArchivePanel()}
                             <div style={{gridColumnEnd:"span 2"}}>
                                 <p style={{margin:"0",fontWeight:"bold",fontSize:"2.4em"}}>

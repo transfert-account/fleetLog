@@ -4,6 +4,10 @@ import { Bar } from 'react-chartjs-2';
 import ModalDatePicker from '../atoms/ModalDatePicker';
 import { UserContext } from '../../contexts/UserContext';
 import RegistrationInput from '../atoms/RegistrationInput';
+import ColorPicker from '../atoms/ColorPicker';
+import ModelPicker from '../atoms/ModelPicker';
+import BrandPicker from '../atoms/BrandPicker';
+import OrganismPicker from '../atoms/OrganismPicker';
 import SocietePicker from '../atoms/SocietePicker';
 import VolumePicker from '../atoms/VolumePicker';
 import { withRouter } from 'react-router-dom';
@@ -24,9 +28,11 @@ class Location extends Component {
         newFirstRegistrationDate:"",
         newBrand:"",
         newModel:"",
+        newVolume:0,
+        newPayload:0,
+        newColor:"",
         newVolume:"",
         newPayload:"",
-        newColor:"",
         newInsurancePaid:"",
         newStartDate:"",
         newEndDate:"",
@@ -68,14 +74,24 @@ class Location extends Component {
                         kmValue
                     }
                     lastKmUpdate
-                    brand
-                    model
+                    brand{
+                        _id
+                        name
+                    }
+                    model{
+                        _id
+                        name
+                    }
                     volume{
                         _id
                         meterCube
                     }
                     payload
-                    color
+                    color{
+                        _id
+                        name
+                        hex
+                    }
                     cg
                     insurancePaid
                     cv
@@ -191,6 +207,12 @@ class Location extends Component {
     handleChangeSociete = (e, { value }) => this.setState({ newSociete:value })
 
     handleChangeVolume = (e, { value }) => this.setState({ newVolume:value })
+
+    handleChangeBrand = (e, { value }) => this.setState({ newBrand:value })
+
+    handleChangeModel = (e, { value }) => this.setState({ newModel:value })
+  
+    handleChangeColor = (e, { value }) => this.setState({ newColor:value })
 
     handleRegistrationChange = value => {
         this.setState({
@@ -504,11 +526,11 @@ class Location extends Component {
                 newSociete:data.location.societe._id,
                 newRegistration:data.location.registration,
                 newFirstRegistrationDate:data.location.firstRegistrationDate,
-                newBrand:data.location.brand,
-                newModel:data.location.model,
+                newBrand:data.location.brand._id,
+                newModel:data.location.model._id,
                 newVolume:data.location.volume._id,
                 newPayload:data.location.payload,
-                newColor:data.location.color,
+                newColor:data.location.color._id,
                 newInsurancePaid:data.location.insurancePaid,
                 newStartDate:data.location.startDate,
                 newEndDate:data.location.endDate,
@@ -656,11 +678,11 @@ class Location extends Component {
                     </Form.Field>
                     <Form.Field>
                         <label>Marque</label>
-                        <Input defaultValue={this.state.location.brand} onChange={this.handleChange} name="newBrand"/>
+                        <BrandPicker defaultValue={this.state.location.brand._id} onChange={this.handleChangeBrand}/>
                     </Form.Field>
                     <Form.Field>
                         <label>Modèle</label>
-                        <Input defaultValue={this.state.location.model} onChange={this.handleChange} name="newModel"/>
+                        <ModelPicker defaultValue={this.state.location.model._id} onChange={this.handleChangeModel}/>
                     </Form.Field>
                     <Form.Field>
                         <label>Volume</label>
@@ -672,7 +694,7 @@ class Location extends Component {
                     </Form.Field>
                     <Form.Field>
                         <label>Couleur</label>
-                        <Input defaultValue={this.state.location.color} onChange={this.handleChange} name="newColor"/>
+                        <ColorPicker defaultValue={this.state.location.color._id} onChange={this.handleChangeColor}/>
                     </Form.Field>
                     <Form.Field>
                         <label>Date de retrait</label>
@@ -718,11 +740,11 @@ class Location extends Component {
                     <div className="labelBoard">Societé :</div><div className="valueBoard">{this.state.location.societe.name}</div>
                     <div className="labelBoard">Immatriculation :</div><div className="valueBoard">{this.state.location.registration}</div>
                     <div className="labelBoard">Date de première immatriculation :</div><div className="valueBoard">{this.state.location.firstRegistrationDate}</div>
-                    <div className="labelBoard">Marque :</div><div className="valueBoard">{this.state.location.brand}</div>
-                    <div className="labelBoard">Modèle :</div><div className="valueBoard">{this.state.location.model}</div>
+                    <div className="labelBoard">Marque :</div><div className="valueBoard">{this.state.location.brand.name}</div>
+                    <div className="labelBoard">Modèle :</div><div className="valueBoard">{this.state.location.model.name}</div>
                     <div className="labelBoard">Volume :</div><div className="valueBoard">{this.state.location.volume.meterCube+" m²"}</div>
                     <div className="labelBoard">Charge utile :</div><div className="valueBoard">{this.state.location.payload+" t."}</div>
-                    <div className="labelBoard">Couleur :</div><div className="valueBoard">{this.state.location.color}</div>
+                    <div className="labelBoard">Couleur :</div><div className="valueBoard">{this.state.location.color.name}</div>
                     <Divider style={{gridColumnEnd:"span 2",height:"23px"}} horizontal>
                         <Header as='h4'>
                             <Icon name='euro' />
@@ -816,7 +838,7 @@ class Location extends Component {
                                     <Icon color="black" style={{margin:"0"}} name='angle double left' />
                                 </Button.Content>
                             </Button>
-                            <Message style={{margin:"0",gridRowStart:"1",gridColumnStart:"2"}} icon='truck' header={this.state.location.registration} content={this.state.location.brand + " - " + this.state.location.model} />
+                            <Message style={{margin:"0",gridRowStart:"1",gridColumnStart:"2"}} icon='truck' header={this.state.location.registration} content={this.state.location.brand.name + " - " + this.state.location.model.name} />
                             {this.getArchivePanel()}
                             <div style={{gridColumnEnd:"span 2"}}>
                                 <p style={{margin:"0",fontWeight:"bold",fontSize:"2.4em"}}>

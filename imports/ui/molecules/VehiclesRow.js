@@ -147,8 +147,8 @@ class VehiclesRow extends Component {
                     <Table.Cell textAlign="center">{this.props.vehicle.firstRegistrationDate}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.vehicle.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km</Table.Cell>
                     <Table.Cell textAlign="center">{moment(this.props.vehicle.lastKmUpdate, "DD/MM/YYYY").fromNow()}</Table.Cell>
-                    <Table.Cell textAlign="center">{this.props.vehicle.brand}</Table.Cell>
-                    <Table.Cell textAlign="center">{this.props.vehicle.model}</Table.Cell>
+                    <Table.Cell textAlign="center">{this.props.vehicle.brand.name}</Table.Cell>
+                    <Table.Cell textAlign="center">{this.props.vehicle.model.name}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.vehicle.volume.meterCube+" m²"}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.vehicle.payload} t.</Table.Cell>
                     <Table.Cell textAlign="center">

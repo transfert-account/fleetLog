@@ -1,0 +1,13 @@
+type Model{
+    _id:String!
+    name:String!
+}
+
+extend type Query{
+    models : [Model]
+}
+
+extend type Mutation{
+    addModel(name:String!): [QueryResultMessage]
+    deleteModel(_id:String!): [QueryResultMessage]
+}

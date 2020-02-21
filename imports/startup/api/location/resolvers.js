@@ -3,6 +3,9 @@ import Societes from '../societe/societes.js';
 import Licences from '../licence/licences.js';
 import Entretiens from '../entretien/entretiens';
 import Volumes from '../volume/volumes.js';
+import Brands from '../brand/brands.js';
+import Models from '../model/models.js';
+import Colors from '../color/colors.js';
 import Equipements from '../equipement/equipements';
 import EquipementDescriptions from '../equipementDescription/equipementDescriptions';
 import moment from 'moment';
@@ -29,6 +32,21 @@ export default {
             }else{
                 location.volume = {_id:""};
             }
+            if(location.brand != null && location.brand.length > 0){
+                location.brand = Brands.findOne({_id:new Mongo.ObjectID(location.brand)});
+            }else{
+                location.brand = {_id:""};
+            }
+            if(location.model != null && location.model.length > 0){
+                location.model = Models.findOne({_id:new Mongo.ObjectID(location.model)});
+            }else{
+                location.model = {_id:""};
+            }
+            if(location.color != null && location.color.length > 0){
+                location.color = Colors.findOne({_id:new Mongo.ObjectID(location.color)});
+            }else{
+                location.color = {_id:""};
+            }
             location.equipements = Equipements.find({location:location._id._str}).fetch() || {};
             location.equipements.forEach((e,ei) => {
                 e.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)}) || {};
@@ -49,6 +67,21 @@ export default {
                     l.volume = Volumes.findOne({_id:new Mongo.ObjectID(l.volume)});
                 }else{
                     l.volume = {_id:""};
+                }
+                if(l.brand != null && l.brand.length > 0){
+                    l.brand = Brands.findOne({_id:new Mongo.ObjectID(l.brand)});
+                }else{
+                    l.brand = {_id:""};
+                }
+                if(l.model != null && l.model.length > 0){
+                    l.model = Models.findOne({_id:new Mongo.ObjectID(l.model)});
+                }else{
+                    l.model = {_id:""};
+                }
+                if(l.color != null && l.color.length > 0){
+                    l.color = Colors.findOne({_id:new Mongo.ObjectID(l.color)});
+                }else{
+                    l.color = {_id:""};
                 }
                 if(l.societe != null && l.societe.length > 0){
                     locations[i].societe = Societes.findOne({_id:new Mongo.ObjectID(l.societe)});

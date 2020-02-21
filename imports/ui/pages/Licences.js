@@ -61,8 +61,6 @@ export class Licences extends Component {
               _id
               registration
               km
-              brand
-              model
               volume{
                   _id
                   meterCube

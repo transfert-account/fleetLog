@@ -6,6 +6,9 @@ import { UserContext } from '../../contexts/UserContext';
 import LocationsRow from '../molecules/LocationRow';
 import SocietePicker from '../atoms/SocietePicker';
 import VolumePicker from '../atoms/VolumePicker';
+import ColorPicker from '../atoms/ColorPicker';
+import ModelPicker from '../atoms/ModelPicker';
+import BrandPicker from '../atoms/BrandPicker';
 import { gql } from 'apollo-server-express';
 
 export class Locations extends Component {
@@ -95,14 +98,24 @@ export class Locations extends Component {
                     kmValue
                 }
                 lastKmUpdate
-                brand
-                model
+                brand{
+                    _id
+                    name
+                }
+                model{
+                    _id
+                    name
+                }
                 volume{
                     _id
                     meterCube
                 }
                 payload
-                color
+                color{
+                    _id
+                    name
+                    hex
+                }
                 cg
                 insurancePaid
                 cv
@@ -192,6 +205,14 @@ export class Locations extends Component {
     })
   }
 
+  handleChangeVolume = (e, { value }) => this.setState({ newVolume:value })
+
+  handleChangeBrand = (e, { value }) => this.setState({ newBrand:value })
+
+  handleChangeModel = (e, { value }) => this.setState({ newModel:value })
+
+  handleChangeColor = (e, { value }) => this.setState({ newColor:value })
+
   handleChangeSociete = (e, { value }) => this.setState({ newSociete:value })
 
   handleChangePayementFormat = value => {
@@ -270,7 +291,7 @@ export class Locations extends Component {
                         <Table.Header>
                             <Table.Row textAlign='center'>
                                 <Table.HeaderCell>Societe</Table.HeaderCell>
-                                <Table.HeaderCell>Registration</Table.HeaderCell>
+                                <Table.HeaderCell>Immatriculation</Table.HeaderCell>
                                 <Table.HeaderCell>Kilométrage</Table.HeaderCell>
                                 <Table.HeaderCell>Dernier relevé</Table.HeaderCell>
                                 <Table.HeaderCell>Marque</Table.HeaderCell>
@@ -306,14 +327,17 @@ export class Locations extends Component {
                             </Header>
                         </Divider>
                         <RegistrationInput onChange={this.handleRegistrationChange} name="newRegistration"/>
-                        <Form.Field><label>Date de première immatriculation</label><input value={this.state.newFirstRegistrationDate} onFocus={()=>{this.showDatePicker("newFirstRegistrationDate")}} name="newFirstRegistrationDate"/></Form.Field>
+                        <Form.Field><label>Date de première immatriculation</label><input onChange={this.handleChange} value={this.state.newFirstRegistrationDate} onFocus={()=>{this.showDatePicker("newFirstRegistrationDate")}} name="newFirstRegistrationDate"/></Form.Field>
                         <Form.Field><label>Kilométrage au retrait</label><input onChange={this.handleChange} name="newKm"/></Form.Field>
                         <Form.Field><label>Date de retrait</label><input onChange={this.handleChange} value={this.state.newLastKmUpdate} onFocus={()=>{this.showDatePicker("newLastKmUpdate")}} name="newLastKmUpdate"/></Form.Field>
-                        <Form.Field><label>Brand</label><input onChange={this.handleChange} name="newBrand"/></Form.Field>
-                        <Form.Field><label>Model</label><input onChange={this.handleChange} name="newModel"/></Form.Field>
+                        
+
+                        <Form.Field><label>Marque</label><BrandPicker onChange={this.handleChangeBrand}/></Form.Field>
+                        <Form.Field><label>Modèle</label><ModelPicker onChange={this.handleChangeModel}/></Form.Field>
                         <Form.Field><label>Volume</label><VolumePicker onChange={this.handleChangeVolume}/></Form.Field>
+
                         <Form.Field><label>Payload</label><input onChange={this.handleChange} name="newPayload"/></Form.Field>
-                        <Form.Field><label>Color</label><input onChange={this.handleChange} name="newColor"/></Form.Field>
+                        <Form.Field><label>Couleur</label><ColorPicker onChange={this.handleChangeColor}/></Form.Field>
                         <Divider style={{gridColumnEnd:"span 3",height:"23px"}} horizontal>
                             <Header as='h4'>
                                 <Icon name='euro' />

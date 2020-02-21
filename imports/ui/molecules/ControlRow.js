@@ -323,7 +323,7 @@ class ControlRow extends Component {
                         </Label>
                     </div>
                     {this.getAlertLabel()}
-                    <div style={{placeSelf:"center"}}>{"["+this.props.vehicle.societe.name + "] "}    <Header style={{margin:"auto 32px",display:"inline"}} size='medium'>{this.props.vehicle.brand + " - " +this.props.vehicle.model}</Header>{" (" + this.props.vehicle.km + " km)"}</div>
+                    <div style={{placeSelf:"center"}}>{"["+this.props.vehicle.societe.name + "] "}    <Header style={{margin:"auto 32px",display:"inline"}} size='medium'>{this.props.vehicle.brand.name + " - " + this.props.vehicle.model.name}</Header>{" (" + this.props.vehicle.km + " km)"}</div>
                     <Button size="tiny" style={{gridColumnStart:"4"}} icon color="blue" onClick={this.showAttachEquipement} labelPosition='right'> Attacher un contrôle <Icon name='plus' /></Button>
                     {this.getDetailShowAndHideButton()}
                 </Segment>
@@ -334,7 +334,7 @@ class ControlRow extends Component {
                     </Modal.Header>
                     <Modal.Content style={{textAlign:"center"}}>
                         <Form style={{display:"grid",margin:"auto 25%",gridTemplateRows:"1fr 1fr 1fr",gridTemplateColumns:"1fr",gridGap:"16px"}}>
-                            <Form.Field><label>Equipement</label><Dropdown placeholder='Choisir un equipement' search selection onChange={this.handleChangeEquipement} options={this.state.equipementDescriptions()}/></Form.Field>
+                            <Form.Field><label>Contrôle</label><Dropdown placeholder='Choisir un contrôle' search selection onChange={this.handleChangeEquipement} options={this.state.equipementDescriptions()}/></Form.Field>
                             <Form.Field><label>Attaché le </label><input onChange={this.handleChange} value={this.state.newAttachementDate} onFocus={()=>{this.showDatePicker("newAttachementDate")}} placeholder="Date de rattachement"/></Form.Field>
                             <Form.Field className={this.state.hideLastControlDate}><label>Dernier controle (date)</label><input onChange={this.handleChange} value={this.state.newLastControlDate} onFocus={()=>{this.showDatePicker("newLastControlDate")}} placeholder="Date du dernier contrôle"/></Form.Field>
                             <Form.Field className={this.state.hideLastControlKm}><label>Kilométrage au dernier controle</label><input onChange={this.handleChange} value={this.state.newLastControlKm} name="newLastControlKm" placeholder="Kilométrage au dernier contrôle"/></Form.Field>

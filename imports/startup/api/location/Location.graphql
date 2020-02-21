@@ -6,11 +6,11 @@ type Location{
     km:Int
     kms:[DatedKm]
     lastKmUpdate:String
-    brand:String
-    model:String
+    brand:Brand
+    model:Model
     volume:Volume
     payload:Float
-    color:String
+    color:Color
     cg:String
     insurancePaid:Float
     cv:String

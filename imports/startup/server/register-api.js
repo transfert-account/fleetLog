@@ -43,10 +43,22 @@ import VolumeResolvers from '../api/volume/resolvers.js';
 import LocationSchema from '../api/location/Location.graphql';
 import LocationResolvers from '../api/location/resolvers.js';
 
+import BrandSchema from '../api/brand/Brand.graphql';
+import BrandResolvers from '../api/brand/resolvers.js';
+
+import ModelSchema from '../api/model/Model.graphql';
+import ModelResolvers from '../api/model/resolvers.js';
+
+import OrganismSchema from '../api/organism/Organism.graphql';
+import OrganismResolvers from '../api/organism/resolvers.js';
+
+import ColorSchema from '../api/color/Color.graphql';
+import ColorResolvers from '../api/color/resolvers.js';
+
 import TestSchema from '../api/test/Test.graphql';
 import TestResolvers from '../api/test/resolvers.js';
 
-// #0236
+// #0240
 
 const typeDefs = [
     UserSchema,
@@ -62,6 +74,10 @@ const typeDefs = [
     PlanningSchema,
     VolumeSchema,
     LocationSchema,
+    BrandSchema,
+    ModelSchema,
+    OrganismSchema,
+    ColorSchema,
     TestSchema
 ];
 
@@ -79,6 +95,10 @@ const resolvers = merge(
     PlanningResolvers,
     VolumeResolvers,
     LocationResolvers,
+    BrandResolvers,
+    ModelResolvers,
+    OrganismResolvers,
+    ColorResolvers,
     TestResolvers
 );
 

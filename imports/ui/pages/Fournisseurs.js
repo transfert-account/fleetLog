@@ -104,7 +104,7 @@ class Fournisseurs extends Component {
                     <Table.Header>
                         <Table.Row textAlign='center'>
                             <Table.HeaderCell>Nom</Table.HeaderCell>
-                            <Table.HeaderCell>Telephone</Table.HeaderCell>
+                            <Table.HeaderCell>Téléphone</Table.HeaderCell>
                             <Table.HeaderCell>Mail</Table.HeaderCell>
                             <Table.HeaderCell>Adresse</Table.HeaderCell>
                             <Table.HeaderCell>Actions</Table.HeaderCell>
@@ -115,7 +115,7 @@ class Fournisseurs extends Component {
                     </Table.Body>
                 </Table>
             </div>
-            <Modal closeOnDimmerClick={false} open={this.state.openAddFournisseur} onClose={this.closeAddFournisseur} closeIcon>
+            <Modal size="tiny" closeOnDimmerClick={false} open={this.state.openAddFournisseur} onClose={this.closeAddFournisseur} closeIcon>
                 <Modal.Header>
                     Création du fournisseur
                 </Modal.Header>

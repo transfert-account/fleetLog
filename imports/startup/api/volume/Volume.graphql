@@ -8,6 +8,6 @@ extend type Query{
 }
 
 extend type Mutation{
-    addVolume(meterCube:Float!): Boolean!
-    deleteVolume(_id:String!): Boolean!
+    addVolume(meterCube:Float!): [QueryResultMessage]
+    deleteVolume(_id:String!): [QueryResultMessage]
 }

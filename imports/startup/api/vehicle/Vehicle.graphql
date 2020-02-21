@@ -6,11 +6,11 @@ type Vehicle{
     km:Int
     kms:[DatedKm]
     lastKmUpdate:String
-    brand:String
-    model:String
+    brand:Brand
+    model:Model
     volume:Volume
     payload:Float
-    color:String
+    color:Color
     cg:String
     insurancePaid:Float
     cv:String
@@ -19,7 +19,7 @@ type Vehicle{
     equipements:[Equipement]
     purchasePrice:Float
     monthlyPayement:Float
-    payementOrg:String
+    payementOrg:Organism
     payementFormat:String
     archived:Boolean!
     archiveReason:String!

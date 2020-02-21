@@ -136,8 +136,8 @@ class LocationRow extends Component {
                     <Table.Cell textAlign="center">{this.props.rental.registration}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.rental.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km</Table.Cell>
                     <Table.Cell textAlign="center">{moment(this.props.rental.lastKmUpdate, "DD/MM/YYYY").fromNow()}</Table.Cell>
-                    <Table.Cell textAlign="center">{this.props.rental.brand}</Table.Cell>
-                    <Table.Cell textAlign="center">{this.props.rental.model}</Table.Cell>
+                    <Table.Cell textAlign="center">{this.props.rental.brand.name}</Table.Cell>
+                    <Table.Cell textAlign="center">{this.props.rental.model.name}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.rental.volume.meterCube+" m²"}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.rental.payload} t.</Table.Cell>
                     <Table.Cell textAlign="center">

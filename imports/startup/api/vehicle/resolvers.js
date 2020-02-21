@@ -3,6 +3,10 @@ import Entretiens from '../entretien/entretiens';
 import Societes from '../societe/societes.js';
 import Licences from '../licence/licences';
 import Volumes from '../volume/volumes.js';
+import Brands from '../brand/brands.js';
+import Models from '../model/models.js';
+import Organisms from '../organism/organisms.js';
+import Colors from '../color/colors.js';
 import Equipements from '../equipement/equipements';
 import EquipementDescriptions from '../equipementDescription/equipementDescriptions';
 import moment from 'moment';
@@ -22,6 +26,26 @@ export default {
                 vehicle.societe = Societes.findOne({_id:new Mongo.ObjectID(vehicle.societe)});
             }else{
                 vehicle.societe = {_id:""};
+            }
+            if(vehicle.brand != null && vehicle.brand.length > 0){
+                vehicle.brand = Brands.findOne({_id:new Mongo.ObjectID(vehicle.brand)});
+            }else{
+                vehicle.brand = {_id:""};
+            }
+            if(vehicle.model != null && vehicle.model.length > 0){
+                vehicle.model = Models.findOne({_id:new Mongo.ObjectID(vehicle.model)});
+            }else{
+                vehicle.model = {_id:""};
+            }
+            if(vehicle.payementOrg != null && vehicle.payementOrg.length > 0){
+                vehicle.payementOrg = Organisms.findOne({_id:new Mongo.ObjectID(vehicle.payementOrg)});
+            }else{
+                vehicle.payementOrg = {_id:""};
+            }
+            if(vehicle.color != null && vehicle.color.length > 0){
+                vehicle.color = Colors.findOne({_id:new Mongo.ObjectID(vehicle.color)});
+            }else{
+                vehicle.color = {_id:""};
             }
             if(vehicle.volume != null && vehicle.volume.length > 0){
                 vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(vehicle.volume)});
@@ -53,6 +77,26 @@ export default {
                     vehicles[i].societe = Societes.findOne({_id:new Mongo.ObjectID(v.societe)});
                 }else{
                     vehicles[i].societe = {_id:""};
+                }
+                if(v.brand != null && v.brand.length > 0){
+                    v.brand = Brands.findOne({_id:new Mongo.ObjectID(v.brand)});
+                }else{
+                    v.brand = {_id:""};
+                }
+                if(v.model != null && v.model.length > 0){
+                    v.model = Models.findOne({_id:new Mongo.ObjectID(v.model)});
+                }else{
+                    v.model = {_id:""};
+                }
+                if(v.payementOrg != null && v.payementOrg.length > 0){
+                    v.payementOrg = Organisms.findOne({_id:new Mongo.ObjectID(v.payementOrg)});
+                }else{
+                    v.payementOrg = {_id:""};
+                }
+                if(v.color != null && v.color.length > 0){
+                    v.color = Colors.findOne({_id:new Mongo.ObjectID(v.color)});
+                }else{
+                    v.color = {_id:""};
                 }
                 v.equipements = Equipements.find({vehicle:v._id._str}).fetch() || {};
                 v.equipements.forEach((e,ei) => {
@@ -217,7 +261,7 @@ export default {
                     let qrm = [];
                     if(nL > 0){qrm.push({status:false,message:'Suppresion impossible, ' + nL + ' licence(s) liée(s)'})}
                     if(nE > 0){qrm.push({status:false,message:'Suppresion impossible, ' + nE + ' entretien(s) lié(s)'})}
-                    if(nQ > 0){qrm.push({status:false,message:'Suppresion impossible, ' + nQ + ' equipement(s) lié(s)'})}
+                    if(nQ > 0){qrm.push({status:false,message:'Suppresion impossible, ' + nQ + ' contrôle(s) lié(s)'})}
                     return qrm;
                 }else{
                     Vehicles.remove({

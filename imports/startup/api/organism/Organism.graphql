@@ -1,0 +1,13 @@
+type Organism{
+    _id:String!
+    name:String!
+}
+
+extend type Query{
+    organisms : [Organism]
+}
+
+extend type Mutation{
+    addOrganism(name:String!): [QueryResultMessage]
+    deleteOrganism(_id:String!): [QueryResultMessage]
+}

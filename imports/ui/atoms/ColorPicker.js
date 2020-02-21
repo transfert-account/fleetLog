@@ -1,33 +1,32 @@
 
 import React, { Component, Fragment } from 'react'
-import { Dropdown, Input, Icon } from 'semantic-ui-react';
+import { Dropdown } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 import { gql } from 'apollo-server-express'
 
-class VolumePicker extends Component {
+class ColorPicker extends Component {
 
     state = {
         value:"",
-        volumesRaw:[],
-        volumesQuery : gql`
-            query volumes{
-                volumes{
+        colorsRaw:[],
+        colorsQuery : gql`
+            query colors{
+                colors{
                     _id
-                    meterCube
+                    name
+                    hex
                 }
             }
         `,
     }
 
-
-    
-    loadVolumes = () => {
+    loadColors = () => {
         this.props.client.query({
-            query:this.state.volumesQuery,
+            query:this.state.colorsQuery,
             fetchPolicy:"network-only"
         }).then(({data})=>{
             this.setState({
-                volumesRaw:data.volumes
+                colorsRaw:data.colors
             })
             if(this.props.didRefresh != undefined){
                 this.props.didRefresh()
@@ -36,18 +35,18 @@ class VolumePicker extends Component {
     }
     
     componentDidMount = () => {
-        this.loadVolumes();
+        this.loadColors();
     }
 
     componentDidUpdate = () => {
         if(this.props.needToRefresh){
-            this.loadVolumes();
+            this.loadColors();
         }
     }
 
     render() {
         return (
-            <Dropdown size={(this.props.size != null ? this.props.size : "")} style={this.props.style} placeholder='Choisir un volume' search selection onChange={this.props.onChange} defaultValue={this.props.defaultValue} options={this.state.volumesRaw.map(x=>{return{key:x._id,text:x.meterCube+" m³",value:x._id}})} />
+            <Dropdown size={(this.props.size != null ? this.props.size : "")} style={this.props.style} placeholder='Choisir un couleur' search selection onChange={this.props.onChange} defaultValue={this.props.defaultValue} options={this.state.colorsRaw.map(x=>{return{key:x._id,text:x.name,value:x._id}})} />
         )
     }
 }
@@ -58,4 +57,4 @@ const withUserContext = WrappedComponent => props => (
     </UserContext.Consumer>
 )
 
-export default wrappedInUserContext = withUserContext(VolumePicker);
+export default wrappedInUserContext = withUserContext(ColorPicker);

@@ -22,14 +22,24 @@ export class Controls extends Component {
                 firstRegistrationDate
                 km
                 lastKmUpdate
-                brand
-                model
+                brand{
+                    _id
+                    name
+                }
+                model{
+                    _id
+                    name
+                }
                 volume{
                     _id
                     meterCube
                 }
                 payload
-                color
+                color{
+                    _id
+                    name
+                    hex
+                }
                 cg
                 insurancePaid
                 cv

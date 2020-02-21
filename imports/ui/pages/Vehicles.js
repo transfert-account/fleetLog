@@ -7,6 +7,10 @@ import SocietePicker from '../atoms/SocietePicker';
 import RegistrationInput from '../atoms/RegistrationInput';
 import PayementFormatPicker from '../atoms/PayementFormatPicker';
 import VolumePicker from '../atoms/VolumePicker';
+import ColorPicker from '../atoms/ColorPicker';
+import ModelPicker from '../atoms/ModelPicker';
+import BrandPicker from '../atoms/BrandPicker';
+import OrganismPicker from '../atoms/OrganismPicker';
 import { gql } from 'apollo-server-express';
 
 export class Vehicles extends Component {
@@ -93,14 +97,24 @@ export class Vehicles extends Component {
                 firstRegistrationDate
                 km
                 lastKmUpdate
-                brand
-                model
+                brand{
+                    _id
+                    name
+                }
+                model{
+                    _id
+                    name
+                }
                 volume{
                     _id
                     meterCube
                 }
                 payload
-                color
+                color{
+                    _id
+                    name
+                    hex
+                }
                 cg
                 insurancePaid
                 cv
@@ -108,7 +122,10 @@ export class Vehicles extends Component {
                 property
                 purchasePrice
                 monthlyPayement
-                payementOrg
+                payementOrg{
+                    _id
+                    name
+                }
                 payementFormat
                 archived
                 archiveReason
@@ -204,6 +221,14 @@ export class Vehicles extends Component {
 
   handleChangeVolume = (e, { value }) => this.setState({ newVolume:value })
 
+  handleChangeBrand = (e, { value }) => this.setState({ newBrand:value })
+
+  handleChangeModel = (e, { value }) => this.setState({ newModel:value })
+
+  handleChangeOrganism = (e, { value }) => this.setState({ newPayementOrg:value })
+
+  handleChangeColor = (e, { value }) => this.setState({ newColor:value })
+
   loadVehicles = () => {
     this.props.client.query({
         query:this.state.vehiclesQuery,
@@ -269,7 +294,7 @@ export class Vehicles extends Component {
                     <Menu.Item color="blue" name='licences' onClick={()=>{this.props.history.push("/parc/licences")}}><Icon name='drivers license'/>Licences</Menu.Item>
                     <Menu.Item color="blue" name='locations' onClick={()=>{this.props.history.push("/parc/locations")}} ><Icon name="calendar alternate outline"/> Locations</Menu.Item>
                 </Menu>
-                <Input style={{justifySelf:"stretch"}} name="vehiclesFiler" onChange={e=>{this.handleFilter(e.target.value)}} icon='search' placeholder='Rechercher un vehicule ... (3 caractères minimum)' />
+                <Input style={{justifySelf:"stretch"}} name="vehiclesFiler" onChange={e=>{this.handleFilter(e.target.value)}} icon='search' placeholder='Rechercher un vehicule ... ' />
                 <Button color={this.getArchiveFilterColor()} style={{justifySelf:"stretch"}} onClick={this.switchArchiveFilter} icon labelPosition='right'>{this.getArchiveButtonContent()} <Icon name={this.getArchiveButtonIcon()} /></Button>
                 <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddVehicle} icon labelPosition='right'>Ajouter un véhicule<Icon name='plus'/></Button>
                 <div style={{gridRowStart:"2",gridColumnEnd:"span 4",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
@@ -317,11 +342,11 @@ export class Vehicles extends Component {
                         <Form.Field><label>Date de première immatriculation</label><input onChange={this.handleChange} value={this.state.newFirstRegistrationDate} onFocus={()=>{this.showDatePicker("newFirstRegistrationDate")}} placeholder="firstRegistrationDate" name="newFirstRegistrationDate"/></Form.Field>
                         <Form.Field><label>Kilométrage</label><input onChange={this.handleChange} name="newKm"/></Form.Field>
                         <Form.Field><label>Date de relevé</label><input onChange={this.handleChange} value={this.state.newLastKmUpdate} onFocus={()=>{this.showDatePicker("newLastKmUpdate")}} name="newLastKmUpdate"/></Form.Field>
-                        <Form.Field><label>Brand</label><input onChange={this.handleChange} name="newBrand"/></Form.Field>
-                        <Form.Field><label>Model</label><input onChange={this.handleChange} name="newModel"/></Form.Field>
+                        <Form.Field><label>Marque</label><BrandPicker onChange={this.handleChangeBrand}/></Form.Field>
+                        <Form.Field><label>Modèle</label><ModelPicker onChange={this.handleChangeModel}/></Form.Field>
                         <Form.Field><label>Volume</label><VolumePicker onChange={this.handleChangeVolume}/></Form.Field>
-                        <Form.Field><label>Payload</label><input onChange={this.handleChange} name="newPayload"/></Form.Field>
-                        <Form.Field><label>Color</label><input onChange={this.handleChange} name="newColor"/></Form.Field>
+                        <Form.Field><label>Charge utile</label><input onChange={this.handleChange} name="newPayload"/></Form.Field>
+                        <Form.Field><label>Couleur</label><ColorPicker onChange={this.handleChangeColor}/></Form.Field>
                         <Divider style={{gridColumnEnd:"span 3",height:"23px"}} horizontal>
                             <Header as='h4'>
                                 <Icon name='euro' />
@@ -329,9 +354,8 @@ export class Vehicles extends Component {
                             </Header>
                         </Divider>
                         <Form.Field><label>Prix à l'achat</label><input onChange={this.handleChange} name="newPurchasePrice"/></Form.Field>
-                        <Form.Field><label>Mensualité</label><input onChange={this.handleChange} name="newMonthlyPayement"/></Form.Field>
-                        <Form.Field><label>Organisme de financement</label><input onChange={this.handleChange} name="newPayementOrg"/></Form.Field>
-                        
+                        <Form.Field><label>Paiement mensuel</label><input onChange={this.handleChange} name="newMonthlyPayement"/></Form.Field>
+                        <Form.Field><label>Organisme de financement</label><OrganismPicker onChange={this.handleChangeOrganism}/></Form.Field>
                         <Form.Field><label>Montant de l'assurance</label><input onChange={this.handleChange} name="newInsurancePaid"/></Form.Field>
                         <Form.Field style={{gridColumnStart:"2"}}><label>Type de financement</label>
                             <PayementFormatPicker change={this.handleChangePayementFormat}/>

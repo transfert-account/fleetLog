@@ -191,8 +191,8 @@ class Entretiens extends Component {
                     <Table style={{marginBottom:"0"}} celled selectable color={this.getArchiveFilterColor()} compact>
                         <Table.Header>
                             <Table.Row textAlign='center'>
-                                <Table.HeaderCell width="2">Vehicle</Table.HeaderCell>
-                                <Table.HeaderCell width="3">Title</Table.HeaderCell>
+                                <Table.HeaderCell width="2">Vehicule</Table.HeaderCell>
+                                <Table.HeaderCell width="3">Titre</Table.HeaderCell>
                                 <Table.HeaderCell width="6">Description de l'entretien</Table.HeaderCell>
                                 <Table.HeaderCell width="1">A commander</Table.HeaderCell>
                                 <Table.HeaderCell width="1">Commandé</Table.HeaderCell>

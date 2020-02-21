@@ -1,0 +1,13 @@
+type Brand{
+    _id:String!
+    name:String
+}
+
+extend type Query{
+    brands : [Brand]
+}
+
+extend type Mutation{
+    addBrand(name:String!): [QueryResultMessage]
+    deleteBrand(_id:String!): [QueryResultMessage]
+}
