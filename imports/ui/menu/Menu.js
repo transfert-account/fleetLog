@@ -140,7 +140,7 @@ class Menu extends Component {
                 <img alt="homeLogo" style={{width:"48px"}} src='/res/topMenu.png'/>
               </li>
             </Link>
-            <hr style={{width:"80%",margin:"16px auto"}}/>
+            <hr style={{width:"80%",margin:"8px auto"}}/>
             <MenuItemList collapsed={this.props.collapsed} menuItems={this.getMenuItemsList()}/>
             <li onClick={()=>{Meteor.logout();this.props.client.resetStore();this.props.history.push("/")}} style={{cursor:"pointer"}}>
               <Icon link size="large" style={{cursor:"pointer",margin:"0"}} name="power off" color="red"/>
@@ -165,7 +165,9 @@ class Menu extends Component {
                 <img alt="homeLogo" style={{width:"128px"}} src='/res/topMenu.png'/>
               </li>
             </Link>
-            <hr style={{width:"80%",margin:"16px auto"}}/>
+            <hr style={{width:"80%",margin:"8px auto"}}/>
+            <p>{this.props.user.firstname + " " + this.props.user.lastname}<br/>{this.props.user.societe.name}</p>
+            <hr style={{width:"80%",margin:"8px auto"}}/>
             <MenuItemList menuItems={this.getMenuItemsList()}/>
             <li onClick={()=>{Meteor.logout();this.props.client.cache.reset();this.props.history.push("/")}} className={"menuItemRed"} style={{cursor:"pointer"}}>
               <p style={{textAlign:"right",padding:"8px 16px 8px 0",fontSize:"1.1em",fontWeight:"800",fontFamily: "'Open Sans', sans-serif"}}>

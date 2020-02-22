@@ -128,11 +128,17 @@ class LocationRow extends Component {
         return <Label color="green"> {moment(this.props.rental.endDate, "DD/MM/YYYY").fromNow()}, le {this.props.rental.endDate}</Label>
     }
 
+    getSocieteCell = () => {
+        if(!this.props.hideSociete){
+            return <Table.Cell textAlign="center">{this.props.rental.societe.name}</Table.Cell>
+        }
+    }
+
     render() {
         return (
             <Fragment>
                 <Table.Row>
-                    <Table.Cell textAlign="center">{this.props.rental.societe.name}</Table.Cell>
+                    {this.getSocieteCell()}
                     <Table.Cell textAlign="center">{this.props.rental.registration}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.rental.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km</Table.Cell>
                     <Table.Cell textAlign="center">{moment(this.props.rental.lastKmUpdate, "DD/MM/YYYY").fromNow()}</Table.Cell>

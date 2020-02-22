@@ -105,6 +105,54 @@ export default {
                 });
             });
             return locations;
+        },
+        buLocations(obj,args,{ user }){
+            let userFull = Meteor.users.findOne({_id:user._id});
+            let locations = Locations.find({societe:userFull.settings.visibility}).fetch() || {};
+            locations.forEach((l,i) => {
+                l.lastKmUpdate = l.kms[l.kms.length-1].reportDate
+                l.km = l.kms[l.kms.length-1].kmValue
+                if(l.payementFormat == "CRB"){
+                    l.property = false
+                }else{
+                    l.property = true
+                }
+                if(l.volume != null && l.volume.length > 0){
+                    l.volume = Volumes.findOne({_id:new Mongo.ObjectID(l.volume)});
+                }else{
+                    l.volume = {_id:""};
+                }
+                if(l.brand != null && l.brand.length > 0){
+                    l.brand = Brands.findOne({_id:new Mongo.ObjectID(l.brand)});
+                }else{
+                    l.brand = {_id:""};
+                }
+                if(l.model != null && l.model.length > 0){
+                    l.model = Models.findOne({_id:new Mongo.ObjectID(l.model)});
+                }else{
+                    l.model = {_id:""};
+                }
+                if(l.color != null && l.color.length > 0){
+                    l.color = Colors.findOne({_id:new Mongo.ObjectID(l.color)});
+                }else{
+                    l.color = {_id:""};
+                }
+                if(l.fournisseur != null && l.fournisseur.length > 0){
+                    l.fournisseur = Fournisseurs.findOne({_id:new Mongo.ObjectID(l.fournisseur)});
+                }else{
+                    l.fournisseur = {_id:""};
+                }
+                if(l.societe != null && l.societe.length > 0){
+                    locations[i].societe = Societes.findOne({_id:new Mongo.ObjectID(l.societe)});
+                }else{
+                    locations[i].societe = {_id:""};
+                }
+                l.equipements = Equipements.find({location:l._id._str}).fetch() || {};
+                l.equipements.forEach((e,ei) => {
+                    e.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)}) || {};
+                });
+            });
+            return locations;
         }
     },
     Mutation:{

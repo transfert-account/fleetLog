@@ -93,7 +93,7 @@ export default {
             }
             throw new Error('Unauthorized')
         },
-        toggleAdmin(obj, {admin,_id},{user}){
+        setAdmin(obj, {admin,_id},{user}){
             if(user._id){
                 const adminUser = Meteor.users.findOne({_id:admin});
                 if(adminUser.settings.isAdmin){
@@ -102,7 +102,26 @@ export default {
                         _id: _id
                     }, {
                         $set: {
-                            "settings.isAdmin": !user.settings.isAdmin,
+                            "settings.isAdmin": true,
+                        }
+                    });
+                }
+                const res = Meteor.users.findOne({_id:_id});
+                return res;
+            }
+            throw new Error('Unauthorized')
+        },
+        unsetAdmin(obj, {admin,_id,societe},{user}){
+            if(user._id){
+                const adminUser = Meteor.users.findOne({_id:admin});
+                if(adminUser.settings.isAdmin){
+                    const user = Meteor.users.findOne({_id:_id});
+                    Meteor.users.update({
+                        _id: _id
+                    }, {
+                        $set: {
+                            "settings.isAdmin": false,
+                            "settings.visibility": societe,
                         }
                     });
                 }

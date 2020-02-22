@@ -5,6 +5,11 @@ import { UserContext } from '../../contexts/UserContext';
 import VehiclesRow from '../molecules/VehiclesRow';
 import SocietePicker from '../atoms/SocietePicker';
 import PayementFormatPicker from '../atoms/PayementFormatPicker';
+import RegistrationInput from '../atoms/RegistrationInput';
+import ColorPicker from '../atoms/ColorPicker';
+import ModelPicker from '../atoms/ModelPicker';
+import BrandPicker from '../atoms/BrandPicker';
+import OrganismPicker from '../atoms/OrganismPicker';
 import VolumePicker from '../atoms/VolumePicker';
 import { gql } from 'apollo-server-express';
 
@@ -68,7 +73,7 @@ export class BUVehicles extends Component {
         }
         //displayed = displayed.slice((this.state.currentPage - 1) * this.state.rowByPage, this.state.currentPage * this.state.rowByPage);
         return displayed.map(i =>(
-            <VehiclesRow loadVehicles={this.loadVehicles} societesRaw={this.state.societesRaw} key={i._id} vehicle={i}/>
+            <VehiclesRow hideSociete={true} loadVehicles={this.loadVehicles} societesRaw={this.state.societesRaw} key={i._id} vehicle={i}/>
         ))
     },
     addVehicleQuery : gql`
@@ -208,6 +213,22 @@ export class BUVehicles extends Component {
       this.setState({ newPayementFormat:value })
   }
 
+  handleRegistrationChange = value => {
+    this.setState({
+        newRegistration : value
+    })
+  }
+
+  handleChangeVolume = (e, { value }) => this.setState({ newVolume:value })
+
+  handleChangeBrand = (e, { value }) => this.setState({ newBrand:value })
+
+  handleChangeModel = (e, { value }) => this.setState({ newModel:value })
+
+  handleChangeOrganism = (e, { value }) => this.setState({ newPayementOrg:value })
+
+  handleChangeColor = (e, { value }) => this.setState({ newColor:value })
+
   handleChangeVolume = (e, { value }) => this.setState({ newVolume:value })
 
   loadVehicles = () => {
@@ -221,42 +242,42 @@ export class BUVehicles extends Component {
     })
   }
 
-    getArchiveButtonContent = () => {
-        if(this.state.archiveFilter){
-            return "Affiché : archives"
-        }else{
-            return "Affiché : valides"
-        }
+  getArchiveButtonContent = () => {
+    if(this.state.archiveFilter){
+        return "Affiché : archives"
+    }else{
+        return "Affiché : valides"
     }
+  }
 
-    getArchiveFilterColor = () => {
-        if(this.state.archiveFilter){
-            return "orange"
-        }else{
-            return "green"
-        }
+  getArchiveFilterColor = () => {
+    if(this.state.archiveFilter){
+        return "orange"
+    }else{
+        return "green"
     }
+  }
 
-    getArchiveButtonIcon = () => {
-        if(this.state.archiveFilter){
-            return "truck"
-        }else{
-            return "archive"
-        }
+  getArchiveButtonIcon = () => {
+    if(this.state.archiveFilter){
+        return "truck"
+    }else{
+        return "archive"
     }
+  }
 
-    switchArchiveFilter = () => {
-        if(this.state.archiveFilter){
-            this.setState({
-                archiveFilter:false
-            })
-        }else{
-            this.setState({
-                archiveFilter:true
-            })
-        }
-        this.loadVehicles();
+  switchArchiveFilter = () => {
+    if(this.state.archiveFilter){
+        this.setState({
+            archiveFilter:false
+        })
+    }else{
+        this.setState({
+            archiveFilter:true
+        })
     }
+    this.loadVehicles();
+  }
 
   componentDidMount = () => {
     this.loadVehicles();
@@ -279,7 +300,6 @@ export class BUVehicles extends Component {
                     <Table style={{marginBottom:"0"}} celled selectable color={this.getArchiveFilterColor()} compact>
                         <Table.Header>
                             <Table.Row textAlign='center'>
-                                <Table.HeaderCell>Societe</Table.HeaderCell>
                                 <Table.HeaderCell>Immatriculation</Table.HeaderCell>
                                 <Table.HeaderCell>Date d'immatriculation</Table.HeaderCell>
                                 <Table.HeaderCell>Kilométrage</Table.HeaderCell>
@@ -308,7 +328,7 @@ export class BUVehicles extends Component {
                 <Modal.Content style={{textAlign:"center"}}>
                     <Form style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gridGap:"16px"}}>
                         <Form.Field style={{gridColumnStart:"2"}}><label>Societe</label>
-                            <SocietePicker groupAppears={true} onChange={this.handleChangeSociete}/>
+                            <SocietePicker groupAppears={false} onChange={this.handleChangeSociete}/>
                         </Form.Field>
                         <Divider style={{gridColumnEnd:"span 3",height:"23px"}} horizontal>
                             <Header as='h4'>
@@ -316,15 +336,15 @@ export class BUVehicles extends Component {
                                 Details
                             </Header>
                         </Divider>
-                        <Form.Field><label>Immatriculation</label><input onChange={this.handleChange} name="newRegistration"/></Form.Field>
+                        <RegistrationInput onChange={this.handleRegistrationChange} name="newRegistration"/>
                         <Form.Field><label>Date de première immatriculation</label><input onChange={this.handleChange} value={this.state.newFirstRegistrationDate} onFocus={()=>{this.showDatePicker("newFirstRegistrationDate")}} placeholder="firstRegistrationDate" name="newFirstRegistrationDate"/></Form.Field>
                         <Form.Field><label>Kilométrage</label><input onChange={this.handleChange} name="newKm"/></Form.Field>
                         <Form.Field><label>Date de relevé</label><input onChange={this.handleChange} value={this.state.newLastKmUpdate} onFocus={()=>{this.showDatePicker("newLastKmUpdate")}} name="newLastKmUpdate"/></Form.Field>
-                        <Form.Field><label>Brand</label><input onChange={this.handleChange} name="newBrand"/></Form.Field>
-                        <Form.Field><label>Model</label><input onChange={this.handleChange} name="newModel"/></Form.Field>
+                        <Form.Field><label>Marque</label><BrandPicker onChange={this.handleChangeBrand}/></Form.Field>
+                        <Form.Field><label>Modèle</label><ModelPicker onChange={this.handleChangeModel}/></Form.Field>
                         <Form.Field><label>Volume</label><VolumePicker onChange={this.handleChangeVolume}/></Form.Field>
-                        <Form.Field><label>Payload</label><input onChange={this.handleChange} name="newPayload"/></Form.Field>
-                        <Form.Field><label>Color</label><input onChange={this.handleChange} name="newColor"/></Form.Field>
+                        <Form.Field><label>Charge utile</label><input onChange={this.handleChange} name="newPayload"/></Form.Field>
+                        <Form.Field><label>Couleur</label><ColorPicker onChange={this.handleChangeColor}/></Form.Field>
                         <Divider style={{gridColumnEnd:"span 3",height:"23px"}} horizontal>
                             <Header as='h4'>
                                 <Icon name='euro' />
@@ -332,9 +352,8 @@ export class BUVehicles extends Component {
                             </Header>
                         </Divider>
                         <Form.Field><label>Prix à l'achat</label><input onChange={this.handleChange} name="newPurchasePrice"/></Form.Field>
-                        <Form.Field><label>Mensualité</label><input onChange={this.handleChange} name="newMonthlyPayement"/></Form.Field>
-                        <Form.Field><label>Organisme de financement</label><input onChange={this.handleChange} name="newPayementOrg"/></Form.Field>
-                        
+                        <Form.Field><label>Paiement mensuel</label><input onChange={this.handleChange} name="newMonthlyPayement"/></Form.Field>
+                        <Form.Field><label>Organisme de financement</label><OrganismPicker onChange={this.handleChangeOrganism}/></Form.Field>
                         <Form.Field><label>Montant de l'assurance</label><input onChange={this.handleChange} name="newInsurancePaid"/></Form.Field>
                         <Form.Field style={{gridColumnStart:"2"}}><label>Type de financement</label>
                             <PayementFormatPicker change={this.handleChangePayementFormat}/>

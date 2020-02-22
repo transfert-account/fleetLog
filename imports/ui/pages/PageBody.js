@@ -5,10 +5,12 @@ import Home from './Home';
 import Vehicles from './Vehicles';
 import BUVehicles from './BUVehicles';
 
+import Locations from './Locations';
+import BULocations from './BULocations';
+
 import Vehicle from './Vehicle';
 import Controls from './Controls';
 import Licences from './Licences';
-import Locations from './Locations';
 import Location from './Location';
 import Compte from './Compte';
 import Accounts from './Accounts';
@@ -81,7 +83,7 @@ class PageBody extends Component {
             <Route exact path='/parc/vehicle/:_id' component={Vehicle}/>
             <Route exact path='/parc/controls' component={Controls}/>
             <Route exact path='/parc/licences' component={Licences}/>
-            <Route exact path='/parc/locations' component={Locations}/>
+            <Route exact path='/parc/locations' component={BULocations}/>
             <Route exact path='/parc/location/:_id' component={Location}/>
 
             <Route exact path='/entretiens' component={Entretiens}/>
@@ -112,7 +114,7 @@ class PageBody extends Component {
           <Route exact path='/parc/vehicle/:_id' component={Vehicle}/>
           <Route exact path='/parc/controls' component={Controls}/>
           <Route exact path='/parc/licences' component={Licences}/>
-          <Route exact path='/parc/locations' component={Locations}/>
+          <Route exact path='/parc/locations' component={BULocations}/>
           <Route exact path='/parc/location/:_id' component={Location}/>
 
           <Route exact path='/entretiens' component={Entretiens}/>

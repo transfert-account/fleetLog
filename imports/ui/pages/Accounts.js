@@ -18,6 +18,11 @@ export class Accounts extends Component {
           isAdmin
           isOwner
           verified
+          societe{
+            _id
+            name
+            trikey
+          }
           firstname
           lastname
           createdAt
@@ -64,7 +69,7 @@ export class Accounts extends Component {
       let displayed = Array.from(this.state.users);
       displayed = displayed.filter(u=>u.email.toLowerCase().includes(this.state.usersFilter.toLowerCase()) || u.firstname.toLowerCase().includes(this.state.usersFilter.toLowerCase()) || u.lastname.toLowerCase().includes(this.state.usersFilter.toLowerCase()));
       return displayed.map(u=>(
-        <AccountRow deleteAccount={this.deleteAccount} societesRaw={this.state.societesRaw} setOwner={this.setOwner} key={u._id} u={u}/>
+        <AccountRow reloadAccounts={this.loadAccounts} deleteAccount={this.deleteAccount} societesRaw={this.state.societesRaw} setOwner={this.setOwner} key={u._id} u={u}/>
       ))
     }
   }
@@ -146,7 +151,8 @@ export class Accounts extends Component {
 
   loadAccounts = () => {
     this.props.client.query({
-      query: this.state.usersQuery
+      query: this.state.usersQuery,
+      fetchPolicy:"network-only"
     }).then(({data}) => {
       this.setState({
         users:data.users

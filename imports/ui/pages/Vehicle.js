@@ -642,7 +642,7 @@ class Vehicle extends Component {
             return (
                 <Form className="formBoard" style={{placeSelf:"start auto",display:"grid",gridTemplateRows:"auto",gridTemplateColumns:"1fr 1fr",gridColumnStart:"1",gridRowEnd:"span 2",gridColumnEnd:"span 2",gridGap:"0 24px"}}>
                     <Form.Field><label>Societé</label>
-                        <SocietePicker defaultValue={this.state.vehicle.societe._id} groupAppears={true} onChange={this.handleChangeSociete}/>
+                        <SocietePicker defaultValue={this.state.vehicle.societe._id} groupAppears={false} onChange={this.handleChangeSociete}/>
                     </Form.Field>
                     <RegistrationInput onChange={this.handleRegistrationChange} defaultValue={this.state.vehicle.registration} name="newRegistration"/>
                     <Form.Field><label>1ère immatriculation</label>

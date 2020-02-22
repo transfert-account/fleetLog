@@ -5,6 +5,7 @@ import PageBody from './pages/PageBody';
 import Menu from './menu/Menu';
 import Home from './pages/Home';
 import NeedActivation from './pages/NeedActivation';
+import { Link,withRouter } from 'react-router-dom';
 import { UserContext } from '../contexts/UserContext';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -22,7 +23,8 @@ class AppBody extends Component{
 
     logout = () => {
         Meteor.logout();
-        this.props.client.resetStore();
+        this.props.client.cache.reset();
+        this.props.history.push("/")
     }
     
     setMenuCollapse = () => {
@@ -94,4 +96,4 @@ const withUserContext = WrappedComponent => props => (
     </UserContext.Consumer>
   )
   
-  export default withUserContext(AppBody);
+  export default withUserContext(withRouter(AppBody));

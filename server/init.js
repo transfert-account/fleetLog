@@ -20,7 +20,8 @@ Accounts.onCreateUser(function(options, user) {
         user.settings.isAdmin = options.settings.isOwner;
         user.settings.activated = false;
     }
-    user.settings.visibility = "noidthisisgroupvisibility";
+
+    user.settings.visibility = options.settings.visibility;
 
     // Returns the user object
     return user;

@@ -26,7 +26,8 @@ type Query{
 
 type Mutation{
     editUserProfile(_id:String!,email:String!,name:String!): User
-    toggleAdmin(admin:String!,_id:String!): User
+    setAdmin(admin:String!,_id:String!): User
+    unsetAdmin(admin:String!,_id:String!,societe:String!): User
     setOwner(owner:String!,_id:String!): User
     toggleActive(admin:String!,_id:String!): User
     deleteAccount(admin:String!,_id:String!): [User]

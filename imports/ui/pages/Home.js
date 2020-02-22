@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Button, Input, Icon, Modal, Form, Message, Image } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
+import SocietePicker from '../atoms/SocietePicker';
 import anime from "animejs";
 
 export class Home extends Component {
@@ -11,6 +12,7 @@ export class Home extends Component {
     open:false,
     firstname:"",
     lastname:"",
+    societe:"",
     password:"",
     passwordAgain:"",
     error:false,
@@ -27,6 +29,8 @@ export class Home extends Component {
         [e.target.name] : e.target.value
     })
   }
+
+  handleChangeSociete = (e, { value }) => this.setState({ societe:value })
 
   popModal = () => {
     this.setState({
@@ -50,7 +54,8 @@ export class Home extends Component {
       },
       settings:{
         isAdmin:false,
-        isOwner:false
+        isOwner:false,
+        visibility:this.state.societe
       }
     },
     error=>{
@@ -99,8 +104,8 @@ export class Home extends Component {
       targets: '#titleLogo .st0,.st1',
       strokeDashoffset: [anime.setDashoffset, 0],
       easing: 'easeInOutSine',
-      duration: 1000,
-      delay: function(el, i) { return i * 180 },
+      duration: 600,
+      delay: function(el, i) { return i * 150 },
       direction: 'normal',
       changeComplete: anim => {
         anime({
@@ -118,7 +123,7 @@ export class Home extends Component {
   }
 
   render() {
-    const { firstname,lastname,password,passwordAgain,mail } = this.state;
+    const { firstname,lastname,password,passwordAgain,mail,societe } = this.state;
     let error = false;
     let errorContent = "";
     if(password != passwordAgain){
@@ -129,7 +134,7 @@ export class Home extends Component {
       error = true;
       errorContent = "Le format de l'adresse mail n'est pas user@exemple.com";
     }*/
-    if(firstname == "" || lastname == "" || password == "" || passwordAgain == "" || mail == ""){
+    if(firstname == "" || lastname == "" || password == "" || passwordAgain == "" || mail == "" || societe == ""){
       error = true;
       errorContent = "Tous les champs doivent être renseignés";
     }
@@ -187,17 +192,18 @@ export class Home extends Component {
               <Button.Content hidden><Icon name='edit outline'/></Button.Content>
             </Button>
           </div>
-          <Modal closeOnDimmerClick={false} size="small" open={this.state.open} onClose={this.close} closeIcon>
+          <Modal closeOnDimmerClick={false} size="tiny" open={this.state.open} onClose={this.close} closeIcon>
             <Modal.Header>
               Créer un compte :
             </Modal.Header>
-            <Modal.Content >
-              <Form autoComplete="off">
-                <Form.Input readOnly={true} onFocus={e=>{e.target.removeAttribute('readonly')}} autoComplete="off" size="big" labelPosition="left" icon='user' label='Prénom' placeholder='Prénom' name="firstname" onChange={this.handleChange}/>
-                <Form.Input readOnly={true} onFocus={e=>{e.target.removeAttribute('readonly')}} autoComplete="off" size="big" labelPosition="left" icon='user outline' label='Nom' placeholder='Nom' name="lastname" onChange={this.handleChange}/>
-                <Form.Input readOnly={true} onFocus={e=>{e.target.removeAttribute('readonly')}} autoComplete="off" size="big" labelPosition="left" icon='mail' label='Mail' placeholder='Mail' name="mail" onChange={this.handleChange}/>
-                <Form.Input readOnly={true} onFocus={e=>{e.target.removeAttribute('readonly')}} autoComplete="off" size="big" labelPosition="left" icon='key' type="password" label='Mot de passe' placeholder='Mot de passe' name="password" onChange={this.handleChange}/>
-                <Form.Input readOnly={true} onFocus={e=>{e.target.removeAttribute('readonly')}} autoComplete="off" size="big" labelPosition="left" icon='key' type="password" label='Confirmez le mot de passe' placeholder='Confirmez le mot de passe' name="passwordAgain" onChange={this.handleChange}/>
+            <Modal.Content>
+              <Form autoComplete="off" style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr"}}>
+                <Form.Field style={{gridColumnStart:"2"}}><label>Société</label><SocietePicker groupAppears={false} onChange={this.handleChangeSociete}/></Form.Field>
+                <Form.Field style={{gridColumnEnd:"span 3"}}><label>Prénom</label><input readOnly={true} onFocus={e=>{e.target.removeAttribute('readonly')}} autoComplete="off" icon='user' label='Prénom' placeholder='Prénom' name="firstname" onChange={this.handleChange}/></Form.Field>
+                <Form.Field style={{gridColumnEnd:"span 3"}}><label>Nom</label><input readOnly={true} onFocus={e=>{e.target.removeAttribute('readonly')}} autoComplete="off" icon='user outline' label='Nom' placeholder='Nom' name="lastname" onChange={this.handleChange}/></Form.Field>
+                <Form.Field style={{gridColumnEnd:"span 3"}}><label>Adresse mail</label><input readOnly={true} onFocus={e=>{e.target.removeAttribute('readonly')}} autoComplete="off" icon='mail' label='Mail' placeholder='Mail' name="mail" onChange={this.handleChange}/></Form.Field>
+                <Form.Field style={{gridColumnEnd:"span 3"}}><label>Mot de passe</label><input readOnly={true} onFocus={e=>{e.target.removeAttribute('readonly')}} autoComplete="off" icon='key' type="password" label='Mot de passe' placeholder='Mot de passe' name="password" onChange={this.handleChange}/></Form.Field>
+                <Form.Field style={{gridColumnEnd:"span 3"}}><label>Confirmation du mot de passe</label><input readOnly={true} onFocus={e=>{e.target.removeAttribute('readonly')}} autoComplete="off" icon='key' type="password" label='Confirmez le mot de passe' placeholder='Confirmez le mot de passe' name="passwordAgain" onChange={this.handleChange}/></Form.Field>
               </Form>
             </Modal.Content>
             {this.getModalLabel({error:error,errorContent:errorContent})}

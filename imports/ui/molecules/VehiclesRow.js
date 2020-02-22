@@ -138,11 +138,17 @@ class VehiclesRow extends Component {
         }
     }
 
+    getSocieteCell = () => {
+        if(!this.props.hideSociete){
+            return <Table.Cell textAlign="center">{this.props.vehicle.societe.name}</Table.Cell>
+        }
+    }
+
     render() {
         return (
             <Fragment>
                 <Table.Row>
-                    <Table.Cell textAlign="center">{this.props.vehicle.societe.name}</Table.Cell>
+                    {this.getSocieteCell()}
                     <Table.Cell textAlign="center">{this.props.vehicle.registration}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.vehicle.firstRegistrationDate}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.vehicle.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km</Table.Cell>
