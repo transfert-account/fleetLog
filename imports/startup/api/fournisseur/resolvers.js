@@ -1,4 +1,5 @@
 import Fournisseurs from './fournisseurs.js';
+import Locations from '../location/locations.js';
 import { Mongo } from 'meteor/mongo';
 export default {
     Query : {
@@ -16,7 +17,7 @@ export default {
                     mail:"",
                     address:""
                 });
-                return true;
+                return [{status:true,message:'Création réussie'}];
             }
             throw new Error('Unauthorized');
         },
@@ -34,16 +35,23 @@ export default {
                         }
                     }
                 );                
-                return true;
+                return [{status:true,message:'Modifications sauvegardées'}];
             }
             throw new Error('Unauthorized');
         },
         deleteFournisseur(obj, {_id},{user}){
             if(user._id){
-                Fournisseurs.remove({
-                    _id:new Mongo.ObjectID(_id)
-                });
-                return true;
+                let nL = Locations.find({fournisseur:_id}).fetch().length
+                if(nL > 0){
+                    let qrm = [];
+                    if(nL > 0){qrm.push({status:false,message:'Suppresion impossible, ' + nL + ' location(s) liée(s)'})}
+                    return qrm;
+                }else{
+                    Fournisseurs.remove({
+                        _id:new Mongo.ObjectID(_id)
+                    });
+                    return [{status:true,message:'Suppression réussie'}];
+                }
             }
             throw new Error('Unauthorized');
         },

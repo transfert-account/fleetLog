@@ -11,7 +11,7 @@ extend type Query{
 }
 
 extend type Mutation{
-    addFournisseur(name:String!): Boolean
-    editFournisseur(_id:String!,name:String!,phone:String!,mail:String!,address:String!,): Boolean
-    deleteFournisseur(_id:String!): Boolean
+    addFournisseur(name:String!): [QueryResultMessage]
+    editFournisseur(_id:String!,name:String!,phone:String!,mail:String!,address:String!,): [QueryResultMessage]
+    deleteFournisseur(_id:String!): [QueryResultMessage]
 }

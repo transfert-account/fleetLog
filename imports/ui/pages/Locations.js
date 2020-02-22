@@ -5,6 +5,7 @@ import RegistrationInput from '../atoms/RegistrationInput';
 import { UserContext } from '../../contexts/UserContext';
 import LocationsRow from '../molecules/LocationRow';
 import SocietePicker from '../atoms/SocietePicker';
+import FournisseurPicker from '../atoms/FournisseurPicker';
 import VolumePicker from '../atoms/VolumePicker';
 import ColorPicker from '../atoms/ColorPicker';
 import ModelPicker from '../atoms/ModelPicker';
@@ -15,6 +16,7 @@ export class Locations extends Component {
 
   state={
     newSociete:"",
+    newFournisseur:"",
     newRegistration:"",
     newFirstRegistrationDate:"",
     newKm:"",
@@ -73,8 +75,8 @@ export class Locations extends Component {
         )
     },
     addLocationQuery : gql`
-        mutation addLocation($societe:String!,$registration:String!,$firstRegistrationDate:String!,$km:Int!,$lastKmUpdate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$insurancePaid:Float!,$price:Float!,$endDate:String!,$reason:String!){
-            addLocation(societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,km:$km,lastKmUpdate:$lastKmUpdate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,price:$price,endDate:$endDate,reason:$reason){
+        mutation addLocation($societe:String!,$fournisseur:String!,$registration:String!,$firstRegistrationDate:String!,$km:Int!,$lastKmUpdate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$insurancePaid:Float!,$price:Float!,$endDate:String!,$reason:String!){
+            addLocation(societe:$societe,fournisseur:$fournisseur,registration:$registration,firstRegistrationDate:$firstRegistrationDate,km:$km,lastKmUpdate:$lastKmUpdate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,price:$price,endDate:$endDate,reason:$reason){
                 status
                 message
             }
@@ -88,6 +90,13 @@ export class Locations extends Component {
                     _id
                     trikey
                     name
+                }
+                fournisseur{
+                    _id
+                    name
+                    phone
+                    mail
+                    address
                 }
                 registration
                 firstRegistrationDate
@@ -173,7 +182,8 @@ export class Locations extends Component {
             insurancePaid:parseFloat(this.state.newInsurancePaid),
             price:parseFloat(this.state.newPrice),
             endDate:this.state.newEndDate,
-            reason:this.state.newJustification
+            reason:this.state.newJustification,
+            fournisseur:this.state.newFournisseur
         }
     }).then(({data})=>{
         data.addLocation.map(qrm=>{
@@ -214,6 +224,8 @@ export class Locations extends Component {
   handleChangeColor = (e, { value }) => this.setState({ newColor:value })
 
   handleChangeSociete = (e, { value }) => this.setState({ newSociete:value })
+
+  handleChangeFournisseur = (e, { value }) => this.setState({ newFournisseur:value })
 
   handleChangePayementFormat = value => {
       this.setState({ newPayementFormat:value })
@@ -316,41 +328,34 @@ export class Locations extends Component {
                     Enregistrement de la location
                 </Modal.Header>
                 <Modal.Content style={{textAlign:"center"}}>
-                    <Form style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gridGap:"16px"}}>
-                        <Form.Field style={{gridColumnStart:"2"}}><label>Societe</label>
-                            <SocietePicker groupAppears={false} onChange={this.handleChangeSociete}/>
-                        </Form.Field>
-                        <Divider style={{gridColumnEnd:"span 3",height:"23px"}} horizontal>
+                    <Form style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr 1fr 1fr",gridGap:"16px"}}>
+                        <Form.Field style={{gridColumnStart:"2",gridColumnEnd:"span 2"}}><label>Societe</label><SocietePicker groupAppears={false} onChange={this.handleChangeSociete}/></Form.Field>
+                        <Form.Field style={{gridColumnEnd:"span 2"}}><label>Fournisseur</label><FournisseurPicker onChange={this.handleChangeFournisseur}/></Form.Field>
+                        <Divider style={{gridColumnEnd:"span 6",height:"23px"}} horizontal>
                             <Header as='h4'>
                                 <Icon name='clipboard' />
                                 Details
                             </Header>
                         </Divider>
-                        <RegistrationInput onChange={this.handleRegistrationChange} name="newRegistration"/>
-                        <Form.Field><label>Date de première immatriculation</label><input onChange={this.handleChange} value={this.state.newFirstRegistrationDate} onFocus={()=>{this.showDatePicker("newFirstRegistrationDate")}} name="newFirstRegistrationDate"/></Form.Field>
-                        <Form.Field><label>Kilométrage au retrait</label><input onChange={this.handleChange} name="newKm"/></Form.Field>
-                        <Form.Field><label>Date de retrait</label><input onChange={this.handleChange} value={this.state.newLastKmUpdate} onFocus={()=>{this.showDatePicker("newLastKmUpdate")}} name="newLastKmUpdate"/></Form.Field>
-                        
-
-                        <Form.Field><label>Marque</label><BrandPicker onChange={this.handleChangeBrand}/></Form.Field>
-                        <Form.Field><label>Modèle</label><ModelPicker onChange={this.handleChangeModel}/></Form.Field>
-                        <Form.Field><label>Volume</label><VolumePicker onChange={this.handleChangeVolume}/></Form.Field>
-
-                        <Form.Field><label>Payload</label><input onChange={this.handleChange} name="newPayload"/></Form.Field>
-                        <Form.Field><label>Couleur</label><ColorPicker onChange={this.handleChangeColor}/></Form.Field>
-                        <Divider style={{gridColumnEnd:"span 3",height:"23px"}} horizontal>
+                        <RegistrationInput style={{gridColumnEnd:"span 2"}} onChange={this.handleRegistrationChange} name="newRegistration"/>
+                        <Form.Field style={{gridColumnEnd:"span 2"}}><label>Date de première immatriculation</label><input onChange={this.handleChange} value={this.state.newFirstRegistrationDate} onFocus={()=>{this.showDatePicker("newFirstRegistrationDate")}} name="newFirstRegistrationDate"/></Form.Field>
+                        <Form.Field style={{gridColumnEnd:"span 2"}}><label>Kilométrage au retrait</label><input onChange={this.handleChange} name="newKm"/></Form.Field>
+                        <Form.Field style={{gridColumnEnd:"span 2"}}><label>Date de retrait</label><input onChange={this.handleChange} value={this.state.newLastKmUpdate} onFocus={()=>{this.showDatePicker("newLastKmUpdate")}} name="newLastKmUpdate"/></Form.Field>
+                        <Form.Field style={{gridColumnEnd:"span 2"}}><label>Marque</label><BrandPicker onChange={this.handleChangeBrand}/></Form.Field>
+                        <Form.Field style={{gridColumnEnd:"span 2"}}><label>Modèle</label><ModelPicker onChange={this.handleChangeModel}/></Form.Field>
+                        <Form.Field style={{gridColumnEnd:"span 2"}}><label>Volume</label><VolumePicker onChange={this.handleChangeVolume}/></Form.Field>
+                        <Form.Field style={{gridColumnEnd:"span 2"}}><label>Payload</label><input onChange={this.handleChange} name="newPayload"/></Form.Field>
+                        <Form.Field style={{gridColumnEnd:"span 2"}}><label>Couleur</label><ColorPicker onChange={this.handleChangeColor}/></Form.Field>
+                        <Divider style={{gridColumnEnd:"span 6",height:"23px"}} horizontal>
                             <Header as='h4'>
                                 <Icon name='euro' />
                                 Finances
                             </Header>
                         </Divider>
-                        <Form.Field><label>Montant facturé</label><input onChange={this.handleChange} name="newPrice"/></Form.Field>
-                        <Form.Field><label>Echéance de la location</label><input onChange={this.handleChange} value={this.state.newEndDate} onFocus={()=>{this.showDatePicker("newEndDate")}} name="newEndDate"/></Form.Field>
-                        <Form.Field><label>Montant de l'assurance</label><input onChange={this.handleChange} name="newInsurancePaid"/></Form.Field>
-                        <Form.Field style={{gridColumnEnd:"span 3"}}>
-                            <label>Justification de la location</label>
-                            <TextArea rows={4} onChange={this.handleChange} name="newJustification" placeholder=""/>
-                        </Form.Field>
+                        <Form.Field style={{gridColumnEnd:"span 2"}}><label>Montant facturé</label><input onChange={this.handleChange} name="newPrice"/></Form.Field>
+                        <Form.Field style={{gridColumnEnd:"span 2"}}><label>Echéance de la location</label><input onChange={this.handleChange} value={this.state.newEndDate} onFocus={()=>{this.showDatePicker("newEndDate")}} name="newEndDate"/></Form.Field>
+                        <Form.Field style={{gridColumnEnd:"span 2"}}><label>Montant de l'assurance</label><input onChange={this.handleChange} name="newInsurancePaid"/></Form.Field>
+                        <Form.Field style={{gridColumnEnd:"span 6"}}><label>Justification de la location</label><TextArea rows={4} onChange={this.handleChange} name="newJustification" placeholder=""/></Form.Field>
                     </Form>
                 </Modal.Content>
                 <Modal.Actions>

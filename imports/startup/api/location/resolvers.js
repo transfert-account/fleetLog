@@ -2,6 +2,7 @@ import Locations from './locations.js';
 import Societes from '../societe/societes.js';
 import Licences from '../licence/licences.js';
 import Entretiens from '../entretien/entretiens';
+import Fournisseurs from '../fournisseur/fournisseurs';
 import Volumes from '../volume/volumes.js';
 import Brands from '../brand/brands.js';
 import Models from '../model/models.js';
@@ -47,6 +48,11 @@ export default {
             }else{
                 location.color = {_id:""};
             }
+            if(location.fournisseur != null && location.fournisseur.length > 0){
+                location.fournisseur = Fournisseurs.findOne({_id:new Mongo.ObjectID(location.fournisseur)});
+            }else{
+                location.fournisseur = {_id:""};
+            }
             location.equipements = Equipements.find({location:location._id._str}).fetch() || {};
             location.equipements.forEach((e,ei) => {
                 e.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)}) || {};
@@ -83,6 +89,11 @@ export default {
                 }else{
                     l.color = {_id:""};
                 }
+                if(l.fournisseur != null && l.fournisseur.length > 0){
+                    l.fournisseur = Fournisseurs.findOne({_id:new Mongo.ObjectID(l.fournisseur)});
+                }else{
+                    l.fournisseur = {_id:""};
+                }
                 if(l.societe != null && l.societe.length > 0){
                     locations[i].societe = Societes.findOne({_id:new Mongo.ObjectID(l.societe)});
                 }else{
@@ -97,11 +108,12 @@ export default {
         }
     },
     Mutation:{
-        addLocation(obj, {societe,registration,firstRegistrationDate,km,lastKmUpdate,brand,model,volume,payload,color,insurancePaid,endDate,price,reason},{user}){
+        addLocation(obj, {societe,fournisseur,registration,firstRegistrationDate,km,lastKmUpdate,brand,model,volume,payload,color,insurancePaid,endDate,price,reason},{user}){
             if(user._id){
                 Locations.insert({
                     _id:new Mongo.ObjectID(),
                     societe:societe,
+                    fournisseur:fournisseur,
                     registration:registration,
                     firstRegistrationDate:firstRegistrationDate,
                     brand:brand,
@@ -130,7 +142,7 @@ export default {
             }
             throw new Error('Unauthorized');
         },
-        editLocation(obj, {_id,societe,registration,firstRegistrationDate,brand,model,volume,payload,color,insurancePaid,startDate,endDate,reason,price},{user}){
+        editLocation(obj, {_id,societe,fournisseur,registration,firstRegistrationDate,brand,model,volume,payload,color,insurancePaid,startDate,endDate,reason,price},{user}){
             if(user._id){
                 Locations.update(
                     {
@@ -138,6 +150,7 @@ export default {
                     }, {
                         $set: {
                             "societe":societe,
+                            "fournisseur":fournisseur,
                             "registration":registration,
                             "firstRegistrationDate":firstRegistrationDate,
                             "brand":brand,

@@ -1,6 +1,7 @@
 type Location{
     _id:String
     societe:Societe
+    fournisseur:Fournisseur
     registration:String
     firstRegistrationDate:String
     km:Int
@@ -32,8 +33,8 @@ extend type Query{
 }
 
 extend type Mutation{
-    addLocation(societe:String!,registration:String!,firstRegistrationDate:String!,km:Int!,lastKmUpdate:String!,brand:String!,model:String!,volume:String!,payload:Float!,color:String!,insurancePaid:Float!,price:Float!,endDate:String!,reason:String!): [QueryResultMessage]
-    editLocation(_id:String!,societe:String!,registration:String!,firstRegistrationDate:String!,brand:String!,model:String!,volume:String!,payload:Float!,color:String!,insurancePaid:Float!,price:Float!,startDate:String!,endDate:String!,reason:String!): [QueryResultMessage]
+    addLocation(societe:String!,fournisseur:String!,registration:String!,firstRegistrationDate:String!,km:Int!,lastKmUpdate:String!,brand:String!,model:String!,volume:String!,payload:Float!,color:String!,insurancePaid:Float!,price:Float!,endDate:String!,reason:String!): [QueryResultMessage]
+    editLocation(_id:String!,societe:String!,fournisseur:String!,registration:String!,firstRegistrationDate:String!,brand:String!,model:String!,volume:String!,payload:Float!,color:String!,insurancePaid:Float!,price:Float!,startDate:String!,endDate:String!,reason:String!): [QueryResultMessage]
     updateLocKm(_id:String!,date:String!,kmValue:Int!):[QueryResultMessage]
     archiveLocation(_id:String!,archiveReason:String!):[QueryResultMessage]
     unArchiveLocation(_id:String!):[QueryResultMessage]

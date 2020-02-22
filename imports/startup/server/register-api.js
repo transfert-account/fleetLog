@@ -58,7 +58,7 @@ import ColorResolvers from '../api/color/resolvers.js';
 import TestSchema from '../api/test/Test.graphql';
 import TestResolvers from '../api/test/resolvers.js';
 
-// #0240
+// #0241
 
 const typeDefs = [
     UserSchema,

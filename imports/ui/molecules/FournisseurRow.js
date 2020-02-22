@@ -14,12 +14,18 @@ class FournisseurRow extends Component {
         newAddress:this.props.fournisseur.address,
         deleteFournisseurQuery : gql`
             mutation deleteFournisseur($_id:String!){
-                deleteFournisseur(_id:$_id)
+                deleteFournisseur(_id:$_id){
+                    status
+                    message
+                }
             }
         `,
         editFournisseurQuery : gql`
             mutation editFournisseur($_id:String!,$name:String!,$phone:String!,$mail:String!,$address:String!){
-                editFournisseur(_id:$_id,name:$name,phone:$phone,mail:$mail,address:$address)
+                editFournisseur(_id:$_id,name:$name,phone:$phone,mail:$mail,address:$address){
+                    status
+                    message
+                }
             }
         `,
     }
@@ -52,7 +58,14 @@ class FournisseurRow extends Component {
                 _id:this.state._id,
             }
         }).then(({data})=>{
-            this.props.loadFournisseurs();
+            data.deleteFournisseur.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.loadFournisseurs();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     }
 
@@ -68,8 +81,19 @@ class FournisseurRow extends Component {
                 address:this.state.newAddress
             }
         }).then(({data})=>{
-            this.props.loadFournisseurs();
+            data.editFournisseur.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.loadFournisseurs();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
+    }
+
+    loadFournisseurs = () => {
+        this.props.loadFournisseurs();
     }
 
     render() {

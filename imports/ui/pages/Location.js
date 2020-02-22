@@ -7,7 +7,7 @@ import RegistrationInput from '../atoms/RegistrationInput';
 import ColorPicker from '../atoms/ColorPicker';
 import ModelPicker from '../atoms/ModelPicker';
 import BrandPicker from '../atoms/BrandPicker';
-import OrganismPicker from '../atoms/OrganismPicker';
+import FournisseurPicker from '../atoms/FournisseurPicker';
 import SocietePicker from '../atoms/SocietePicker';
 import VolumePicker from '../atoms/VolumePicker';
 import { withRouter } from 'react-router-dom';
@@ -24,6 +24,7 @@ class Location extends Component {
 
     state={
         newSociete:"",
+        newFournisseur:"",
         newRegistration:"",
         newFirstRegistrationDate:"",
         newBrand:"",
@@ -64,6 +65,13 @@ class Location extends Component {
                         _id
                         trikey
                         name
+                    }
+                    fournisseur{
+                        _id
+                        name
+                        phone
+                        mail
+                        address
                     }
                     registration
                     firstRegistrationDate
@@ -125,8 +133,8 @@ class Location extends Component {
             }
         `,
         editLocationQuery : gql`
-            mutation editLocation($_id:String!,$societe:String!,$registration:String!,$firstRegistrationDate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$insurancePaid:Float!,$startDate:String!,$endDate:String!,$price:Float!,$reason:String!){
-                editLocation(_id:$_id,societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,startDate:$startDate,endDate:$endDate,price:$price,reason:$reason){
+            mutation editLocation($_id:String!,$societe:String!,$fournisseur:String!,$registration:String!,$firstRegistrationDate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$insurancePaid:Float!,$startDate:String!,$endDate:String!,$price:Float!,$reason:String!){
+                editLocation(_id:$_id,societe:$societe,fournisseur:$fournisseur,registration:$registration,firstRegistrationDate:$firstRegistrationDate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,startDate:$startDate,endDate:$endDate,price:$price,reason:$reason){
                     status
                     message
                 }
@@ -205,6 +213,8 @@ class Location extends Component {
     }
 
     handleChangeSociete = (e, { value }) => this.setState({ newSociete:value })
+    
+    handleChangeFournisseur = (e, { value }) => this.setState({ newFournisseur:value })
 
     handleChangeVolume = (e, { value }) => this.setState({ newVolume:value })
 
@@ -268,6 +278,7 @@ class Location extends Component {
                 _id:this.state._id,
                 societe:this.state.newSociete,
                 registration:this.state.newRegistration,
+                fournisseur:this.state.newFournisseur,
                 firstRegistrationDate:this.state.newFirstRegistrationDate,
                 km:parseFloat(this.state.newKm),
                 lastKmUpdate:this.state.newLastKmUpdate,
@@ -671,6 +682,10 @@ class Location extends Component {
                         <label>Societé</label>
                         <SocietePicker defaultValue={this.state.location.societe._id} groupAppears={true} onChange={this.handleChangeSociete}/>
                     </Form.Field>
+                    <Form.Field>
+                        <label>Fournisseur</label>
+                        <FournisseurPicker defaultValue={this.state.location.fournisseur._id} onChange={this.handleChangeFournisseur}/>
+                    </Form.Field>
                     <RegistrationInput onChange={this.handleRegistrationChange} defaultValue={this.state.location.registration} name="newRegistration"/>
                     <Form.Field>
                         <label>1ère immatriculation</label>
@@ -704,9 +719,9 @@ class Location extends Component {
                         <label>Echéance de la location</label>
                         <Input value={this.state.newEndDate} onChange={this.handleChange} onFocus={()=>{this.showDatePicker("newEndDate")}}  name="newEndDate"/>
                     </Form.Field>
-                    <Form.Field style={{placeSelf:"stretch",gridRowEnd:"span 4"}}>
+                    <Form.Field style={{placeSelf:"stretch",gridRowEnd:"span 3"}}>
                         <label>Justification de la location</label>
-                        <TextArea defaultValue={this.state.newJustification} style={{height:"100%"}} onChange={this.handleChange} name="newJustification"/>
+                        <TextArea rows={10} defaultValue={this.state.newJustification} onChange={this.handleChange} name="newJustification"/>
                     </Form.Field>
                     <Form.Field>
                         <label>Prix facturé</label>
@@ -729,6 +744,7 @@ class Location extends Component {
                             Location
                         </Header>
                     </Divider>
+                    <div className="labelBoard">Fournisseur :</div><div className="valueBoard">{this.state.location.fournisseur.name}</div>
                     <div className="labelBoard">Début de la location :</div><div className="valueBoard">{this.getStartDateLabel()}</div>
                     <div className="labelBoard">Fin de la location :</div><div className="valueBoard">{this.getEndDateLabel()}</div>
                     <Divider style={{gridColumnEnd:"span 2",height:"23px"}} horizontal>

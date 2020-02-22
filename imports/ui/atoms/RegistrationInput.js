@@ -26,7 +26,7 @@ class RegistrationInput extends Component {
 
     render() {
         return (
-            <Form.Field error={this.state.error}>
+            <Form.Field style={this.props.style} error={this.state.error}>
                 <label>Immatriculation</label>
                 <input style={{textAlign:"center"}} value={this.state.input} onChange={this.handleChange} name="input"/>
             </Form.Field>

@@ -33,7 +33,10 @@ class Fournisseurs extends Component {
     },
     addFournisseurQuery : gql`
         mutation addFournisseur($name:String!){
-          addFournisseur(name:$name)
+          addFournisseur(name:$name){
+                status
+                message
+            }
         }
     `,
     fournisseursQuery : gql`
@@ -86,7 +89,14 @@ class Fournisseurs extends Component {
             name:this.state.newName
         }
     }).then(({data})=>{
-        this.loadFournisseurs();
+        data.addFournisseur.map(qrm=>{
+            if(qrm.status){
+                this.props.toast({message:qrm.message,type:"success"});
+                this.loadFournisseurs();
+            }else{
+                this.props.toast({message:qrm.message,type:"error"});
+            }
+        })
     })
   }
 
