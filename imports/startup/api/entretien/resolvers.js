@@ -3,6 +3,11 @@ import Vehicles from '../vehicle/vehicles';
 import Locations from '../location/locations';
 import Commandes from '../commande/commandes';
 import Pieces from '../piece/pieces';
+import Volumes from '../volume/volumes.js';
+import Brands from '../brand/brands.js';
+import Models from '../model/models.js';
+import Organisms from '../organism/organisms.js';
+import Colors from '../color/colors.js';
 import Societes from '../societe/societes';
 import moment from 'moment';
 import { Mongo } from 'meteor/mongo';
@@ -28,6 +33,31 @@ export default {
                 }else{
                     entretiens[i].vehicle.societe = {_id:"",name:""};
                 }
+                if(e.vehicle.brand != null && e.vehicle.brand.length > 0){
+                    e.vehicle.brand = Brands.findOne({_id:new Mongo.ObjectID(e.vehicle.brand)});
+                }else{
+                    e.vehicle.brand = {_id:""};
+                }
+                if(e.vehicle.model != null && e.vehicle.model.length > 0){
+                    e.vehicle.model = Models.findOne({_id:new Mongo.ObjectID(e.vehicle.model)});
+                }else{
+                    e.vehicle.model = {_id:""};
+                }
+                if(e.vehicle.payementOrg != null && e.vehicle.payementOrg.length > 0){
+                    e.vehicle.payementOrg = Organisms.findOne({_id:new Mongo.ObjectID(e.vehicle.payementOrg)});
+                }else{
+                    e.vehicle.payementOrg = {_id:""};
+                }
+                if(e.vehicle.color != null && e.vehicle.color.length > 0){
+                    e.vehicle.color = Colors.findOne({_id:new Mongo.ObjectID(e.vehicle.color)});
+                }else{
+                    e.vehicle.color = {_id:""};
+                }
+                if(e.vehicle.volume != null && e.vehicle.volume.length > 0){
+                    e.vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(e.vehicle.volume)});
+                }else{
+                    e.vehicle.volume = {_id:""};
+                }
                 e.piece = Pieces.findOne({_id:new Mongo.ObjectID(e.piece)});
             });
             return entretiens;
@@ -49,6 +79,31 @@ export default {
                 }else{
                     entretiens[i].societe = {_id:"",name:""};
                 }
+                if(e.vehicle.brand != null && e.vehicle.brand.length > 0){
+                    e.vehicle.brand = Brands.findOne({_id:new Mongo.ObjectID(e.vehicle.brand)});
+                }else{
+                    e.vehicle.brand = {_id:""};
+                }
+                if(e.vehicle.model != null && e.vehicle.model.length > 0){
+                    e.vehicle.model = Models.findOne({_id:new Mongo.ObjectID(e.vehicle.model)});
+                }else{
+                    e.vehicle.model = {_id:""};
+                }
+                if(e.vehicle.payementOrg != null && e.vehicle.payementOrg.length > 0){
+                    e.vehicle.payementOrg = Organisms.findOne({_id:new Mongo.ObjectID(e.vehicle.payementOrg)});
+                }else{
+                    e.vehicle.payementOrg = {_id:""};
+                }
+                if(e.vehicle.color != null && e.vehicle.color.length > 0){
+                    e.vehicle.color = Colors.findOne({_id:new Mongo.ObjectID(e.vehicle.color)});
+                }else{
+                    e.vehicle.color = {_id:""};
+                }
+                if(e.vehicle.volume != null && e.vehicle.volume.length > 0){
+                    e.vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(e.vehicle.volume)});
+                }else{
+                    e.vehicle.volume = {_id:""};
+                }
             });
             return entretiens;
         },
@@ -64,6 +119,31 @@ export default {
                     entretiens[i].societe = Societes.findOne({_id:new Mongo.ObjectID(e.vehicle.societe)});
                 }else{
                     entretiens[i].societe = {_id:"",name:""};
+                }
+                if(e.vehicle.brand != null && e.vehicle.brand.length > 0){
+                    e.vehicle.brand = Brands.findOne({_id:new Mongo.ObjectID(e.vehicle.brand)});
+                }else{
+                    e.vehicle.brand = {_id:""};
+                }
+                if(e.vehicle.model != null && e.vehicle.model.length > 0){
+                    e.vehicle.model = Models.findOne({_id:new Mongo.ObjectID(e.vehicle.model)});
+                }else{
+                    e.vehicle.model = {_id:""};
+                }
+                if(e.vehicle.payementOrg != null && e.vehicle.payementOrg.length > 0){
+                    e.vehicle.payementOrg = Organisms.findOne({_id:new Mongo.ObjectID(e.vehicle.payementOrg)});
+                }else{
+                    e.vehicle.payementOrg = {_id:""};
+                }
+                if(e.vehicle.color != null && e.vehicle.color.length > 0){
+                    e.vehicle.color = Colors.findOne({_id:new Mongo.ObjectID(e.vehicle.color)});
+                }else{
+                    e.vehicle.color = {_id:""};
+                }
+                if(e.vehicle.volume != null && e.vehicle.volume.length > 0){
+                    e.vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(e.vehicle.volume)});
+                }else{
+                    e.vehicle.volume = {_id:""};
                 }
                 e.piece = Pieces.findOne({_id:new Mongo.ObjectID(e.piece)});
             });
@@ -102,6 +182,31 @@ export default {
                 }else{
                     entretiens[i].societe = {_id:"",name:""};
                 }
+                if(e.vehicle.brand != null && e.vehicle.brand.length > 0){
+                    e.vehicle.brand = Brands.findOne({_id:new Mongo.ObjectID(e.vehicle.brand)});
+                }else{
+                    e.vehicle.brand = {_id:""};
+                }
+                if(e.vehicle.model != null && e.vehicle.model.length > 0){
+                    e.vehicle.model = Models.findOne({_id:new Mongo.ObjectID(e.vehicle.model)});
+                }else{
+                    e.vehicle.model = {_id:""};
+                }
+                if(e.vehicle.payementOrg != null && e.vehicle.payementOrg.length > 0){
+                    e.vehicle.payementOrg = Organisms.findOne({_id:new Mongo.ObjectID(e.vehicle.payementOrg)});
+                }else{
+                    e.vehicle.payementOrg = {_id:""};
+                }
+                if(e.vehicle.color != null && e.vehicle.color.length > 0){
+                    e.vehicle.color = Colors.findOne({_id:new Mongo.ObjectID(e.vehicle.color)});
+                }else{
+                    e.vehicle.color = {_id:""};
+                }
+                if(e.vehicle.volume != null && e.vehicle.volume.length > 0){
+                    e.vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(e.vehicle.volume)});
+                }else{
+                    e.vehicle.volume = {_id:""};
+                }
                 e.piece = Pieces.findOne({_id:new Mongo.ObjectID(e.piece)});
             });
             return entretiens;
@@ -119,6 +224,31 @@ export default {
                 entretien.vehicle.societe = Societes.findOne({_id:new Mongo.ObjectID(entretien.vehicle.societe)});
             }else{
                 entretien.vehicle.societe = {_id:"",name:""};
+            }
+            if(entretien.vehicle.brand != null && entretien.vehicle.brand.length > 0){
+                entretien.vehicle.brand = Brands.findOne({_id:new Mongo.ObjectID(entretien.vehicle.brand)});
+            }else{
+                entretien.vehicle.brand = {_id:""};
+            }
+            if(entretien.vehicle.model != null && entretien.vehicle.model.length > 0){
+                entretien.vehicle.model = Models.findOne({_id:new Mongo.ObjectID(entretien.vehicle.model)});
+            }else{
+                entretien.vehicle.model = {_id:""};
+            }
+            if(entretien.vehicle.payementOrg != null && entretien.vehicle.payementOrg.length > 0){
+                entretien.vehicle.payementOrg = Organisms.findOne({_id:new Mongo.ObjectID(entretien.vehicle.payementOrg)});
+            }else{
+                entretien.vehicle.payementOrg = {_id:""};
+            }
+            if(entretien.vehicle.color != null && entretien.vehicle.color.length > 0){
+                entretien.vehicle.color = Colors.findOne({_id:new Mongo.ObjectID(entretien.vehicle.color)});
+            }else{
+                entretien.vehicle.color = {_id:""};
+            }
+            if(entretien.vehicle.volume != null && entretien.vehicle.volume.length > 0){
+                entretien.vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(entretien.vehicle.volume)});
+            }else{
+                entretien.vehicle.volume = {_id:""};
             }
             entretien.piece = Pieces.findOne({_id:new Mongo.ObjectID(entretien.piece)});
             return entretien;

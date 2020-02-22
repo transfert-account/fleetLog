@@ -52,14 +52,24 @@ class Entretien extends Component {
                         }
                         registration
                         km
-                        brand
-                        model
+                        brand{
+                            _id
+                            name
+                        }
+                        model{
+                            _id
+                            name
+                        }
                         volume{
                             _id
                             meterCube
                         }
                         payload
-                        color
+                        color{
+                            _id
+                            name
+                            hex
+                        }
                     }
                 }
             }
@@ -531,7 +541,7 @@ class Entretien extends Component {
                                     <Icon color="black" style={{margin:"0"}} name='angle double left' />
                                 </Button.Content>
                             </Button>
-                            <Message style={{margin:"0",gridRowStart:"1",gridColumnStart:"2"}} icon='truck' header={this.state.entretienRaw.vehicle.registration} content={this.state.entretienRaw.vehicle.brand + " - " + this.state.entretienRaw.vehicle.model + " - " + this.state.entretienRaw.vehicle.km + " km"}/>
+                            <Message style={{margin:"0",gridRowStart:"1",gridColumnStart:"2"}} icon='truck' header={this.state.entretienRaw.vehicle.registration} content={this.state.entretienRaw.vehicle.brand.name + " - " + this.state.entretienRaw.vehicle.model.name + " - " + this.state.entretienRaw.vehicle.km + " km"}/>
                             <Form style={{gridRowStart:"2",gridColumnStart:"1",gridColumnEnd:"span 2",display:"grid",gridGap:"8px",gridTemplateColumns:"1fr 1fr"}}>
                                 {this.getEditionPanel()}
                                 <Form.Field style={{gridColumnEnd:"span 2"}}>
