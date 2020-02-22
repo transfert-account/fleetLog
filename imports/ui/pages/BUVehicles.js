@@ -92,14 +92,24 @@ export class BUVehicles extends Component {
                 firstRegistrationDate
                 km
                 lastKmUpdate
-                brand
-                model
+                brand{
+                    _id
+                    name
+                }
+                model{
+                    _id
+                    name
+                }
                 volume{
                     _id
                     meterCube
                 }
                 payload
-                color
+                color{
+                    _id
+                    name
+                    hex
+                }
                 cg
                 insurancePaid
                 cv
@@ -107,7 +117,10 @@ export class BUVehicles extends Component {
                 property
                 purchasePrice
                 monthlyPayement
-                payementOrg
+                payementOrg{
+                    _id
+                    name
+                }
                 payementFormat
                 archived
                 archiveReason

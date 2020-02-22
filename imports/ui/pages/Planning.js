@@ -11,130 +11,160 @@ import gql from 'graphql-tag';
 class Planning extends Component {
 
   state={
-  entretienToAffect:"",
-  entretienToRealse:"",
-  selectedDate:moment(),
-  activeItem:"selectedDay",
-  newAffectDate:"",
-  needToRefreshMonth:false,
-  entretiensOfTheDayRaw:[],
-  unaffectedEntretiensRaw:[],
-  openAffectToMe:false,
-  openRelease:false,
-  myEntretiensRaw:[],
-  sideTableSelected:true,
-  month:parseInt(this.props.match.params.m),
-  year:parseInt(this.props.match.params.y),
-  selectedDay:new Date().getDate(),
-  entretiensOfTheDayQuery : gql`
-    query entretiensOfTheDay($date:String!){
-      entretiensOfTheDay(date:$date){
-        _id
-        description
-        title
-        commandes{
+    entretienToAffect:"",
+    entretienToRealse:"",
+    selectedDate:moment(),
+    activeItem:"selectedDay",
+    newAffectDate:"",
+    needToRefreshMonth:false,
+    entretiensOfTheDayRaw:[],
+    unaffectedEntretiensRaw:[],
+    openAffectToMe:false,
+    openRelease:false,
+    myEntretiensRaw:[],
+    sideTableSelected:true,
+    month:parseInt(this.props.match.params.m),
+    year:parseInt(this.props.match.params.y),
+    selectedDay:new Date().getDate(),
+    entretiensOfTheDayQuery : gql`
+      query entretiensOfTheDay($date:String!){
+        entretiensOfTheDay(date:$date){
           _id
-          piece{
+          description
+          title
+          commandes{
             _id
-            name
-            type
+            piece{
+              _id
+              name
+              type
+            }
+            entretien
+            status
+            price
           }
-          entretien
+          vehicle{
+            _id
+            societe{
+              _id
+              trikey
+              name
+            }
+            registration
+            km
+            brand{
+              _id
+              name
+            }
+            model{
+              _id
+              name
+            }
+            volume{
+              _id
+              meterCube
+            }
+            payload
+            color{
+              _id
+              name
+              hex
+            }
+          }
+        }
+      }
+    `,
+    myEntretiensQuery : gql`
+      query myEntretiens{
+        myEntretiens{
+          _id
+          description
+          title
+          occurenceDate
+          vehicle{
+            _id
+            societe{
+              _id
+              trikey
+              name
+            }
+            registration
+            km
+            brand{
+              _id
+              name
+            }
+            model{
+              _id
+              name
+            }
+            volume{
+              _id
+              meterCube
+            }
+            payload
+            color{
+              _id
+              name
+              hex
+            }
+          }
+        }
+      }
+    `,
+    unaffectedEntretiensQuery : gql`
+      query unaffectedEntretiens{
+        unaffectedEntretiens{
+          _id
+          description
+          title
+          vehicle{
+            _id
+            societe{
+              _id
+              trikey
+              name
+            }
+            registration
+            km
+            brand{
+              _id
+              name
+            }
+            model{
+              _id
+              name
+            }
+            volume{
+              _id
+              meterCube
+            }
+            payload
+            color{
+              _id
+              name
+              hex
+            }
+          }
+        }
+      }
+    `,
+    affectToMeQuery : gql`
+      mutation affectToMe($_id:String!,$occurenceDate:String!){
+        affectToMe(_id:$_id,occurenceDate:$occurenceDate){
           status
-          price
-        }
-        vehicle{
-          _id
-          societe{
-            _id
-            trikey
-            name
-          }
-          registration
-          km
-          brand
-          model
-          volume{
-            _id
-            meterCube
-          }
-          payload
-          color
+          message
         }
       }
-    }
-  `,
-  myEntretiensQuery : gql`
-    query myEntretiens{
-      myEntretiens{
-        _id
-        description
-        title
-        occurenceDate
-        vehicle{
-          _id
-          societe{
-            _id
-            trikey
-            name
-          }
-          registration
-          km
-          brand
-          model
-          volume{
-            _id
-            meterCube
-          }
-          payload
-          color
+    `,
+    releaseQuery : gql`
+      mutation release($_id:String!){
+        release(_id:$_id){
+          status
+          message
         }
       }
-    }
-  `,
-  unaffectedEntretiensQuery : gql`
-    query unaffectedEntretiens{
-      unaffectedEntretiens{
-        _id
-        description
-        title
-        vehicle{
-          _id
-          societe{
-            _id
-            trikey
-            name
-          }
-          registration
-          km
-          brand
-          model
-          volume{
-            _id
-            meterCube
-          }
-          payload
-          color
-        }
-      }
-    }
-  `,
-  affectToMeQuery : gql`
-    mutation affectToMe($_id:String!,$occurenceDate:String!){
-      affectToMe(_id:$_id,occurenceDate:$occurenceDate){
-        status
-        message
-      }
-    }
-  `,
-  releaseQuery : gql`
-    mutation release($_id:String!){
-      release(_id:$_id){
-        status
-        message
-      }
-    }
-  `
+    `
   }
 
   loadUnaffectedEntretiens = () => {

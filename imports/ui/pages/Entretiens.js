@@ -73,14 +73,24 @@ class Entretiens extends Component {
                         registration
                         firstRegistrationDate
                         km
-                        brand
-                        model
+                        brand{
+                            _id
+                            name
+                        }
+                        model{
+                            _id
+                            name
+                        }
                         volume{
                             _id
                             meterCube
                         }
                         payload
-                        color
+                        color{
+                            _id
+                            name
+                            hex
+                        }
                         insurancePaid
                         property
                     }

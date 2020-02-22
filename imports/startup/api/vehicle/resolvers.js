@@ -126,6 +126,26 @@ export default {
                 }else{
                     vehicles[i].societe = {_id:""};
                 }
+                if(v.brand != null && v.brand.length > 0){
+                    v.brand = Brands.findOne({_id:new Mongo.ObjectID(v.brand)});
+                }else{
+                    v.brand = {_id:""};
+                }
+                if(v.model != null && v.model.length > 0){
+                    v.model = Models.findOne({_id:new Mongo.ObjectID(v.model)});
+                }else{
+                    v.model = {_id:""};
+                }
+                if(v.payementOrg != null && v.payementOrg.length > 0){
+                    v.payementOrg = Organisms.findOne({_id:new Mongo.ObjectID(v.payementOrg)});
+                }else{
+                    v.payementOrg = {_id:""};
+                }
+                if(v.color != null && v.color.length > 0){
+                    v.color = Colors.findOne({_id:new Mongo.ObjectID(v.color)});
+                }else{
+                    v.color = {_id:""};
+                }
                 v.equipements = Equipements.find({vehicle:v._id._str}).fetch() || {};
                 v.equipements.forEach((e,ei) => {
                     e.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)}) || {};

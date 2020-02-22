@@ -108,7 +108,7 @@ class PageBody extends Component {
         <Switch>
           <Route exact path='/' component={Home}/>
 
-          <Route exact path='/parc/vehicles' component={Vehicles}/>
+          <Route exact path='/parc/vehicles' component={BUVehicles}/>
           <Route exact path='/parc/vehicle/:_id' component={Vehicle}/>
           <Route exact path='/parc/controls' component={Controls}/>
           <Route exact path='/parc/licences' component={Licences}/>

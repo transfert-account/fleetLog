@@ -26,8 +26,19 @@ class Calendar extends Component {
             vehicle{
               _id
               registration
-              model
-              brand
+              brand{
+                _id
+                name
+              }
+              model{
+                _id
+                name
+              }
+              volume{
+                _id
+                meterCube
+              }
+              payload
               km
             }
             description
