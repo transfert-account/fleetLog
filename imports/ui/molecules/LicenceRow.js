@@ -20,12 +20,18 @@ class LicenceRow extends Component {
         newEndDate:this.props.licence.endDate,
         deleteLicenceQuery : gql`
             mutation deleteLicence($_id:String!){
-                deleteLicence(_id:$_id)
+                deleteLicence(_id:$_id){
+                    status
+                    message
+                }
             }
         `,
         editLicenceQuery : gql`
             mutation editLicence($_id:String!,$societe:String!,$number:String!,$vehicle:String!,$shiftName:String!,$endDate:String!){
-                editLicence(_id:$_id,societe:$societe,number:$number,vehicle:$vehicle,shiftName:$shiftName,endDate:$endDate)
+                editLicence(_id:$_id,societe:$societe,number:$number,vehicle:$vehicle,shiftName:$shiftName,endDate:$endDate){
+                    status
+                    message
+                }
             }
         `,
     }
@@ -77,7 +83,14 @@ class LicenceRow extends Component {
                 _id:this.state._id,
             }
         }).then(({data})=>{
-            this.props.loadLicences();
+            data.deleteLicence.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.loadLicences();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     }
 
@@ -109,7 +122,14 @@ class LicenceRow extends Component {
                 endDate:this.state.newEndDate
             }
         }).then(({data})=>{
-            this.props.loadLicences();
+            data.editLicence.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.loadLicences();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     }
 
@@ -124,14 +144,45 @@ class LicenceRow extends Component {
         return <Label color="green"> {moment(this.props.licence.endDate, "DD/MM/YYYY").fromNow()}, le {this.props.licence.endDate}</Label>
     }
 
+    getEditSocieteCell = () => {
+        if(!this.props.hideSociete){
+            return <Table.Cell textAlign="center"><Dropdown value={this.state.newSociete} placeholder='Choisir un société' search selection onChange={this.handleChangeSociete} options={this.props.societesRaw.map(x=>{return{key:x._id,text:x.name,value:x._id}})} name="newSociete" /></Table.Cell>
+        }
+    }
+
+    getSocieteCell = () => {
+        if(!this.props.hideSociete){
+            return <Table.Cell textAlign="center">{this.props.licence.societe.name}</Table.Cell>
+        }
+    }
+
+    getActionsCell = () => {
+        if(this.props.user.isOwner){
+            return (
+                <Table.Cell textAlign="center">
+                    <Button circular style={{color:"#a29bfe"}} inverted icon icon='folder open' onClick={this.showDocs}/>
+                    <Button circular style={{color:"#2980b9"}} inverted icon icon='edit' onClick={this.showEdit}/>    
+                    <Button circular style={{color:"#e74c3c"}} inverted icon icon='trash' onClick={this.showDelete}/>
+                </Table.Cell>
+            )
+        }else{
+            return (
+                <Table.Cell textAlign="center">
+                    <Button circular style={{color:"#a29bfe"}} inverted icon icon='folder open' onClick={this.showDocs}/>
+                    <Button circular style={{color:"#2980b9"}} inverted icon icon='edit' onClick={this.showEdit}/>
+                </Table.Cell>
+            )
+        }
+    }
+
     render() {
         if(this.state.editing){
             return (
                 <Fragment>
                     <Table.Row>
-                        <Table.Cell textAlign="center"><Dropdown value={this.state.newSociete} placeholder='Choisir un société' search selection onChange={this.handleChangeSociete} options={this.props.societesRaw.map(x=>{return{key:x._id,text:x.name,value:x._id}})} name="newSociete" /></Table.Cell>
+                        {this.getEditSocieteCell()}
                         <Table.Cell textAlign="center"><Input value={this.state.newNumber} onChange={this.handleChange} placeholder="Numero de licence" name="newNumber"/></Table.Cell>
-                        <Table.Cell textAlign="center"><VehiclePicker defaultValue={this.state.newVehicle} onChange={this.handleChangeVehicle}/></Table.Cell>
+                        <Table.Cell textAlign="center"><VehiclePicker societeRestricted={this.props.hideSociete} defaultValue={this.state.newVehicle} onChange={this.handleChangeVehicle}/></Table.Cell>
                         <Table.Cell textAlign="center"><Input defaultValue={this.state.newShiftName} onChange={this.handleChange} placeholder="Nom de tournée" name="newShiftName"/></Table.Cell>
                         <Table.Cell textAlign="center"><Input value={this.state.newEndDate} onChange={this.handleChange} onFocus={()=>{this.showDatePicker("newEndDate")}} name="newEndDate"/></Table.Cell>
                         <Table.Cell textAlign="center">
@@ -146,16 +197,12 @@ class LicenceRow extends Component {
             return (
                 <Fragment>
                     <Table.Row>
-                        <Table.Cell textAlign="center">{this.props.licence.societe.name}</Table.Cell>
+                        {this.getSocieteCell()}
                         <Table.Cell textAlign="center">{this.props.licence.number}</Table.Cell>
                         <Table.Cell textAlign="center">{this.props.licence.vehicle.registration}</Table.Cell>
                         <Table.Cell textAlign="center">{this.props.licence.shiftName}</Table.Cell>
                         <Table.Cell textAlign="center">{this.getEndDateLabel()}</Table.Cell>
-                        <Table.Cell textAlign="center">
-                            <Button circular style={{color:"#a29bfe"}} inverted icon icon='folder open' onClick={this.showDocs}/>
-                            <Button circular style={{color:"#2980b9"}} inverted icon icon='edit' onClick={this.showEdit}/>    
-                            <Button circular style={{color:"#e74c3c"}} inverted icon icon='trash' onClick={this.showDelete}/>
-                        </Table.Cell>
+                        {this.getActionsCell()}
                     </Table.Row>
                     <Modal closeOnDimmerClick={false} open={this.state.openDelete} onClose={this.closeDelete} closeIcon>
                         <Modal.Header>

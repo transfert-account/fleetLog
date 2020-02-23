@@ -18,8 +18,11 @@ import Controls from './Controls';
 import BUControls from './BUControls';
 
 import Licences from './Licences';
+import BULicences from './BULicences';
 
 import Planning from './Planning';
+import BUPlanning from './BUPlanning';
+
 import Fournisseurs from './Fournisseurs';
 import Accidentologie from './Accidentologie';
 
@@ -89,14 +92,14 @@ class PageBody extends Component {
             <Route exact path='/parc/vehicles' component={BUVehicles}/>
             <Route exact path='/parc/vehicle/:_id' component={Vehicle}/>
             <Route exact path='/parc/controls' component={BUControls}/>
-            <Route exact path='/parc/licences' component={Licences}/>
+            <Route exact path='/parc/licences' component={BULicences}/>
             <Route exact path='/parc/locations' component={BULocations}/>
             <Route exact path='/parc/location/:_id' component={Location}/>
 
             <Route exact path='/entretiens' component={BUEntretiens}/>
             <Route exact path='/entretien/:_id' component={Entretien}/>
 
-            <Route exact path='/planning/:y/:m' component={Planning}/>
+            <Route exact path='/planning/:y/:m' component={BUPlanning}/>
 
             <Route exact path='/accidentologie' component={Accidentologie}/>
 
@@ -120,14 +123,14 @@ class PageBody extends Component {
           <Route exact path='/parc/vehicles' component={BUVehicles}/>
           <Route exact path='/parc/vehicle/:_id' component={Vehicle}/>
           <Route exact path='/parc/controls' component={BUControls}/>
-          <Route exact path='/parc/licences' component={Licences}/>
+          <Route exact path='/parc/licences' component={BULicences}/>
           <Route exact path='/parc/locations' component={BULocations}/>
           <Route exact path='/parc/location/:_id' component={Location}/>
 
           <Route exact path='/entretiens' component={BUEntretiens}/>
           <Route exact path='/entretien/:_id' component={Entretien}/>
 
-          <Route exact path='/planning/:y/:m' component={Planning}/>
+          <Route exact path='/planning/:y/:m' component={BUPlanning}/>
 
           <Route exact path='/accidentologie' component={Accidentologie}/>
 

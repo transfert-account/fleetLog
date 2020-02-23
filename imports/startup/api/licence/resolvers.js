@@ -30,6 +30,28 @@ export default {
                 }
             });
             return licences;
+        },
+        buLicences(obj, args, { user }){
+            let userFull = Meteor.users.findOne({_id:user._id});
+            let licences = Licences.find({societe:userFull.settings.visibility}).fetch() || {};
+            licences.forEach((l,i) => {
+                if(l.societe != null && l.societe.length > 0){
+                    licences[i].societe = Societes.findOne({_id:new Mongo.ObjectID(l.societe)});
+                }else{
+                    licences[i].societe = {_id:"",name:""};
+                }
+                let vehicleId = l.vehicle
+                l.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(vehicleId)});
+                if(l.vehicle == null){
+                    l.vehicle = Locations.findOne({_id:new Mongo.ObjectID(vehicleId)});
+                }
+                if(l.vehicle.volume != null && l.vehicle.volume.length > 0){
+                    l.vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(l.vehicle.volume)});
+                }else{
+                    l.vehicle.volume = {_id:""};
+                }
+            });
+            return licences;
         }
     },
     Mutation:{
@@ -42,7 +64,7 @@ export default {
                     vehicle:vehicle,
                     endDate:endDate
                 });
-                return true;
+                return [{status:true,message:'Création réussie'}];
             }
             throw new Error('Unauthorized');
         },
@@ -51,7 +73,7 @@ export default {
                 Licences.remove({
                     _id:new Mongo.ObjectID(_id)
                 });
-                return true;
+                return [{status:true,message:'Suppression réussie'}];
             }
             throw new Error('Unauthorized');
         },
@@ -70,7 +92,7 @@ export default {
                         }
                     }
                 ); 
-                return true;
+                return [{status:true,message:'Modifications sauvegardées'}];
             }
             throw new Error('Unauthorized');
         },

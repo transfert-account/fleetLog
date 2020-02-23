@@ -8,7 +8,7 @@ import { UserContext } from '../../contexts/UserContext';
 import moment from "moment";
 import gql from 'graphql-tag';
 
-class Planning extends Component {
+class BUPlanning extends Component {
 
   state={
     entretienToAffect:"",
@@ -26,22 +26,12 @@ class Planning extends Component {
     month:parseInt(this.props.match.params.m),
     year:parseInt(this.props.match.params.y),
     selectedDay:new Date().getDate(),
-    entretiensOfTheDayQuery : gql`
-      query entretiensOfTheDay($date:String!){
-        entretiensOfTheDay(date:$date){
+    entretiensOfTheDayByUserQuery : gql`
+      query entretiensOfTheDayByUser($date:String!){
+        entretiensOfTheDayByUser(date:$date){
           _id
           description
-          user{
-            _id
-            firstname
-            lastname
-          }
           title
-          societe{
-            _id
-            trikey
-            name
-          }
           commandes{
             _id
             piece{
@@ -55,6 +45,11 @@ class Planning extends Component {
           }
           vehicle{
             _id
+            societe{
+              _id
+              trikey
+              name
+            }
             registration
             km
             brand{
@@ -85,14 +80,14 @@ class Planning extends Component {
           _id
           description
           title
-          societe{
-            _id
-            trikey
-            name
-          }
           occurenceDate
           vehicle{
             _id
+            societe{
+              _id
+              trikey
+              name
+            }
             registration
             km
             brand{
@@ -117,19 +112,19 @@ class Planning extends Component {
         }
       }
     `,
-    unaffectedEntretiensQuery : gql`
-      query unaffectedEntretiens{
-        unaffectedEntretiens{
+    buUnaffectedEntretiensQuery : gql`
+      query buUnaffectedEntretiens{
+        buUnaffectedEntretiens{
           _id
           description
           title
-          societe{
-            _id
-            trikey
-            name
-          }
           vehicle{
             _id
+            societe{
+              _id
+              trikey
+              name
+            }
             registration
             km
             brand{
@@ -174,11 +169,11 @@ class Planning extends Component {
 
   loadUnaffectedEntretiens = () => {
     this.props.client.query({
-      query:this.state.unaffectedEntretiensQuery,
+      query:this.state.buUnaffectedEntretiensQuery,
       fetchPolicy:"network-only"
     }).then(({data})=>{
       this.setState({
-        unaffectedEntretiensRaw:data.unaffectedEntretiens
+        unaffectedEntretiensRaw:data.buUnaffectedEntretiens
       })
     })
   }
@@ -202,14 +197,14 @@ class Planning extends Component {
       formatedDate = this.state.selectedDate;
     }
     this.props.client.query({
-      query:this.state.entretiensOfTheDayQuery,
+      query:this.state.entretiensOfTheDayByUserQuery,
       variables:{
         date: formatedDate.format('DD/MM/YYYY')
       },
       fetchPolicy:"network-only"
     }).then(({data})=>{
       this.setState({
-        entretiensOfTheDayRaw:data.entretiensOfTheDay
+        entretiensOfTheDayRaw:data.entretiensOfTheDayByUser
       })
     })
   }
@@ -324,21 +319,6 @@ class Planning extends Component {
   navigateToEntretien = _id => {
     this.props.history.push("/entretien/"+_id); 
   }
-  
-  loadMonthByParams = ({year,month}) => {
-    this.props.client.query({
-      query:this.state.entretiensPopulatedMonthQuery,
-      variables:{
-        month:month,
-        year:year
-      },
-      fetchPolicy:"network-only"
-    }).then(({data})=>{
-      this.setState({
-        daysOfTheMonth:data.entretiensPopulatedMonth
-      })
-    })
-  }
 
   selectDate = date => {
     this.setState({
@@ -354,15 +334,14 @@ class Planning extends Component {
           <Table color="blue" style={{gridColumnStart:"2",placeSelf:"start stretch"}} striped celled compact="very">
             <Table.Header>
               <Table.Row textAlign='center'>
-                <Table.HeaderCell width={4}>Affecté à</Table.HeaderCell>
                 <Table.HeaderCell width={4}>Véhicule</Table.HeaderCell>
-                <Table.HeaderCell width={6}>Entretien</Table.HeaderCell>
+                <Table.HeaderCell width={10}>Entretien</Table.HeaderCell>
                 <Table.HeaderCell width={2}>Actions</Table.HeaderCell>
               </Table.Row>
             </Table.Header>
             <Table.Body>
               {this.state.entretiensOfTheDayRaw.map(e=>{
-                return (<PlanningRow key={e._id+"unaffected"} active={this.state.activeItem} triggerReleaseEntretien={this.triggerReleaseEntretien} navigateToEntretien={this.navigateToEntretien} entretien={e} />)
+                return (<PlanningRow hideSociete={true} key={e._id+"unaffected"} active={this.state.activeItem} triggerReleaseEntretien={this.triggerReleaseEntretien} navigateToEntretien={this.navigateToEntretien} entretien={e} />)
               })}
             </Table.Body>
           </Table>
@@ -383,7 +362,7 @@ class Planning extends Component {
             </Table.Header>
             <Table.Body>
               {this.state.myEntretiensRaw.map(e=>{
-                return (<PlanningRow active={this.state.activeItem} triggerReleaseEntretien={this.triggerReleaseEntretien} key={e._id} navigateToEntretien={this.navigateToEntretien} entretien={e} />)
+                return (<PlanningRow hideSociete={true} active={this.state.activeItem} triggerReleaseEntretien={this.triggerReleaseEntretien} key={e._id} navigateToEntretien={this.navigateToEntretien} entretien={e} />)
               })}
             </Table.Body>
           </Table>
@@ -396,15 +375,14 @@ class Planning extends Component {
           <Table color="orange" style={{gridColumnStart:"2",placeSelf:"start stretch"}} striped celled compact="very">
             <Table.Header>
               <Table.Row textAlign='center'>
-                <Table.HeaderCell width={4}>Societe</Table.HeaderCell>
                 <Table.HeaderCell width={4}>Véhicule</Table.HeaderCell>
-                <Table.HeaderCell width={6}>Entretien</Table.HeaderCell>
+                <Table.HeaderCell width={10}>Entretien</Table.HeaderCell>
                 <Table.HeaderCell width={2}>Actions</Table.HeaderCell>
               </Table.Row>
             </Table.Header>
             <Table.Body>
               {this.state.unaffectedEntretiensRaw.map(e=>{
-                return (<PlanningRow active={this.state.activeItem} key={e._id+"unaffected"} triggerAffectToMe={this.triggerAffectToMe} navigateToEntretien={this.navigateToEntretien} entretien={e} />)
+                return (<PlanningRow hideSociete={true} active={this.state.activeItem} key={e._id+"unaffected"} triggerAffectToMe={this.triggerAffectToMe} navigateToEntretien={this.navigateToEntretien} entretien={e} />)
               })}
             </Table.Body>
           </Table>
@@ -423,7 +401,7 @@ class Planning extends Component {
     return (
       <Fragment>
         <div style={{display:"grid",gridTemplateColumns:"3fr 2fr",gridTemplateRows:"auto 1fr",gridGap:"32px"}}>
-          <Calendar byUser={false} didRefreshMonth={this.didRefreshMonth} needToRefreshMonth={this.state.needToRefreshMonth} style={{gridRowEnd:"span 2"}} selectDate={this.selectDate} month={this.state.month} year={this.state.year}/>
+          <Calendar byUser={true} didRefreshMonth={this.didRefreshMonth} needToRefreshMonth={this.state.needToRefreshMonth} style={{gridRowEnd:"span 2"}} selectDate={this.selectDate} month={this.state.month} year={this.state.year}/>
           <div style={{gridRowEnd:"span 2"}}>
           <Menu widths={3} attached='top' tabular>
             <Menu.Item color="blue" name='selectedDay' active={this.state.activeItem === 'selectedDay'} onClick={()=>this.setState({activeItem:"selectedDay"})}>{this.state.selectedDate.format("DD/MM/YYYY")}</Menu.Item>
@@ -474,4 +452,4 @@ const withUserContext = WrappedComponent => props => (
   </UserContext.Consumer>
 )
 
-export default wrappedInUserContext = withRouter(withUserContext(Planning));
+export default wrappedInUserContext = withRouter(withUserContext(BUPlanning));

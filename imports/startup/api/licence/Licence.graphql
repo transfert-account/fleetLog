@@ -10,10 +10,11 @@ type Licence{
 extend type Query{
     licence(_id: String!): Licence
     licences : [Licence]
+    buLicences : [Licence]
 }
 
 extend type Mutation{
-    addLicence(societe:String!,number:String!,vehicle:String!,endDate:String!): Boolean
-    deleteLicence(_id:String!): Boolean
-    editLicence(_id:String!,societe:String!,number:String!,vehicle:String!,shiftName:String!,endDate:String):Boolean
+    addLicence(societe:String!,number:String!,vehicle:String!,endDate:String!): [QueryResultMessage]
+    deleteLicence(_id:String!): [QueryResultMessage]
+    editLicence(_id:String!,societe:String!,number:String!,vehicle:String!,shiftName:String!,endDate:String): [QueryResultMessage]
 }

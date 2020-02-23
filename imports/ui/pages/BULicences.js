@@ -7,7 +7,7 @@ import VehiclePicker from '../atoms/VehiclePicker';
 import ModalDatePicker from '../atoms/ModalDatePicker';
 import { gql } from 'apollo-server-express'
 
-export class Licences extends Component {
+export class BULicences extends Component {
 
   state={
     loading:true,
@@ -37,20 +37,17 @@ export class Licences extends Component {
           }
       }
       return displayed.map(l =>(
-          <LicenceRow loadLicences={this.loadLicences} societesRaw={this.state.societesRaw} key={l._id} licence={l}/>
+          <LicenceRow hideSociete loadLicences={this.loadLicences} societesRaw={this.state.societesRaw} key={l._id} licence={l}/>
       ))
     },
     addLicenceQuery : gql`
         mutation addLicence($societe:String!,$number:String!,$vehicle:String!,$endDate:String!){
-            addLicence(societe:$societe,number:$number,vehicle:$vehicle,endDate:$endDate){
-                status
-                message
-            }
+          addLicence(societe:$societe,number:$number,vehicle:$vehicle,endDate:$endDate)
         }
     `,
-    licencesQuery : gql`
-        query licences{
-          licences{
+    buLicencesQuery : gql`
+        query buLicences{
+            buLicences{
             _id
             societe{
               _id
@@ -84,18 +81,18 @@ export class Licences extends Component {
     `,
   }
 
-    onSelectDatePicker = date => {
-        this.setState({
-            [this.state.datePickerTarget]:date.getDate().toString().padStart(2, '0')+"/"+parseInt(date.getMonth()+1).toString().padStart(2, '0')+"/"+date.getFullYear().toString().padStart(4, '0')
-        })
-    }
+  onSelectDatePicker = date => {
+    this.setState({
+      [this.state.datePickerTarget]:date.getDate().toString().padStart(2, '0')+"/"+parseInt(date.getMonth()+1).toString().padStart(2, '0')+"/"+date.getFullYear().toString().padStart(4, '0')
+    })
+  }
 
-    showDatePicker = target => {
-        this.setState({openDatePicker:true,datePickerTarget:target})
-    }
-    closeDatePicker = () => {
-        this.setState({openDatePicker:false,datePickerTarget:""})
-    }
+  showDatePicker = target => {
+    this.setState({openDatePicker:true,datePickerTarget:target})
+  }
+  closeDatePicker = () => {
+    this.setState({openDatePicker:false,datePickerTarget:""})
+  }
 
   handleChange = e =>{
     this.setState({
@@ -123,12 +120,12 @@ export class Licences extends Component {
 
   loadLicences = () => {
     this.props.client.query({
-        query:this.state.licencesQuery,
+        query:this.state.buLicencesQuery,
         fetchPolicy:"network-only"
     }).then(({data})=>{
         this.setState({
             loading:false,
-            licencesRaw:data.licences
+            licencesRaw:data.buLicences
         })
     })
   }
@@ -144,14 +141,7 @@ export class Licences extends Component {
             endDate:this.state.newEndDate
         }
     }).then(({data})=>{
-        data.addLicence.map(qrm=>{
-            if(qrm.status){
-                this.props.toast({message:qrm.message,type:"success"});
-                this.loadLicences();
-            }else{
-                this.props.toast({message:qrm.message,type:"error"});
-            }
-        })
+        this.loadLicences();
     })
   }
 
@@ -194,7 +184,6 @@ export class Licences extends Component {
                     <Table style={{marginBottom:"0"}} celled selectable color="blue" compact>
                         <Table.Header>
                             <Table.Row textAlign='center'>
-                                <Table.HeaderCell>Societe</Table.HeaderCell>
                                 <Table.HeaderCell>Numero de licence</Table.HeaderCell>
                                 <Table.HeaderCell>Véhicule associé</Table.HeaderCell>
                                 <Table.HeaderCell>Nom de tournée</Table.HeaderCell>
@@ -220,7 +209,7 @@ export class Licences extends Component {
                             <Form.Field><label>Numero de licence</label><input onChange={this.handleChange} placeholder="Numero de licence" name="newNumber"/></Form.Field>
                             <Form.Field>
                                 <label>Véhicule associé</label>
-                                <VehiclePicker onChange={this.handleChangeVehicle}/>
+                                <VehiclePicker societeRestricted={true} onChange={this.handleChangeVehicle}/>
                             </Form.Field>
                             <Form.Field>
                                 <label>Date de fin de validité</label>
@@ -245,4 +234,4 @@ const withUserContext = WrappedComponent => props => (
   </UserContext.Consumer>
 )
 
-export default wrappedInUserContext = withUserContext(Licences);
+export default wrappedInUserContext = withUserContext(BULicences);

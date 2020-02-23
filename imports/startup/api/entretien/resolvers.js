@@ -121,8 +121,8 @@ export default {
             });
             return entretiens;
         },
-        entretiensOfTheDay(obj, {date},{user}){
-            let entretiens = Entretiens.find({user:user._id}).fetch().filter(e=>moment(e.occurenceDate,"DD/MM/YYYY").isSame(moment(date,"DD/MM/YYYY"), 'day'))//log this
+        entretiensOfTheDayByUser(obj, {date},{user}){
+            let entretiens = Entretiens.find({user:user._id}).fetch().filter(e=>moment(e.occurenceDate,"DD/MM/YYYY").isSame(moment(date,"DD/MM/YYYY"), 'day'))
             entretiens.forEach((e,i) => {
                 if(Vehicles.findOne({_id:new Mongo.ObjectID(e.vehicle)}) == undefined){
                     e.vehicle = Locations.findOne({_id:new Mongo.ObjectID(e.vehicle)});
@@ -133,11 +133,6 @@ export default {
                 e.commandes.forEach(c => {
                     c.piece = Pieces.findOne({_id:new Mongo.ObjectID(c.piece)});
                 });
-                if(e.vehicle.societe != null && e.vehicle.societe.length > 0){
-                    entretiens[i].societe = Societes.findOne({_id:new Mongo.ObjectID(e.vehicle.societe)});
-                }else{
-                    entretiens[i].societe = {_id:"",name:""};
-                }
                 if(e.vehicle.brand != null && e.vehicle.brand.length > 0){
                     e.vehicle.brand = Brands.findOne({_id:new Mongo.ObjectID(e.vehicle.brand)});
                 }else{
@@ -171,6 +166,56 @@ export default {
             });
             return entretiens;
         },
+        entretiensOfTheDay(obj, {date},{user}){
+            let entretiens = Entretiens.find().fetch().filter(e=>moment(e.occurenceDate,"DD/MM/YYYY").isSame(moment(date,"DD/MM/YYYY"), 'day'))
+            entretiens.forEach((e,i) => {
+                if(Vehicles.findOne({_id:new Mongo.ObjectID(e.vehicle)}) == undefined){
+                    e.vehicle = Locations.findOne({_id:new Mongo.ObjectID(e.vehicle)});
+                }else{
+                    e.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(e.vehicle)});
+                }
+                e.commandes = Commandes.find({entretien:e._id._str}).fetch() || [];
+                e.commandes.forEach(c => {
+                    c.piece = Pieces.findOne({_id:new Mongo.ObjectID(c.piece)});
+                });
+                if(e.vehicle.brand != null && e.vehicle.brand.length > 0){
+                    e.vehicle.brand = Brands.findOne({_id:new Mongo.ObjectID(e.vehicle.brand)});
+                }else{
+                    e.vehicle.brand = {_id:""};
+                }
+                if(e.vehicle.model != null && e.vehicle.model.length > 0){
+                    e.vehicle.model = Models.findOne({_id:new Mongo.ObjectID(e.vehicle.model)});
+                }else{
+                    e.vehicle.model = {_id:""};
+                }
+                if(e.vehicle.payementOrg != null && e.vehicle.payementOrg.length > 0){
+                    e.vehicle.payementOrg = Organisms.findOne({_id:new Mongo.ObjectID(e.vehicle.payementOrg)});
+                }else{
+                    e.vehicle.payementOrg = {_id:""};
+                }
+                if(e.vehicle.color != null && e.vehicle.color.length > 0){
+                    e.vehicle.color = Colors.findOne({_id:new Mongo.ObjectID(e.vehicle.color)});
+                }else{
+                    e.vehicle.color = {_id:""};
+                }
+                if(e.vehicle.volume != null && e.vehicle.volume.length > 0){
+                    e.vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(e.vehicle.volume)});
+                }else{
+                    e.vehicle.volume = {_id:""};
+                }
+                if(e.societe != null && e.societe.length > 0){
+                    e.societe = Societes.findOne({_id:new Mongo.ObjectID(e.societe)});
+                }else{
+                    e.societe = {_id:"",name:""};
+                }
+                if(e.user != null && e.user.length > 0){
+                    e.user = Meteor.users.findOne({_id:e.user});
+                }else{
+                    e.user = {_id:"",firstname:"",lastname:""};
+                }
+            });
+            return entretiens;
+        },
         myEntretiens(obj, args,{user}){
             let entretiens = Entretiens.find({user:user._id}).fetch() || {};
             entretiens.forEach((e,i) => {
@@ -178,11 +223,6 @@ export default {
                     e.vehicle = Locations.findOne({_id:new Mongo.ObjectID(e.vehicle)});
                 }else{
                     e.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(e.vehicle)});    
-                }
-                if(e.vehicle.societe != null && e.vehicle.societe.length > 0){
-                    entretiens[i].societe = Societes.findOne({_id:new Mongo.ObjectID(e.vehicle.societe)});
-                }else{
-                    entretiens[i].societe = {_id:"",name:""};
                 }
                 if(e.vehicle.brand != null && e.vehicle.brand.length > 0){
                     e.vehicle.brand = Brands.findOne({_id:new Mongo.ObjectID(e.vehicle.brand)});
@@ -246,10 +286,68 @@ export default {
                 }else{
                     e.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(e.vehicle)});    
                 }
-                if(e.vehicle.societe != null && e.vehicle.societe.length > 0){
-                    entretiens[i].societe = Societes.findOne({_id:new Mongo.ObjectID(e.vehicle.societe)});
+                if(e.vehicle.brand != null && e.vehicle.brand.length > 0){
+                    e.vehicle.brand = Brands.findOne({_id:new Mongo.ObjectID(e.vehicle.brand)});
                 }else{
-                    entretiens[i].societe = {_id:"",name:""};
+                    e.vehicle.brand = {_id:""};
+                }
+                if(e.vehicle.model != null && e.vehicle.model.length > 0){
+                    e.vehicle.model = Models.findOne({_id:new Mongo.ObjectID(e.vehicle.model)});
+                }else{
+                    e.vehicle.model = {_id:""};
+                }
+                if(e.vehicle.payementOrg != null && e.vehicle.payementOrg.length > 0){
+                    e.vehicle.payementOrg = Organisms.findOne({_id:new Mongo.ObjectID(e.vehicle.payementOrg)});
+                }else{
+                    e.vehicle.payementOrg = {_id:""};
+                }
+                if(e.vehicle.color != null && e.vehicle.color.length > 0){
+                    e.vehicle.color = Colors.findOne({_id:new Mongo.ObjectID(e.vehicle.color)});
+                }else{
+                    e.vehicle.color = {_id:""};
+                }
+                if(e.vehicle.volume != null && e.vehicle.volume.length > 0){
+                    e.vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(e.vehicle.volume)});
+                }else{
+                    e.vehicle.volume = {_id:""};
+                }
+                if(e.societe != null && e.societe.length > 0){
+                    e.societe = Societes.findOne({_id:new Mongo.ObjectID(e.societe)});
+                }else{
+                    e.societe = {_id:"",name:""};
+                }
+                e.piece = Pieces.findOne({_id:new Mongo.ObjectID(e.piece)});
+            });
+            return entretiens;
+        },
+        buUnaffectedEntretiens(obj, args,{user}){
+            let userFull = Meteor.users.findOne({_id:user._id});
+            let entretiens = Entretiens.find({societe:userFull.settings.visibility,user:""}).fetch() || {};
+            entretiens.forEach((e,i) => {
+                e.commandes = Commandes.find({entretien:e._id._str}).fetch() || [];
+                e.commandes.forEach(c => {
+                    c.piece = Pieces.findOne({_id:new Mongo.ObjectID(c.piece)});
+                });
+            });
+            entretiens.map(e=>{
+                let lowestStatus = 3;
+                e.commandes.map(c=>{
+                    if(c.status != 3){
+                        lowestStatus = c.status
+                    }
+                })
+                if(lowestStatus != 3){
+                    e.ready = false
+                }else{
+                    e.ready = true
+                }
+            })
+            entretiens = entretiens.filter(e=>e.ready);
+            entretiens.forEach((e,i) => {
+                if(Vehicles.findOne({_id:new Mongo.ObjectID(e.vehicle)}) == undefined){
+                    e.vehicle = Locations.findOne({_id:new Mongo.ObjectID(e.vehicle)});
+                }else{
+                    e.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(e.vehicle)});    
                 }
                 if(e.vehicle.brand != null && e.vehicle.brand.length > 0){
                     e.vehicle.brand = Brands.findOne({_id:new Mongo.ObjectID(e.vehicle.brand)});

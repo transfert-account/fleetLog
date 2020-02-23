@@ -40,7 +40,11 @@ class Entretien extends Component {
                     title
                     archived
                     occurenceDate
-                    user
+                    user{
+                        _id
+                        firstname
+                        lastname
+                    }
                     time
                     status
                     vehicle{
@@ -512,11 +516,19 @@ class Entretien extends Component {
     getArchiveButton = () => {
         if(this.state.entretienRaw.archived){
             return (
-                <Button color="green" style={{placeSelf:"stretch"}} onClick={this.showDisArchive} icon labelPosition='right'>Ré-ouvrir l'entretien<Icon name='folder open outline'/></Button>
+                <Button color="green" style={{gridColumnEnd:(this.props.user.isOwner ? "span 2" : "span 3"),placeSelf:"stretch"}} onClick={this.showDisArchive} icon labelPosition='right'>Ré-ouvrir l'entretien<Icon name='folder open outline'/></Button>
             )
         }else{
             return (
-                <Button color="orange" style={{placeSelf:"stretch"}} onClick={this.showArchive} icon labelPosition='right'>Archiver l'entretien<Icon name='archive'/></Button>
+                <Button color="orange" style={{gridColumnEnd:(this.props.user.isOwner ? "span 2" : "span 3"),placeSelf:"stretch"}} onClick={this.showArchive} icon labelPosition='right'>Archiver l'entretien<Icon name='archive'/></Button>
+            )
+        }
+    }
+
+    getDeleteButton = () => {
+        if(this.props.user.isOwner){
+            return (
+                <Button color="red" style={{gridColumnEnd:"span 2",placeSelf:"stretch"}} onClick={this.showDelete} icon labelPosition='right'>Supprimer l'entretien<Icon name='trash'/></Button>
             )
         }
     }
@@ -554,11 +566,11 @@ class Entretien extends Component {
                                 </Form.Field>
                             </Form>
                         </div>
-                        <div style={{display:"grid",gridGap:"16px",gridTemplateColumns:"1fr 1fr 1fr",gridTemplateRows:"auto 1fr"}}>
-                            <Button color="red" style={{placeSelf:"stretch"}} onClick={this.showDelete} icon labelPosition='right'>Supprimer l'entretien<Icon name='trash'/></Button>
+                        <div style={{display:"grid",gridGap:"16px",gridTemplateColumns:"1fr 1fr 1fr 1fr 1fr 1fr",gridTemplateRows:"auto 1fr"}}>
+                            {this.getDeleteButton()}
                             {this.getArchiveButton()}
-                            <Button color="blue" style={{placeSelf:"stretch"}} onClick={this.showAddCommande} icon labelPosition='right'>Ajouter une piece à la commande<Icon name='plus'/></Button>
-                            <div style={{gridRowStart:"2",gridColumnEnd:"span 3"}}>
+                            <Button color="blue" style={{gridColumnEnd:(this.props.user.isOwner ? "span 2" : "span 3"),placeSelf:"stretch"}} onClick={this.showAddCommande} icon labelPosition='right'>Ajouter une piece à la commande<Icon name='plus'/></Button>
+                            <div style={{gridRowStart:"2",gridColumnEnd:"span 6"}}>
                                 <Table celled>
                                     <Table.Header>
                                         <Table.Row textAlign='center'>

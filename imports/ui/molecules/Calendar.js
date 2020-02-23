@@ -44,7 +44,51 @@ class Calendar extends Component {
             description
             archived
             occurenceDate
-            user
+            user{
+              _id
+              firstname
+              lastname
+            }
+          }
+        }
+      }
+    `,
+    entretiensPopulatedMonthByUserQuery: gql`
+      query entretiensPopulatedMonthByUser($month:Int!,$year:Int!) {
+        entretiensPopulatedMonthByUser(month:$month,year:$year){
+          day
+          month
+          year
+          dow
+          today
+          entretiens{
+            _id
+            vehicle{
+              _id
+              registration
+              brand{
+                _id
+                name
+              }
+              model{
+                _id
+                name
+              }
+              volume{
+                _id
+                meterCube
+              }
+              payload
+              km
+            }
+            description
+            archived
+            occurenceDate
+            user{
+              _id
+              firstname
+              lastname
+            }
           }
         }
       }
@@ -101,21 +145,39 @@ class Calendar extends Component {
   }
 
   loadMonth = ({year,month}) => {
-    this.props.client.query({
-      query:this.state.entretiensPopulatedMonthQuery,
-      variables:{
-        month:month,
-        year:year
-      },
-      fetchPolicy:"network-only"
-    }).then(({data})=>{
-      this.props.didRefreshMonth()
-      this.setState({
-        daysOfTheMonth:data.entretiensPopulatedMonth,
-        year:year,
-        month:month
+    if(this.props.byUser){
+      this.props.client.query({
+        query:this.state.entretiensPopulatedMonthByUserQuery,
+        variables:{
+          month:month,
+          year:year
+        },
+        fetchPolicy:"network-only"
+      }).then(({data})=>{
+        this.props.didRefreshMonth()
+        this.setState({
+          daysOfTheMonth:data.entretiensPopulatedMonthByUser,
+          year:year,
+          month:month
+        })
       })
-    })
+    }else{
+      this.props.client.query({
+        query:this.state.entretiensPopulatedMonthQuery,
+        variables:{
+          month:month,
+          year:year
+        },
+        fetchPolicy:"network-only"
+      }).then(({data})=>{
+        this.props.didRefreshMonth()
+        this.setState({
+          daysOfTheMonth:data.entretiensPopulatedMonth,
+          year:year,
+          month:month
+        })
+      })
+    }
   }
 
   selectDate = (y,m,d) =>{

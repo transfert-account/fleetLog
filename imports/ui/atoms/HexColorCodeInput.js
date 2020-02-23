@@ -8,7 +8,6 @@ class HexColorCodeInput extends Component {
     }
     
     render() {
-        console.log(this.state.hex)
         return (
             <Form.Field style={this.props.style} error={this.state.error}>
                 <label>Code Héxadécimal de la couleur</label>

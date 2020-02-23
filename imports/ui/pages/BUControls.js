@@ -194,10 +194,10 @@ export class BUControls extends Component {
                         <Table.Header>
                             <Table.Row>
                                 <Table.HeaderCell textAlign='center' width={2}>Immatriculation</Table.HeaderCell>
-                                <Table.HeaderCell textAlign='center' width={6}>Véhicule</Table.HeaderCell>
-                                <Table.HeaderCell textAlign='center' width={2}>OK</Table.HeaderCell>
-                                <Table.HeaderCell textAlign='center' width={2}>Urgent</Table.HeaderCell>
-                                <Table.HeaderCell textAlign='center' width={2}>En retard</Table.HeaderCell>
+                                <Table.HeaderCell textAlign='center' width={9}>Véhicule</Table.HeaderCell>
+                                <Table.HeaderCell textAlign='center' width={1}>OK</Table.HeaderCell>
+                                <Table.HeaderCell textAlign='center' width={1}>Urgent</Table.HeaderCell>
+                                <Table.HeaderCell textAlign='center' width={1}>En retard</Table.HeaderCell>
                                 <Table.HeaderCell textAlign='center' width={2}>Actions</Table.HeaderCell>
                             </Table.Row>
                         </Table.Header>

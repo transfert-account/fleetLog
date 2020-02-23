@@ -45,24 +45,6 @@ export default {
         lastLogin:user=> (user._id != null && user.services.resume.loginTokens.length > 0 ? user.services.resume.loginTokens.slice(-1)[0].when : null),
     },
     Mutation:{
-        editUserProfile(obj, {_id,email,firstname,lastname,age},{user}){
-            if(user._id){
-                const res = Meteor.users.update(
-                    {
-                        _id: _id
-                    }, {
-                        $set: {
-                            "emails[0].address": email,
-                            "profile.firstname": firstname,
-                            "profile.lastname": lastname,
-                            "profile.age": age
-                        }
-                    }
-                );
-                return res;
-            }
-            throw new Error('Unauthorized')
-        },
         setVisibility(obj, {_id,visibility},{user}){
             if(user._id){
                 const res = Meteor.users.update(
@@ -74,7 +56,7 @@ export default {
                         }
                     }
                 );
-                return Meteor.users.findOne({_id:_id});
+                return [{status:true,message:'Modification sauvegardée'}];
             }
             throw new Error('Unauthorized')
         },
@@ -89,7 +71,7 @@ export default {
                         }
                     }
                 );
-                return Meteor.users.findOne({_id:_id});
+                return [{status:true,message:'Modification réussie'}];
             }
             throw new Error('Unauthorized')
         },
@@ -106,8 +88,7 @@ export default {
                         }
                     });
                 }
-                const res = Meteor.users.findOne({_id:_id});
-                return res;
+                return [{status:true,message:'Mise à niveau du compte réussie'}];
             }
             throw new Error('Unauthorized')
         },
@@ -125,8 +106,7 @@ export default {
                         }
                     });
                 }
-                const res = Meteor.users.findOne({_id:_id});
-                return res;
+                return [{status:true,message:'Retrait de droits réussi'}];
             }
             throw new Error('Unauthorized')
         },
@@ -150,7 +130,7 @@ export default {
                         }
                     });
                 }
-                return Meteor.users.find({}).fetch() || {};
+                return [{status:true,message:'Transfert de propriété réussie'}];
             }
             throw new Error('Unauthorized')
         },
@@ -167,8 +147,7 @@ export default {
                         }
                     });
                 }
-                const res = Meteor.users.findOne({_id:_id});
-                return res;
+                return [{status:true,message:'Modification réussie'}];
             }
             throw new Error('Unauthorized')
         },
@@ -177,8 +156,9 @@ export default {
                 const adminUser = Meteor.users.findOne({_id:admin});
                 if(adminUser.settings.isAdmin){
                     const res =  Meteor.users.remove(_id);
-                    return Meteor.users.find({}).fetch() || {};
+                    return [{status:true,message:'Suppression réussie'}];
                 }
+                return [{status:false,message:'Erreur durant la suppression'}];
             }
             throw new Error('Unauthorized')
         }

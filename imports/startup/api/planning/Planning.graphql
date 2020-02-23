@@ -9,4 +9,5 @@ type MechDay{
 
 extend type Query{
     entretiensPopulatedMonth(month:Int!,year:Int!) : [MechDay]
+    entretiensPopulatedMonthByUser(month:Int!,year:Int!) : [MechDay]
 }

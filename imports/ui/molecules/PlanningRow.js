@@ -16,10 +16,23 @@ export class PlanningRow extends Component {
         this.props.triggerReleaseEntretien(this.props.entretien._id)
     }
 
+    getSocieteCell = () => {
+        if(!this.props.hideSociete){
+            return <Table.Cell textAlign="center">{this.props.entretien.societe.name}</Table.Cell>
+        }
+    }
+
+    getUserCell = () => {
+        if(!this.props.hideSociete){
+            return <Table.Cell textAlign="center">{this.props.entretien.user.firstname + " " +this.props.entretien.user.lastname}<br/>{this.props.entretien.societe.name}</Table.Cell>
+        }
+    }
+
     render() {
         if(this.props.active == "unaffected"){
             return (
                 <Table.Row key={this.props.entretien._id}>
+                    {this.getSocieteCell()}
                     <Table.Cell style={{padding:"4px 32px"}} >{this.props.entretien.vehicle.registration}</Table.Cell>
                     <Table.Cell style={{padding:"4px 32px"}} >{this.props.entretien.title}</Table.Cell>
                     <Table.Cell style={{display:"grid",gridTemplateColumns:"1fr 1fr"}}>
@@ -47,6 +60,7 @@ export class PlanningRow extends Component {
         if(this.props.active == "selectedDay"){
             return (
                 <Table.Row key={this.props.entretien._id}>
+                    {this.getUserCell()}
                     <Table.Cell style={{padding:"4px 32px"}} >{this.props.entretien.vehicle.registration}</Table.Cell>
                     <Table.Cell style={{padding:"4px 32px"}} >{this.props.entretien.title}</Table.Cell>
                     <Table.Cell style={{display:"grid",gridTemplateColumns:"1fr 1fr"}}>

@@ -13,26 +13,26 @@ export class AccountRow extends Component {
         newSociete:this.props.u.visibility,
         setAdminQuery:gql`mutation setAdmin($admin: String!,$_id: String!){
             setAdmin(admin: $admin,_id: $_id){
-                _id
-                isAdmin
+                status
+                message
             }
         }`,
         unsetAdminQuery:gql`mutation unsetAdmin($admin: String!,$_id: String!,$societe: String!){
             unsetAdmin(admin: $admin,_id: $_id,societe: $societe){
-                _id
-                isAdmin
+                status
+                message
             }
         }`,
         toggleActiveQuery:gql`mutation toggleActive($admin: String!,$_id: String!){
             toggleActive(admin: $admin,_id: $_id){
-                _id
-                activated
+                status
+                message
             }
         }`,
-        setVisibility:gql`mutation setVisibility($visibility: String!,$_id: String!){
+        setVisibilityQuery:gql`mutation setVisibility($visibility: String!,$_id: String!){
             setVisibility(visibility: $visibility,_id: $_id){
-                _id
-                visibility
+                status
+                message
             }
         }`
     }
@@ -73,9 +73,16 @@ export class AccountRow extends Component {
                 _id:_id
             }
         }).then(({data})=>{
-            this.reloadAccounts();
-            this.setState({
-                needToRefreshSociete:true
+            data.setAdmin.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.reloadAccounts();
+                    this.setState({
+                        needToRefreshSociete:true
+                    })
+                }else{
+                  this.props.toast({message:qrm.message,type:"error"});
+                }
             })
         })
     }
@@ -89,10 +96,17 @@ export class AccountRow extends Component {
                 societe:this.state.newSociete
             }
         }).then(({data})=>{
-            this.closeUnsetAdmin();
-            this.reloadAccounts();
-            this.setState({
-                needToRefreshSociete:true
+            data.unsetAdmin.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.closeUnsetAdmin();
+                    this.reloadAccounts();
+                    this.setState({
+                        needToRefreshSociete:true
+                    })
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
             })
         })
     }
@@ -105,23 +119,37 @@ export class AccountRow extends Component {
         this.props.client.mutate({
             mutation : this.state.toggleActiveQuery,
             variables:{
-            admin:Meteor.userId(),
-            _id:_id
+                admin:Meteor.userId(),
+                _id:_id
             }
         }).then(({data})=>{
-            this.reloadAccounts();
+            data.toggleActive.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.reloadAccounts();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     }
 
     setVisibility = (e, { value }) => {
         this.props.client.mutate({
-            mutation : this.state.setVisibility,
+            mutation : this.state.setVisibilityQuery,
             variables:{
                 visibility:value,
                 _id:this.props.u._id
             }
         }).then(({data})=>{
-            this.reloadAccounts();
+            data.setVisibility.map(qrm=>{
+                if(qrm.status){
+                  this.props.toast({message:qrm.message,type:"success"});
+                  this.reloadAccounts();
+                }else{
+                  this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     }
 

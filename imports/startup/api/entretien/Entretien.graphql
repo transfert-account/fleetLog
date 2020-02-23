@@ -6,7 +6,7 @@ type Entretien{
     title:String
     archived:Boolean!
     occurenceDate:String
-    user:String!
+    user:User!
     time:Float!
     status:Int!
     societe:Societe!
@@ -18,7 +18,9 @@ extend type Query{
     buEntretiens : [Entretien]
     entretien(_id:String!) : Entretien
     unaffectedEntretiens : [Entretien]
+    buUnaffectedEntretiens : [Entretien]
     entretiensOfTheDay(date:String!) : [Entretien]
+    entretiensOfTheDayByUser(date:String!) : [Entretien]
     myEntretiens : [Entretien]
 }
 

@@ -1,8 +1,6 @@
 import React, { Component, Fragment } from 'react'
 import { Table, Icon, Message, Input, Label, Button, Modal, Form } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
-import SocietePicker from '../atoms/SocietePicker';
-import ModalDatePicker from '../atoms/ModalDatePicker';
 import moment from 'moment';
 import { withRouter } from 'react-router-dom';
 import gql from 'graphql-tag';
@@ -27,11 +25,6 @@ class VehiclesRow extends Component {
         openDelete:false,
         openDocs:false,
         editing:false,
-        editVehicleQuery : gql`
-            mutation editVehicle($_id:String!,$societe:String!,$registration:String!,$firstRegistrationDate:String!,$km:Int!,$lastKmUpdate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$insurancePaid:Float!,$payementBeginDate:String!,$property:Boolean!){
-                editVehicle(_id:$_id,societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,km:$km,lastKmUpdate:$lastKmUpdate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,payementBeginDate:$payementBeginDate,property:$property)
-            }
-        `,
         deleteVehicleQuery : gql`
             mutation deleteVehicle($_id:String!){
                 deleteVehicle(_id:$_id)
@@ -84,39 +77,10 @@ class VehiclesRow extends Component {
         this.setState({editing:true})
     }
 
-    
-
-    saveEdit = () => {
-        this.closeEdit();
-        this.props.client.mutate({
-            mutation:this.state.editVehicleQuery,
-            variables:{
-                _id:this.state._id,
-                societe:this.state.newSociete,
-                registration:this.state.newRegistration,
-                firstRegistrationDate:this.state.newFirstRegistrationDate,
-                km:parseFloat(this.state.newKm),
-                lastKmUpdate:this.state.newLastKmUpdate,
-                brand:this.state.newBrand,
-                model:this.state.newModel,
-                volume:parseFloat(this.state.newVolume),
-                payload:parseFloat(this.state.newPayload),
-                color:this.state.newColor,
-                insurancePaid:parseFloat(this.state.newInsurancePaid),
-                payementBeginDate:this.state.newPayementBeginDate,
-                property:this.state.newProperty
-            }
-        }).then(({data})=>{
-            this.props.loadVehicles();
-        })
-    }
-
     downloadDoc = doc => {
-        
     }
     
     uploadDoc = doc => {
-        
     }
 
     getPayementProgress = () => {

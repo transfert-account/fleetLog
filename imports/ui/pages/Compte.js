@@ -16,8 +16,8 @@ export class Compte extends Component {
     setUserAvatarQuery : gql`
         mutation setUserAvatar($_id:String!,$avatar:String!){
           setUserAvatar(_id:$_id,avatar:$avatar){
-                _id
-                avatar
+                status
+                message
             }
         }
     `,
@@ -71,14 +71,23 @@ export class Compte extends Component {
     this.props.client.mutate({
       mutation : this.state.setUserAvatarQuery,
       variables:{
-          _id:Meteor.userId(),
-          avatar:id.toString().padStart(3,"0")+".png"
+        _id:Meteor.userId(),
+        avatar:id.toString().padStart(3,"0")+".png"
       }
     }).then(({data})=>{
-      this.setState({
-        avatar:data.setUserAvatar.avatar
-      });
+      data.setUserAvatar.map(qrm=>{
+        if(qrm.status){
+          this.props.toast({message:qrm.message,type:"success"});
+          this.loadAvatar();
+        }else{
+          this.props.toast({message:qrm.message,type:"error"});
+        }
+      })
     })
+  }
+
+  loadAvatar = () => {
+    this.props.forceReloadUser();
   }
 
   render() {
@@ -104,24 +113,13 @@ export class Compte extends Component {
         <Segment raised style={{display:"grid",gridColumnStart:"2",gridGap:"16px",placeSelf:"stretch",marginTop:"16px",padding:"24px 0",gridTemplateColumns:"1fr 3fr"}}>
           <div style={{display:"grid",borderRight:"6px solid #74b9ff"}}>
             <Header style={{placeSelf:"center"}} as='h3' icon>
-              <Icon circular name='user'/>
-              Gérer votre profil
-            </Header>
-          </div>
-          <Form style={{display:"grid",gridTemplateColumns:"2fr 3fr",gridTemplateRows:"1fr 1fr",gridGap:"8px",gridColumnGap:"32px",margin:"16px 48px 0 48px"}}>
-          
-          </Form>
-        </Segment>
-        <Segment raised style={{display:"grid",gridColumnStart:"2",gridGap:"16px",placeSelf:"stretch",marginTop:"16px",padding:"24px 0",gridTemplateColumns:"1fr 3fr"}}>
-          <div style={{display:"grid",borderRight:"6px solid #74b9ff"}}>
-            <Header style={{placeSelf:"center"}} as='h3' icon>
               <Icon circular name='user outline'/>
               Modifier votre avatar
             </Header>
           </div>
           <AvatarPicker open={this.state.openAvatar} close={this.closeAvatar} saveAvatar={this.saveAvatar} />
           <Form style={{display:"grid",gridTemplateColumns:"2fr 3fr",gridTemplateRows:"1fr 1fr",gridGap:"8px",gridColumnGap:"32px",margin:"16px 48px 0 48px"}}>
-            <img alt="userAvatar" style={{gridColumnStart:"1",gridRowEnd:"span 2",justifySelf:"center",width:"128px"}} src={'/res/avatar/'+this.state.avatar}/>
+            <img alt="userAvatar" style={{gridColumnStart:"1",gridRowEnd:"span 2",justifySelf:"center",width:"128px"}} src={'/res/avatar/'+this.props.user.avatar}/>
             <Button onClick={this.openAvatar} style={{justifySelf:"stretch",alignSelf:"center",gridRowStart:"1",gridColumnStart:"2"}} color="blue" size="big" content="Choisir ..." icon='search' labelPosition='right'/>
             <Button onClick={this.randomizeAvatar} style={{justifySelf:"stretch",alignSelf:"center",gridRowStart:"2",gridColumnStart:"2"}} color="black" size="big" content="Aleatoire !" icon='random' labelPosition='right'/>
           </Form>

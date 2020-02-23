@@ -357,11 +357,7 @@ class ControlRow extends Component {
             <Fragment>
                 <Table.Row>
                     {this.getSocieteCell()}
-                    <Table.Cell textAlign='center'>
-                        <Label size="large" color='black' horizontal>
-                            {this.props.vehicle.registration}
-                        </Label>
-                    </Table.Cell>
+                    <Table.Cell textAlign='center'>{this.props.vehicle.registration}</Table.Cell>
                     <Table.Cell textAlign='center'>
                         {this.props.vehicle.brand.name + " - " + this.props.vehicle.model.name}
                     </Table.Cell>

@@ -228,7 +228,7 @@ class BUEntretiens extends Component {
                         <Form style={{display:"grid",gridTemplateRows:"1fr",gridTemplateColumns:"1fr",gridGap:"16px"}}>
                             <Form.Field>
                                 <label>Véhicule associé</label>
-                                <VehiclePicker hideLocations onChange={this.handleChangeVehicle}/>
+                                <VehiclePicker societeRestricted={true} hideLocations onChange={this.handleChangeVehicle}/>
                             </Form.Field>
                         </Form>
                     </Modal.Content>

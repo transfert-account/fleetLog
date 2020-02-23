@@ -34,25 +34,16 @@ export class Accounts extends Component {
     `,
     setOwnerQuery:gql`mutation setOwner($owner: String!,$_id: String!){
       setOwner(owner: $owner,_id: $_id){
-          _id
-          isOwner
+        status
+        message
       }
     }`,
     users:[],
     usersFilter: "",
     deleteAccountQuery:gql`mutation deleteAccount($admin: String!,$_id: String!){
       deleteAccount(admin: $admin,_id: $_id){
-        _id
-        email
-        isAdmin
-        isOwner
-        verified
-        firstname
-        lastname
-        createdAt
-        lastLogin
-        activated
-        visibility
+        status
+        message
       }
     }`,
     societesQuery : gql`
@@ -88,9 +79,14 @@ export class Accounts extends Component {
           _id:_id
         }
     }).then(({data})=>{
-      this.setState({
-        users:data.deleteAccount
-      });
+      data.deleteAccount.map(qrm=>{
+        if(qrm.status){
+          this.props.toast({message:qrm.message,type:"success"});
+          this.loadAccounts();
+        }else{
+          this.props.toast({message:qrm.message,type:"error"});
+        }
+      })
     })
   }
 
@@ -145,8 +141,15 @@ export class Accounts extends Component {
         _id:_id
       }
     }).then(({data})=>{
-      this.loadAccounts();
-      this.props.forceReloadUser();
+      data.setOwner.map(qrm=>{
+        if(qrm.status){
+          this.props.toast({message:qrm.message,type:"success"});
+          this.loadAccounts();
+          this.props.forceReloadUser();
+        }else{
+          this.props.toast({message:qrm.message,type:"error"});
+        }
+      })
     })
   }
 
