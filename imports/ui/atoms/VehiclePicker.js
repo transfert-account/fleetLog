@@ -45,14 +45,18 @@ class VehiclePicker extends Component {
                     }
                     registration
                     km
-                    brand
-                    model
+                    brand{
+                        _id
+                        name
+                    }
+                    model{
+                        _id
+                        name
+                    }
                     volume{
                         _id
                         meterCube
                     }
-                    payload
-                    color
                 }
             }
         `,

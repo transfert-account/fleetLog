@@ -27,7 +27,14 @@ class EntretienRow extends Component {
                     </Table.Cell>
                 )
             }else{
-                return(<Table.Cell textAlign="center">-</Table.Cell>)
+                return(
+                    <Table.Cell textAlign="center">
+                        <Label color="grey" image>
+                            <Icon style={{margin:"0"}} name='clipboard' />
+                            <Label.Detail>{q}</Label.Detail>
+                        </Label>
+                    </Table.Cell>
+                )
             }
         }
         if(state == 2){
@@ -42,7 +49,14 @@ class EntretienRow extends Component {
                     </Table.Cell>
                 )
             }else{
-                return(<Table.Cell textAlign="center">-</Table.Cell>)
+                return(
+                    <Table.Cell textAlign="center">
+                        <Label color="grey" image>
+                            <Icon style={{margin:"0"}} name='truck' />
+                            <Label.Detail>{q}</Label.Detail>
+                        </Label>
+                    </Table.Cell>
+                )
             }
         }
         if(state == 3){
@@ -57,8 +71,21 @@ class EntretienRow extends Component {
                     </Table.Cell>
                 )
             }else{
-                return(<Table.Cell textAlign="center">-</Table.Cell>)
+                return(
+                    <Table.Cell textAlign="center">
+                        <Label color="grey" image>
+                            <Icon style={{margin:"0"}} name='check' />
+                            <Label.Detail>{q}</Label.Detail>
+                        </Label>
+                    </Table.Cell>
+                )
             }
+        }
+    }
+
+    getSocieteCell = () => {
+        if(!this.props.hideSociete){
+            return <Table.Cell textAlign="center">{this.props.entretien.societe.name}</Table.Cell>
         }
     }
 
@@ -66,7 +93,8 @@ class EntretienRow extends Component {
         return (
             <Fragment>
                 <Table.Row>
-                    <Table.Cell>{this.props.entretien.vehicle.registration}</Table.Cell>
+                    {this.getSocieteCell()}
+                    <Table.Cell textAlign="center">{this.props.entretien.vehicle.registration}</Table.Cell>
                     <Table.Cell>{this.props.entretien.title}</Table.Cell>
                     <Table.Cell>{this.props.entretien.description.substring(0,128)}</Table.Cell>
                     {this.getOrderState(1)}

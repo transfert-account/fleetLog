@@ -5,7 +5,7 @@ import EntretienRow from '../molecules/EntretienRow';
 import VehiclePicker from '../atoms/VehiclePicker';
 import { gql } from 'apollo-server-express';
 
-class Entretiens extends Component {
+class BUEntretiens extends Component {
 
     state={
         entretienFilter:"",
@@ -34,7 +34,7 @@ class Entretiens extends Component {
                 e.archived == this.state.filterArchive
             );
             return displayed.map(e =>(
-                <EntretienRow loadEntretiens={this.loadEntretiens} key={e._id} entretien={e}/>
+                <EntretienRow hideSociete loadEntretiens={this.loadEntretiens} key={e._id} entretien={e}/>
             ))
         },
         addEntretienQuery : gql`
@@ -45,9 +45,9 @@ class Entretiens extends Component {
                 }
             }
         `,
-        entretiensQuery : gql`
-            query entretiens{
-                entretiens{
+        buEntretiensQuery : gql`
+            query buEntretiens{
+                buEntretiens{
                     _id
                     description
                     archived
@@ -164,11 +164,11 @@ class Entretiens extends Component {
 
     loadEntretiens = () => {
         this.props.client.query({
-            query:this.state.entretiensQuery,
+            query:this.state.buEntretiensQuery,
             fetchPolicy:"network-only"
         }).then(({data})=>{
             this.setState({
-                entretiensRaw:data.entretiens
+                entretiensRaw:data.buEntretiens
             })
         })
     }
@@ -206,10 +206,9 @@ class Entretiens extends Component {
                     <Table style={{marginBottom:"0"}} celled selectable color={this.getArchiveFilterColor()} compact>
                         <Table.Header>
                             <Table.Row textAlign='center'>
-                                <Table.HeaderCell width="2">Societe</Table.HeaderCell>
                                 <Table.HeaderCell width="2">Vehicule</Table.HeaderCell>
-                                <Table.HeaderCell width="2">Titre</Table.HeaderCell>
-                                <Table.HeaderCell width="5">Description de l'entretien</Table.HeaderCell>
+                                <Table.HeaderCell width="3">Titre</Table.HeaderCell>
+                                <Table.HeaderCell width="6">Description de l'entretien</Table.HeaderCell>
                                 <Table.HeaderCell width="1">A commander</Table.HeaderCell>
                                 <Table.HeaderCell width="1">Commandé</Table.HeaderCell>
                                 <Table.HeaderCell width="1">Prêt</Table.HeaderCell>
@@ -229,7 +228,7 @@ class Entretiens extends Component {
                         <Form style={{display:"grid",gridTemplateRows:"1fr",gridTemplateColumns:"1fr",gridGap:"16px"}}>
                             <Form.Field>
                                 <label>Véhicule associé</label>
-                                <VehiclePicker hideLocations={true} onChange={this.handleChangeVehicle}/>
+                                <VehiclePicker hideLocations onChange={this.handleChangeVehicle}/>
                             </Form.Field>
                         </Form>
                     </Modal.Content>
@@ -248,4 +247,4 @@ const withUserContext = WrappedComponent => props => (
     </UserContext.Consumer>
 )
 
-export default wrappedInUserContext = withUserContext(Entretiens);
+export default wrappedInUserContext = withUserContext(BUEntretiens);

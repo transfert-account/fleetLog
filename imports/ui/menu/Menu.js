@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import MenuItemList from './MenuItemList';
 import { Link,withRouter } from 'react-router-dom';
 import { UserContext } from '../../contexts/UserContext';
-import { Icon, Dropdown } from 'semantic-ui-react';
+import { Icon, Label } from 'semantic-ui-react';
 
 class Menu extends Component {
 
@@ -33,6 +33,13 @@ class Menu extends Component {
         icon:"calendar"
       },
       {
+        name:"fournisseurs",
+        active:"fournisseurs",
+        label:"Fournisseurs",
+        display:true,
+        icon:"sitemap"
+      },
+      {
         name:"batiment",
         active:"batiment",
         label:"Batiment",
@@ -40,11 +47,11 @@ class Menu extends Component {
         icon:"warehouse"
       },
       {
-        name:"fournisseurs",
-        active:"fournisseurs",
-        label:"Fournisseurs",
+        name:"compte",
+        active:"compte",
+        label:"Compte",
         display:true,
-        icon:"sitemap"
+        icon:"user"
       },
       {
         name:"accidentologie",
@@ -77,18 +84,18 @@ class Menu extends Component {
         icon:"calendar"
       },
       {
-        name:"batiment",
-        active:"batiment",
-        label:"Batiment",
-        display:true,
-        icon:"warehouse"
-      },
-      {
         name:"fournisseurs",
         active:"fournisseurs",
         label:"Fournisseurs",
         display:true,
         icon:"sitemap"
+      },
+      {
+        name:"batiment",
+        active:"batiment",
+        label:"Batiment",
+        display:true,
+        icon:"warehouse"
       },
       {
         name:"accidentologie",
@@ -166,7 +173,18 @@ class Menu extends Component {
               </li>
             </Link>
             <hr style={{width:"80%",margin:"8px auto"}}/>
-            <p>{this.props.user.firstname + " " + this.props.user.lastname}<br/>{this.props.user.societe.name}</p>
+            <p style={{margin:"4px"}}>{this.props.user.firstname + " " + this.props.user.lastname}</p>
+            {(this.props.user.isOwner ? 
+              <Label color="blue" image>
+                  <Icon style={{margin:"0"}} name='certificate' />
+                  <Label.Detail>Propriétaire</Label.Detail>
+              </Label>
+            :
+              <Label color="green" image>
+                  <Icon style={{margin:"0"}} name='user' />
+                  <Label.Detail>{this.props.user.societe.name}</Label.Detail>
+              </Label>
+            )}
             <hr style={{width:"80%",margin:"8px auto"}}/>
             <MenuItemList menuItems={this.getMenuItemsList()}/>
             <li onClick={()=>{Meteor.logout();this.props.client.cache.reset();this.props.history.push("/")}} className={"menuItemRed"} style={{cursor:"pointer"}}>

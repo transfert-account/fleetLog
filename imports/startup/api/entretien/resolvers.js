@@ -58,6 +58,65 @@ export default {
                 }else{
                     e.vehicle.volume = {_id:""};
                 }
+                if(e.societe != null && e.societe.length > 0){
+                    e.societe = Societes.findOne({_id:new Mongo.ObjectID(e.societe)});
+                }else{
+                    e.societe = {_id:"",name:""};
+                }
+                e.piece = Pieces.findOne({_id:new Mongo.ObjectID(e.piece)});
+            });
+            return entretiens;
+        },
+        buEntretiens(obj, args,{user}){
+            let userFull = Meteor.users.findOne({_id:user._id});
+            let entretiens = Entretiens.find({societe:userFull.settings.visibility}).fetch() || {};
+            entretiens.forEach((e,i) => {
+                e.commandes = Commandes.find({entretien:e._id._str}).fetch() || [];
+                e.commandes.forEach(c => {
+                    c.piece = Pieces.findOne({_id:new Mongo.ObjectID(c.piece)});
+                });
+                if(Vehicles.findOne({_id:new Mongo.ObjectID(e.vehicle)}) == undefined){
+                    e.vehicle = Locations.findOne({_id:new Mongo.ObjectID(e.vehicle)});
+                }else{
+                    e.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(e.vehicle)});
+                }
+                e.vehicle.lastKmUpdate = e.vehicle.kms[e.vehicle.kms.length-1].reportDate
+                e.vehicle.km = e.vehicle.kms[e.vehicle.kms.length-1].kmValue
+                if(e.vehicle.societe != null && e.vehicle.societe.length > 0){
+                    entretiens[i].vehicle.societe = Societes.findOne({_id:new Mongo.ObjectID(e.vehicle.societe)});
+                }else{
+                    entretiens[i].vehicle.societe = {_id:"",name:""};
+                }
+                if(e.vehicle.brand != null && e.vehicle.brand.length > 0){
+                    e.vehicle.brand = Brands.findOne({_id:new Mongo.ObjectID(e.vehicle.brand)});
+                }else{
+                    e.vehicle.brand = {_id:""};
+                }
+                if(e.vehicle.model != null && e.vehicle.model.length > 0){
+                    e.vehicle.model = Models.findOne({_id:new Mongo.ObjectID(e.vehicle.model)});
+                }else{
+                    e.vehicle.model = {_id:""};
+                }
+                if(e.vehicle.payementOrg != null && e.vehicle.payementOrg.length > 0){
+                    e.vehicle.payementOrg = Organisms.findOne({_id:new Mongo.ObjectID(e.vehicle.payementOrg)});
+                }else{
+                    e.vehicle.payementOrg = {_id:""};
+                }
+                if(e.vehicle.color != null && e.vehicle.color.length > 0){
+                    e.vehicle.color = Colors.findOne({_id:new Mongo.ObjectID(e.vehicle.color)});
+                }else{
+                    e.vehicle.color = {_id:""};
+                }
+                if(e.vehicle.volume != null && e.vehicle.volume.length > 0){
+                    e.vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(e.vehicle.volume)});
+                }else{
+                    e.vehicle.volume = {_id:""};
+                }
+                if(e.societe != null && e.societe.length > 0){
+                    e.societe = Societes.findOne({_id:new Mongo.ObjectID(e.societe)});
+                }else{
+                    e.societe = {_id:"",name:""};
+                }
                 e.piece = Pieces.findOne({_id:new Mongo.ObjectID(e.piece)});
             });
             return entretiens;
@@ -104,6 +163,11 @@ export default {
                 }else{
                     e.vehicle.volume = {_id:""};
                 }
+                if(e.societe != null && e.societe.length > 0){
+                    e.societe = Societes.findOne({_id:new Mongo.ObjectID(e.societe)});
+                }else{
+                    e.societe = {_id:"",name:""};
+                }
             });
             return entretiens;
         },
@@ -144,6 +208,11 @@ export default {
                     e.vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(e.vehicle.volume)});
                 }else{
                     e.vehicle.volume = {_id:""};
+                }
+                if(e.societe != null && e.societe.length > 0){
+                    e.societe = Societes.findOne({_id:new Mongo.ObjectID(e.societe)});
+                }else{
+                    e.societe = {_id:"",name:""};
                 }
                 e.piece = Pieces.findOne({_id:new Mongo.ObjectID(e.piece)});
             });
@@ -207,6 +276,11 @@ export default {
                 }else{
                     e.vehicle.volume = {_id:""};
                 }
+                if(e.societe != null && e.societe.length > 0){
+                    e.societe = Societes.findOne({_id:new Mongo.ObjectID(e.societe)});
+                }else{
+                    e.societe = {_id:"",name:""};
+                }
                 e.piece = Pieces.findOne({_id:new Mongo.ObjectID(e.piece)});
             });
             return entretiens;
@@ -257,6 +331,7 @@ export default {
     Mutation:{
         addEntretien(obj, {vehicle},{user}){
             if(user._id){
+                let v = Vehicles.findOne({_id:new Mongo.ObjectID(vehicle)});
                 Entretiens.insert({
                     _id:new Mongo.ObjectID(),
                     piece:"",
@@ -266,7 +341,8 @@ export default {
                     occurenceDate:"",
                     user:"",
                     time:0,
-                    status:1
+                    status:1,
+                    societe:v.societe
                 });
                 return [{status:true,message:'Création réussie'}];
             }

@@ -9,11 +9,13 @@ type Entretien{
     user:String!
     time:Float!
     status:Int!
+    societe:Societe!
     commandes:[Commande]
 }
 
 extend type Query{
     entretiens : [Entretien]
+    buEntretiens : [Entretien]
     entretien(_id:String!) : Entretien
     unaffectedEntretiens : [Entretien]
     entretiensOfTheDay(date:String!) : [Entretien]

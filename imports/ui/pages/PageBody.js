@@ -4,23 +4,30 @@ import Home from './Home';
 
 import Vehicles from './Vehicles';
 import BUVehicles from './BUVehicles';
+import Vehicle from './Vehicle';
 
 import Locations from './Locations';
 import BULocations from './BULocations';
-
-import Vehicle from './Vehicle';
-import Controls from './Controls';
-import Licences from './Licences';
 import Location from './Location';
+
+import Entretiens from './Entretiens';
+import BUEntretiens from './BUEntretiens';
+import Entretien from './Entretien';
+
+import Controls from './Controls';
+import BUControls from './BUControls';
+
+import Licences from './Licences';
+
+import Planning from './Planning';
+import Fournisseurs from './Fournisseurs';
+import Accidentologie from './Accidentologie';
+
 import Compte from './Compte';
 import Accounts from './Accounts';
 import Content from './Content';
 import Equipements from './Equipements';
-import Fournisseurs from './Fournisseurs';
-import Accidentologie from './Accidentologie';
-import Planning from './Planning';
-import Entretiens from './Entretiens';
-import Entretien from './Entretien';
+
 import Pieces from './Pieces';
 import { UserContext } from '../../contexts/UserContext';
 
@@ -81,12 +88,12 @@ class PageBody extends Component {
             
             <Route exact path='/parc/vehicles' component={BUVehicles}/>
             <Route exact path='/parc/vehicle/:_id' component={Vehicle}/>
-            <Route exact path='/parc/controls' component={Controls}/>
+            <Route exact path='/parc/controls' component={BUControls}/>
             <Route exact path='/parc/licences' component={Licences}/>
             <Route exact path='/parc/locations' component={BULocations}/>
             <Route exact path='/parc/location/:_id' component={Location}/>
 
-            <Route exact path='/entretiens' component={Entretiens}/>
+            <Route exact path='/entretiens' component={BUEntretiens}/>
             <Route exact path='/entretien/:_id' component={Entretien}/>
 
             <Route exact path='/planning/:y/:m' component={Planning}/>
@@ -112,12 +119,12 @@ class PageBody extends Component {
 
           <Route exact path='/parc/vehicles' component={BUVehicles}/>
           <Route exact path='/parc/vehicle/:_id' component={Vehicle}/>
-          <Route exact path='/parc/controls' component={Controls}/>
+          <Route exact path='/parc/controls' component={BUControls}/>
           <Route exact path='/parc/licences' component={Licences}/>
           <Route exact path='/parc/locations' component={BULocations}/>
           <Route exact path='/parc/location/:_id' component={Location}/>
 
-          <Route exact path='/entretiens' component={Entretiens}/>
+          <Route exact path='/entretiens' component={BUEntretiens}/>
           <Route exact path='/entretien/:_id' component={Entretien}/>
 
           <Route exact path='/planning/:y/:m' component={Planning}/>

@@ -6,12 +6,12 @@ import { gql } from 'apollo-server-express';
 import moment from 'moment';
 import 'moment/locale/fr';
 
-export class Controls extends Component {
+export class BUControls extends Component {
 
   state={
-    vehiclesQuery : gql`
-        query vehicles{
-            vehicles{
+    buVehiclesQuery : gql`
+        query buVehicles{
+            buVehicles{
                 _id
                 societe{
                     _id
@@ -88,10 +88,9 @@ export class Controls extends Component {
         }
         let displayed = Array.from(this.state.vehiclesRaw);
         return displayed.map(i =>(
-            <ControlRow loadVehicles={this.loadVehicles} equipementDescriptionsRaw={this.state.equipementDescriptionsRaw} key={i._id} vehicle={i}/>
+            <ControlRow hideSociete={true} loadVehicles={this.loadVehicles} equipementDescriptionsRaw={this.state.equipementDescriptionsRaw} key={i._id} vehicle={i}/>
         ))
-    },
-    
+    }
   }
 
   handleChange = e =>{
@@ -102,10 +101,10 @@ export class Controls extends Component {
 
   loadVehicles = () => {
     this.props.client.query({
-        query:this.state.vehiclesQuery,
+        query:this.state.buVehiclesQuery,
         fetchPolicy:"network-only"
     }).then(({data})=>{
-        data.vehicles.map(v=>{
+        data.buVehicles.map(v=>{
             v.red = 0;
             v.orange = 0;
             v.green = 0;
@@ -154,7 +153,7 @@ export class Controls extends Component {
             })
         })
         this.setState({
-            vehiclesRaw:data.vehicles
+            vehiclesRaw:data.buVehicles
         })
     })
   }
@@ -194,12 +193,11 @@ export class Controls extends Component {
                     <Table style={{marginBottom:"0"}} celled selectable color="blue" compact>
                         <Table.Header>
                             <Table.Row>
-                                <Table.HeaderCell textAlign='center' width={2}>Societe</Table.HeaderCell>
                                 <Table.HeaderCell textAlign='center' width={2}>Immatriculation</Table.HeaderCell>
-                                <Table.HeaderCell textAlign='center' width={7}>Véhicule</Table.HeaderCell>
-                                <Table.HeaderCell textAlign='center' width={1}>OK</Table.HeaderCell>
-                                <Table.HeaderCell textAlign='center' width={1}>Urgent</Table.HeaderCell>
-                                <Table.HeaderCell textAlign='center' width={1}>En retard</Table.HeaderCell>
+                                <Table.HeaderCell textAlign='center' width={6}>Véhicule</Table.HeaderCell>
+                                <Table.HeaderCell textAlign='center' width={2}>OK</Table.HeaderCell>
+                                <Table.HeaderCell textAlign='center' width={2}>Urgent</Table.HeaderCell>
+                                <Table.HeaderCell textAlign='center' width={2}>En retard</Table.HeaderCell>
                                 <Table.HeaderCell textAlign='center' width={2}>Actions</Table.HeaderCell>
                             </Table.Row>
                         </Table.Header>
@@ -223,4 +221,4 @@ const withUserContext = WrappedComponent => props => (
   </UserContext.Consumer>
 )
 
-export default wrappedInUserContext = withUserContext(Controls);
+export default wrappedInUserContext = withUserContext(BUControls);

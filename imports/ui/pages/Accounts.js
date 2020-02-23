@@ -146,6 +146,7 @@ export class Accounts extends Component {
       }
     }).then(({data})=>{
       this.loadAccounts();
+      this.props.forceReloadUser();
     })
   }
 

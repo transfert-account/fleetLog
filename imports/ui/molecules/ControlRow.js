@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import { Table, Dropdown, Button, Modal, Form, Label, Icon, Segment, Header } from 'semantic-ui-react';
+import { Table, Dropdown, Button, Modal, Form, Label, Icon, Header } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 import ModalDatePicker from '../atoms/ModalDatePicker'
 import gql from 'graphql-tag';
@@ -223,18 +223,31 @@ class ControlRow extends Component {
             }
         }
     }
+    showDetailed = detailed => {
+        this.setState({detailed:detailed})
+    }
     getDetailShowAndHideButton = () => {
-        if(this.state.detailed){
-            return <Button size="tiny" style={{gridColumnStart:"5"}} icon color="teal" onClick={()=>{this.setState({detailed:false})}} labelPosition='right'> Contrôles <Icon name='angle double up' /></Button>
-        }else{
-            return <Button size="tiny" style={{gridColumnStart:"5"}} icon color="teal" onClick={()=>{this.setState({detailed:true})}} labelPosition='right'> Contrôles <Icon name='angle double down' /></Button>
+        if(this.props.vehicle.equipements.length > 0){
+            if(this.state.detailed){
+                return <Button circular style={{color:"#00a8ff"}} inverted icon icon='angle double up' onClick={()=>{this.showDetailed(false)}}/>
+            }else{
+                return <Button circular style={{color:"#00a8ff"}} inverted icon icon='angle double down' onClick={()=>{this.showDetailed(true)}}/>
+            }
         }
     }
     getRed = () => {
         if(this.props.vehicle.red > 0){
             return (
-                <Label circular color='red' horizontal>
-                    {this.props.vehicle.red}
+                <Label color="red" image>
+                    <Icon style={{margin:"0"}} name='warning sign' />
+                    <Label.Detail>{this.props.vehicle.red}</Label.Detail>
+                </Label>
+            )
+        }else{
+            return (
+                <Label color="grey" image>
+                    <Icon style={{margin:"0"}} name='warning sign' />
+                    <Label.Detail>{this.props.vehicle.red}</Label.Detail>
                 </Label>
             )
         }
@@ -242,24 +255,41 @@ class ControlRow extends Component {
     getOrange = () => {
         if(this.props.vehicle.orange > 0){
             return (
-                <Label circular color='orange' horizontal>
-                    {this.props.vehicle.orange}
+                <Label color="orange" image>
+                    <Icon style={{margin:"0"}} name='clock' />
+                    <Label.Detail>{this.props.vehicle.orange}</Label.Detail>
+                </Label>
+            )
+        }else{
+            return (
+                <Label color="grey" image>
+                    <Icon style={{margin:"0"}} name='clock' />
+                    <Label.Detail>{this.props.vehicle.orange}</Label.Detail>
                 </Label>
             )
         }
     }
     getGreen = () => {
-        if(this.props.vehicle.red + this.props.vehicle.orange == 0){
+        if(this.props.vehicle.green > 0){
             return (
-                <Label circular color='green' horizontal>
-                    {this.props.vehicle.green}
+                <Label color="green" image>
+                    <Icon style={{margin:"0"}} name='check' />
+                    <Label.Detail>{this.props.vehicle.green}</Label.Detail>
                 </Label>
             )
         }else{
-            if(this.props.vehicle.green > 0){
+            if(this.props.vehicle.red == 0 && this.props.vehicle.orange == 0){
                 return (
-                    <Label circular color='green' horizontal>
-                        {this.props.vehicle.green}
+                    <Label color="green" image>
+                        <Icon style={{margin:"0"}} name='check' />
+                        <Label.Detail>{this.props.vehicle.green}</Label.Detail>
+                    </Label>
+                )
+            }else{
+                return (
+                    <Label color="grey" image>
+                        <Icon style={{margin:"0"}} name='check' />
+                        <Label.Detail>{this.props.vehicle.green}</Label.Detail>
                     </Label>
                 )
             }
@@ -277,56 +307,72 @@ class ControlRow extends Component {
     getEquipementRows = () => {
         if(this.state.detailed){
             return (
-                <Table style={{marginBottom:"40px"}} celled selectable compact='very'>
-                    <Table.Header>
-                        <Table.Row textAlign='center'>
-                            <Table.HeaderCell width={2}>Nom</Table.HeaderCell>
-                            <Table.HeaderCell width={3}>Attaché le</Table.HeaderCell>
-                            <Table.HeaderCell width={3}>Dernier contrôle</Table.HeaderCell>
-                            <Table.HeaderCell width={3}>Prochain contrôle</Table.HeaderCell>
-                            <Table.HeaderCell width={2}>Actions</Table.HeaderCell>
-                        </Table.Row>
-                    </Table.Header>
-                    <Table.Body>
-                        {this.props.vehicle.equipements.map(e=>{
-                            return(
-                                <Table.Row key={e._id}>
-                                    <Table.Cell>{e.equipementDescription.name}</Table.Cell>
-                                    <Table.Cell>
-                                        {e.attachementDate}
-                                        <Label style={{marginLeft:"16px"}} size="small" horizontal>
-                                            {this.getTimeBetween(e.attachementDate)}
-                                        </Label>
-                                    </Table.Cell>
-                                    <Table.Cell>{this.getLastControlCell(e)}</Table.Cell>
-                                    <Table.Cell>{this.getNextControlCell(e)}</Table.Cell>
-                                    <Table.Cell textAlign="center">
-                                        <Button circular color="green" inverted icon onClick={()=>{this.showUpdateControlDate(e._id)}} icon="wrench" />
-                                        <Button circular color="red" inverted icon onClick={()=>{this.showDissociateEquipement(e._id)}} icon="cancel" />
-                                    </Table.Cell>
+                <Table.Row>
+                    <Table.Cell colSpan={7}>
+                        <Table inverted celled selectable compact='very'>
+                            <Table.Header>
+                                <Table.Row textAlign='center'>
+                                    <Table.HeaderCell width={2}>Nom</Table.HeaderCell>
+                                    <Table.HeaderCell width={3}>Attaché le</Table.HeaderCell>
+                                    <Table.HeaderCell width={3}>Dernier contrôle</Table.HeaderCell>
+                                    <Table.HeaderCell width={3}>Prochain contrôle</Table.HeaderCell>
+                                    <Table.HeaderCell width={2}>Actions</Table.HeaderCell>
                                 </Table.Row>
-                            )
-                        })}
-                    </Table.Body>
-                </Table>
+                            </Table.Header>
+                            <Table.Body>
+                                {this.props.vehicle.equipements.map(e=>{
+                                    return(
+                                        <Table.Row key={e._id}>
+                                            <Table.Cell>{e.equipementDescription.name}</Table.Cell>
+                                            <Table.Cell>
+                                                {e.attachementDate}
+                                                <Label style={{marginLeft:"16px"}} size="small" horizontal>
+                                                    {this.getTimeBetween(e.attachementDate)}
+                                                </Label>
+                                            </Table.Cell>
+                                            <Table.Cell>{this.getLastControlCell(e)}</Table.Cell>
+                                            <Table.Cell>{this.getNextControlCell(e)}</Table.Cell>
+                                            <Table.Cell textAlign="center">
+                                                <Button circular color="green" inverted icon onClick={()=>{this.showUpdateControlDate(e._id)}} icon="wrench" />
+                                                <Button circular color="red" inverted icon onClick={()=>{this.showDissociateEquipement(e._id)}} icon="cancel" />
+                                            </Table.Cell>
+                                        </Table.Row>
+                                    )
+                                })}
+                            </Table.Body>
+                        </Table>
+                    </Table.Cell>
+                </Table.Row>
             )
+        }
+    }
+    getSocieteCell = () => {
+        if(!this.props.hideSociete){
+            return <Table.Cell textAlign='center'>{this.props.vehicle.societe.name}</Table.Cell>
         }
     }
 
     render() {
         return (
             <Fragment>
-                <Segment style={{display:'grid',gridTemplateColumns:"auto 1fr 8fr auto auto"}}>
-                    <div style={{display:"inline",marginBottom:"0"}}>
+                <Table.Row>
+                    {this.getSocieteCell()}
+                    <Table.Cell textAlign='center'>
                         <Label size="large" color='black' horizontal>
                             {this.props.vehicle.registration}
                         </Label>
-                    </div>
-                    {this.getAlertLabel()}
-                    <div style={{placeSelf:"center"}}>{"["+this.props.vehicle.societe.name + "] "}    <Header style={{margin:"auto 32px",display:"inline"}} size='medium'>{this.props.vehicle.brand.name + " - " + this.props.vehicle.model.name}</Header>{" (" + this.props.vehicle.km + " km)"}</div>
-                    <Button size="tiny" style={{gridColumnStart:"4"}} icon color="blue" onClick={this.showAttachEquipement} labelPosition='right'> Attacher un contrôle <Icon name='plus' /></Button>
-                    {this.getDetailShowAndHideButton()}
-                </Segment>
+                    </Table.Cell>
+                    <Table.Cell textAlign='center'>
+                        {this.props.vehicle.brand.name + " - " + this.props.vehicle.model.name}
+                    </Table.Cell>
+                    <Table.Cell textAlign='center'>{this.getGreen()}</Table.Cell>
+                    <Table.Cell textAlign='center'>{this.getOrange()}</Table.Cell>
+                    <Table.Cell textAlign='center'>{this.getRed()}</Table.Cell>
+                    <Table.Cell textAlign='center'>
+                        <Button circular style={{color:"#a29bfe"}} inverted icon icon='plus' onClick={this.showAttachEquipement}/>
+                        {this.getDetailShowAndHideButton()}
+                    </Table.Cell>
+                </Table.Row>
                 {this.getEquipementRows()}
                 <Modal closeOnDimmerClick={false} open={this.state.openAttachEquipement} onClose={this.closeAttachEquipement} closeIcon>
                     <Modal.Header>
