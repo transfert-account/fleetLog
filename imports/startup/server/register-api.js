@@ -55,10 +55,13 @@ import OrganismResolvers from '../api/organism/resolvers.js';
 import ColorSchema from '../api/color/Color.graphql';
 import ColorResolvers from '../api/color/resolvers.js';
 
+import DashboardSchema from '../api/dashboard/dashboard.graphql';
+import DashboardResolvers from '../api/dashboard/resolvers.js';
+
 import TestSchema from '../api/test/Test.graphql';
 import TestResolvers from '../api/test/resolvers.js';
 
-// #0253
+// #0258
 
 const typeDefs = [
     UserSchema,
@@ -78,6 +81,7 @@ const typeDefs = [
     ModelSchema,
     OrganismSchema,
     ColorSchema,
+    DashboardSchema,
     TestSchema
 ];
 
@@ -99,6 +103,7 @@ const resolvers = merge(
     ModelResolvers,
     OrganismResolvers,
     ColorResolvers,
+    DashboardResolvers,
     TestResolvers
 );
 

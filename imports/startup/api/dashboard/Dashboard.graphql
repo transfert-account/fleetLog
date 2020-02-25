@@ -1,0 +1,26 @@
+type DashboardSocieteInfo{
+    societe:Societe
+    vehicles:Int
+    vehiclesLate:Int
+    vehiclesVeryLate:Int
+    locations:Int
+    locationsLate:Int
+    locationsVeryLate:Int
+    controlsOk:Int
+    controlsUrgent:Int
+    controlsLate:Int
+    licences:Int
+    licencesEndSoon:Int
+    licencesOver:Int
+    entretiensNotReady:Int
+    entretiensReadyAffected:Int
+    entretiensReadyUnaffected:Int
+    commandesToDo:Int
+    commandesDone:Int
+    commandesReceived:Int
+}
+
+extend type Query{
+    dashboard : DashboardSocieteInfo
+    dashboards : [DashboardSocieteInfo]
+}

@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
-import { Button, Input, Icon, Modal, Form, Message, Image } from 'semantic-ui-react';
+import { Button, Input, Icon, Modal, Form, Message } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
+import Dashboards from './Dashboards';
+import BUDashboards from './BUDashboards';
 import SocietePicker from '../atoms/SocietePicker';
 import anime from "animejs";
 
@@ -123,32 +125,28 @@ export class Home extends Component {
   }
 
   render() {
-    const { firstname,lastname,password,passwordAgain,mail,societe } = this.state;
-    let error = false;
-    let errorContent = "";
-    if(password != passwordAgain){
-      error = true;
-      errorContent = "Les mots de passe sont different";
-    }
-    /*if(!mail.endsWith('@exemple.com')){
-      error = true;
-      errorContent = "Le format de l'adresse mail n'est pas user@exemple.com";
-    }*/
-    if(firstname == "" || lastname == "" || password == "" || passwordAgain == "" || mail == "" || societe == ""){
-      error = true;
-      errorContent = "Tous les champs doivent être renseignés";
-    }
     if(this.props.user._id != null){
-      return (
-        <div style={{display:"grid",marginTop:"40px",gridTemplateColumns:"1fr 250px 512px 250px 1fr",gridTemplateRows:"512px 60px 60px 240px 80px",flexWrap:"wrap",justifyContent:"center",width:"100%"}}>
-          <img style={{width:"800px",gridColumnStart:"2",gridColumnEnd:"span 3",placeSelf:"center"}} src={"/res/semanticui.png"} alt="titleLogo"/>
-          <p style={{placeSelf:"center",gridColumnStart:"2",gridColumnEnd:"span 3",gridRowStart:"4",}}>
-            Optimisé pour Google Chome <Image style={{margin:"0 12px",display:"inline",width:"48px",height:"48px"}} src="/res/chrome.png"/>
-            & Mozilla Firefox <Image style={{margin:"0 12px",display:"inline",width:"48px",height:"48px"}} src="/res/firefox.png"/>
-          </p>
-        </div>
-      )
+      if(this.props.user.isOwner){
+        return <Dashboards/>
+      }else{
+        return <BUDashboards/>
+      }
     }else{
+      const { firstname,lastname,password,passwordAgain,mail,societe } = this.state;
+      let error = false;
+      let errorContent = "";
+      if(password != passwordAgain){
+        error = true;
+        errorContent = "Les mots de passe sont different";
+      }
+      /*if(!mail.endsWith('@exemple.com')){
+        error = true;
+        errorContent = "Le format de l'adresse mail n'est pas user@exemple.com";
+      }*/
+      if(firstname == "" || lastname == "" || password == "" || passwordAgain == "" || mail == "" || societe == ""){
+        error = true;
+        errorContent = "Tous les champs doivent être renseignés";
+      }
       return (
         <div style={{display:"grid",gridTemplateColumns:"1fr 840px 1fr",marginTop:"40px",gridTemplateRows:"32px 1fr 64px",justifyContent:"center",width:"100%"}}>
           <div style={{padding:"16px",display:"grid",gridColumnStart:"2",gridRowStart:"2",backgroundColor:"rgba(0,0,0,.2)",gridTemplateColumns:"16px 1fr 16px",gridTemplateRows:"360px auto 64px"}}>

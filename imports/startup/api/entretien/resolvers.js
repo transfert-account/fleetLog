@@ -259,7 +259,7 @@ export default {
             return entretiens;
         },
         unaffectedEntretiens(obj, args,{user}){
-            let entretiens = Entretiens.find({user:""}).fetch() || {};
+            let entretiens = Entretiens.find({user:"",archived:false}).fetch() || {};
             entretiens.forEach((e,i) => {
                 e.commandes = Commandes.find({entretien:e._id._str}).fetch() || [];
                 e.commandes.forEach(c => {
