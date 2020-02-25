@@ -31,6 +31,8 @@ import Accounts from './Accounts';
 import Content from './Content';
 import Equipements from './Equipements';
 
+import WorkInProgress from './WorkInProgress';
+
 import Pieces from './Pieces';
 import { UserContext } from '../../contexts/UserContext';
 
@@ -71,7 +73,8 @@ class PageBody extends Component {
 
             <Route exact path='/planning/:y/:m' component={Planning}/>
 
-            <Route exact path='/accidentologie' component={Accidentologie}/>
+            <Route exact path='/accidentologie' component={WorkInProgress}/>
+            <Route exact path='/batiment' component={WorkInProgress}/>
 
             <Route exact path='/fournisseurs' component={Fournisseurs}/>
 
@@ -101,7 +104,8 @@ class PageBody extends Component {
 
             <Route exact path='/planning/:y/:m' component={BUPlanning}/>
 
-            <Route exact path='/accidentologie' component={Accidentologie}/>
+            <Route exact path='/accidentologie' component={WorkInProgress}/>
+            <Route exact path='/batiment' component={WorkInProgress}/>
 
             <Route exact path='/fournisseurs' component={Fournisseurs}/>
 
@@ -132,7 +136,8 @@ class PageBody extends Component {
 
           <Route exact path='/planning/:y/:m' component={BUPlanning}/>
 
-          <Route exact path='/accidentologie' component={Accidentologie}/>
+          <Route exact path='/accidentologie' component={WorkInProgress}/>
+          <Route exact path='/batiment' component={WorkInProgress}/>
 
           <Route exact path='/fournisseurs' component={Fournisseurs}/>
 
