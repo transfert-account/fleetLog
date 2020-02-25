@@ -47,7 +47,7 @@ export class DashboardUnit extends Component {
                             Pas prêt :
                             <Label style={{marginLeft:"4px"}} color={this.getColorIfAny(this.props.dashboard.entretiens,"grey")} image>
                                 <Icon style={{margin:"0"}} name='truck' />
-                                <Label.Detail>{this.props.dashboard.entretiens}</Label.Detail>
+                                <Label.Detail>{this.props.dashboard.entretiensNotReady}</Label.Detail>
                             </Label>
                         </Table.Cell>
                         <Table.Cell textAlign="right" colSpan="4" width={4}>
