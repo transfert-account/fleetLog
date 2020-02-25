@@ -3,7 +3,7 @@ import { UserContext } from '../../contexts/UserContext';
 import DashboardUnit from '../molecules/DashboardUnit';
 import { gql } from 'apollo-server-express';
 
-export class Dashboard extends Component {
+class Dashboard extends Component {
 
     state={
         dashboardsRaw:[],
