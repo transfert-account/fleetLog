@@ -41,7 +41,8 @@ class Provider extends Component {
                     activated
                 }
             }
-        `
+        `,
+        societeFilter:"noidthisisgroupvisibility"
     }
 
     toast = ({message,type}) => {
@@ -96,6 +97,12 @@ class Provider extends Component {
             })
         })
     }
+
+    setSocieteFilter = _id => {
+        this.setState({
+            societeFilter : _id
+        })
+    }
     
     componentDidUpdate = () => {
         this.reloadUser()
@@ -110,6 +117,8 @@ class Provider extends Component {
                 societes:this.props.societes,
                 reloadUser:this.reloadUser,
                 forceReloadUser:this.forceReloadUser,
+                setSocieteFilter:this.setSocieteFilter,
+                societeFilter:this.state.societeFilter,
                 toast:this.toast
             }}>
                 {this.props.children}

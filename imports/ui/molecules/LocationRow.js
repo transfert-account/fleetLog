@@ -146,6 +146,7 @@ class LocationRow extends Component {
                     <Table.Cell textAlign="center">{this.props.rental.model.name}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.rental.volume.meterCube+" m²"}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.rental.payload} t.</Table.Cell>
+                    <Table.Cell textAlign="center">{this.props.rental.fournisseur.name}</Table.Cell>
                     <Table.Cell textAlign="center">
                         {this.getEndDateLabel()}
                     </Table.Cell>

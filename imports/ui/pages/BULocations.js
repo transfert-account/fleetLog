@@ -309,6 +309,7 @@ export class BULocations extends Component {
                                 <Table.HeaderCell>Modèle</Table.HeaderCell>
                                 <Table.HeaderCell>Volume</Table.HeaderCell>
                                 <Table.HeaderCell>Charge utile</Table.HeaderCell>
+                                <Table.HeaderCell>Fournisseur</Table.HeaderCell>
                                 <Table.HeaderCell>Fin de contrat</Table.HeaderCell>
                                 <Table.HeaderCell>Actions</Table.HeaderCell>
                             </Table.Row>

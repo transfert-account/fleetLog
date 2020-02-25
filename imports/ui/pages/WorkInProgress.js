@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import { GridRow } from 'semantic-ui-react';
 
 class WorkInProgress extends Component {
     render() {

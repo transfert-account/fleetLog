@@ -62,7 +62,8 @@ export default {
                     societe:societe,
                     number:number,
                     vehicle:vehicle,
-                    endDate:endDate
+                    endDate:endDate,
+                    shiftName:""
                 });
                 return [{status:true,message:'Création réussie'}];
             }

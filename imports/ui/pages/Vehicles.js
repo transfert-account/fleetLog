@@ -41,11 +41,11 @@ export class Vehicles extends Component {
     vehiclesFiler:"",
     vehiclesRaw:[],
     vehicles : () => {
-        if(this.state.vehiclesRaw.length==0){
+        if(this.state.vehiclesRaw.length == 0){
             return(
                 <Table.Row key={"none"}>
-                    <Table.Cell width={16} colSpan='14' textAlign="center">
-                        Le terme recherché n'apparait nul part dans les données.
+                    <Table.Cell width={16} colSpan='11' textAlign="center">
+                        Aucun véhicule en base
                     </Table.Cell>
                 </Table.Row>
             )
@@ -54,18 +54,22 @@ export class Vehicles extends Component {
         displayed = displayed.filter(v =>
             v.archived == this.state.archiveFilter
         );
-        if(this.state.vehiclesFiler.length>1){
+        if(this.props.user.isAdmin && this.props.user.visibility == "noidthisisgroupvisibility" && this.props.societeFilter != "noidthisisgroupvisibility"){
+            displayed = displayed.filter(v =>
+                v.societe._id == this.props.societeFilter
+            );
+        }
+        if(this.state.vehiclesFiler.length>0){
             displayed = displayed.filter(i =>
-                i.societe.name.toLowerCase().includes(this.state.vehiclesFiler.toLowerCase()) ||
                 i.registration.toLowerCase().includes(this.state.vehiclesFiler.toLowerCase()) ||
-                i.brand.toLowerCase().includes(this.state.vehiclesFiler.toLowerCase()) ||
-                i.model.toLowerCase().includes(this.state.vehiclesFiler.toLowerCase())
+                i.brand.name.toLowerCase().includes(this.state.vehiclesFiler.toLowerCase()) ||
+                i.model.name.toLowerCase().includes(this.state.vehiclesFiler.toLowerCase())
             );
             if(displayed.length == 0){
               return(
                 <Table.Row key={"none"}>
-                  <Table.Cell width={16} colSpan='14' textAlign="center">
-                    <p>Aucun consommable répondant à ce filtre</p>
+                  <Table.Cell width={16} colSpan='11' textAlign="center">
+                    <p>Aucun véhicule ne correspond à ce filtre</p>
                   </Table.Cell>
                 </Table.Row>
               )
@@ -294,7 +298,7 @@ export class Vehicles extends Component {
                     <Menu.Item color="blue" name='licences' onClick={()=>{this.props.history.push("/parc/licences")}}><Icon name='drivers license'/>Licences</Menu.Item>
                     <Menu.Item color="blue" name='locations' onClick={()=>{this.props.history.push("/parc/locations")}} ><Icon name="calendar alternate outline"/> Locations</Menu.Item>
                 </Menu>
-                <Input style={{justifySelf:"stretch"}} name="vehiclesFiler" onChange={e=>{this.handleFilter(e.target.value)}} icon='search' placeholder='Rechercher un vehicule ... ' />
+                <Input style={{justifySelf:"stretch"}} name="vehiclesFiler" onChange={e=>{this.handleFilter(e.target.value)}} icon='search' placeholder='Rechercher une immatriculation, une marque ou un modèle' />
                 <Button color={this.getArchiveFilterColor()} style={{justifySelf:"stretch"}} onClick={this.switchArchiveFilter} icon labelPosition='right'>{this.getArchiveButtonContent()} <Icon name={this.getArchiveButtonIcon()} /></Button>
                 <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddVehicle} icon labelPosition='right'>Ajouter un véhicule<Icon name='plus'/></Button>
                 <div style={{gridRowStart:"2",gridColumnEnd:"span 4",display:"block",overflowY:"auto",justifySelf:"stretch"}}>

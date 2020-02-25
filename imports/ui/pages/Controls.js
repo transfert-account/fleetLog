@@ -9,6 +9,7 @@ import 'moment/locale/fr';
 export class Controls extends Component {
 
   state={
+    vehiclesFiler:"",
     vehiclesQuery : gql`
         query vehicles{
             vehicles{
@@ -19,6 +20,7 @@ export class Controls extends Component {
                     name
                 }
                 registration
+                archived
                 firstRegistrationDate
                 km
                 lastKmUpdate
@@ -77,21 +79,51 @@ export class Controls extends Component {
     vehiclesRaw:[],
     equipementDescriptionsRaw:[],
     vehicles : () => {
-        if(this.state.vehiclesRaw.length==0){
+        if(this.state.vehiclesRaw.length == 0){
             return(
-                <Table.Row>
-                    <Table.Cell>
-                        Aucun vehicule ...
+                <Table.Row key={"none"}>
+                    <Table.Cell width={16} colSpan='11' textAlign="center">
+                        Aucun véhicule en base
                     </Table.Cell>
                 </Table.Row>
             )
         }
         let displayed = Array.from(this.state.vehiclesRaw);
+        displayed = displayed.filter(v =>
+            v.archived == false // exclut les véhicules archivés
+        );
+        if(this.props.user.isAdmin && this.props.user.visibility == "noidthisisgroupvisibility" && this.props.societeFilter != "noidthisisgroupvisibility"){
+            displayed = displayed.filter(v =>
+                v.societe._id == this.props.societeFilter
+            );
+        }
+        if(this.state.vehiclesFiler.length>0){
+            displayed = displayed.filter(i =>
+                i.registration.toLowerCase().includes(this.state.vehiclesFiler.toLowerCase()) ||
+                i.brand.name.toLowerCase().includes(this.state.vehiclesFiler.toLowerCase()) ||
+                i.model.name.toLowerCase().includes(this.state.vehiclesFiler.toLowerCase())
+            );
+            if(displayed.length == 0){
+              return(
+                <Table.Row key={"none"}>
+                  <Table.Cell width={16} colSpan='11' textAlign="center">
+                    <p>Aucun véhicule ne correspond à ce filtre</p>
+                  </Table.Cell>
+                </Table.Row>
+              )
+            }
+        }
         return displayed.map(i =>(
             <ControlRow loadVehicles={this.loadVehicles} equipementDescriptionsRaw={this.state.equipementDescriptionsRaw} key={i._id} vehicle={i}/>
         ))
     },
     
+  }
+
+  handleFilter = e =>{
+    this.setState({
+      vehiclesFiler:e
+    });
   }
 
   handleChange = e =>{
@@ -189,7 +221,7 @@ export class Controls extends Component {
                     <Menu.Item color="blue" name='licences' onClick={()=>{this.props.history.push("/parc/licences")}}><Icon name='drivers license'/>Licences</Menu.Item>
                     <Menu.Item color="blue" name='locations' onClick={()=>{this.props.history.push("/parc/locations")}} ><Icon name="calendar alternate outline"/> Locations</Menu.Item>
                 </Menu>
-                <Input style={{justifySelf:"stretch"}} name="storeFilter" onChange={e=>{this.handleFilter(e.target.value)}} icon='search' placeholder='Rechercher un vehicule ... (3 caractères minimum)' />
+                <Input style={{justifySelf:"stretch"}} name="storeFilter" onChange={e=>{this.handleFilter(e.target.value)}} icon='search' placeholder='Rechercher une immatriculation, une marque ou un modèle' />
                 <div style={{gridRowStart:"2",gridColumnEnd:"span 4",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                     <Table style={{marginBottom:"0"}} celled selectable color="blue" compact>
                         <Table.Header>

@@ -308,7 +308,7 @@ class ControlRow extends Component {
         if(this.state.detailed){
             return (
                 <Table.Row>
-                    <Table.Cell colSpan={7}>
+                    <Table.Cell style={{padding:"0"}} colSpan={7}>
                         <Table inverted celled selectable compact='very'>
                             <Table.Header>
                                 <Table.Row textAlign='center'>

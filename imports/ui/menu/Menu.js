@@ -1,5 +1,6 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import MenuItemList from './MenuItemList';
+import SocietePicker from '../atoms/SocietePicker'
 import { Link,withRouter } from 'react-router-dom';
 import { UserContext } from '../../contexts/UserContext';
 import { Icon, Label } from 'semantic-ui-react';
@@ -121,6 +122,8 @@ class Menu extends Component {
     ]
   }
 
+  handleSocieteFilterChange = (e, { value }) => this.props.setSocieteFilter(value)
+
   getMenuItemsList = () =>{
     if(this.props.user.isAdmin){
         return (this.state.menuItemsAdmin);
@@ -186,6 +189,14 @@ class Menu extends Component {
               </Label>
             )}
             <hr style={{width:"80%",margin:"8px auto"}}/>
+            {(this.props.user.isAdmin && this.props.user.visibility == "noidthisisgroupvisibility" ? 
+              <Fragment>
+                <SocietePicker onChange={this.handleSocieteFilterChange} groupAppears={true} value={this.props.societeFilter}/>
+                <hr style={{width:"80%",margin:"8px auto"}}/>
+              </Fragment>
+              :
+              ""
+            )}
             <MenuItemList menuItems={this.getMenuItemsList()}/>
             <li onClick={()=>{Meteor.logout();this.props.client.cache.reset();this.props.history.push("/")}} className={"menuItemRed"} style={{cursor:"pointer"}}>
               <p style={{textAlign:"right",padding:"8px 16px 8px 0",fontSize:"1.1em",fontWeight:"800",fontFamily: "'Open Sans', sans-serif"}}>

@@ -15,8 +15,9 @@ class Entretiens extends Component {
         entretiensRaw:[],
         entretiens : () => {
             let displayed = Array.from(this.state.entretiensRaw);
-            if(this.state.entretienFilter.length>1){
+            if(this.state.entretienFilter.length>0){
                 displayed = displayed.filter(e =>
+                    e.title.toLowerCase().includes(this.state.entretienFilter.toLowerCase()) ||
                     e.description.toLowerCase().includes(this.state.entretienFilter.toLowerCase()) ||
                     e.vehicle.registration.toLowerCase().includes(this.state.entretienFilter.toLowerCase())
                 );
@@ -33,6 +34,11 @@ class Entretiens extends Component {
             displayed = displayed.filter(e =>
                 e.archived == this.state.filterArchive
             );
+            if(this.props.user.isAdmin && this.props.user.visibility == "noidthisisgroupvisibility" && this.props.societeFilter != "noidthisisgroupvisibility"){
+                displayed = displayed.filter(e =>
+                    e.societe._id == this.props.societeFilter
+                );
+            }
             return displayed.map(e =>(
                 <EntretienRow loadEntretiens={this.loadEntretiens} key={e._id} entretien={e}/>
             ))

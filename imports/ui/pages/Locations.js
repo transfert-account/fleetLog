@@ -52,12 +52,17 @@ export class Locations extends Component {
         displayed = displayed.filter(l =>
             l.archived == this.state.archiveFilter
         );
-        if(this.state.locationsFiler.length>1){
+        if(this.props.user.isAdmin && this.props.user.visibility == "noidthisisgroupvisibility" && this.props.societeFilter != "noidthisisgroupvisibility"){
+            displayed = displayed.filter(l =>
+                l.societe._id == this.props.societeFilter
+            );
+        }
+        if(this.state.locationsFiler.length>0){
             displayed = displayed.filter(i =>
-                i.societe.name.toLowerCase().includes(this.state.locationsFiler.toLowerCase()) ||
                 i.registration.toLowerCase().includes(this.state.locationsFiler.toLowerCase()) ||
-                i.brand.toLowerCase().includes(this.state.locationsFiler.toLowerCase()) ||
-                i.model.toLowerCase().includes(this.state.locationsFiler.toLowerCase())
+                i.fournisseur.name.toLowerCase().includes(this.state.locationsFiler.toLowerCase()) ||
+                i.brand.name.toLowerCase().includes(this.state.locationsFiler.toLowerCase()) ||
+                i.model.name.toLowerCase().includes(this.state.locationsFiler.toLowerCase())
             );
             if(displayed.length == 0){
               return(
@@ -295,7 +300,7 @@ export class Locations extends Component {
                     <Menu.Item color="blue" name='licences' onClick={()=>{this.props.history.push("/parc/licences")}}><Icon name='drivers license'/>Licences</Menu.Item>
                     <Menu.Item color="blue" name='locations' active onClick={()=>{this.props.history.push("/parc/locations")}} ><Icon name="calendar alternate outline"/> Locations</Menu.Item>
                 </Menu>
-                <Input style={{justifySelf:"stretch"}} name="locationsFiler" onChange={e=>{this.handleFilter(e.target.value)}} icon='search' placeholder='Rechercher un vehicule ... (3 caractères minimum)' />
+                <Input style={{justifySelf:"stretch"}} name="locationsFiler" onChange={e=>{this.handleFilter(e.target.value)}} icon='search' placeholder='Rechercher une immatriculation, une marque, un modèle ou un fournisseur' />
                 <Button color={this.getArchiveFilterColor()} style={{justifySelf:"stretch"}} onClick={this.switchArchiveFilter} icon labelPosition='right'>{this.getArchiveButtonContent()} <Icon name={this.getArchiveButtonIcon()} /></Button>
                 <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddLocation} icon labelPosition='right'>Enregistrer une location<Icon name='plus'/></Button>
                 <div style={{gridRowStart:"2",gridColumnEnd:"span 4",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
@@ -310,6 +315,7 @@ export class Locations extends Component {
                                 <Table.HeaderCell>Modèle</Table.HeaderCell>
                                 <Table.HeaderCell>Volume</Table.HeaderCell>
                                 <Table.HeaderCell>Charge utile</Table.HeaderCell>
+                                <Table.HeaderCell>Fournisseur</Table.HeaderCell>
                                 <Table.HeaderCell>Fin de contrat</Table.HeaderCell>
                                 <Table.HeaderCell>Actions</Table.HeaderCell>
                             </Table.Row>
