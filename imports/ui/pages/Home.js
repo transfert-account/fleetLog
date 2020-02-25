@@ -126,7 +126,7 @@ export class Home extends Component {
 
   render() {
     if(this.props.user._id != null){
-      if(this.props.user.isOwner){
+      if(this.props.user.isAdmin && this.props.user.visibility == "noidthisisgroupvisibility"){
         return <Dashboards/>
       }else{
         return <BUDashboards/>
