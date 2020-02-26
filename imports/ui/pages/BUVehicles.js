@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Modal,Icon,Menu,Input,Dimmer,Loader,Table,Button,Form,Divider,Header } from 'semantic-ui-react';
+import { Modal, Icon, Menu, Input, Dimmer, Loader, Table, Button, Form, Divider, Header, Message } from 'semantic-ui-react';
 import ModalDatePicker from '../atoms/ModalDatePicker'
 import { UserContext } from '../../contexts/UserContext';
 import VehiclesRow from '../molecules/VehiclesRow';
@@ -12,271 +12,293 @@ import BrandPicker from '../atoms/BrandPicker';
 import OrganismPicker from '../atoms/OrganismPicker';
 import VolumePicker from '../atoms/VolumePicker';
 import { gql } from 'apollo-server-express';
+import moment from 'moment';
 
 export class BUVehicles extends Component {
 
-  state={
-    newSociete:"",
-    newRegistration:"",
-    newFirstRegistrationDate:"",
-    newKm:"",
-    newLastKmUpdate:"",
-    newBrand:"",
-    newModel:"",
-    newVolume:"",
-    newPayload:0,
-    newColor:"",
-    newInsurancePaid:"",
-    newPayementBeginDate:"",
-    newPurchasePrice:"",
-    newMonthlyPayement:"",
-    newPayementOrg:"",
-    newPayementFormat:"",
-    archiveFilter:false,
-    openAddVehicle:false,
-    openDatePicker:false,
-    datePickerTarget:"",
-    maxPage:1,
-    currentPage:1,
-    vehiclesFiler:"",
-    vehiclesRaw:[],
-    vehicles : () => {
-        if(this.state.vehiclesRaw.length == 0){
-            return(
-                <Table.Row key={"none"}>
-                    <Table.Cell width={16} colSpan='11' textAlign="center">
-                        Aucun véhicule en base
-                    </Table.Cell>
-                </Table.Row>
-            )
-        }
-        let displayed = Array.from(this.state.vehiclesRaw);
-        displayed = displayed.filter(v =>
-            v.archived == this.state.archiveFilter
-        );
-        if(this.state.vehiclesFiler.length>0){
-            displayed = displayed.filter(i =>
-                i.registration.toLowerCase().includes(this.state.vehiclesFiler.toLowerCase()) ||
-                i.brand.name.toLowerCase().includes(this.state.vehiclesFiler.toLowerCase()) ||
-                i.model.name.toLowerCase().includes(this.state.vehiclesFiler.toLowerCase())
+    state={
+        newSociete:"",
+        newRegistration:"",
+        newFirstRegistrationDate:"",
+        newKm:"",
+        newLastKmUpdate:"",
+        newBrand:"",
+        newModel:"",
+        newVolume:"",
+        newPayload:0,
+        newColor:"",
+        newInsurancePaid:"",
+        newPayementBeginDate:"",
+        newPurchasePrice:"",
+        newMonthlyPayement:"",
+        newPayementOrg:"",
+        newPayementFormat:"",
+        archiveFilter:false,
+        reportLateFilter:"all",
+        openAddVehicle:false,
+        openDatePicker:false,
+        datePickerTarget:"",
+        maxPage:1,
+        currentPage:1,
+        vehiclesFiler:"",
+        vehiclesRaw:[],
+        vehicles : () => {
+            if(this.state.vehiclesRaw.length == 0){
+                return(
+                    <Table.Row key={"none"}>
+                        <Table.Cell width={16} colSpan='11' textAlign="center">
+                            Aucun véhicule en base
+                        </Table.Cell>
+                    </Table.Row>
+                )
+            }
+            let displayed = Array.from(this.state.vehiclesRaw);
+            displayed = displayed.filter(v =>
+                v.archived == this.state.archiveFilter
             );
-            if(displayed.length == 0){
-              return(
-                <Table.Row key={"none"}>
-                  <Table.Cell width={16} colSpan='11' textAlign="center">
-                    <p>Aucun véhicule ne correspond à ce filtre</p>
-                  </Table.Cell>
-                </Table.Row>
-              )
+            displayed = displayed.filter(v =>{
+                if(this.state.reportLateFilter == "all"){return true}else{
+                    let days = parseInt(moment().diff(moment(v.lastKmUpdate, "DD/MM/YYYY"),'days'));
+                    if(this.state.reportLateFilter == "2w"){
+                        if(days > 14){
+                            return true
+                        }else{
+                            return false
+                        }
+                    }else{
+                        if(days > 28){
+                            return true
+                        }else{
+                            return false
+                        }
+                    }
+                }
+            });
+            if(this.state.vehiclesFiler.length>0){
+                displayed = displayed.filter(i =>
+                    i.registration.toLowerCase().includes(this.state.vehiclesFiler.toLowerCase()) ||
+                    i.brand.name.toLowerCase().includes(this.state.vehiclesFiler.toLowerCase()) ||
+                    i.model.name.toLowerCase().includes(this.state.vehiclesFiler.toLowerCase())
+                );
+                if(displayed.length == 0){
+                return(
+                    <Table.Row key={"none"}>
+                    <Table.Cell width={16} colSpan='11' textAlign="center">
+                        <p>Aucun véhicule ne correspond à ce filtre</p>
+                    </Table.Cell>
+                    </Table.Row>
+                )
+                }
             }
+            //displayed = displayed.slice((this.state.currentPage - 1) * this.state.rowByPage, this.state.currentPage * this.state.rowByPage);
+            return displayed.map(i =>(
+                <VehiclesRow hideSociete={true} loadVehicles={this.loadVehicles} societesRaw={this.state.societesRaw} key={i._id} vehicle={i}/>
+            ))
+        },
+        addVehicleQuery : gql`
+            mutation addVehicle($societe:String!,$registration:String!,$firstRegistrationDate:String!,$km:Int!,$lastKmUpdate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$insurancePaid:Float!,$payementBeginDate:String!,$purchasePrice:Float,$monthlyPayement:Float,$payementOrg:String,$payementFormat:String){
+                addVehicle(societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,km:$km,lastKmUpdate:$lastKmUpdate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,payementBeginDate:$payementBeginDate,purchasePrice:$purchasePrice,monthlyPayement:$monthlyPayement,payementOrg:$payementOrg,payementFormat:$payementFormat){
+                    status
+                    message
+                }
+            }
+        `,
+        buVehiclesQuery : gql`
+            query buVehicles{
+                buVehicles{
+                    _id
+                    societe{
+                        _id
+                        trikey
+                        name
+                    }
+                    registration
+                    firstRegistrationDate
+                    km
+                    lastKmUpdate
+                    brand{
+                        _id
+                        name
+                    }
+                    model{
+                        _id
+                        name
+                    }
+                    volume{
+                        _id
+                        meterCube
+                    }
+                    payload
+                    color{
+                        _id
+                        name
+                        hex
+                    }
+                    cg
+                    insurancePaid
+                    cv
+                    payementBeginDate
+                    property
+                    purchasePrice
+                    monthlyPayement
+                    payementOrg{
+                        _id
+                        name
+                    }
+                    payementFormat
+                    archived
+                    archiveReason
+                    archiveDate
+                }
+            }
+        `
+    }
+
+    closeAddVehicle = () => {
+        this.setState({openAddVehicle:false})
+    }
+
+    showAddVehicle = () => {
+        this.setState({openAddVehicle:true})
+    }
+
+    showDatePicker = target => {
+        this.setState({openDatePicker:true,datePickerTarget:target})
+    }
+
+    closeDatePicker = target => {
+        this.setState({openDatePicker:false,datePickerTarget:""})
+    }
+
+    onSelectDatePicker = date => {
+        this.setState({
+            [this.state.datePickerTarget]:date.getDate().toString().padStart(2, '0')+"/"+parseInt(date.getMonth()+1).toString().padStart(2, '0')+"/"+date.getFullYear().toString().padStart(4, '0')
+        })
+    }
+
+    addVehicle = () => {
+        if(this.state.newSociete == "" || this.state.newSociete == "noidthisisvisibilitygroup" || this.state.newVolume == ""){
+            this.props.toast({message:"Certains champs du formulaire sont incorrects",type:"error"});
+        }else{
+            this.closeAddVehicle();
+            this.props.client.mutate({
+                mutation:this.state.addVehicleQuery,
+                variables:{
+                    societe:this.state.newSociete,
+                    registration:this.state.newRegistration,
+                    firstRegistrationDate:this.state.newFirstRegistrationDate,
+                    km:parseInt(this.state.newKm),
+                    lastKmUpdate:this.state.newLastKmUpdate,
+                    brand:this.state.newBrand,
+                    model:this.state.newModel,
+                    volume:this.state.newVolume,
+                    payload:parseFloat(this.state.newPayload),
+                    color:this.state.newColor,
+                    insurancePaid:parseFloat(this.state.newInsurancePaid),
+                    payementBeginDate:this.state.newPayementBeginDate,
+                    purchasePrice:parseFloat(this.state.newPurchasePrice),
+                    monthlyPayement:parseFloat(this.state.newMonthlyPayement),
+                    payementOrg:this.state.newPayementOrg,
+                    payementFormat:this.state.newPayementFormat
+                }
+            }).then(({data})=>{
+                data.addVehicle.map(qrm=>{
+                    if(qrm.status){
+                        this.props.toast({message:qrm.message,type:"success"});
+                        this.loadVehicles();
+                    }else{
+                        this.props.toast({message:qrm.message,type:"error"});
+                    }
+                })
+            })
         }
-        //displayed = displayed.slice((this.state.currentPage - 1) * this.state.rowByPage, this.state.currentPage * this.state.rowByPage);
-        return displayed.map(i =>(
-            <VehiclesRow hideSociete={true} loadVehicles={this.loadVehicles} societesRaw={this.state.societesRaw} key={i._id} vehicle={i}/>
-        ))
-    },
-    addVehicleQuery : gql`
-        mutation addVehicle($societe:String!,$registration:String!,$firstRegistrationDate:String!,$km:Int!,$lastKmUpdate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$insurancePaid:Float!,$payementBeginDate:String!,$purchasePrice:Float,$monthlyPayement:Float,$payementOrg:String,$payementFormat:String){
-            addVehicle(societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,km:$km,lastKmUpdate:$lastKmUpdate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,payementBeginDate:$payementBeginDate,purchasePrice:$purchasePrice,monthlyPayement:$monthlyPayement,payementOrg:$payementOrg,payementFormat:$payementFormat){
-                status
-                message
-            }
-        }
-    `,
-    buVehiclesQuery : gql`
-        query buVehicles{
-            buVehicles{
-                _id
-                societe{
-                    _id
-                    trikey
-                    name
-                }
-                registration
-                firstRegistrationDate
-                km
-                lastKmUpdate
-                brand{
-                    _id
-                    name
-                }
-                model{
-                    _id
-                    name
-                }
-                volume{
-                    _id
-                    meterCube
-                }
-                payload
-                color{
-                    _id
-                    name
-                    hex
-                }
-                cg
-                insurancePaid
-                cv
-                payementBeginDate
-                property
-                purchasePrice
-                monthlyPayement
-                payementOrg{
-                    _id
-                    name
-                }
-                payementFormat
-                archived
-                archiveReason
-                archiveDate
-            }
-        }
-    `
-  }
+    }
 
-  closeAddVehicle = () => {
-    this.setState({openAddVehicle:false})
-  }
+    handleChange = e =>{
+        this.setState({
+        [e.target.name]:e.target.value
+        });
+    }
 
-  showAddVehicle = () => {
-    this.setState({openAddVehicle:true})
-  }
+    handleFilter = e =>{
+        this.setState({
+        vehiclesFiler:e
+        });
+    }
 
-  showDatePicker = target => {
-    this.setState({openDatePicker:true,datePickerTarget:target})
-  }
+    handleChangeSociete = (e, { value }) => this.setState({ newSociete:value })
 
-  closeDatePicker = target => {
-    this.setState({openDatePicker:false,datePickerTarget:""})
-  }
+    handleChangePayementFormat = value => {
+        this.setState({ newPayementFormat:value })
+    }
 
-  onSelectDatePicker = date => {
-    this.setState({
-        [this.state.datePickerTarget]:date.getDate().toString().padStart(2, '0')+"/"+parseInt(date.getMonth()+1).toString().padStart(2, '0')+"/"+date.getFullYear().toString().padStart(4, '0')
-    })
-  }
+    handleRegistrationChange = value => {
+        this.setState({
+            newRegistration : value
+        })
+    }
 
-  addVehicle = () => {
-    if(this.state.newSociete == "" || this.state.newSociete == "noidthisisvisibilitygroup" || this.state.newVolume == ""){
-        this.props.toast({message:"Certains champs du formulaire sont incorrects",type:"error"});
-    }else{
-        this.closeAddVehicle();
-        this.props.client.mutate({
-            mutation:this.state.addVehicleQuery,
-            variables:{
-                societe:this.state.newSociete,
-                registration:this.state.newRegistration,
-                firstRegistrationDate:this.state.newFirstRegistrationDate,
-                km:parseInt(this.state.newKm),
-                lastKmUpdate:this.state.newLastKmUpdate,
-                brand:this.state.newBrand,
-                model:this.state.newModel,
-                volume:this.state.newVolume,
-                payload:parseFloat(this.state.newPayload),
-                color:this.state.newColor,
-                insurancePaid:parseFloat(this.state.newInsurancePaid),
-                payementBeginDate:this.state.newPayementBeginDate,
-                purchasePrice:parseFloat(this.state.newPurchasePrice),
-                monthlyPayement:parseFloat(this.state.newMonthlyPayement),
-                payementOrg:this.state.newPayementOrg,
-                payementFormat:this.state.newPayementFormat
-            }
+    handleChangeVolume = (e, { value }) => this.setState({ newVolume:value })
+
+    handleChangeBrand = (e, { value }) => this.setState({ newBrand:value })
+
+    handleChangeModel = (e, { value }) => this.setState({ newModel:value })
+
+    handleChangeOrganism = (e, { value }) => this.setState({ newPayementOrg:value })
+
+    handleChangeColor = (e, { value }) => this.setState({ newColor:value })
+
+    handleChangeVolume = (e, { value }) => this.setState({ newVolume:value })
+
+    loadVehicles = () => {
+        this.props.client.query({
+            query:this.state.buVehiclesQuery,
+            fetchPolicy:"network-only"
         }).then(({data})=>{
-            data.addVehicle.map(qrm=>{
-                if(qrm.status){
-                    this.props.toast({message:qrm.message,type:"success"});
-                    this.loadVehicles();
-                }else{
-                    this.props.toast({message:qrm.message,type:"error"});
-                }
+            this.setState({
+                vehiclesRaw:data.buVehicles
             })
         })
     }
-  }
 
-  handleChange = e =>{
-    this.setState({
-      [e.target.name]:e.target.value
-    });
-  }
+    //ARCHIVE FILTER
+    getArchiveFilterColor = (color,active) => {
+        if(this.state.archiveFilter == active){
+            return color;
+        }
+    }
 
-  handleFilter = e =>{
-    this.setState({
-      vehiclesFiler:e
-    });
-  }
+    getArchiveFilterBasic = active => {
+        if(this.state.archiveFilter == active){
+            return true;
+        }
+    }
 
-  handleChangeSociete = (e, { value }) => this.setState({ newSociete:value })
-
-  handleChangePayementFormat = value => {
-      this.setState({ newPayementFormat:value })
-  }
-
-  handleRegistrationChange = value => {
-    this.setState({
-        newRegistration : value
-    })
-  }
-
-  handleChangeVolume = (e, { value }) => this.setState({ newVolume:value })
-
-  handleChangeBrand = (e, { value }) => this.setState({ newBrand:value })
-
-  handleChangeModel = (e, { value }) => this.setState({ newModel:value })
-
-  handleChangeOrganism = (e, { value }) => this.setState({ newPayementOrg:value })
-
-  handleChangeColor = (e, { value }) => this.setState({ newColor:value })
-
-  handleChangeVolume = (e, { value }) => this.setState({ newVolume:value })
-
-  loadVehicles = () => {
-    this.props.client.query({
-        query:this.state.buVehiclesQuery,
-        fetchPolicy:"network-only"
-    }).then(({data})=>{
+    switchArchiveFilter = () => {
         this.setState({
-            vehiclesRaw:data.buVehicles
+            archiveFilter:!this.state.archiveFilter
         })
-    })
-  }
-
-  getArchiveButtonContent = () => {
-    if(this.state.archiveFilter){
-        return "Affiché : archives"
-    }else{
-        return "Affiché : valides"
+        this.loadVehicles();
     }
-  }
 
-  getArchiveFilterColor = () => {
-    if(this.state.archiveFilter){
-        return "orange"
-    }else{
-        return "green"
+    //REPORT LATE FILTER
+    getKmFilterColor = (color,filter) => {
+        if(this.state.reportLateFilter == filter){
+            return color
+        }
     }
-  }
 
-  getArchiveButtonIcon = () => {
-    if(this.state.archiveFilter){
-        return "truck"
-    }else{
-        return "archive"
+    getKmFilterBasic = (filter) => {
+        if(this.state.reportLateFilter == filter){
+            return true
+        }
     }
-  }
 
-  switchArchiveFilter = () => {
-    if(this.state.archiveFilter){
+    setReportLateFilter = value => {
         this.setState({
-            archiveFilter:false
-        })
-    }else{
-        this.setState({
-            archiveFilter:true
+            reportLateFilter:value
         })
     }
-    this.loadVehicles();
-  }
 
   componentDidMount = () => {
     this.loadVehicles();
@@ -285,7 +307,7 @@ export class BUVehicles extends Component {
   render() {
     return (
         <Fragment>
-            <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"32px",gridTemplateRows:"auto 1fr auto",gridTemplateColumns:"auto 3fr 1fr 1fr"}}>
+            <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"32px",gridTemplateRows:"auto auto 1fr auto",gridTemplateColumns:"auto 1fr auto"}}>
                 <Menu style={{cursor:"pointer",marginBottom:"auto"}} icon='labeled'>
                     <Menu.Item color="blue" name='vehicules' active onClick={()=>{this.props.history.push("/parc/vehicles")}}><Icon name='truck'/>Vehicules</Menu.Item>
                     <Menu.Item color="blue" name='controls' onClick={()=>{this.props.history.push("/parc/controls")}}><Icon name='clipboard check'/>Contrôles</Menu.Item>
@@ -293,9 +315,25 @@ export class BUVehicles extends Component {
                     <Menu.Item color="blue" name='locations' onClick={()=>{this.props.history.push("/parc/locations")}} ><Icon name="calendar alternate outline"/> Locations</Menu.Item>
                 </Menu>
                 <Input style={{justifySelf:"stretch"}} name="vehiclesFiler" onChange={e=>{this.handleFilter(e.target.value)}} icon='search' placeholder='Rechercher une immatriculation, une marque ou un modèle'/>
-                <Button color={this.getArchiveFilterColor()} style={{justifySelf:"stretch"}} onClick={this.switchArchiveFilter} icon labelPosition='right'>{this.getArchiveButtonContent()} <Icon name={this.getArchiveButtonIcon()} /></Button>
                 <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddVehicle} icon labelPosition='right'>Ajouter un véhicule<Icon name='plus'/></Button>
-                <div style={{gridRowStart:"2",gridColumnEnd:"span 4",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
+                <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"16px"}}>
+                    <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
+                        <Icon name='archive'/>
+                        <Button.Group style={{placeSelf:"center"}}>
+                            <Button basic={this.getArchiveFilterBasic(false)} color={this.getArchiveFilterColor("green",false)} onClick={this.switchArchiveFilter}>En cours</Button>
+                            <Button basic={this.getArchiveFilterBasic(true)} color={this.getArchiveFilterColor("orange",true)} onClick={this.switchArchiveFilter}>Archives</Button>
+                        </Button.Group>
+                    </Message>
+                    <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
+                        <Icon name='dashboard'/>
+                        <Button.Group style={{placeSelf:"center"}}>
+                            <Button basic={this.getKmFilterBasic("all")} color={this.getKmFilterColor("green","all")} onClick={()=>{this.setReportLateFilter("all")}}>Tous</Button>
+                            <Button basic={this.getKmFilterBasic("2w")} color={this.getKmFilterColor("orange","2w")} onClick={()=>{this.setReportLateFilter("2w")}}>Dernier relevé > 2 semaines</Button>
+                            <Button basic={this.getKmFilterBasic("4w")} color={this.getKmFilterColor("red","4w")} onClick={()=>{this.setReportLateFilter("4w")}}>Dernier relevé > 4 semaines</Button>
+                        </Button.Group>
+                    </Message>
+                </div>
+                <div style={{gridRowStart:"3",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                     <Table style={{marginBottom:"0"}} celled selectable color={this.getArchiveFilterColor()} compact>
                         <Table.Header>
                             <Table.Row textAlign='center'>
