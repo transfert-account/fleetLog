@@ -48,18 +48,18 @@ class Menu extends Component {
         icon:"warehouse"
       },
       {
-        name:"compte",
-        active:"compte",
-        label:"Compte",
-        display:true,
-        icon:"user"
-      },
-      {
         name:"accidentologie",
         active:"accidentologie",
         label:"Accidentologie",
         display:true,
         icon:"fire"
+      },
+      {
+        name:"compte",
+        active:"compte",
+        label:"Compte",
+        display:true,
+        icon:"user"
       }
     ],
     menuItemsAdmin:[

@@ -15,8 +15,9 @@ class BUEntretiens extends Component {
         entretiensRaw:[],
         entretiens : () => {
             let displayed = Array.from(this.state.entretiensRaw);
-            if(this.state.entretienFilter.length>1){
+            if(this.state.entretienFilter.length>0){
                 displayed = displayed.filter(e =>
+                    e.title.toLowerCase().includes(this.state.entretienFilter.toLowerCase()) ||
                     e.description.toLowerCase().includes(this.state.entretienFilter.toLowerCase()) ||
                     e.vehicle.registration.toLowerCase().includes(this.state.entretienFilter.toLowerCase())
                 );
@@ -34,7 +35,7 @@ class BUEntretiens extends Component {
                 e.archived == this.state.filterArchive
             );
             return displayed.map(e =>(
-                <EntretienRow hideSociete loadEntretiens={this.loadEntretiens} key={e._id} entretien={e}/>
+                <EntretienRow hideSociete={true} loadEntretiens={this.loadEntretiens} key={e._id} entretien={e}/>
             ))
         },
         addEntretienQuery : gql`
@@ -200,7 +201,7 @@ class BUEntretiens extends Component {
         return (
             <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"32px",gridTemplateRows:"auto 1fr",gridTemplateColumns:"auto 1fr auto"}}>
                 <Button color={this.getArchiveFilterColor()} style={{justifySelf:"stretch"}} onClick={this.filterArchive} icon labelPosition='right'>{this.getArchiveButtonContent()}<Icon name={this.getArchiveButtonIcon()}/></Button>
-                <Input style={{justifySelf:"stretch"}} name="entretienFilter" onChange={this.handleChange} icon='search' placeholder='Rechercher un entretien ...' />
+                <Input style={{justifySelf:"stretch"}} name="entretienFilter" onChange={this.handleChange} icon='search' placeholder='Rechercher une immatriculation, un titre ou une description' />
                 <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddEntretien} icon labelPosition='right'>Créer un entretien<Icon name='plus'/></Button>
                 <div style={{gridRowStart:"2",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                     <Table style={{marginBottom:"0"}} celled selectable color={this.getArchiveFilterColor()} compact>

@@ -15,7 +15,9 @@ class Fournisseurs extends Component {
       let displayed = Array.from(this.state.fournisseursRaw);
       if(this.state.fournisseurFilter.length>1){
           displayed = displayed.filter(f =>
-              f.name.toLowerCase().includes(this.state.fournisseurFilter.toLowerCase())
+            f.name.toLowerCase().includes(this.state.fournisseurFilter.toLowerCase()) ||
+            f.mail.toLowerCase().includes(this.state.fournisseurFilter.toLowerCase()) ||
+            f.address.toLowerCase().includes(this.state.fournisseurFilter.toLowerCase())
           );
           if(displayed.length == 0){
             return(
@@ -55,6 +57,12 @@ class Fournisseurs extends Component {
   handleChange = e =>{
     this.setState({
       [e.target.name]:e.target.value
+    });
+  }
+
+  handleFilter = e =>{
+    this.setState({
+        fournisseurFilter:e.target.value
     });
   }
 
@@ -107,7 +115,7 @@ class Fournisseurs extends Component {
   render() {
     return (
         <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"32px",gridTemplateRows:"auto 1fr",gridTemplateColumns:"auto 1fr auto"}}>
-            <Input style={{justifySelf:"stretch",gridColumnEnd:"span 2"}} name="storeFilter" onChange={e=>{this.handleFilter(e.target.value)}} icon='search' placeholder='Rechercher un item ... (3 caractères minimum)' />
+            <Input style={{justifySelf:"stretch",gridColumnEnd:"span 2"}} name="storeFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher un nom, une adresse ou un mail' />
             <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddFournisseur} icon labelPosition='right'>Ajouter un fournisseur<Icon name='plus'/></Button>
             <div style={{gridRowStart:"2",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                 <Table style={{marginBottom:"0"}} celled selectable color="blue" compact>

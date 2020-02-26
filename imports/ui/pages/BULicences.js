@@ -20,25 +20,26 @@ export class BULicences extends Component {
     societesRaw: [],
     licencesRaw : [],
     licences : () => {
-      let displayed = Array.from(this.state.licencesRaw);
-      if(this.state.licenceFilter.length>1){
-          displayed = displayed.filter(l =>
-              l.shiftName.toLowerCase().includes(this.state.licenceFilter.toLowerCase()) ||
-              l.number.toLowerCase().includes(this.state.licenceFilter.toLowerCase()) 
-          );
-          if(displayed.length == 0){
-            return(
-              <Table.Row key={"none"}>
-                <Table.Cell width={16} colSpan='14' textAlign="center">
-                  <p>Aucune licence ne correspond à ce filtre</p>
-                </Table.Cell>
-              </Table.Row>
-            )
-          }
-      }
-      return displayed.map(l =>(
-          <LicenceRow hideSociete loadLicences={this.loadLicences} societesRaw={this.state.societesRaw} key={l._id} licence={l}/>
-      ))
+        let displayed = Array.from(this.state.licencesRaw);
+        if(this.state.licenceFilter.length>0){
+            displayed = displayed.filter(l =>
+                l.shiftName.toLowerCase().includes(this.state.licenceFilter.toLowerCase()) ||
+                l.vehicle.registration.toLowerCase().includes(this.state.licenceFilter.toLowerCase()) ||
+                l.number.toLowerCase().includes(this.state.licenceFilter.toLowerCase()) 
+            );
+            if(displayed.length == 0){
+                return(
+                <Table.Row key={"none"}>
+                    <Table.Cell width={16} colSpan='14' textAlign="center">
+                    <p>Aucune licence ne correspond à ce filtre</p>
+                    </Table.Cell>
+                </Table.Row>
+                )
+            }
+        }
+        return displayed.map(l =>(
+            <LicenceRow hideSociete={true} loadLicences={this.loadLicences} societesRaw={this.state.societesRaw} key={l._id} licence={l}/>
+        ))
     },
     addLicenceQuery : gql`
         mutation addLicence($societe:String!,$number:String!,$vehicle:String!,$endDate:String!){
@@ -79,6 +80,12 @@ export class BULicences extends Component {
             }
         }
     `,
+  }
+  
+  handleFilter = e => {
+    this.setState({
+        licenceFilter : e.target.value
+    })
   }
 
   onSelectDatePicker = date => {
@@ -178,7 +185,7 @@ export class BULicences extends Component {
                     <Menu.Item color="blue" name='licences' active onClick={()=>{this.props.history.push("/parc/licences")}}><Icon name='drivers license'/>Licences</Menu.Item>
                     <Menu.Item color="blue" name='locations' onClick={()=>{this.props.history.push("/parc/locations")}} ><Icon name="calendar alternate outline"/> Locations</Menu.Item>
                 </Menu>
-                <Input style={{justifySelf:"stretch"}} name="storeFilter" onChange={e=>{this.handleFilter(e.target.value)}} icon='search' placeholder='Rechercher un item ... (3 caractères minimum)' />
+                <Input style={{justifySelf:"stretch"}} name="storeFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher une tournée, un numéro de licence ou une immatriculation' />
                 <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddLicence} icon labelPosition='right'>Ajouter une licence<Icon name='plus'/></Button>
                 <div style={{gridRowStart:"2",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                     <Table style={{marginBottom:"0"}} celled selectable color="blue" compact>
