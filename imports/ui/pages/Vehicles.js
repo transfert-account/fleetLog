@@ -310,110 +310,110 @@ class Vehicles extends Component {
         this.loadVehicles();
     }
 
-  render() {
-    return (
-        <Fragment>
-            <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto auto 1fr auto",gridTemplateColumns:"auto 1fr auto"}}>
-                <Menu style={{cursor:"pointer",marginBottom:"auto"}} icon='labeled'>
-                    <Menu.Item color="blue" name='vehicules' active onClick={()=>{this.props.history.push("/parc/vehicles")}}><Icon name='truck'/>Vehicules</Menu.Item>
-                    <Menu.Item color="blue" name='controls' onClick={()=>{this.props.history.push("/parc/controls")}}><Icon name='clipboard check'/>Contrôles</Menu.Item>
-                    <Menu.Item color="blue" name='licences' onClick={()=>{this.props.history.push("/parc/licences")}}><Icon name='drivers license'/>Licences</Menu.Item>
-                    <Menu.Item color="blue" name='locations' onClick={()=>{this.props.history.push("/parc/locations")}} ><Icon name="calendar alternate outline"/> Locations</Menu.Item>
-                </Menu>
-                <Input style={{justifySelf:"stretch"}} name="vehiclesFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher une immatriculation, une marque ou un modèle' />
-                <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddVehicle} icon labelPosition='right'>Ajouter un véhicule<Icon name='plus'/></Button>
-                <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"16px"}}>
-                    <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
-                        <Icon name='archive'/>
-                        <Button.Group style={{placeSelf:"center"}}>
-                            <Button basic={this.getArchiveFilterBasic(false)} color={this.getArchiveFilterColor("green",false)} onClick={this.switchArchiveFilter}>En cours</Button>
-                            <Button basic={this.getArchiveFilterBasic(true)} color={this.getArchiveFilterColor("orange",true)} onClick={this.switchArchiveFilter}>Archives</Button>
-                        </Button.Group>
-                    </Message>
-                    <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
-                        <Icon name='dashboard'/>
-                        <Button.Group style={{placeSelf:"center"}}>
-                            <Button basic={this.getKmFilterBasic("all")} color={this.getKmFilterColor("green","all")} onClick={()=>{this.setReportLateFilter("all")}}>Tous</Button>
-                            <Button basic={this.getKmFilterBasic("2w")} color={this.getKmFilterColor("orange","2w")} onClick={()=>{this.setReportLateFilter("2w")}}>Dernier relevé > 2 semaines</Button>
-                            <Button basic={this.getKmFilterBasic("4w")} color={this.getKmFilterColor("red","4w")} onClick={()=>{this.setReportLateFilter("4w")}}>Dernier relevé > 4 semaines</Button>
-                        </Button.Group>
-                    </Message>
+    render() {
+        return (
+            <Fragment>
+                <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto auto 1fr auto",gridTemplateColumns:"auto 1fr auto"}}>
+                    <Menu style={{cursor:"pointer",marginBottom:"auto"}} icon='labeled'>
+                        <Menu.Item color="blue" name='vehicules' active onClick={()=>{this.props.history.push("/parc/vehicles")}}><Icon name='truck'/>Vehicules</Menu.Item>
+                        <Menu.Item color="blue" name='controls' onClick={()=>{this.props.history.push("/parc/controls")}}><Icon name='clipboard check'/>Contrôles</Menu.Item>
+                        <Menu.Item color="blue" name='licences' onClick={()=>{this.props.history.push("/parc/licences")}}><Icon name='drivers license'/>Licences</Menu.Item>
+                        <Menu.Item color="blue" name='locations' onClick={()=>{this.props.history.push("/parc/locations")}} ><Icon name="calendar alternate outline"/> Locations</Menu.Item>
+                    </Menu>
+                    <Input style={{justifySelf:"stretch"}} name="vehiclesFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher une immatriculation, une marque ou un modèle' />
+                    <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddVehicle} icon labelPosition='right'>Ajouter un véhicule<Icon name='plus'/></Button>
+                    <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"16px"}}>
+                        <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
+                            <Icon name='archive'/>
+                            <Button.Group style={{placeSelf:"center"}}>
+                                <Button basic={this.getArchiveFilterBasic(false)} color={this.getArchiveFilterColor("green",false)} onClick={this.switchArchiveFilter}>En cours</Button>
+                                <Button basic={this.getArchiveFilterBasic(true)} color={this.getArchiveFilterColor("orange",true)} onClick={this.switchArchiveFilter}>Archives</Button>
+                            </Button.Group>
+                        </Message>
+                        <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
+                            <Icon name='dashboard'/>
+                            <Button.Group style={{placeSelf:"center"}}>
+                                <Button basic={this.getKmFilterBasic("all")} color={this.getKmFilterColor("green","all")} onClick={()=>{this.setReportLateFilter("all")}}>Tous</Button>
+                                <Button basic={this.getKmFilterBasic("2w")} color={this.getKmFilterColor("orange","2w")} onClick={()=>{this.setReportLateFilter("2w")}}>Dernier relevé > 2 semaines</Button>
+                                <Button basic={this.getKmFilterBasic("4w")} color={this.getKmFilterColor("red","4w")} onClick={()=>{this.setReportLateFilter("4w")}}>Dernier relevé > 4 semaines</Button>
+                            </Button.Group>
+                        </Message>
+                    </div>
+                    <div style={{gridRowStart:"3",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
+                        <Table style={{marginBottom:"0"}} celled selectable color={this.getArchiveFilterColor()} compact>
+                            <Table.Header>
+                                <Table.Row textAlign='center'>
+                                    <Table.HeaderCell>Societe</Table.HeaderCell>
+                                    <Table.HeaderCell>Immatriculation</Table.HeaderCell>
+                                    <Table.HeaderCell>Date d'immatriculation</Table.HeaderCell>
+                                    <Table.HeaderCell>Kilométrage</Table.HeaderCell>
+                                    <Table.HeaderCell>Dernier relevé</Table.HeaderCell>
+                                    <Table.HeaderCell>Marque</Table.HeaderCell>
+                                    <Table.HeaderCell>Modèle</Table.HeaderCell>
+                                    <Table.HeaderCell>Volume</Table.HeaderCell>
+                                    <Table.HeaderCell>Charge utile</Table.HeaderCell>
+                                    <Table.HeaderCell>Propriété</Table.HeaderCell>
+                                    <Table.HeaderCell>Actions</Table.HeaderCell>
+                                </Table.Row>
+                            </Table.Header>
+                            <Table.Body>
+                                {this.state.vehicles()}
+                            </Table.Body>
+                        </Table>
+                        <Dimmer inverted active={this.state.loading}>
+                            <Loader size='massive'>Chargement des vehicules ...</Loader>
+                        </Dimmer>
+                    </div>
                 </div>
-                <div style={{gridRowStart:"3",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
-                    <Table style={{marginBottom:"0"}} celled selectable color={this.getArchiveFilterColor()} compact>
-                        <Table.Header>
-                            <Table.Row textAlign='center'>
-                                <Table.HeaderCell>Societe</Table.HeaderCell>
-                                <Table.HeaderCell>Immatriculation</Table.HeaderCell>
-                                <Table.HeaderCell>Date d'immatriculation</Table.HeaderCell>
-                                <Table.HeaderCell>Kilométrage</Table.HeaderCell>
-                                <Table.HeaderCell>Dernier relevé</Table.HeaderCell>
-                                <Table.HeaderCell>Marque</Table.HeaderCell>
-                                <Table.HeaderCell>Modèle</Table.HeaderCell>
-                                <Table.HeaderCell>Volume</Table.HeaderCell>
-                                <Table.HeaderCell>Charge utile</Table.HeaderCell>
-                                <Table.HeaderCell>Propriété</Table.HeaderCell>
-                                <Table.HeaderCell>Actions</Table.HeaderCell>
-                            </Table.Row>
-                        </Table.Header>
-                        <Table.Body>
-                            {this.state.vehicles()}
-                        </Table.Body>
-                    </Table>
-                    <Dimmer inverted active={this.state.loading}>
-                        <Loader size='massive'>Chargement des vehicules ...</Loader>
-                    </Dimmer>
-                </div>
-            </div>
-            <Modal closeOnDimmerClick={false} open={this.state.openAddVehicle} onClose={this.closeAddVehicle} closeIcon>
-                <Modal.Header>
-                    Création du véhicule
-                </Modal.Header>
-                <Modal.Content style={{textAlign:"center"}}>
-                    <Form style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gridGap:"16px"}}>
-                        <Form.Field style={{gridColumnStart:"2"}}><label>Societe</label>
-                            <SocietePicker groupAppears={false} onChange={this.handleChangeSociete}/>
-                        </Form.Field>
-                        <Divider style={{gridColumnEnd:"span 3",height:"23px"}} horizontal>
-                            <Header as='h4'>
-                                <Icon name='clipboard' />
-                                Details
-                            </Header>
-                        </Divider>
-                        <RegistrationInput onChange={this.handleRegistrationChange} name="newRegistration"/>
-                        <Form.Field><label>Date de première immatriculation</label><input onChange={this.handleChange} value={this.state.newFirstRegistrationDate} onFocus={()=>{this.showDatePicker("newFirstRegistrationDate")}} placeholder="firstRegistrationDate" name="newFirstRegistrationDate"/></Form.Field>
-                        <Form.Field><label>Kilométrage</label><input onChange={this.handleChange} name="newKm"/></Form.Field>
-                        <Form.Field><label>Date de relevé</label><input onChange={this.handleChange} value={this.state.newLastKmUpdate} onFocus={()=>{this.showDatePicker("newLastKmUpdate")}} name="newLastKmUpdate"/></Form.Field>
-                        <Form.Field><label>Marque</label><BrandPicker onChange={this.handleChangeBrand}/></Form.Field>
-                        <Form.Field><label>Modèle</label><ModelPicker onChange={this.handleChangeModel}/></Form.Field>
-                        <Form.Field><label>Volume</label><VolumePicker onChange={this.handleChangeVolume}/></Form.Field>
-                        <Form.Field><label>Charge utile</label><input onChange={this.handleChange} name="newPayload"/></Form.Field>
-                        <Form.Field><label>Couleur</label><ColorPicker onChange={this.handleChangeColor}/></Form.Field>
-                        <Divider style={{gridColumnEnd:"span 3",height:"23px"}} horizontal>
-                            <Header as='h4'>
-                                <Icon name='euro' />
-                                Finances
-                            </Header>
-                        </Divider>
-                        <Form.Field><label>Prix à l'achat</label><input onChange={this.handleChange} name="newPurchasePrice"/></Form.Field>
-                        <Form.Field><label>Paiement mensuel</label><input onChange={this.handleChange} name="newMonthlyPayement"/></Form.Field>
-                        <Form.Field><label>Organisme de financement</label><OrganismPicker onChange={this.handleChangeOrganism}/></Form.Field>
-                        <Form.Field><label>Montant de l'assurance</label><input onChange={this.handleChange} name="newInsurancePaid"/></Form.Field>
-                        <Form.Field style={{gridColumnStart:"2"}}><label>Type de financement</label>
-                            <PayementFormatPicker change={this.handleChangePayementFormat}/>
-                        </Form.Field>
-                        <Form.Field><label>Date de début du payement</label><input onChange={this.handleChange} value={this.state.newPayementBeginDate} onFocus={()=>{this.showDatePicker("newPayementBeginDate")}} name="newPayementBeginDate"/></Form.Field>
-                    </Form>
-                </Modal.Content>
-                <Modal.Actions>
-                    <Button color="black" onClick={this.closeAddVehicle}>Annuler</Button>
-                    <Button color="blue" onClick={this.addVehicle}>Créer</Button>
-                </Modal.Actions>
-            </Modal>
-            <ModalDatePicker onSelectDatePicker={this.onSelectDatePicker} closeDatePicker={this.closeDatePicker} open={this.state.openDatePicker}/>
-        </Fragment>
-    )
-  }
+                <Modal closeOnDimmerClick={false} open={this.state.openAddVehicle} onClose={this.closeAddVehicle} closeIcon>
+                    <Modal.Header>
+                        Création du véhicule
+                    </Modal.Header>
+                    <Modal.Content style={{textAlign:"center"}}>
+                        <Form style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gridGap:"16px"}}>
+                            <Form.Field style={{gridColumnStart:"2"}}><label>Societe</label>
+                                <SocietePicker groupAppears={false} onChange={this.handleChangeSociete}/>
+                            </Form.Field>
+                            <Divider style={{gridColumnEnd:"span 3",height:"23px"}} horizontal>
+                                <Header as='h4'>
+                                    <Icon name='clipboard' />
+                                    Details
+                                </Header>
+                            </Divider>
+                            <RegistrationInput onChange={this.handleRegistrationChange} name="newRegistration"/>
+                            <Form.Field><label>Date de première immatriculation</label><input onChange={this.handleChange} value={this.state.newFirstRegistrationDate} onFocus={()=>{this.showDatePicker("newFirstRegistrationDate")}} placeholder="firstRegistrationDate" name="newFirstRegistrationDate"/></Form.Field>
+                            <Form.Field><label>Kilométrage</label><input onChange={this.handleChange} name="newKm"/></Form.Field>
+                            <Form.Field><label>Date de relevé</label><input onChange={this.handleChange} value={this.state.newLastKmUpdate} onFocus={()=>{this.showDatePicker("newLastKmUpdate")}} name="newLastKmUpdate"/></Form.Field>
+                            <Form.Field><label>Marque</label><BrandPicker onChange={this.handleChangeBrand}/></Form.Field>
+                            <Form.Field><label>Modèle</label><ModelPicker onChange={this.handleChangeModel}/></Form.Field>
+                            <Form.Field><label>Volume</label><VolumePicker onChange={this.handleChangeVolume}/></Form.Field>
+                            <Form.Field><label>Charge utile</label><input onChange={this.handleChange} name="newPayload"/></Form.Field>
+                            <Form.Field><label>Couleur</label><ColorPicker onChange={this.handleChangeColor}/></Form.Field>
+                            <Divider style={{gridColumnEnd:"span 3",height:"23px"}} horizontal>
+                                <Header as='h4'>
+                                    <Icon name='euro' />
+                                    Finances
+                                </Header>
+                            </Divider>
+                            <Form.Field><label>Prix à l'achat</label><input onChange={this.handleChange} name="newPurchasePrice"/></Form.Field>
+                            <Form.Field><label>Paiement mensuel</label><input onChange={this.handleChange} name="newMonthlyPayement"/></Form.Field>
+                            <Form.Field><label>Organisme de financement</label><OrganismPicker onChange={this.handleChangeOrganism}/></Form.Field>
+                            <Form.Field><label>Montant de l'assurance</label><input onChange={this.handleChange} name="newInsurancePaid"/></Form.Field>
+                            <Form.Field style={{gridColumnStart:"2"}}><label>Type de financement</label>
+                                <PayementFormatPicker change={this.handleChangePayementFormat}/>
+                            </Form.Field>
+                            <Form.Field><label>Date de début du payement</label><input onChange={this.handleChange} value={this.state.newPayementBeginDate} onFocus={()=>{this.showDatePicker("newPayementBeginDate")}} name="newPayementBeginDate"/></Form.Field>
+                        </Form>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <Button color="black" onClick={this.closeAddVehicle}>Annuler</Button>
+                        <Button color="blue" onClick={this.addVehicle}>Créer</Button>
+                    </Modal.Actions>
+                </Modal>
+                <ModalDatePicker onSelectDatePicker={this.onSelectDatePicker} closeDatePicker={this.closeDatePicker} open={this.state.openDatePicker}/>
+            </Fragment>
+        )
+    }
 }
 
 const withUserContext = WrappedComponent => props => (

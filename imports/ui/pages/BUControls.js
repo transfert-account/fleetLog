@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Menu, Input, Dimmer, Loader, Table } from 'semantic-ui-react';
+import { Icon, Menu, Input, Dimmer, Loader, Table, Message, Button } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 import ControlRow from '../molecules/ControlRow';
 import { gql } from 'apollo-server-express';
@@ -93,6 +93,23 @@ export class BUControls extends Component {
             displayed = displayed.filter(v =>
                 v.archived == false // exclut les véhicules archivés
             );
+            if(this.state.controlFilter != "all"){
+                displayed = displayed.filter(v=>{
+                    if(this.state.controlFilter == "soon"){
+                        if(v.orange > 0 || v.red > 0){
+                            return true
+                        }else{
+                            return false
+                        }
+                    }else{
+                        if(v.red > 0){
+                            return true
+                        }else{
+                            return false
+                        }
+                    }       
+                })
+            }
             if(this.state.vehiclesFiler.length>0){
                 displayed = displayed.filter(i =>
                     i.registration.toLowerCase().includes(this.state.vehiclesFiler.toLowerCase()) ||
@@ -100,13 +117,13 @@ export class BUControls extends Component {
                     i.model.name.toLowerCase().includes(this.state.vehiclesFiler.toLowerCase())
                 );
                 if(displayed.length == 0){
-                return(
-                    <Table.Row key={"none"}>
-                    <Table.Cell width={16} colSpan='11' textAlign="center">
-                        <p>Aucun véhicule ne correspond à ce filtre</p>
-                    </Table.Cell>
-                    </Table.Row>
-                )
+                    return(
+                        <Table.Row key={"none"}>
+                            <Table.Cell width={16} colSpan='11' textAlign="center">
+                                <p>Aucun véhicule ne correspond à ce filtre</p>
+                            </Table.Cell>
+                        </Table.Row>
+                    )
                 }
             }
             return displayed.map(i =>(

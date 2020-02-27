@@ -1,17 +1,19 @@
 import React, { Component } from 'react';
-import { Icon,Menu,Input,Button,Table,Modal,Form,Loader } from 'semantic-ui-react';
+import { Icon, Menu, Input, Button, Table, Modal, Form, Loader, Message } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 import LicenceRow from '../molecules/LicenceRow';
 import SocietePicker from '../atoms/SocietePicker';
 import VehiclePicker from '../atoms/VehiclePicker';
 import ModalDatePicker from '../atoms/ModalDatePicker';
-import { gql } from 'apollo-server-express'
+import { gql } from 'apollo-server-express';
+import moment from 'moment';
 
 export class Licences extends Component {
 
   state={
     loading:true,
     licenceFilter:"",
+    endDateFilter:"all",
     openAddLicence:false,
     newSociete:"",
     newNumber:"",
@@ -21,6 +23,24 @@ export class Licences extends Component {
     licencesRaw : [],
     licences : () => {
         let displayed = Array.from(this.state.licencesRaw);
+        if(this.state.endDateFilter != "all"){
+            displayed = displayed.filter(l=>{
+                let daysLeft = parseInt(moment(l.endDate,"DD/MM/YYYY").diff(moment(),'days', true))
+                if(this.state.endDateFilter == "soon"){
+                    if(daysLeft <= 28){
+                        return true
+                    }else{
+                        return false
+                    }
+                }else{
+                    if(daysLeft <= 0){
+                        return true
+                    }else{
+                        return false
+                    }
+                }
+            });
+        }
         if(this.state.licenceFilter.length>0){
             displayed = displayed.filter(l =>
                 l.shiftName.toLowerCase().includes(this.state.licenceFilter.toLowerCase()) ||
@@ -29,11 +49,11 @@ export class Licences extends Component {
             );
             if(displayed.length == 0){
                 return(
-                <Table.Row key={"none"}>
-                    <Table.Cell width={16} colSpan='14' textAlign="center">
-                    <p>Aucune licence ne correspond à ce filtre</p>
-                    </Table.Cell>
-                </Table.Row>
+                    <Table.Row key={"none"}>
+                        <Table.Cell width={16} colSpan='14' textAlign="center">
+                        <p>Aucune licence ne correspond à ce filtre</p>
+                        </Table.Cell>
+                    </Table.Row>
                 )
             }
         }
@@ -167,6 +187,24 @@ export class Licences extends Component {
         })
     }
 
+    getEndDateColor = (color,filter) => {
+        if(this.state.endDateFilter == filter){
+            return color
+        }
+    }
+
+    getEndDateBasic = (filter) => {
+        if(this.state.endDateFilter == filter){
+            return true
+        }
+    }
+
+    setEndDateFilter = value => {
+        this.setState({
+            endDateFilter:value
+        })
+    }
+
     loadSocietes = () => {
         this.props.client.query({
             query:this.state.societesQuery,
@@ -193,7 +231,7 @@ export class Licences extends Component {
             )
         }else{
             return (
-                <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"32px",gridTemplateRows:"auto 1fr",gridTemplateColumns:"auto 1fr auto"}}>
+                <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"32px",gridTemplateRows:"auto auto 1fr",gridTemplateColumns:"auto 1fr auto"}}>
                     <Menu style={{cursor:"pointer",marginBottom:"auto"}} icon='labeled'>
                         <Menu.Item color="blue" name='vehicules' onClick={()=>{this.props.history.push("/parc/vehicles")}}><Icon name='truck'/>Vehicules</Menu.Item>
                         <Menu.Item color="blue" name='controls' onClick={()=>{this.props.history.push("/parc/controls")}}><Icon name='clipboard check'/>Contrôles</Menu.Item>
@@ -202,7 +240,17 @@ export class Licences extends Component {
                     </Menu>
                     <Input style={{justifySelf:"stretch"}} name="storeFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher une tournée, un numéro de licence ou une immatriculation' />
                     <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddLicence} icon labelPosition='right'>Ajouter une licence<Icon name='plus'/></Button>
-                    <div style={{gridRowStart:"2",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
+                    <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"1fr",gridGap:"16px"}}>
+                        <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
+                            <Icon name='dashboard'/>
+                            <Button.Group style={{placeSelf:"center"}}>
+                                <Button basic={this.getEndDateBasic("all")} color={this.getEndDateColor("green","all")} onClick={()=>{this.setEndDateFilter("all")}}>Tous</Button>
+                                <Button basic={this.getEndDateBasic("soon")} color={this.getEndDateColor("orange","soon")} onClick={()=>{this.setEndDateFilter("soon")}}>En fin de validité</Button>
+                                <Button basic={this.getEndDateBasic("over")} color={this.getEndDateColor("red","over")} onClick={()=>{this.setEndDateFilter("over")}}>Périmée</Button>
+                            </Button.Group>
+                        </Message>
+                    </div>
+                    <div style={{gridRowStart:"3",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                         <Table style={{marginBottom:"0"}} celled selectable color="blue" compact>
                             <Table.Header>
                                 <Table.Row textAlign='center'>

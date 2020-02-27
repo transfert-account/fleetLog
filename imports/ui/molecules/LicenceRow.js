@@ -135,10 +135,10 @@ class LicenceRow extends Component {
 
     getEndDateLabel = () => {
         let daysLeft = parseInt(moment(this.props.licence.endDate,"DD/MM/YYYY").diff(moment(),'days', true))
-        if(daysLeft <= 7){
+        if(daysLeft <= 0){
             return <Label color="red"> {moment(this.props.licence.endDate, "DD/MM/YYYY").fromNow()}, le {this.props.licence.endDate}</Label>
         }
-        if(daysLeft > 7 && daysLeft <= 28){
+        if(daysLeft > 0 && daysLeft <= 28){
             return <Label color="orange"> {moment(this.props.licence.endDate, "DD/MM/YYYY").fromNow()}, le {this.props.licence.endDate}</Label>
         }
         return <Label color="green"> {moment(this.props.licence.endDate, "DD/MM/YYYY").fromNow()}, le {this.props.licence.endDate}</Label>
