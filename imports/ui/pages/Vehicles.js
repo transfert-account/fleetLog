@@ -62,24 +62,23 @@ class Vehicles extends Component {
                 );
             }
             displayed = displayed.filter(v =>{
-                    if(this.state.reportLateFilter == "all"){return true}else{
-                        let days = parseInt(moment().diff(moment(v.lastKmUpdate, "DD/MM/YYYY"),'days'));
-                        if(this.state.reportLateFilter == "2w"){
-                            if(days > 14){
-                                return true
-                            }else{
-                                return false
-                            }
+                if(this.state.reportLateFilter == "all"){return true}else{
+                    let days = parseInt(moment().diff(moment(v.lastKmUpdate, "DD/MM/YYYY"),'days'));
+                    if(this.state.reportLateFilter == "2w"){
+                        if(days > 14){
+                            return true
                         }else{
-                            if(days > 28){
-                                return true
-                            }else{
-                                return false
-                            }
+                            return false
+                        }
+                    }else{
+                        if(days > 28){
+                            return true
+                        }else{
+                            return false
                         }
                     }
                 }
-            );
+            });
             if(this.state.vehiclesFilter.length>0){
                 displayed = displayed.filter(i =>
                     i.registration.toLowerCase().includes(this.state.vehiclesFilter.toLowerCase()) ||
