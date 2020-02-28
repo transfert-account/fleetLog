@@ -134,6 +134,39 @@ class LocationRow extends Component {
         }
     }
 
+    getLastReportCell = () => {
+        if(this.state.reportLateFilter == "all"){return true}else{
+            let days = parseInt(moment().diff(moment(this.props.rental.lastKmUpdate, "DD/MM/YYYY"),'days'));
+            if(days < 14){
+                return (
+                    <Table.Cell textAlign="center">
+                        <Label color={"green"}> 
+                            {moment(this.props.rental.lastKmUpdate, "DD/MM/YYYY").fromNow()}
+                        </Label>
+                    </Table.Cell>
+                )
+            }
+            if(days >= 28){
+                return (
+                    <Table.Cell textAlign="center">
+                        <Label color={"red"}> 
+                            {moment(this.props.rental.lastKmUpdate, "DD/MM/YYYY").fromNow()}
+                        </Label>
+                    </Table.Cell>
+                )
+            }
+            if(days >= 14){
+                return (
+                    <Table.Cell textAlign="center">
+                        <Label color={"orange"}> 
+                            {moment(this.props.rental.lastKmUpdate, "DD/MM/YYYY").fromNow()}
+                        </Label>
+                    </Table.Cell>
+                )
+            }
+        }
+    }
+
     render() {
         return (
             <Fragment>
@@ -141,7 +174,7 @@ class LocationRow extends Component {
                     {this.getSocieteCell()}
                     <Table.Cell textAlign="center">{this.props.rental.registration}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.rental.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km</Table.Cell>
-                    <Table.Cell textAlign="center">{moment(this.props.rental.lastKmUpdate, "DD/MM/YYYY").fromNow()}</Table.Cell>
+                    {this.getLastReportCell()}
                     <Table.Cell textAlign="center">{this.props.rental.brand.name}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.rental.model.name}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.rental.volume.meterCube+" m²"}</Table.Cell>

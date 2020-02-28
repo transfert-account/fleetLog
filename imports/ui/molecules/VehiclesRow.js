@@ -102,6 +102,39 @@ class VehiclesRow extends Component {
         }
     }
 
+    getLastReportCell = () => {
+        if(this.state.reportLateFilter == "all"){return true}else{
+            let days = parseInt(moment().diff(moment(this.props.vehicle.lastKmUpdate, "DD/MM/YYYY"),'days'));
+            if(days < 14){
+                return (
+                    <Table.Cell textAlign="center">
+                        <Label color={"green"}> 
+                            {moment(this.props.vehicle.lastKmUpdate, "DD/MM/YYYY").fromNow()}
+                        </Label>
+                    </Table.Cell>
+                )
+            }
+            if(days >= 28){
+                return (
+                    <Table.Cell textAlign="center">
+                        <Label color={"red"}> 
+                            {moment(this.props.vehicle.lastKmUpdate, "DD/MM/YYYY").fromNow()}
+                        </Label>
+                    </Table.Cell>
+                )
+            }
+            if(days >= 14){
+                return (
+                    <Table.Cell textAlign="center">
+                        <Label color={"orange"}> 
+                            {moment(this.props.vehicle.lastKmUpdate, "DD/MM/YYYY").fromNow()}
+                        </Label>
+                    </Table.Cell>
+                )
+            }
+        }
+    }
+
     getSocieteCell = () => {
         if(!this.props.hideSociete){
             return <Table.Cell textAlign="center">{this.props.vehicle.societe.name}</Table.Cell>
@@ -116,7 +149,7 @@ class VehiclesRow extends Component {
                     <Table.Cell textAlign="center">{this.props.vehicle.registration}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.vehicle.firstRegistrationDate}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.vehicle.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km</Table.Cell>
-                    <Table.Cell textAlign="center">{moment(this.props.vehicle.lastKmUpdate, "DD/MM/YYYY").fromNow()}</Table.Cell>
+                    {this.getLastReportCell()}
                     <Table.Cell textAlign="center">{this.props.vehicle.brand.name}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.vehicle.model.name}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.vehicle.volume.meterCube+" m²"}</Table.Cell>

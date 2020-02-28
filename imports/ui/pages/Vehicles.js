@@ -65,13 +65,13 @@ class Vehicles extends Component {
                 if(this.state.reportLateFilter == "all"){return true}else{
                     let days = parseInt(moment().diff(moment(v.lastKmUpdate, "DD/MM/YYYY"),'days'));
                     if(this.state.reportLateFilter == "2w"){
-                        if(days > 14){
+                        if(days >= 14){
                             return true
                         }else{
                             return false
                         }
                     }else{
-                        if(days > 28){
+                        if(days >= 28){
                             return true
                         }else{
                             return false
