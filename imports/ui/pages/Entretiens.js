@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Icon,Input,Button,Table,Modal,Form } from 'semantic-ui-react';
+import { Icon, Input, Button, Table, Modal, Form, Message } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 import EntretienRow from '../molecules/EntretienRow';
 import VehiclePicker from '../atoms/VehiclePicker';
@@ -12,9 +12,47 @@ class Entretiens extends Component {
         newVehicle:"",
         filterArchive:false,
         openAddEntretien:false,
+        orderStatusFilter:"all",
         entretiensRaw:[],
         entretiens : () => {
             let displayed = Array.from(this.state.entretiensRaw);
+            displayed = displayed.filter(e =>
+                e.archived == this.state.filterArchive
+            );
+            if(this.props.user.isAdmin && this.props.user.visibility == "noidthisisgroupvisibility" && this.props.societeFilter != "noidthisisgroupvisibility"){
+                displayed = displayed.filter(e =>
+                    e.societe._id == this.props.societeFilter
+                );
+            }
+            if(this.state.orderStatusFilter != "all"){
+                if(this.state.orderStatusFilter == "ready"){
+                    displayed = displayed.filter(e =>{
+                        if(e.commandes.filter(c=>c.status != 3).length == 0){
+                            return true;
+                        }else{
+                            return false;
+                        }
+                    })  
+                }
+                if(this.state.orderStatusFilter == "waiting"){
+                    displayed = displayed.filter(e =>{
+                        if(e.commandes.filter(c=>c.status == 2).length > 0){
+                            return true;
+                        }else{
+                            return false;
+                        }
+                    })
+                }
+                if(this.state.orderStatusFilter == "toDo"){
+                    displayed = displayed.filter(e =>{
+                        if(e.commandes.filter(c=>c.status == 1).length > 0){
+                            return true;
+                        }else{
+                            return false;
+                        }
+                    })
+                }
+            }
             if(this.state.entretienFilter.length>0){
                 displayed = displayed.filter(e =>
                     e.title.toLowerCase().includes(this.state.entretienFilter.toLowerCase()) ||
@@ -23,21 +61,13 @@ class Entretiens extends Component {
                 );
                 if(displayed.length == 0){
                     return(
-                    <Table.Row key={"none"}>
-                        <Table.Cell width={16} colSpan='14' textAlign="center">
-                        <p>Aucune entretien ne correspond à ce filtre</p>
-                        </Table.Cell>
-                    </Table.Row>
+                        <Table.Row key={"none"}>
+                            <Table.Cell width={16} colSpan='14' textAlign="center">
+                            <p>Aucune entretien ne correspond à ce filtre</p>
+                            </Table.Cell>
+                        </Table.Row>
                     )
                 }
-            }
-            displayed = displayed.filter(e =>
-                e.archived == this.state.filterArchive
-            );
-            if(this.props.user.isAdmin && this.props.user.visibility == "noidthisisgroupvisibility" && this.props.societeFilter != "noidthisisgroupvisibility"){
-                displayed = displayed.filter(e =>
-                    e.societe._id == this.props.societeFilter
-                );
             }
             return displayed.map(e =>(
                 <EntretienRow loadEntretiens={this.loadEntretiens} key={e._id} entretien={e}/>
@@ -131,40 +161,49 @@ class Entretiens extends Component {
             openAddEntretien:true
         })
     }
-
-    filterArchive = () => {
-        this.setState({
-            filterArchive:!this.state.filterArchive
-        })
-    }
-
-    getArchiveButtonContent = () => {
-        if(this.state.filterArchive){
-            return "Affiché : archives"
-        }else{
-            return "Affiché : en cours"
-        }
-    }
-
-    getArchiveFilterColor = () => {
-        if(this.state.filterArchive){
-            return "orange"
-        }else{
-            return "green"
-        }
-    }
-
-    getArchiveButtonIcon = () => {
-        if(this.state.filterArchive){
-            return "archive"
-        }else{
-            return "truck"
-        }
-    }
     
     closeAddEntretien = () => {
         this.setState({
             openAddEntretien:false
+        })
+    }
+
+    //ARCHIVE FILTER
+    getArchiveFilterColor = (color,active) => {
+        if(this.state.filterArchive == active){
+            return color;
+        }
+    }
+
+    getArchiveFilterBasic = active => {
+        if(this.state.filterArchive == active){
+            return true;
+        }
+    }
+
+    switchArchiveFilter = () => {
+        this.setState({
+            filterArchive:!this.state.filterArchive
+        })
+        this.loadEntretiens();
+    }
+
+    //ORDER STATUS FILTER
+    getOrderStatusColor = (color,filter) => {
+        if(this.state.orderStatusFilter == filter){
+            return color
+        }
+    }
+
+    getOrderStatusBasic = (filter) => {
+        if(this.state.orderStatusFilter == filter){
+            return true
+        }
+    }
+
+    setOrderStatusFilter = value => {
+        this.setState({
+            orderStatusFilter:value
         })
     }
 
@@ -204,11 +243,28 @@ class Entretiens extends Component {
 
     render() {
         return (
-            <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"32px",gridTemplateRows:"auto 1fr",gridTemplateColumns:"auto 1fr auto"}}>
-                <Button color={this.getArchiveFilterColor()} style={{justifySelf:"stretch"}} onClick={this.filterArchive} icon labelPosition='right'>{this.getArchiveButtonContent()}<Icon name={this.getArchiveButtonIcon()}/></Button>
+            <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"32px",gridTemplateRows:"auto auto 1fr auto",gridTemplateColumns:"1fr auto"}}>
                 <Input style={{justifySelf:"stretch"}} name="entretienFilter" onChange={this.handleChange} icon='search' placeholder='Rechercher une immatriculation, un titre ou une description' />
                 <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddEntretien} icon labelPosition='right'>Créer un entretien<Icon name='plus'/></Button>
-                <div style={{gridRowStart:"2",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
+                <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 2",display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"16px"}}>
+                    <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
+                        <Icon name='archive'/>
+                        <Button.Group style={{placeSelf:"center"}}>
+                            <Button basic={this.getArchiveFilterBasic(false)} color={this.getArchiveFilterColor("green",false)} onClick={this.switchArchiveFilter}>En cours</Button>
+                            <Button basic={this.getArchiveFilterBasic(true)} color={this.getArchiveFilterColor("orange",true)} onClick={this.switchArchiveFilter}>Archives</Button>
+                        </Button.Group>
+                    </Message>
+                    <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
+                        <Icon name='shipping fast'/>
+                        <Button.Group style={{placeSelf:"center"}}>
+                            <Button basic={this.getOrderStatusBasic("all")} color={this.getOrderStatusColor("blue","all")} onClick={()=>{this.setOrderStatusFilter("all")}}>Tous</Button>
+                            <Button basic={this.getOrderStatusBasic("ready")} color={this.getOrderStatusColor("green","ready")} onClick={()=>{this.setOrderStatusFilter("ready")}}>Entretiens prêts</Button>
+                            <Button basic={this.getOrderStatusBasic("waiting")} color={this.getOrderStatusColor("orange","waiting")} onClick={()=>{this.setOrderStatusFilter("waiting")}}>Commandes en livraison</Button>
+                            <Button basic={this.getOrderStatusBasic("toDo")} color={this.getOrderStatusColor("red","toDo")} onClick={()=>{this.setOrderStatusFilter("toDo")}}>Commandes à passer</Button>
+                        </Button.Group>
+                    </Message>
+                </div>
+                <div style={{gridRowStart:"3",gridColumnEnd:"span 2",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                     <Table style={{marginBottom:"0"}} celled selectable color={this.getArchiveFilterColor()} compact>
                         <Table.Header>
                             <Table.Row textAlign='center'>

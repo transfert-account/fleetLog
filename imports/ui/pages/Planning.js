@@ -26,6 +26,20 @@ class Planning extends Component {
     month:parseInt(this.props.match.params.m),
     year:parseInt(this.props.match.params.y),
     selectedDay:new Date().getDate(),
+    unaffectedEntretiens : () => {
+      let displayed = Array.from(this.state.unaffectedEntretiensRaw);
+      if(this.props.user.isAdmin && this.props.user.visibility == "noidthisisgroupvisibility" && this.props.societeFilter != "noidthisisgroupvisibility"){
+        displayed = displayed.filter(e =>e.societe._id == this.props.societeFilter)
+      }
+      return displayed;
+    },
+    entretiensOfTheDay : () => {
+      let displayed = Array.from(this.state.entretiensOfTheDayRaw);
+      if(this.props.user.isAdmin && this.props.user.visibility == "noidthisisgroupvisibility" && this.props.societeFilter != "noidthisisgroupvisibility"){
+        displayed = displayed.filter(e =>e.societe._id == this.props.societeFilter)
+      }
+      return displayed;
+    },
     entretiensOfTheDayQuery : gql`
       query entretiensOfTheDay($date:String!){
         entretiensOfTheDay(date:$date){
@@ -361,7 +375,7 @@ class Planning extends Component {
               </Table.Row>
             </Table.Header>
             <Table.Body>
-              {this.state.entretiensOfTheDayRaw.map(e=>{
+              {this.state.entretiensOfTheDay().map(e=>{
                 return (<PlanningRow key={e._id+"unaffected"} active={this.state.activeItem} triggerReleaseEntretien={this.triggerReleaseEntretien} navigateToEntretien={this.navigateToEntretien} entretien={e} />)
               })}
             </Table.Body>
@@ -403,7 +417,7 @@ class Planning extends Component {
               </Table.Row>
             </Table.Header>
             <Table.Body>
-              {this.state.unaffectedEntretiensRaw.map(e=>{
+              {this.state.unaffectedEntretiens().map(e=>{
                 return (<PlanningRow active={this.state.activeItem} key={e._id+"unaffected"} triggerAffectToMe={this.triggerAffectToMe} navigateToEntretien={this.navigateToEntretien} entretien={e} />)
               })}
             </Table.Body>

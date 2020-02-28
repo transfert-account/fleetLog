@@ -20,7 +20,7 @@ class EntretienRow extends Component {
             if(q>0){
                 return (
                     <Table.Cell textAlign="center">
-                        <Label image>
+                        <Label color="grey" image>
                             <Icon style={{margin:"0"}} name='clipboard' />
                             <Label.Detail>{q}</Label.Detail>
                         </Label>
@@ -29,7 +29,7 @@ class EntretienRow extends Component {
             }else{
                 return(
                     <Table.Cell textAlign="center">
-                        <Label color="grey" image>
+                        <Label image>
                             <Icon style={{margin:"0"}} name='clipboard' />
                             <Label.Detail>{q}</Label.Detail>
                         </Label>
@@ -51,7 +51,7 @@ class EntretienRow extends Component {
             }else{
                 return(
                     <Table.Cell textAlign="center">
-                        <Label color="grey" image>
+                        <Label image>
                             <Icon style={{margin:"0"}} name='truck' />
                             <Label.Detail>{q}</Label.Detail>
                         </Label>
@@ -73,7 +73,7 @@ class EntretienRow extends Component {
             }else{
                 return(
                     <Table.Cell textAlign="center">
-                        <Label color="grey" image>
+                        <Label image>
                             <Icon style={{margin:"0"}} name='check' />
                             <Label.Detail>{q}</Label.Detail>
                         </Label>
