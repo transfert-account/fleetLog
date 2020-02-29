@@ -1,4 +1,3 @@
-
 import { ApolloServer, gql } from 'apollo-server-express'
 import { WebApp } from 'meteor/webapp'
 import { getUser } from 'meteor/apollo'
@@ -58,10 +57,13 @@ import ColorResolvers from '../api/color/resolvers.js';
 import DashboardSchema from '../api/dashboard/Dashboard.graphql';
 import DashboardResolvers from '../api/dashboard/resolvers.js';
 
+import DocumentSchema from '../api/document/Document.graphql';
+import DocumentResolvers from '../api/document/resolvers.js';
+
 import TestSchema from '../api/test/Test.graphql';
 import TestResolvers from '../api/test/resolvers.js';
 
-// #0258
+// #0263
 
 const typeDefs = [
     UserSchema,
@@ -82,6 +84,7 @@ const typeDefs = [
     OrganismSchema,
     ColorSchema,
     DashboardSchema,
+    DocumentSchema,
     TestSchema
 ];
 
@@ -104,8 +107,10 @@ const resolvers = merge(
     OrganismResolvers,
     ColorResolvers,
     DashboardResolvers,
+    DocumentResolvers,
     TestResolvers
 );
+
 
 const server = new ApolloServer({
     typeDefs,

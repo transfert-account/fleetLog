@@ -1,0 +1,23 @@
+type File {
+    filename:String!
+    mimetype:String!
+    encoding:String!
+}
+
+type Document {
+    _id:String!
+    name:String!
+    size:Int!
+    path:String!
+    originalFilename:String!
+    ext:String!
+    type:String!
+}
+
+extend type Query {
+    downloadFile(_id:String!):File
+}
+
+extend type Mutation {
+    uploadFile(file: Upload!,societe:String!,type:String):[QueryResultMessage]
+}

@@ -24,6 +24,8 @@ class Vehicle extends Component {
       }
 
     state={
+        newCg:null,
+        newCv:null,
         newSociete:"",
         newRegistration:"",
         newFirstRegistrationDate:"",
@@ -151,6 +153,14 @@ class Vehicle extends Component {
         unArchiveVehicleQuery : gql`
             mutation unArchiveVehicle($_id:String!){
                 unArchiveVehicle(_id:$_id){
+                    status
+                    message
+                }
+            }
+        `,
+        uploadFileQuery : gql`
+            mutation uploadFile($file: Upload!,$type: String!,$societe: String!) {
+                uploadFile(file:$file,type:$type,societe:$societe) {
                     status
                     message
                 }
@@ -421,11 +431,40 @@ class Vehicle extends Component {
         this.setState({openDocs:false})
     }
     
-    downloadDoc = doc => {
-        
+    handleInputFile = (type,e) => {
+        if(e.target.validity.valid ){
+            this.setState({
+                [type]:e.target.files[0]
+            })
+        }
     }
-    uploadDoc = doc => {
+
+    downloadDocCg = () => {
         
+
+
+
+
+
+        this.closeDocs();
+    }
+    uploadDocCg = () => {
+        this.props.client.mutate({
+            mutation:this.state.uploadFileQuery,
+            variables:{
+                file:this.state.newCg,
+                type:"cg",
+                societe:this.state.vehicle.societe._id
+            }
+        })
+        this.closeDocs();
+    }
+
+    downloadDocCv = () => {
+        this.closeDocs();
+    }
+    uploadDocCv = () => {
+        this.closeDocs();
     }
 
     editInfos = () => {
@@ -829,9 +868,9 @@ class Vehicle extends Component {
                             Documents relatifs au vehicle immatriculé : {this.state.vehicle.registration}
                         </Modal.Header>
                         <Modal.Content style={{textAlign:"center"}}>
-                            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gridTemplateRows:"1fr auto 1fr",gridGap:"0 24px"}}>
-                                <p style={{gridColumnEnd:"span 2"}}><Icon name='folder open'/>Document 1</p>
-                                <p style={{gridColumnEnd:"span 2"}}><Icon name='folder open'/>Document 2</p>
+                            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gridTemplateRows:"1fr auto 1fr 1fr",gridGap:"24px"}}>
+                                <p style={{gridColumnEnd:"span 2"}}><Icon name='folder open'/>Carte grise</p>
+                                <p style={{gridColumnEnd:"span 2"}}><Icon name='folder open'/>Carte verte</p>
                                 <Message style={{gridColumnEnd:"span 2",display:"grid",gridTemplateColumns:"1fr 2fr",gridTemplateRows:"1fr 1fr 1fr"}} color="grey">
                                     <p className="gridLabel">Nom du fichier :</p>
                                     <p className="gridValue">Doc Name XYZ</p>
@@ -848,10 +887,12 @@ class Vehicle extends Component {
                                     <p className="gridLabel">Enregistré le :</p>
                                     <p className="gridValue">01/02/2019</p>
                                 </Message>
-                                <Button color="blue" onClick={this.closeDocs}>Importer</Button>
-                                <Button color="black" onClick={this.closeDocs}>Telecharger</Button>
-                                <Button color="blue" onClick={this.closeDocs}>Importer</Button>
-                                <Button color="black" onClick={this.closeDocs}>Telecharger</Button>
+                                <Input onChange={e=>{this.handleInputFile("newCg",e)}} style={{gridColumnEnd:"span 2"}} type='file' />
+                                <Input onChange={e=>{this.handleInputFile("newCv",e)}} style={{gridColumnEnd:"span 2"}} type='file' />
+                                <Button color="blue" onClick={this.uploadDocCg}>Importer</Button>
+                                <Button color="black" onClick={this.downloadDocCg}>Telecharger</Button>
+                                <Button color="blue" onClick={this.uploadDocCv}>Importer</Button>
+                                <Button color="black" onClick={this.downloadDocCv}>Telecharger</Button>
                             </div>
                         </Modal.Content>
                         <Modal.Actions>

@@ -8,6 +8,7 @@ import { HttpLink } from 'apollo-link-http';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import { BrowserRouter } from 'react-router-dom';
 import { ApolloClient } from 'apollo-client'
+import { createUploadLink } from 'apollo-upload-client'
 
 import UserProvider from '../../contexts/UserContext';
 import App from '../../ui/App';
@@ -15,7 +16,7 @@ import App from '../../ui/App';
 const client = new ApolloClient({
     link: ApolloLink.from([
       new MeteorAccountsLink({ headerName: 'meteor-login-token' }),
-      new HttpLink({
+      new createUploadLink({
         uri: '/graphql'
       })
     ]),
