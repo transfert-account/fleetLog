@@ -136,12 +136,14 @@ class Vehicles extends Component {
                     payload
                     color{
                         _id
-                        name
-                        hex
                     }
-                    cg
                     insurancePaid
-                    cv
+                    cg{
+                        _id
+                    }
+                    cv{
+                        _id
+                    }
                     payementBeginDate
                     property
                     purchasePrice

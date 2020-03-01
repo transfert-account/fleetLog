@@ -11,9 +11,9 @@ type Vehicle{
     volume:Volume
     payload:Float
     color:Color
-    cg:String
     insurancePaid:Float
-    cv:String
+    cg:Document
+    cv:Document
     payementBeginDate:String
     property:Boolean
     equipements:[Equipement]
@@ -45,5 +45,6 @@ extend type Mutation{
     deleteKm(vehicle:String!,_id:String!):[QueryResultMessage]
     archiveVehicle(_id:String!,archiveReason:String!):[QueryResultMessage]
     unArchiveVehicle(_id:String!):[QueryResultMessage]
-    deleteVehicle(_id:String!): [QueryResultMessage]
+    deleteVehicle(_id:String!):[QueryResultMessage]
+    uploadVehicleDocument(_id:String!,file:Upload!,type:String,size:Int!):[QueryResultMessage]
 }

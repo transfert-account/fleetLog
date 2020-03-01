@@ -6,12 +6,13 @@ type File {
 
 type Document {
     _id:String!
-    name:String!
-    size:Int!
-    path:String!
-    originalFilename:String!
-    ext:String!
-    type:String!
+    name:String
+    size:Int
+    path:String
+    originalFilename:String
+    ext:String
+    type:String
+    storageDate:String
 }
 
 extend type Query {
@@ -19,5 +20,5 @@ extend type Query {
 }
 
 extend type Mutation {
-    uploadFile(file: Upload!,societe:String!,type:String):[QueryResultMessage]
+    uploadFile(file:Upload!,societe:String!,type:String,size:Int!):[QueryResultMessage]
 }

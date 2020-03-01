@@ -12,6 +12,7 @@ import VolumePicker from '../atoms/VolumePicker';
 import RegistrationInput from '../atoms/RegistrationInput';
 import PayementFormatPicker from '../atoms/PayementFormatPicker';
 import { withRouter } from 'react-router-dom';
+import FileManagementPanel from '../atoms/FileManagementPanel';
 import moment from 'moment';
 import { gql } from 'apollo-server-express';
 import _ from 'lodash';
@@ -107,6 +108,26 @@ class Vehicle extends Component {
                     archived
                     archiveReason
                     archiveDate
+                    cg{
+                        _id
+                        name
+                        size
+                        path
+                        originalFilename
+                        ext
+                        type
+                        storageDate
+                    }
+                    cv{
+                        _id
+                        name
+                        size
+                        path
+                        originalFilename
+                        ext
+                        type
+                        storageDate
+                    }
                 }
             }
         `,
@@ -158,9 +179,9 @@ class Vehicle extends Component {
                 }
             }
         `,
-        uploadFileQuery : gql`
-            mutation uploadFile($file: Upload!,$type: String!,$societe: String!) {
-                uploadFile(file:$file,type:$type,societe:$societe) {
+        uploadVehicleDocumentQuery : gql`
+            mutation uploadVehicleDocument($_id: String!,$file: Upload!,$type: String!,$size: Int!) {
+                uploadVehicleDocument(_id:$_id,file:$file,type:$type,size:$size) {
                     status
                     message
                 }
@@ -428,7 +449,7 @@ class Vehicle extends Component {
         this.setState({openDocs:true})
     }
     closeDocs = () => {
-        this.setState({openDocs:false})
+        this.setState({openDocs:false,newCg:null,newCv:null})
     }
     
     handleInputFile = (type,e) => {
@@ -450,21 +471,49 @@ class Vehicle extends Component {
     }
     uploadDocCg = () => {
         this.props.client.mutate({
-            mutation:this.state.uploadFileQuery,
+            mutation:this.state.uploadVehicleDocumentQuery,
             variables:{
+                _id:this.state.vehicle._id,
                 file:this.state.newCg,
                 type:"cg",
-                societe:this.state.vehicle.societe._id
+                size:this.state.newCg.size
             }
+        }).then(({data})=>{
+            data.uploadVehicleDocument.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.loadVehicule();
+                    this.closeDocs();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
-        this.closeDocs();
     }
 
     downloadDocCv = () => {
         this.closeDocs();
     }
     uploadDocCv = () => {
-        this.closeDocs();
+        this.props.client.mutate({
+            mutation:this.state.uploadVehicleDocumentQuery,
+            variables:{
+                _id:this.state.vehicle._id,
+                file:this.state.newCv,
+                type:"cv",
+                size:this.state.newCv.size
+            }
+        }).then(({data})=>{
+            data.uploadVehicleDocument.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.loadVehicule();
+                    this.closeDocs();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
     }
 
     editInfos = () => {
@@ -818,7 +867,7 @@ class Vehicle extends Component {
                             </div>
                             {this.getInfoPanel()}
                         </div>
-                        <div style={{display:"grid",gridTemplateColumns:"256px 1fr",gridTemplateRows:"auto 640px 1fr",gridColumnStart:"2",gridGap:"16px"}}>
+                        <div style={{display:"grid",gridTemplateColumns:"256px 1fr",gridTemplateRows:"auto 640px 1fr",gridColumnStart:"2",gridGap:"8px"}}>
                             <div style={{display:"grid",gridColumnEnd:"span 2",gridTemplateColumns:"1fr 1fr 1fr 1fr",gridGap:"16px"}}>
                                 <Button color="green" style={{placeSelf:"stretch",gridColumnEnd:"span 2"}} onClick={this.showUpdateKm} icon labelPosition='right'>MaJ kilométrage<Icon name='dashboard'/></Button>
                                 <Button color="purple" style={{placeSelf:"stretch",gridColumnEnd:"span 2"}} onClick={this.showDocs} icon labelPosition='right'>Gérer les documents<Icon name='folder'/></Button>
@@ -868,31 +917,9 @@ class Vehicle extends Component {
                             Documents relatifs au vehicle immatriculé : {this.state.vehicle.registration}
                         </Modal.Header>
                         <Modal.Content style={{textAlign:"center"}}>
-                            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gridTemplateRows:"1fr auto 1fr 1fr",gridGap:"24px"}}>
-                                <p style={{gridColumnEnd:"span 2"}}><Icon name='folder open'/>Carte grise</p>
-                                <p style={{gridColumnEnd:"span 2"}}><Icon name='folder open'/>Carte verte</p>
-                                <Message style={{gridColumnEnd:"span 2",display:"grid",gridTemplateColumns:"1fr 2fr",gridTemplateRows:"1fr 1fr 1fr"}} color="grey">
-                                    <p className="gridLabel">Nom du fichier :</p>
-                                    <p className="gridValue">Doc Name XYZ</p>
-                                    <p className="gridLabel">Taille du fichier:</p>
-                                    <p className="gridValue">1234 kB</p>
-                                    <p className="gridLabel">Enregistré le :</p>
-                                    <p className="gridValue">01/02/2019</p>
-                                </Message>
-                                <Message style={{gridColumnEnd:"span 2",display:"grid",gridTemplateColumns:"1fr 2fr",gridTemplateRows:"1fr 1fr 1fr"}} color="grey">
-                                    <p className="gridLabel">Nom du fichier :</p>
-                                    <p className="gridValue">Doc Name XYZ</p>
-                                    <p className="gridLabel">Taille du fichier:</p>
-                                    <p className="gridValue">1234 kB</p>
-                                    <p className="gridLabel">Enregistré le :</p>
-                                    <p className="gridValue">01/02/2019</p>
-                                </Message>
-                                <Input onChange={e=>{this.handleInputFile("newCg",e)}} style={{gridColumnEnd:"span 2"}} type='file' />
-                                <Input onChange={e=>{this.handleInputFile("newCv",e)}} style={{gridColumnEnd:"span 2"}} type='file' />
-                                <Button color="blue" onClick={this.uploadDocCg}>Importer</Button>
-                                <Button color="black" onClick={this.downloadDocCg}>Telecharger</Button>
-                                <Button color="blue" onClick={this.uploadDocCv}>Importer</Button>
-                                <Button color="black" onClick={this.downloadDocCv}>Telecharger</Button>
+                            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"24px"}}>
+                                <FileManagementPanel importLocked={this.state.newCg == null} handleInputFile={this.handleInputFile} fileTarget="newCg" uploadDoc={this.uploadDocCg} downloadDoc={this.downloadDocCg} fileInfos={this.state.vehicle.cg} title="Carte grise" type="cg"/>
+                                <FileManagementPanel importLocked={this.state.newCv == null} handleInputFile={this.handleInputFile} fileTarget="newCv" uploadDoc={this.uploadDocCv} downloadDoc={this.downloadDocCv} fileInfos={this.state.vehicle.cv} title="Carte verte" type="cv"/>
                             </div>
                         </Modal.Content>
                         <Modal.Actions>

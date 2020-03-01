@@ -9,147 +9,86 @@ import Organisms from '../organism/organisms.js';
 import Colors from '../color/colors.js';
 import Equipements from '../equipement/equipements';
 import EquipementDescriptions from '../equipementDescription/equipementDescriptions';
+import Documents from '../document/documents';
+
+import Functions from '../common/functions';
 import moment from 'moment';
 import { Mongo } from 'meteor/mongo';
+
+const affectVehicleData = vehicle => {
+    vehicle.lastKmUpdate = vehicle.kms[vehicle.kms.length-1].reportDate
+    vehicle.km = vehicle.kms[vehicle.kms.length-1].kmValue
+    if(vehicle.payementFormat == "CRB"){
+        vehicle.property = false
+    }else{
+        vehicle.property = true
+    }
+    if(vehicle.societe != null && vehicle.societe.length > 0){
+        vehicle.societe = Societes.findOne({_id:new Mongo.ObjectID(vehicle.societe)});
+    }else{
+        vehicle.societe = {_id:""};
+    }
+    if(vehicle.brand != null && vehicle.brand.length > 0){
+        vehicle.brand = Brands.findOne({_id:new Mongo.ObjectID(vehicle.brand)});
+    }else{
+        vehicle.brand = {_id:""};
+    }
+    if(vehicle.model != null && vehicle.model.length > 0){
+        vehicle.model = Models.findOne({_id:new Mongo.ObjectID(vehicle.model)});
+    }else{
+        vehicle.model = {_id:""};
+    }
+    if(vehicle.payementOrg != null && vehicle.payementOrg.length > 0){
+        vehicle.payementOrg = Organisms.findOne({_id:new Mongo.ObjectID(vehicle.payementOrg)});
+    }else{
+        vehicle.payementOrg = {_id:""};
+    }
+    if(vehicle.color != null && vehicle.color.length > 0){
+        vehicle.color = Colors.findOne({_id:new Mongo.ObjectID(vehicle.color)});
+    }else{
+        vehicle.color = {_id:""};
+    }
+    if(vehicle.volume != null && vehicle.volume.length > 0){
+        vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(vehicle.volume)});
+    }else{
+        vehicle.volume = {_id:""};
+    }
+    vehicle.equipements = Equipements.find({vehicle:vehicle._id._str}).fetch() || {};
+    vehicle.equipements.forEach((e,ei) => {
+        e.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)}) || {};
+    });
+    if(vehicle.cg != null && vehicle.cg.length > 0){
+        vehicle.cg = Documents.findOne({_id:new Mongo.ObjectID(vehicle.cg)});
+    }else{
+        vehicle.cg = {_id:""};
+    }
+    if(vehicle.cv != null && vehicle.cv.length > 0){
+        vehicle.cv = Documents.findOne({_id:new Mongo.ObjectID(vehicle.cv)});
+    }else{
+        vehicle.cv = {_id:""};
+    }
+    return vehicle
+}
+
 export default {
     Query : {
         vehicle(obj, {_id}, { user }){
             let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(_id)});
-            vehicle.lastKmUpdate = vehicle.kms[vehicle.kms.length-1].reportDate
-            vehicle.km = vehicle.kms[vehicle.kms.length-1].kmValue
-            if(vehicle.payementFormat == "CRB"){
-                vehicle.property = false
-            }else{
-                vehicle.property = true
-            }
-            if(vehicle.societe != null && vehicle.societe.length > 0){
-                vehicle.societe = Societes.findOne({_id:new Mongo.ObjectID(vehicle.societe)});
-            }else{
-                vehicle.societe = {_id:""};
-            }
-            if(vehicle.brand != null && vehicle.brand.length > 0){
-                vehicle.brand = Brands.findOne({_id:new Mongo.ObjectID(vehicle.brand)});
-            }else{
-                vehicle.brand = {_id:""};
-            }
-            if(vehicle.model != null && vehicle.model.length > 0){
-                vehicle.model = Models.findOne({_id:new Mongo.ObjectID(vehicle.model)});
-            }else{
-                vehicle.model = {_id:""};
-            }
-            if(vehicle.payementOrg != null && vehicle.payementOrg.length > 0){
-                vehicle.payementOrg = Organisms.findOne({_id:new Mongo.ObjectID(vehicle.payementOrg)});
-            }else{
-                vehicle.payementOrg = {_id:""};
-            }
-            if(vehicle.color != null && vehicle.color.length > 0){
-                vehicle.color = Colors.findOne({_id:new Mongo.ObjectID(vehicle.color)});
-            }else{
-                vehicle.color = {_id:""};
-            }
-            if(vehicle.volume != null && vehicle.volume.length > 0){
-                vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(vehicle.volume)});
-            }else{
-                vehicle.volume = {_id:""};
-            }
-            vehicle.equipements = Equipements.find({vehicle:vehicle._id._str}).fetch() || {};
-            vehicle.equipements.forEach((e,ei) => {
-                e.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)}) || {};
-            });
+            affectVehicleData(vehicle)
             return vehicle;
         },
         vehicles(obj, args, { user }){
             let vehicles = Vehicles.find().fetch() || {};
-            vehicles.forEach((v,i) => {
-                v.lastKmUpdate = v.kms[v.kms.length-1].reportDate
-                v.km = v.kms[v.kms.length-1].kmValue
-                if(v.payementFormat == "CRB"){
-                    v.property = false
-                }else{
-                    v.property = true
-                }
-                if(v.volume != null && v.volume.length > 0){
-                    v.volume = Volumes.findOne({_id:new Mongo.ObjectID(v.volume)});
-                }else{
-                    v.volume = {_id:""};
-                }
-                if(v.societe != null && v.societe.length > 0){
-                    vehicles[i].societe = Societes.findOne({_id:new Mongo.ObjectID(v.societe)});
-                }else{
-                    vehicles[i].societe = {_id:""};
-                }
-                if(v.brand != null && v.brand.length > 0){
-                    v.brand = Brands.findOne({_id:new Mongo.ObjectID(v.brand)});
-                }else{
-                    v.brand = {_id:""};
-                }
-                if(v.model != null && v.model.length > 0){
-                    v.model = Models.findOne({_id:new Mongo.ObjectID(v.model)});
-                }else{
-                    v.model = {_id:""};
-                }
-                if(v.payementOrg != null && v.payementOrg.length > 0){
-                    v.payementOrg = Organisms.findOne({_id:new Mongo.ObjectID(v.payementOrg)});
-                }else{
-                    v.payementOrg = {_id:""};
-                }
-                if(v.color != null && v.color.length > 0){
-                    v.color = Colors.findOne({_id:new Mongo.ObjectID(v.color)});
-                }else{
-                    v.color = {_id:""};
-                }
-                v.equipements = Equipements.find({vehicle:v._id._str}).fetch() || {};
-                v.equipements.forEach((e,ei) => {
-                    e.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)}) || {};
-                });
+            vehicles.forEach(v => {
+                affectVehicleData(v)
             });
             return vehicles;
         },
         buVehicles(obj, args,{user}){
             let userFull = Meteor.users.findOne({_id:user._id});
             let vehicles = Vehicles.find({societe:userFull.settings.visibility}).fetch() || {};
-            vehicles.forEach((v,i) => {
-                v.lastKmUpdate = v.kms[v.kms.length-1].reportDate
-                v.km = v.kms[v.kms.length-1].kmValue
-                if(v.payementFormat == "CRB"){
-                    v.property = false
-                }else{
-                    v.property = true
-                }
-                if(v.volume != null && v.volume.length > 0){
-                    v.volume = Volumes.findOne({_id:new Mongo.ObjectID(v.volume)});
-                }else{
-                    v.volume = {_id:""};
-                }
-                if(v.societe != null && v.societe.length > 0){
-                    vehicles[i].societe = Societes.findOne({_id:new Mongo.ObjectID(v.societe)});
-                }else{
-                    vehicles[i].societe = {_id:""};
-                }
-                if(v.brand != null && v.brand.length > 0){
-                    v.brand = Brands.findOne({_id:new Mongo.ObjectID(v.brand)});
-                }else{
-                    v.brand = {_id:""};
-                }
-                if(v.model != null && v.model.length > 0){
-                    v.model = Models.findOne({_id:new Mongo.ObjectID(v.model)});
-                }else{
-                    v.model = {_id:""};
-                }
-                if(v.payementOrg != null && v.payementOrg.length > 0){
-                    v.payementOrg = Organisms.findOne({_id:new Mongo.ObjectID(v.payementOrg)});
-                }else{
-                    v.payementOrg = {_id:""};
-                }
-                if(v.color != null && v.color.length > 0){
-                    v.color = Colors.findOne({_id:new Mongo.ObjectID(v.color)});
-                }else{
-                    v.color = {_id:""};
-                }
-                v.equipements = Equipements.find({vehicle:v._id._str}).fetch() || {};
-                v.equipements.forEach((e,ei) => {
-                    e.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)}) || {};
-                });
+            vehicles.forEach(v => {
+                affectVehicleData(v)
             });
             return vehicles;
         }
@@ -180,7 +119,9 @@ export default {
                     payementFormat:payementFormat,
                     archived:false,
                     archiveReason:"",
-                    archiveDate:""
+                    archiveDate:"",
+                    cg:"",
+                    cv:""
                 });
                 return [{status:true,message:'Création réussie'}];
             }
@@ -328,6 +269,53 @@ export default {
                 return [{status:true,message:'Désarchivage réussi'}];
             }
             throw new Error('Unauthorized');
+        },
+        async uploadVehicleDocument(obj, {_id,type,file,size},{user}){
+            if(user._id){
+                if(type != "cv" && type != "cg"){
+                    return [{status:false,message:'Type de fichier innatendu (cv/cg)'}];
+                }
+                let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(_id)});
+                let societe = Societes.findOne({_id:new Mongo.ObjectID(vehicle.societe)});
+                return await new Promise(async (resolve,reject)=>{
+                    await new Promise(async (resolve,reject)=>{//resolve on end of file upload
+                        let uploadInfo = await Functions.shipToBucket(await file,societe,type)
+                        if(uploadInfo.uploadSucces){
+                            resolve(uploadInfo)
+                        }else{
+                            reject(uploadInfo)
+                        }
+                    }).then((uploadInfo)=>{
+                        let docId = new Mongo.ObjectID();
+                        let d = Documents.insert({
+                            _id:docId,
+                            name:uploadInfo.fileInfo.docName,
+                            size:size,
+                            path:uploadInfo.data.Location,
+                            originalFilename:uploadInfo.fileInfo.originalFilename,
+                            ext:uploadInfo.fileInfo.ext,
+                            type:type,
+                            storageDate:moment().format('DD/MM/YYYY HH:mm:ss')
+                        });
+                        let v = Vehicles.update(
+                            {
+                                _id: new Mongo.ObjectID(_id)
+                            }, {
+                                $set: {
+                                    [type]:docId._str
+                                }
+                            }   
+                        )
+                        resolve(uploadInfo)
+                    }).catch(e=>{
+                        reject(e)
+                    })
+                }).then((uploadInfo)=>{
+                    return [{status:true,message:'Document sauvegardé'}];
+                }).catch(e=>{
+                    return [{status:true,message:'Erreur durant le traitement : ' + e}];
+                });
+            }
         }
     }
 }
