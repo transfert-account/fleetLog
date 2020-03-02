@@ -134,9 +134,7 @@ export class BUVehicles extends Component {
                         name
                         hex
                     }
-                    cg
                     insurancePaid
-                    cv
                     payementBeginDate
                     property
                     purchasePrice

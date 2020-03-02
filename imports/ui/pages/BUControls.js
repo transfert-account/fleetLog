@@ -42,9 +42,7 @@ export class BUControls extends Component {
                         name
                         hex
                     }
-                    cg
                     insurancePaid
-                    cv
                     archived
                     property
                     equipements{

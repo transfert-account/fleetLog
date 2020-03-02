@@ -100,9 +100,7 @@ class Location extends Component {
                         name
                         hex
                     }
-                    cg
                     insurancePaid
-                    cv
                     startDate
                     endDate
                     price
