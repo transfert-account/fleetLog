@@ -85,6 +85,8 @@ export default {
                                     }
                                 });
                             });
+                        }else{
+                            resolve({uploadSucces:true,data:data,fileInfo:fileInfo})
                         }
                     }
                 });
