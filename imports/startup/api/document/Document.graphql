@@ -13,10 +13,11 @@ type Document {
     ext:String
     type:String
     storageDate:String
+    mimetype:String
 }
 
 extend type Query {
-    downloadFile(_id:String!):File
+    getSignedDocumentDownloadLink(_id:String!):String!
 }
 
 extend type Mutation {

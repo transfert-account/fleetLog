@@ -2,7 +2,6 @@ import React, { Component, Fragment } from 'react'
 import { Loader, Label, Button, Icon, Message, Modal, Progress, Input, Form, Table, Divider, Header, TextArea } from 'semantic-ui-react';
 import { Bar } from 'react-chartjs-2';
 import ModalDatePicker from '../atoms/ModalDatePicker';
-import { UserContext } from '../../contexts/UserContext';
 import ColorPicker from '../atoms/ColorPicker';
 import ModelPicker from '../atoms/ModelPicker';
 import BrandPicker from '../atoms/BrandPicker';
@@ -11,8 +10,10 @@ import SocietePicker from '../atoms/SocietePicker';
 import VolumePicker from '../atoms/VolumePicker';
 import RegistrationInput from '../atoms/RegistrationInput';
 import PayementFormatPicker from '../atoms/PayementFormatPicker';
-import { withRouter } from 'react-router-dom';
 import FileManagementPanel from '../atoms/FileManagementPanel';
+
+import { withRouter } from 'react-router-dom';
+import { UserContext } from '../../contexts/UserContext';
 import moment from 'moment';
 import { gql } from 'apollo-server-express';
 import _ from 'lodash';
@@ -116,6 +117,7 @@ class Vehicle extends Component {
                         originalFilename
                         ext
                         type
+                        mimetype
                         storageDate
                     }
                     cv{
@@ -126,6 +128,7 @@ class Vehicle extends Component {
                         originalFilename
                         ext
                         type
+                        mimetype
                         storageDate
                     }
                 }
@@ -460,15 +463,6 @@ class Vehicle extends Component {
         }
     }
 
-    downloadDocCg = () => {
-        
-
-
-
-
-
-        this.closeDocs();
-    }
     uploadDocCg = () => {
         this.props.client.mutate({
             mutation:this.state.uploadVehicleDocumentQuery,
@@ -491,9 +485,6 @@ class Vehicle extends Component {
         })
     }
 
-    downloadDocCv = () => {
-        this.closeDocs();
-    }
     uploadDocCv = () => {
         this.props.client.mutate({
             mutation:this.state.uploadVehicleDocumentQuery,
@@ -912,7 +903,7 @@ class Vehicle extends Component {
                             <Button color="blue" onClick={this.updateKm}>Mettre à jour</Button>
                         </Modal.Actions>
                     </Modal>
-                    <Modal closeOnDimmerClick={false} open={this.state.openDocs} onClose={this.closeDocs} closeIcon>
+                    <Modal size='large' closeOnDimmerClick={false} open={this.state.openDocs} onClose={this.closeDocs} closeIcon>
                         <Modal.Header>
                             Documents relatifs au vehicle immatriculé : {this.state.vehicle.registration}
                         </Modal.Header>

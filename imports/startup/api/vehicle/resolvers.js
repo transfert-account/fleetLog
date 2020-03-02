@@ -277,27 +277,28 @@ export default {
                 }
                 let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(_id)});
                 let societe = Societes.findOne({_id:new Mongo.ObjectID(vehicle.societe)});
+                let docId = new Mongo.ObjectID();
                 return await new Promise(async (resolve,reject)=>{
                     await new Promise(async (resolve,reject)=>{//resolve on end of file upload
-                        let uploadInfo = await Functions.shipToBucket(await file,societe,type)
+                        let uploadInfo = await Functions.shipToBucket(await file,societe,type,docId)
                         if(uploadInfo.uploadSucces){
                             resolve(uploadInfo)
                         }else{
                             reject(uploadInfo)
                         }
                     }).then((uploadInfo)=>{
-                        let docId = new Mongo.ObjectID();
-                        let d = Documents.insert({
+                        Documents.insert({
                             _id:docId,
                             name:uploadInfo.fileInfo.docName,
                             size:size,
                             path:uploadInfo.data.Location,
                             originalFilename:uploadInfo.fileInfo.originalFilename,
                             ext:uploadInfo.fileInfo.ext,
+                            mimetype:uploadInfo.fileInfo.mimetype,
                             type:type,
                             storageDate:moment().format('DD/MM/YYYY HH:mm:ss')
                         });
-                        let v = Vehicles.update(
+                        Vehicles.update(
                             {
                                 _id: new Mongo.ObjectID(_id)
                             }, {
