@@ -278,9 +278,23 @@ export default {
                 let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(_id)});
                 let societe = Societes.findOne({_id:new Mongo.ObjectID(vehicle.societe)});
                 let docId = new Mongo.ObjectID();
+                let oldFile = null;
+                let deleteOld = false;
+                if(type == "cg"){
+                    if(vehicle.cg != null && vehicle.cg != undefined){
+                        deleteOld = true;
+                        oldFile = Documents.findOne({_id:new Mongo.ObjectID(vehicle.cg)})
+                    }
+                }
+                if(type == "cv"){
+                    if(vehicle.cv != null && vehicle.cv != undefined){
+                        deleteOld = true;
+                        oldFile = Documents.findOne({_id:new Mongo.ObjectID(vehicle.cv)})
+                    }
+                }
                 return await new Promise(async (resolve,reject)=>{
                     await new Promise(async (resolve,reject)=>{//resolve on end of file upload
-                        let uploadInfo = await Functions.shipToBucket(await file,societe,type,docId)
+                        let uploadInfo = await Functions.shipToBucket(await file,societe,type,docId,deleteOld,oldFile)
                         if(uploadInfo.uploadSucces){
                             resolve(uploadInfo)
                         }else{
