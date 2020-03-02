@@ -43,9 +43,7 @@ export class Controls extends Component {
                         name
                         hex
                     }
-                    cg
                     insurancePaid
-                    cv
                     property
                     equipements{
                         _id
