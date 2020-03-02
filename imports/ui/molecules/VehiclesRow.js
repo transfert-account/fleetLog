@@ -23,7 +23,6 @@ class VehiclesRow extends Component {
         newPayementBeginDate:this.props.vehicle.payementBeginDate,
         newProperty:this.props.vehicle.property,
         openDelete:false,
-        openDocs:false,
         editing:false,
         deleteVehicleQuery : gql`
             mutation deleteVehicle($_id:String!){
@@ -44,16 +43,10 @@ class VehiclesRow extends Component {
 
     handleChangeSociete = (e, { value }) => this.setState({ newSociete:value })    
 
-    showDocs = () => {
-        this.setState({openDocs:true})
-    }
     showDatePicker = target => {
         this.setState({openDatePicker:true,datePickerTarget:target})
     }
  
-    closeDocs = () => {
-        this.setState({openDocs:false})
-    }
     closeDatePicker = target => {
         this.setState({openDatePicker:false,datePickerTarget:""})
     }
@@ -158,44 +151,9 @@ class VehiclesRow extends Component {
                         {this.getPayementProgress()}
                     </Table.Cell>
                     <Table.Cell textAlign="center">
-                        <Button circular style={{color:"#a29bfe"}} inverted icon icon='folder open' onClick={this.showDocs}/>
                         <Button circular style={{color:"#2980b9"}} inverted icon icon='arrow right' onClick={this.navigateToVehicle}/>
                     </Table.Cell>
                 </Table.Row>
-                <Modal closeOnDimmerClick={false} open={this.state.openDocs} onClose={this.closeDocs} closeIcon>
-                    <Modal.Header>
-                        Documents relatifs au vehicle immatriculé : {this.props.vehicle.registration}
-                    </Modal.Header>
-                    <Modal.Content style={{textAlign:"center"}}>
-                        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gridTemplateRows:"1fr auto 1fr",gridGap:"0 24px"}}>
-                            <p style={{gridColumnEnd:"span 2"}}><Icon name='folder open'/>Document 1</p>
-                            <p style={{gridColumnEnd:"span 2"}}><Icon name='folder open'/>Document 2</p>
-                            <Message style={{gridColumnEnd:"span 2",display:"grid",gridTemplateColumns:"1fr 2fr",gridTemplateRows:"1fr 1fr 1fr"}} color="grey">
-                                <p className="gridLabel">Nom du fichier :</p>
-                                <p className="gridValue">Doc Name XYZ</p>
-                                <p className="gridLabel">Taille du fichier:</p>
-                                <p className="gridValue">1234 kB</p>
-                                <p className="gridLabel">Enregistré le :</p>
-                                <p className="gridValue">01/02/2019</p>
-                            </Message>
-                            <Message style={{gridColumnEnd:"span 2",display:"grid",gridTemplateColumns:"1fr 2fr",gridTemplateRows:"1fr 1fr 1fr"}} color="grey">
-                                <p className="gridLabel">Nom du fichier :</p>
-                                <p className="gridValue">Doc Name XYZ</p>
-                                <p className="gridLabel">Taille du fichier:</p>
-                                <p className="gridValue">1234 kB</p>
-                                <p className="gridLabel">Enregistré le :</p>
-                                <p className="gridValue">01/02/2019</p>
-                            </Message>
-                            <Button color="blue" onClick={this.closeDocs}>Importer</Button>
-                            <Button color="black" onClick={this.closeDocs}>Telecharger</Button>
-                            <Button color="blue" onClick={this.closeDocs}>Importer</Button>
-                            <Button color="black" onClick={this.closeDocs}>Telecharger</Button>
-                        </div>
-                    </Modal.Content>
-                    <Modal.Actions>
-                        <Button color="grey" onClick={this.closeDocs}>Fermer</Button>
-                    </Modal.Actions>
-                </Modal>
                 <Modal closeOnDimmerClick={false} open={this.state.openDelete} onClose={this.closeDelete} closeIcon>
                     <Modal.Header>
                         Confirmation de suppression 

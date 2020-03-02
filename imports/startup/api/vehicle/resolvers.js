@@ -272,7 +272,6 @@ export default {
         },
         async uploadVehicleDocument(obj, {_id,type,file,size},{user}){
             if(user._id){
-                console.log("reached 1")
                 if(type != "cv" && type != "cg"){
                     return [{status:false,message:'Type de fichier innatendu (cv/cg)'}];
                 }
@@ -282,24 +281,19 @@ export default {
                 let oldFile = null;
                 let deleteOld = false;
                 if(type == "cg"){
-                    console.log("reached 2")
                     if(vehicle.cg != null && vehicle.cg != undefined){
-                        console.log("reached 3")
                         deleteOld = true;
                         oldFile = Documents.findOne({_id:new Mongo.ObjectID(vehicle.cg)})
                     }
                 }
                 if(type == "cv"){
-                    console.log("reached 4")
                     if(vehicle.cv != null && vehicle.cv != undefined){
-                        console.log("reached 5")
                         deleteOld = true;
                         oldFile = Documents.findOne({_id:new Mongo.ObjectID(vehicle.cv)})
                     }
                 }
                 return await new Promise(async (resolve,reject)=>{
                     await new Promise(async (resolve,reject)=>{
-                        console.log("reached 6")
                         let uploadInfo = await Functions.shipToBucket(await file,societe,type,docId,deleteOld,oldFile)
                         if(uploadInfo.uploadSucces){
                             resolve(uploadInfo)
@@ -307,7 +301,6 @@ export default {
                             reject(uploadInfo)
                         }
                     }).then((uploadInfo)=>{
-                        console.log("reached 7")
                         Documents.insert({
                             _id:docId,
                             name:uploadInfo.fileInfo.docName,
@@ -319,7 +312,6 @@ export default {
                             type:type,
                             storageDate:moment().format('DD/MM/YYYY HH:mm:ss')
                         });
-                        console.log("reached 8")
                         Vehicles.update(
                             {
                                 _id: new Mongo.ObjectID(_id)
@@ -329,17 +321,13 @@ export default {
                                 }
                             }   
                         )
-                        console.log("reached 9")
                         resolve(uploadInfo)
                     }).catch(e=>{
-                        console.log("reached 10")
                         reject(e)
                     })
                 }).then((uploadInfo)=>{
-                    console.log("reached 11")
                     return [{status:true,message:'Document sauvegardé'}];
                 }).catch(e=>{
-                    console.log("reached 12")
                     return [{status:true,message:'Erreur durant le traitement : ' + e}];
                 });
             }
