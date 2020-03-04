@@ -35,6 +35,7 @@ class Vehicles extends Component {
         newPayementFormat:"",
         archiveFilter:false,
         reportLateFilter:"all",
+        docsFilter:"all",
         openAddVehicle:false,
         openDatePicker:false,
         datePickerTarget:"",
@@ -61,6 +62,15 @@ class Vehicles extends Component {
                     v.societe._id == this.props.societeFilter
                 );
             }
+            displayed = displayed.filter(v =>{
+                if(this.state.docsFilter == "all"){return true}else{
+                    if(v.cg._id == "" || v.cv._id == ""){
+                        return true
+                    }else{
+                        return false
+                    }
+                }}
+            )
             displayed = displayed.filter(v =>{
                 if(this.state.reportLateFilter == "all"){return true}else{
                     let days = parseInt(moment().diff(moment(v.lastKmUpdate, "DD/MM/YYYY"),'days'));
@@ -308,6 +318,25 @@ class Vehicles extends Component {
         })
     }
 
+    //MISSING DOCS FILTER
+    getDocsFilterColor = (color,filter) => {
+        if(this.state.docsFilter == filter){
+            return color
+        }
+    }
+
+    getDocsFilterBasic = (filter) => {
+        if(this.state.docsFilter == filter){
+            return true
+        }
+    }
+
+    setDocsFilter = value => {
+        this.setState({
+            docsFilter:value
+        })
+    }
+
     componentDidMount = () => {
         this.loadVehicles();
     }
@@ -324,11 +353,11 @@ class Vehicles extends Component {
                     </Menu>
                     <Input style={{justifySelf:"stretch"}} name="vehiclesFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher une immatriculation, une marque ou un modèle' />
                     <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddVehicle} icon labelPosition='right'>Ajouter un véhicule<Icon name='plus'/></Button>
-                    <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"16px"}}>
+                    <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gridGap:"16px"}}>
                         <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
                             <Icon name='archive'/>
                             <Button.Group style={{placeSelf:"center"}}>
-                                <Button basic={this.getArchiveFilterBasic(false)} color={this.getArchiveFilterColor("green",false)} onClick={this.switchArchiveFilter}>En cours</Button>
+                                <Button basic={this.getArchiveFilterBasic(false)} color={this.getArchiveFilterColor("green",false)} onClick={this.switchArchiveFilter}>Actuels</Button>
                                 <Button basic={this.getArchiveFilterBasic(true)} color={this.getArchiveFilterColor("orange",true)} onClick={this.switchArchiveFilter}>Archives</Button>
                             </Button.Group>
                         </Message>
@@ -336,8 +365,15 @@ class Vehicles extends Component {
                             <Icon name='dashboard'/>
                             <Button.Group style={{placeSelf:"center"}}>
                                 <Button basic={this.getKmFilterBasic("all")} color={this.getKmFilterColor("green","all")} onClick={()=>{this.setReportLateFilter("all")}}>Tous</Button>
-                                <Button basic={this.getKmFilterBasic("2w")} color={this.getKmFilterColor("orange","2w")} onClick={()=>{this.setReportLateFilter("2w")}}>Dernier relevé > 2 semaines</Button>
-                                <Button basic={this.getKmFilterBasic("4w")} color={this.getKmFilterColor("red","4w")} onClick={()=>{this.setReportLateFilter("4w")}}>Dernier relevé > 4 semaines</Button>
+                                <Button basic={this.getKmFilterBasic("2w")} color={this.getKmFilterColor("orange","2w")} onClick={()=>{this.setReportLateFilter("2w")}}>Relevé > 2 semaines</Button>
+                                <Button basic={this.getKmFilterBasic("4w")} color={this.getKmFilterColor("red","4w")} onClick={()=>{this.setReportLateFilter("4w")}}>Relevé > 4 semaines</Button>
+                            </Button.Group>
+                        </Message>
+                        <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
+                            <Icon name='folder'/>
+                            <Button.Group style={{placeSelf:"center"}}>
+                                <Button basic={this.getDocsFilterBasic("all")} color={this.getDocsFilterColor("green","all")} onClick={()=>{this.setDocsFilter("all")}}>Tous</Button>
+                                <Button basic={this.getDocsFilterBasic("missingDocs")} color={this.getDocsFilterColor("red","missingDocs")} onClick={()=>{this.setDocsFilter("missingDocs")}}>Documents manquants</Button>
                             </Button.Group>
                         </Message>
                     </div>

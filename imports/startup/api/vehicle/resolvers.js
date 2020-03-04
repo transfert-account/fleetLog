@@ -281,13 +281,13 @@ export default {
                 let oldFile = null;
                 let deleteOld = false;
                 if(type == "cg"){
-                    if(vehicle.cg != null && vehicle.cg != undefined){
+                    if(vehicle.cg != null && vehicle.cg != undefined && vehicle.cg != ""){
                         deleteOld = true;
                         oldFile = Documents.findOne({_id:new Mongo.ObjectID(vehicle.cg)})
                     }
                 }
                 if(type == "cv"){
-                    if(vehicle.cv != null && vehicle.cv != undefined){
+                    if(vehicle.cv != null && vehicle.cv != undefined && vehicle.cv != ""){
                         deleteOld = true;
                         oldFile = Documents.findOne({_id:new Mongo.ObjectID(vehicle.cv)})
                     }
