@@ -7,10 +7,7 @@ import { Mongo } from 'meteor/mongo';
 export default {
     Query : {
         testThis(obj, args,{user}){
-            Vehicles.remove({})
-            Locations.remove({})
             Licences.remove({})
-            Entretiens.remove({})
             return "true";
         }
     }
