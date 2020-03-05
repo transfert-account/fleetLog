@@ -69,6 +69,7 @@ class Entretiens extends Component {
                     )
                 }
             }
+            displayed.sort((a, b) => a.vehicle.registration.localeCompare(b.vehicle.registration))
             return displayed.map(e =>(
                 <EntretienRow loadEntretiens={this.loadEntretiens} key={e._id} entretien={e}/>
             ))
@@ -175,12 +176,6 @@ class Entretiens extends Component {
         }
     }
 
-    getArchiveFilterBasic = active => {
-        if(this.state.filterArchive == active){
-            return true;
-        }
-    }
-
     switchArchiveFilter = () => {
         this.setState({
             filterArchive:!this.state.filterArchive
@@ -192,12 +187,6 @@ class Entretiens extends Component {
     getOrderStatusColor = (color,filter) => {
         if(this.state.orderStatusFilter == filter){
             return color
-        }
-    }
-
-    getOrderStatusBasic = (filter) => {
-        if(this.state.orderStatusFilter == filter){
-            return true
         }
     }
 
@@ -250,17 +239,17 @@ class Entretiens extends Component {
                     <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
                         <Icon name='archive'/>
                         <Button.Group style={{placeSelf:"center"}}>
-                            <Button basic={this.getArchiveFilterBasic(false)} color={this.getArchiveFilterColor("green",false)} onClick={this.switchArchiveFilter}>En cours</Button>
-                            <Button basic={this.getArchiveFilterBasic(true)} color={this.getArchiveFilterColor("orange",true)} onClick={this.switchArchiveFilter}>Archives</Button>
+                            <Button color={this.getArchiveFilterColor("green",false)} onClick={this.switchArchiveFilter}>En cours</Button>
+                            <Button color={this.getArchiveFilterColor("orange",true)} onClick={this.switchArchiveFilter}>Archives</Button>
                         </Button.Group>
                     </Message>
                     <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
                         <Icon name='shipping fast'/>
                         <Button.Group style={{placeSelf:"center"}}>
-                            <Button basic={this.getOrderStatusBasic("all")} color={this.getOrderStatusColor("blue","all")} onClick={()=>{this.setOrderStatusFilter("all")}}>Tous</Button>
-                            <Button basic={this.getOrderStatusBasic("ready")} color={this.getOrderStatusColor("green","ready")} onClick={()=>{this.setOrderStatusFilter("ready")}}>Entretiens prêts</Button>
-                            <Button basic={this.getOrderStatusBasic("waiting")} color={this.getOrderStatusColor("orange","waiting")} onClick={()=>{this.setOrderStatusFilter("waiting")}}>Commandes en livraison</Button>
-                            <Button basic={this.getOrderStatusBasic("toDo")} color={this.getOrderStatusColor("red","toDo")} onClick={()=>{this.setOrderStatusFilter("toDo")}}>Commandes à passer</Button>
+                            <Button color={this.getOrderStatusColor("blue","all")} onClick={()=>{this.setOrderStatusFilter("all")}}>Tous</Button>
+                            <Button color={this.getOrderStatusColor("green","ready")} onClick={()=>{this.setOrderStatusFilter("ready")}}>Entretiens prêts</Button>
+                            <Button color={this.getOrderStatusColor("orange","waiting")} onClick={()=>{this.setOrderStatusFilter("waiting")}}>Commandes en livraison</Button>
+                            <Button color={this.getOrderStatusColor("red","toDo")} onClick={()=>{this.setOrderStatusFilter("toDo")}}>Commandes à passer</Button>
                         </Button.Group>
                     </Message>
                 </div>

@@ -8,6 +8,7 @@ import BrandPicker from '../atoms/BrandPicker';
 import OrganismPicker from '../atoms/OrganismPicker';
 import SocietePicker from '../atoms/SocietePicker';
 import VolumePicker from '../atoms/VolumePicker';
+import EnergyPicker from '../atoms/EnergyPicker';
 import RegistrationInput from '../atoms/RegistrationInput';
 import PayementFormatPicker from '../atoms/PayementFormatPicker';
 import FileManagementPanel from '../atoms/FileManagementPanel';
@@ -36,6 +37,7 @@ class Vehicle extends Component {
         newColor:"",
         newBrand:"",
         newModel:"",
+        newEnergy:"",
         newPurchasePrice:0,
         newMonthlyPayement:0,
         newPayementOrg:"",
@@ -96,6 +98,10 @@ class Vehicle extends Component {
                         name
                         hex
                     }
+                    energy{
+                        _id
+                        name
+                    }
                     insurancePaid
                     payementBeginDate
                     property
@@ -151,8 +157,8 @@ class Vehicle extends Component {
             }
         `,
         editVehicleQuery : gql`
-            mutation editVehicle($_id:String!,$societe:String!,$registration:String!,$firstRegistrationDate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$insurancePaid:Float!,$payementBeginDate:String!,$purchasePrice:Float!,$payementOrg:String!,$payementFormat:String!,$monthlyPayement:Float!){
-                editVehicle(_id:$_id,societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,purchasePrice:$purchasePrice,payementBeginDate:$payementBeginDate,payementOrg:$payementOrg,payementFormat:$payementFormat,monthlyPayement:$monthlyPayement){
+            mutation editVehicle($_id:String!,$societe:String!,$registration:String!,$firstRegistrationDate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$insurancePaid:Float!,$payementBeginDate:String!,$purchasePrice:Float!,$payementOrg:String!,$payementFormat:String!,$monthlyPayement:Float!,$energy:String!){
+                editVehicle(_id:$_id,societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,purchasePrice:$purchasePrice,payementBeginDate:$payementBeginDate,payementOrg:$payementOrg,payementFormat:$payementFormat,monthlyPayement:$monthlyPayement,energy:$energy){
                     status
                     message
                 }
@@ -239,6 +245,8 @@ class Vehicle extends Component {
     handleChangeBrand = (e, { value }) => this.setState({ newBrand:value })
 
     handleChangeModel = (e, { value }) => this.setState({ newModel:value })
+    
+    handleChangeEnergy = (e, { value }) => this.setState({ newEnergy:value })
   
     handleChangeOrganism = (e, { value }) => this.setState({ newPayementOrg:value })
   
@@ -336,6 +344,7 @@ class Vehicle extends Component {
                 volume:this.state.newVolume,
                 payload:this.state.newPayload,
                 color:this.state.newColor,
+                energy:this.state.newEnergy,
                 property:this.state.newProperty,
                 purchasePrice:parseFloat(this.state.newPurchasePrice),
                 insurancePaid:parseFloat(this.state.newInsurancePaid),
@@ -549,6 +558,23 @@ class Vehicle extends Component {
         })
     }
 
+    //useless in ui for now
+    getPayementLabel = () => {
+        let totalMonths = parseInt(this.state.vehicle.purchasePrice/this.state.vehicle.monthlyPayement);
+        let monthsDone = parseInt(moment().diff(moment(this.state.vehicle.payementBeginDate,"DD/MM/YYYY"),'months', true));
+        let monthsLeft = totalMonths - monthsDone;
+        if(parseInt(monthsLeft <= 0) || this.state.vehicle.payementFormat == "CPT"){
+            return <Label color="green">Propriété</Label>
+        }else{
+            if(this.state.vehicle.payementFormat == "CRB"){
+                return <Label color="orange"> {parseInt(monthsLeft)} mois restant</Label>
+            }
+            if(this.state.vehicle.payementFormat == "CRC"){
+                return <Label color="green"> {parseInt(monthsLeft)} mois restant</Label>
+            }
+        }
+    }
+
     getPayementProgress = () => {
         let totalMonths = parseInt(this.state.vehicle.purchasePrice/this.state.vehicle.monthlyPayement);
         let monthsDone = parseInt(moment().diff(moment(this.state.vehicle.payementBeginDate,"DD/MM/YYYY"),'months', true));
@@ -720,12 +746,15 @@ class Vehicle extends Component {
         if(this.state.editing){
             return (
                 <Form className="formBoard" style={{placeSelf:"start auto",display:"grid",gridTemplateRows:"auto",gridTemplateColumns:"1fr 1fr",gridColumnStart:"1",gridRowEnd:"span 2",gridColumnEnd:"span 2",gridGap:"0 24px"}}>
-                    <Form.Field><label>Societé</label>
-                        <SocietePicker defaultValue={this.state.vehicle.societe._id} groupAppears={false} onChange={this.handleChangeSociete}/>
+                    <Form.Field style={{gridColumnEnd:"span 2"}}><label>Societé</label>
+                        <SocietePicker restrictToVisibility defaultValue={this.state.vehicle.societe._id} groupAppears={false} onChange={this.handleChangeSociete}/>
                     </Form.Field>
                     <RegistrationInput onChange={this.handleRegistrationChange} defaultValue={this.state.vehicle.registration} name="newRegistration"/>
                     <Form.Field><label>1ère immatriculation</label>
                         <Input defaultValue={this.state.vehicle.firstRegistrationDate} onChange={this.handleChange} name="newFirstRegistrationDate"/>
+                    </Form.Field>
+                    <Form.Field><label>Énergie</label>
+                        <EnergyPicker defaultValue={this.state.vehicle.energy._id} onChange={this.handleChangeEnergy}/>
                     </Form.Field>
                     <Form.Field><label>Marque</label>
                         <BrandPicker defaultValue={this.state.vehicle.brand._id} onChange={this.handleChangeBrand}/>
@@ -777,6 +806,7 @@ class Vehicle extends Component {
                     <div className="labelBoard">Societé :</div><div className="valueBoard">{this.state.vehicle.societe.name}</div>
                     <div className="labelBoard">Immatriculation :</div><div className="valueBoard">{this.state.vehicle.registration}</div>
                     <div className="labelBoard">Date de première immatriculation :</div><div className="valueBoard">{this.state.vehicle.firstRegistrationDate}</div>
+                    <div className="labelBoard">Énergie :</div><div className="valueBoard">{this.state.vehicle.energy.name}</div>
                     <div className="labelBoard">Marque :</div><div className="valueBoard">{this.state.vehicle.brand.name}</div>
                     <div className="labelBoard">Modèle :</div><div className="valueBoard">{this.state.vehicle.model.name}</div>
                     <div className="labelBoard">Volume :</div><div className="valueBoard">{this.state.vehicle.volume.meterCube+" m²"}</div>
@@ -789,16 +819,6 @@ class Vehicle extends Component {
                         </Header>
                     </Divider>
                     <div className="labelBoard">Montant de l'assurance :</div><div className="valueBoard">{this.state.vehicle.insurancePaid} €</div>
-                    <div className="labelBoard">Propriété :</div>
-                    <div className="valueBoard">
-                        {(
-                            this.state.vehicle.property?<Label color='green' horizontal>
-                                Owned
-                            </Label>:<Label color='orange' horizontal>
-                                In Progress
-                            </Label>
-                        )}
-                    </div>
                     <div className="labelBoard">Date de début de payement :</div><div className="valueBoard">{this.state.vehicle.payementBeginDate}</div>
                     <div className="labelBoard">Prix d'achat :</div><div className="valueBoard">{this.state.vehicle.purchasePrice} €</div>
                     {this.state.vehicle.payementFormat == "CRB" ?

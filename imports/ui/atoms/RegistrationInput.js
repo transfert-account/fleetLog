@@ -9,13 +9,13 @@ class RegistrationInput extends Component {
     }
 
     handleChange = e =>{
-        let value = _.toUpper(e.target.value);
+        let value = _.toUpper(e.target.value).replace(/[\W_]+/g,"");
         let error = false;
         if(this.state.formatEx.test(value)){
-            value = [value.slice(0, 2)," ", value.slice(2,5)," ", value.slice(5)].join('');
+            value = [value.slice(0, 2),"-", value.slice(2,5),"-", value.slice(5)].join('');
         }else{
             error = true
-            value = value.split(" ").join("")
+            value = value.replace(/[\W_]+/g,"")
         }
         this.setState({
           input:value,

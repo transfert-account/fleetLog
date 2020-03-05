@@ -10,7 +10,7 @@ import Colors from '../color/colors.js';
 import Equipements from '../equipement/equipements';
 import EquipementDescriptions from '../equipementDescription/equipementDescriptions';
 import Documents from '../document/documents';
-
+import Energies from '../energy/energies'
 import Functions from '../common/functions';
 import moment from 'moment';
 import { Mongo } from 'meteor/mongo';
@@ -53,6 +53,11 @@ const affectVehicleData = vehicle => {
     }else{
         vehicle.volume = {_id:""};
     }
+    if(vehicle.energy != null && vehicle.energy.length > 0){
+        vehicle.energy = Energies.findOne({_id:new Mongo.ObjectID(vehicle.energy)});
+    }else{
+        vehicle.energy = {_id:""};
+    }
     vehicle.equipements = Equipements.find({vehicle:vehicle._id._str}).fetch() || {};
     vehicle.equipements.forEach((e,ei) => {
         e.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)}) || {};
@@ -94,7 +99,7 @@ export default {
         }
     },
     Mutation:{
-        addVehicle(obj, {societe,registration,firstRegistrationDate,km,lastKmUpdate,brand,model,volume,payload,color,insurancePaid,payementBeginDate,purchasePrice,monthlyPayement,payementOrg,payementFormat},{user}){
+        addVehicle(obj, {societe,registration,firstRegistrationDate,km,lastKmUpdate,brand,model,volume,payload,color,insurancePaid,payementBeginDate,purchasePrice,monthlyPayement,payementOrg,payementFormat,energy},{user}){
             if(user._id){
                 Vehicles.insert({
                     _id:new Mongo.ObjectID(),
@@ -113,6 +118,7 @@ export default {
                         reportDate:lastKmUpdate
                     }],
                     payementBeginDate:payementBeginDate,
+                    energy:energy,
                     purchasePrice:purchasePrice,
                     monthlyPayement:monthlyPayement,
                     payementOrg:payementOrg,
@@ -127,7 +133,7 @@ export default {
             }
             throw new Error('Unauthorized');
         },
-        editVehicle(obj, {_id,societe,registration,firstRegistrationDate,brand,model,volume,payload,color,insurancePaid,endDate,property,purchasePrice,payementOrg,payementBeginDate,payementFormat,monthlyPayement},{user}){
+        editVehicle(obj, {_id,societe,registration,firstRegistrationDate,brand,model,volume,payload,color,insurancePaid,endDate,property,purchasePrice,payementOrg,payementBeginDate,payementFormat,monthlyPayement,energy},{user}){
             if(user._id){
                 Vehicles.update(
                     {
@@ -149,7 +155,8 @@ export default {
                             "monthlyPayement":monthlyPayement,
                             "payementOrg":payementOrg,
                             "payementFormat":payementFormat,
-                            "payementBeginDate":payementBeginDate
+                            "payementBeginDate":payementBeginDate,
+                            "energy":energy
                         }
                     }
                 );                

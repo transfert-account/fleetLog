@@ -89,6 +89,7 @@ class BULocations extends Component {
                 )
                 }
             }
+            displayed.sort((a, b) => a.registration.localeCompare(b.registration))
             //displayed = displayed.slice((this.state.currentPage - 1) * this.state.rowByPage, this.state.currentPage * this.state.rowByPage);
             return displayed.map(l =>(
                 <LocationsRow hideSociete={true} loadLocations={this.loadLocations} societesRaw={this.state.societesRaw} key={l._id} rental={l}/>)
@@ -258,12 +259,6 @@ class BULocations extends Component {
         }
     }
 
-    getArchiveFilterBasic = active => {
-        if(this.state.archiveFilter == active){
-            return true;
-        }
-    }
-
     switchArchiveFilter = () => {
         this.setState({
             archiveFilter:!this.state.archiveFilter
@@ -275,12 +270,6 @@ class BULocations extends Component {
     getKmFilterColor = (color,filter) => {
         if(this.state.reportLateFilter == filter){
             return color
-        }
-    }
-
-    getKmFilterBasic = (filter) => {
-        if(this.state.reportLateFilter == filter){
-            return true
         }
     }
 
@@ -325,16 +314,16 @@ class BULocations extends Component {
                         <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
                             <Icon name='archive'/>
                             <Button.Group style={{placeSelf:"center"}}>
-                                <Button basic={this.getArchiveFilterBasic(false)} color={this.getArchiveFilterColor("green",false)} onClick={this.switchArchiveFilter}>En cours</Button>
-                                <Button basic={this.getArchiveFilterBasic(true)} color={this.getArchiveFilterColor("orange",true)} onClick={this.switchArchiveFilter}>Archives</Button>
+                                <Button color={this.getArchiveFilterColor("green",false)} onClick={this.switchArchiveFilter}>En cours</Button>
+                                <Button color={this.getArchiveFilterColor("orange",true)} onClick={this.switchArchiveFilter}>Archives</Button>
                             </Button.Group>
                         </Message>
                         <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
                             <Icon name='dashboard'/>
                             <Button.Group style={{placeSelf:"center"}}>
-                                <Button basic={this.getKmFilterBasic("all")} color={this.getKmFilterColor("green","all")} onClick={()=>{this.setReportLateFilter("all")}}>Tous</Button>
-                                <Button basic={this.getKmFilterBasic("2w")} color={this.getKmFilterColor("orange","2w")} onClick={()=>{this.setReportLateFilter("2w")}}>Dernier relevé > 2 semaines</Button>
-                                <Button basic={this.getKmFilterBasic("4w")} color={this.getKmFilterColor("red","4w")} onClick={()=>{this.setReportLateFilter("4w")}}>Dernier relevé > 4 semaines</Button>
+                                <Button color={this.getKmFilterColor("green","all")} onClick={()=>{this.setReportLateFilter("all")}}>Tous</Button>
+                                <Button color={this.getKmFilterColor("orange","2w")} onClick={()=>{this.setReportLateFilter("2w")}}>Dernier relevé > 2 semaines</Button>
+                                <Button color={this.getKmFilterColor("red","4w")} onClick={()=>{this.setReportLateFilter("4w")}}>Dernier relevé > 4 semaines</Button>
                             </Button.Group>
                         </Message>
                     </div>
@@ -369,7 +358,10 @@ class BULocations extends Component {
                     </Modal.Header>
                     <Modal.Content style={{textAlign:"center"}}>
                         <Form style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr 1fr 1fr",gridGap:"16px"}}>
-                            <Form.Field style={{gridColumnStart:"2",gridColumnEnd:"span 2"}}><label>Societe</label><SocietePicker groupAppears={false} onChange={this.handleChangeSociete}/></Form.Field>
+                            <Form.Field style={{gridColumnStart:"2",gridColumnEnd:"span 2"}}>
+                                <label>Societe</label>
+                                <SocietePicker restrictToVisibility groupAppears={false} onChange={this.handleChangeSociete}/>
+                            </Form.Field>
                             <Form.Field style={{gridColumnEnd:"span 2"}}><label>Fournisseur</label><FournisseurPicker onChange={this.handleChangeFournisseur}/></Form.Field>
                             <Divider style={{gridColumnEnd:"span 6",height:"23px"}} horizontal>
                                 <Header as='h4'>

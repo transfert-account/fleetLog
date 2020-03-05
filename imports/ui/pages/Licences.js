@@ -193,12 +193,6 @@ export class Licences extends Component {
         }
     }
 
-    getEndDateBasic = (filter) => {
-        if(this.state.endDateFilter == filter){
-            return true
-        }
-    }
-
     setEndDateFilter = value => {
         this.setState({
             endDateFilter:value
@@ -244,9 +238,9 @@ export class Licences extends Component {
                         <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
                             <Icon name='calendar check'/>
                             <Button.Group style={{placeSelf:"center"}}>
-                                <Button basic={this.getEndDateBasic("all")} color={this.getEndDateColor("green","all")} onClick={()=>{this.setEndDateFilter("all")}}>Tous</Button>
-                                <Button basic={this.getEndDateBasic("soon")} color={this.getEndDateColor("orange","soon")} onClick={()=>{this.setEndDateFilter("soon")}}>En fin de validité</Button>
-                                <Button basic={this.getEndDateBasic("over")} color={this.getEndDateColor("red","over")} onClick={()=>{this.setEndDateFilter("over")}}>Périmée</Button>
+                                <Button color={this.getEndDateColor("green","all")} onClick={()=>{this.setEndDateFilter("all")}}>Tous</Button>
+                                <Button color={this.getEndDateColor("orange","soon")} onClick={()=>{this.setEndDateFilter("soon")}}>En fin de validité</Button>
+                                <Button color={this.getEndDateColor("red","over")} onClick={()=>{this.setEndDateFilter("over")}}>Périmée</Button>
                             </Button.Group>
                         </Message>
                     </div>
@@ -275,7 +269,7 @@ export class Licences extends Component {
                             <Form style={{display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"16px"}}>
                                 <Form.Field>
                                     <label>Societe</label>
-                                    <SocietePicker groupAppears={false} onChange={this.handleChangeSociete}/>
+                                    <SocietePicker restrictToVisibility groupAppears={false} onChange={this.handleChangeSociete}/>
                                 </Form.Field>
                                 <Form.Field><label>Numero de licence</label><input onChange={this.handleChange} placeholder="Numero de licence" name="newNumber"/></Form.Field>
                                 <Form.Field>

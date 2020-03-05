@@ -1,20 +1,16 @@
 import Vehicles from '../vehicle/vehicles';
-import Entretiens from '../entretien/entretiens';
+import Licences from '../licence/licences';
+import Locations from '../location/locations';
+import Entretiens from '../licence/licences';
 import { Mongo } from 'meteor/mongo';
 
 export default {
     Query : {
         testThis(obj, args,{user}){
-            console.log(Entretiens.find({}).fetch())
-            /*Vehicles.update(
-                {}, {
-                    $set: {
-                        "archived":false,
-                        "archiveReason":"",
-                        "archiveDate":""
-                    }
-                },{multi:true}
-            );*/
+            Vehicles.remove({})
+            Locations.remove({})
+            Licences.remove({})
+            Entretiens.remove({})
             return "true";
         }
     }

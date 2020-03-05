@@ -129,6 +129,7 @@ export class Controls extends Component {
                 )
                 }
             }
+            displayed.sort((a, b) => a.registration.localeCompare(b.registration))
             return displayed.map(i =>(
                 <ControlRow loadVehicles={this.loadVehicles} equipementDescriptionsRaw={this.state.equipementDescriptionsRaw} key={i._id} vehicle={i}/>
             ))
@@ -224,12 +225,6 @@ export class Controls extends Component {
         }
     }
 
-    getControlFilterBasic = (filter) => {
-        if(this.state.controlFilter == filter){
-            return true
-        }
-    }
-
     setControlFilter = value => {
         this.setState({
             controlFilter:value
@@ -260,9 +255,9 @@ export class Controls extends Component {
                         <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
                             <Icon name='clipboard check'/>
                             <Button.Group style={{placeSelf:"center"}}>
-                                <Button basic={this.getControlFilterBasic("all")} color={this.getControlFilterColor("green","all")} onClick={()=>{this.setControlFilter("all")}}>Tous</Button>
-                                <Button basic={this.getControlFilterBasic("soon")} color={this.getControlFilterColor("orange","soon")} onClick={()=>{this.setControlFilter("soon")}}>Seuil d'alerte dépassé</Button>
-                                <Button basic={this.getControlFilterBasic("over")} color={this.getControlFilterColor("red","over")} onClick={()=>{this.setControlFilter("over")}}>Limite dépassée</Button>
+                                <Button color={this.getControlFilterColor("green","all")} onClick={()=>{this.setControlFilter("all")}}>Tous</Button>
+                                <Button color={this.getControlFilterColor("orange","soon")} onClick={()=>{this.setControlFilter("soon")}}>Seuil d'alerte dépassé</Button>
+                                <Button color={this.getControlFilterColor("red","over")} onClick={()=>{this.setControlFilter("over")}}>Limite dépassée</Button>
                             </Button.Group>
                         </Message>
                     </div>

@@ -60,10 +60,13 @@ import DashboardResolvers from '../api/dashboard/resolvers.js';
 import DocumentSchema from '../api/document/Document.graphql';
 import DocumentResolvers from '../api/document/resolvers.js';
 
+import EnergySchema from '../api/energy/Energy.graphql';
+import EnergyResolvers from '../api/energy/resolvers';
+
 import TestSchema from '../api/test/Test.graphql';
 import TestResolvers from '../api/test/resolvers.js';
 
-// #0275
+// #0277
 
 const typeDefs = [
     UserSchema,
@@ -85,6 +88,7 @@ const typeDefs = [
     ColorSchema,
     DashboardSchema,
     DocumentSchema,
+    EnergySchema,
     TestSchema
 ];
 
@@ -108,6 +112,7 @@ const resolvers = merge(
     ColorResolvers,
     DashboardResolvers,
     DocumentResolvers,
+    EnergyResolvers,
     TestResolvers
 );
 

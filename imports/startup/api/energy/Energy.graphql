@@ -1,0 +1,13 @@
+type Energy{
+    _id:String!
+    name:String
+}
+
+extend type Query{
+    energies : [Energy]
+}
+
+extend type Mutation{
+    addEnergy(name:String!): [QueryResultMessage]
+    deleteEnergy(_id:String!): [QueryResultMessage]
+}

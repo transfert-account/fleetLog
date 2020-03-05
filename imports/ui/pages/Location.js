@@ -678,7 +678,7 @@ class Location extends Component {
                 <Form className="formBoard" style={{placeSelf:"start auto",display:"grid",gridTemplateRows:"auto",gridTemplateColumns:"1fr 1fr",gridColumnStart:"1",gridRowEnd:"span 2",gridColumnEnd:"span 2",gridGap:"6px 24px"}}>
                     <Form.Field>
                         <label>Societé</label>
-                        <SocietePicker defaultValue={this.state.location.societe._id} groupAppears={false} onChange={this.handleChangeSociete}/>
+                        <SocietePicker restrictToVisibility defaultValue={this.state.location.societe._id} groupAppears={false} onChange={this.handleChangeSociete}/>
                     </Form.Field>
                     <Form.Field>
                         <label>Fournisseur</label>

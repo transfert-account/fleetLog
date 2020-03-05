@@ -40,6 +40,9 @@ class SocietePicker extends Component {
             if(!this.props.groupAppears){
                 societes = societes.filter(s=>s._id != "noidthisisgroupvisibility")
             }
+            if(this.props.restrictToVisibility == true && this.props.user.visibility != "noidthisisgroupvisibility"){
+                societes = societes.filter(s=>s._id == this.props.user.visibility)
+            }
             this.setState({
                 societesRaw:Array.from(societes)
             })

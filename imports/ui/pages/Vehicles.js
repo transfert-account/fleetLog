@@ -10,6 +10,7 @@ import VolumePicker from '../atoms/VolumePicker';
 import ColorPicker from '../atoms/ColorPicker';
 import ModelPicker from '../atoms/ModelPicker';
 import BrandPicker from '../atoms/BrandPicker';
+import EnergyPicker from '../atoms/EnergyPicker';
 import OrganismPicker from '../atoms/OrganismPicker';
 import { gql } from 'apollo-server-express';
 import moment from 'moment';
@@ -105,14 +106,15 @@ class Vehicles extends Component {
                     )
                 }
             }
+            displayed.sort((a, b) => a.registration.localeCompare(b.registration))
             //displayed = displayed.slice((this.state.currentPage - 1) * this.state.rowByPage, this.state.currentPage * this.state.rowByPage);
             return displayed.map(i =>(
                 <VehiclesRow loadVehicles={this.loadVehicles} societesRaw={this.state.societesRaw} key={i._id} vehicle={i}/>
             ))
         },
         addVehicleQuery : gql`
-            mutation addVehicle($societe:String!,$registration:String!,$firstRegistrationDate:String!,$km:Int!,$lastKmUpdate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$insurancePaid:Float!,$payementBeginDate:String!,$purchasePrice:Float,$monthlyPayement:Float,$payementOrg:String,$payementFormat:String){
-                addVehicle(societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,km:$km,lastKmUpdate:$lastKmUpdate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,payementBeginDate:$payementBeginDate,purchasePrice:$purchasePrice,monthlyPayement:$monthlyPayement,payementOrg:$payementOrg,payementFormat:$payementFormat){
+            mutation addVehicle($societe:String!,$registration:String!,$firstRegistrationDate:String!,$km:Int!,$lastKmUpdate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$insurancePaid:Float!,$payementBeginDate:String!,$purchasePrice:Float,$monthlyPayement:Float,$payementOrg:String,$payementFormat:String,$energy:String!){
+                addVehicle(societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,km:$km,lastKmUpdate:$lastKmUpdate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,payementBeginDate:$payementBeginDate,purchasePrice:$purchasePrice,monthlyPayement:$monthlyPayement,payementOrg:$payementOrg,payementFormat:$payementFormat,energy:$energy){
                     status
                     message
                 }
@@ -146,6 +148,10 @@ class Vehicles extends Component {
                     payload
                     color{
                         _id
+                    }
+                    energy{
+                        _id
+                        name
                     }
                     insurancePaid
                     cg{
@@ -209,6 +215,7 @@ class Vehicles extends Component {
                     brand:this.state.newBrand,
                     model:this.state.newModel,
                     volume:this.state.newVolume,
+                    energy:this.state.newEnergy,
                     payload:parseFloat(this.state.newPayload),
                     color:this.state.newColor,
                     insurancePaid:parseFloat(this.state.newInsurancePaid),
@@ -261,6 +268,8 @@ class Vehicles extends Component {
 
     handleChangeModel = (e, { value }) => this.setState({ newModel:value })
 
+    handleChangeEnergy = (e, { value }) => this.setState({ newEnergy:value })
+
     handleChangeOrganism = (e, { value }) => this.setState({ newPayementOrg:value })
 
     handleChangeColor = (e, { value }) => this.setState({ newColor:value })
@@ -286,12 +295,6 @@ class Vehicles extends Component {
         }
     }
 
-    getArchiveFilterBasic = active => {
-        if(this.state.archiveFilter == active){
-            return true;
-        }
-    }
-
     switchArchiveFilter = () => {
         this.setState({
             archiveFilter:!this.state.archiveFilter
@@ -306,12 +309,6 @@ class Vehicles extends Component {
         }
     }
 
-    getKmFilterBasic = (filter) => {
-        if(this.state.reportLateFilter == filter){
-            return true
-        }
-    }
-
     setReportLateFilter = value => {
         this.setState({
             reportLateFilter:value
@@ -322,12 +319,6 @@ class Vehicles extends Component {
     getDocsFilterColor = (color,filter) => {
         if(this.state.docsFilter == filter){
             return color
-        }
-    }
-
-    getDocsFilterBasic = (filter) => {
-        if(this.state.docsFilter == filter){
-            return true
         }
     }
 
@@ -357,23 +348,23 @@ class Vehicles extends Component {
                         <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
                             <Icon name='archive'/>
                             <Button.Group style={{placeSelf:"center"}}>
-                                <Button basic={this.getArchiveFilterBasic(false)} color={this.getArchiveFilterColor("green",false)} onClick={this.switchArchiveFilter}>Actuels</Button>
-                                <Button basic={this.getArchiveFilterBasic(true)} color={this.getArchiveFilterColor("orange",true)} onClick={this.switchArchiveFilter}>Archives</Button>
+                                <Button color={this.getArchiveFilterColor("green",false)} onClick={this.switchArchiveFilter}>Actuels</Button>
+                                <Button color={this.getArchiveFilterColor("orange",true)} onClick={this.switchArchiveFilter}>Archives</Button>
                             </Button.Group>
                         </Message>
                         <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
                             <Icon name='dashboard'/>
                             <Button.Group style={{placeSelf:"center"}}>
-                                <Button basic={this.getKmFilterBasic("all")} color={this.getKmFilterColor("green","all")} onClick={()=>{this.setReportLateFilter("all")}}>Tous</Button>
-                                <Button basic={this.getKmFilterBasic("2w")} color={this.getKmFilterColor("orange","2w")} onClick={()=>{this.setReportLateFilter("2w")}}>Relevé > 2 semaines</Button>
-                                <Button basic={this.getKmFilterBasic("4w")} color={this.getKmFilterColor("red","4w")} onClick={()=>{this.setReportLateFilter("4w")}}>Relevé > 4 semaines</Button>
+                                <Button color={this.getKmFilterColor("green","all")} onClick={()=>{this.setReportLateFilter("all")}}>Tous</Button>
+                                <Button color={this.getKmFilterColor("orange","2w")} onClick={()=>{this.setReportLateFilter("2w")}}>Relevé > 2 semaines</Button>
+                                <Button color={this.getKmFilterColor("red","4w")} onClick={()=>{this.setReportLateFilter("4w")}}>Relevé > 4 semaines</Button>
                             </Button.Group>
                         </Message>
                         <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
                             <Icon name='folder'/>
                             <Button.Group style={{placeSelf:"center"}}>
-                                <Button basic={this.getDocsFilterBasic("all")} color={this.getDocsFilterColor("green","all")} onClick={()=>{this.setDocsFilter("all")}}>Tous</Button>
-                                <Button basic={this.getDocsFilterBasic("missingDocs")} color={this.getDocsFilterColor("red","missingDocs")} onClick={()=>{this.setDocsFilter("missingDocs")}}>Documents manquants</Button>
+                                <Button color={this.getDocsFilterColor("green","all")} onClick={()=>{this.setDocsFilter("all")}}>Tous</Button>
+                                <Button color={this.getDocsFilterColor("red","missingDocs")} onClick={()=>{this.setDocsFilter("missingDocs")}}>Documents manquants</Button>
                             </Button.Group>
                         </Message>
                     </div>
@@ -384,6 +375,7 @@ class Vehicles extends Component {
                                     <Table.HeaderCell>Societe</Table.HeaderCell>
                                     <Table.HeaderCell>Immatriculation</Table.HeaderCell>
                                     <Table.HeaderCell>Date d'immatriculation</Table.HeaderCell>
+                                    <Table.HeaderCell>Energie</Table.HeaderCell>
                                     <Table.HeaderCell>Kilométrage</Table.HeaderCell>
                                     <Table.HeaderCell>Dernier relevé</Table.HeaderCell>
                                     <Table.HeaderCell>Marque</Table.HeaderCell>
@@ -409,21 +401,22 @@ class Vehicles extends Component {
                     </Modal.Header>
                     <Modal.Content style={{textAlign:"center"}}>
                         <Form style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gridGap:"16px"}}>
-                            <Form.Field style={{gridColumnStart:"2"}}><label>Societe</label>
-                                <SocietePicker groupAppears={false} onChange={this.handleChangeSociete}/>
+                            <Form.Field ><label>Societe</label>
+                                <SocietePicker restrictToVisibility groupAppears={false} onChange={this.handleChangeSociete}/>
                             </Form.Field>
+                            <RegistrationInput onChange={this.handleRegistrationChange} name="newRegistration"/>
+                            <Form.Field><label>Date de première immatriculation</label><input onChange={this.handleChange} value={this.state.newFirstRegistrationDate} onFocus={()=>{this.showDatePicker("newFirstRegistrationDate")}} placeholder="Première immatriculation" name="newFirstRegistrationDate"/></Form.Field>
                             <Divider style={{gridColumnEnd:"span 3",height:"23px"}} horizontal>
                                 <Header as='h4'>
                                     <Icon name='clipboard' />
                                     Details
                                 </Header>
                             </Divider>
-                            <RegistrationInput onChange={this.handleRegistrationChange} name="newRegistration"/>
-                            <Form.Field><label>Date de première immatriculation</label><input onChange={this.handleChange} value={this.state.newFirstRegistrationDate} onFocus={()=>{this.showDatePicker("newFirstRegistrationDate")}} placeholder="firstRegistrationDate" name="newFirstRegistrationDate"/></Form.Field>
                             <Form.Field><label>Kilométrage</label><input onChange={this.handleChange} name="newKm"/></Form.Field>
                             <Form.Field><label>Date de relevé</label><input onChange={this.handleChange} value={this.state.newLastKmUpdate} onFocus={()=>{this.showDatePicker("newLastKmUpdate")}} name="newLastKmUpdate"/></Form.Field>
                             <Form.Field><label>Marque</label><BrandPicker onChange={this.handleChangeBrand}/></Form.Field>
                             <Form.Field><label>Modèle</label><ModelPicker onChange={this.handleChangeModel}/></Form.Field>
+                            <Form.Field><label>Energie</label><EnergyPicker onChange={this.handleChangeEnergy}/></Form.Field>
                             <Form.Field><label>Volume</label><VolumePicker onChange={this.handleChangeVolume}/></Form.Field>
                             <Form.Field><label>Charge utile</label><input onChange={this.handleChange} name="newPayload"/></Form.Field>
                             <Form.Field><label>Couleur</label><ColorPicker onChange={this.handleChangeColor}/></Form.Field>

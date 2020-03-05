@@ -80,17 +80,14 @@ class VehiclesRow extends Component {
         let totalMonths = this.props.vehicle.purchasePrice/this.props.vehicle.monthlyPayement;
         let monthsDone = parseInt(moment().diff(moment(this.props.vehicle.payementBeginDate,"DD/MM/YYYY"),'months', true));
         let monthsLeft = totalMonths - monthsDone;
-        if(monthsLeft <= 0){
-            return <Label color="green"> Payement terminé</Label>
+        if(parseInt(monthsLeft <= 0) || this.props.vehicle.payementFormat == "CPT"){
+            return <Label color="green">Propriété</Label>
         }else{
             if(this.props.vehicle.payementFormat == "CRB"){
-                return <Label color={parseInt(monthsLeft) == 0 ? "green" : "orange"}> {parseInt(monthsLeft)} mois restant avant propriété</Label>
+                return <Label color="orange"> {parseInt(monthsLeft)} mois restant</Label>
             }
             if(this.props.vehicle.payementFormat == "CRC"){
-                return <Label color="green"> {parseInt(monthsLeft)} mois restant avant fin de payement</Label>
-            }
-            if(this.props.vehicle.payementFormat == "CPT"){
-                return <Label color="green"> Payement terminé</Label>
+                return <Label color="green"> {parseInt(monthsLeft)} mois restant</Label>
             }
         }
     }
@@ -141,6 +138,7 @@ class VehiclesRow extends Component {
                     {this.getSocieteCell()}
                     <Table.Cell textAlign="center">{this.props.vehicle.registration}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.vehicle.firstRegistrationDate}</Table.Cell>
+                    <Table.Cell textAlign="center">{this.props.vehicle.energy.name}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.vehicle.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km</Table.Cell>
                     {this.getLastReportCell()}
                     <Table.Cell textAlign="center">{this.props.vehicle.brand.name}</Table.Cell>

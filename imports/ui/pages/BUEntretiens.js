@@ -184,12 +184,6 @@ class BUEntretiens extends Component {
         }
     }
 
-    getOrderStatusBasic = (filter) => {
-        if(this.state.orderStatusFilter == filter){
-            return true
-        }
-    }
-
     setOrderStatusFilter = value => {
         this.setState({
             orderStatusFilter:value
@@ -252,10 +246,10 @@ class BUEntretiens extends Component {
                     <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
                         <Icon name='shipping fast'/>
                         <Button.Group style={{placeSelf:"center"}}>
-                            <Button basic={this.getOrderStatusBasic("all")} color={this.getOrderStatusColor("blue","all")} onClick={()=>{this.setOrderStatusFilter("all")}}>Tous</Button>
-                            <Button basic={this.getOrderStatusBasic("ready")} color={this.getOrderStatusColor("green","ready")} onClick={()=>{this.setOrderStatusFilter("ready")}}>Entretiens prêts</Button>
-                            <Button basic={this.getOrderStatusBasic("waiting")} color={this.getOrderStatusColor("orange","waiting")} onClick={()=>{this.setOrderStatusFilter("waiting")}}>Commandes en livraison</Button>
-                            <Button basic={this.getOrderStatusBasic("toDo")} color={this.getOrderStatusColor("red","toDo")} onClick={()=>{this.setOrderStatusFilter("toDo")}}>Commandes à passer</Button>
+                            <Button color={this.getOrderStatusColor("blue","all")} onClick={()=>{this.setOrderStatusFilter("all")}}>Tous</Button>
+                            <Button color={this.getOrderStatusColor("green","ready")} onClick={()=>{this.setOrderStatusFilter("ready")}}>Entretiens prêts</Button>
+                            <Button color={this.getOrderStatusColor("orange","waiting")} onClick={()=>{this.setOrderStatusFilter("waiting")}}>Commandes en livraison</Button>
+                            <Button color={this.getOrderStatusColor("red","toDo")} onClick={()=>{this.setOrderStatusFilter("toDo")}}>Commandes à passer</Button>
                         </Button.Group>
                     </Message>
                 </div>
