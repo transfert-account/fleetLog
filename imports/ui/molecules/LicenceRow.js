@@ -12,6 +12,8 @@ class LicenceRow extends Component {
         _id:this.props.licence._id,
         editing:false,
         openDocs:false,
+        openUnlink:false,
+        openLink:false,
         openDatePicker:false,
         newSociete:this.props.licence.societe._id,
         newNumber:this.props.licence.number,
@@ -34,6 +36,22 @@ class LicenceRow extends Component {
                 }
             }
         `,
+        unlinkLicenceQuery : gql`
+            mutation unlinkLicence($_id:String!){
+                unlinkLicence(_id:$_id){
+                    status
+                    message
+                }
+            }
+        `,
+        linkLicenceQuery : gql`
+            mutation linkLicence($_id:String!$vehicle:String!){
+                linkLicence(_id:$_id,vehicle:$vehicle){
+                    status
+                    message
+                }
+            }
+        `
     }
 
     handleChange = e =>{
@@ -73,6 +91,20 @@ class LicenceRow extends Component {
     }
     showEdit = () => {
         this.setState({editing:true})
+    }
+
+    closeUnlink = () => {
+        this.setState({openUnlink:false})
+    }
+    showUnlink = () => {
+        this.setState({openUnlink:true})
+    }
+
+    closeLink = () => {
+        this.setState({openLink:false})
+    }
+    showLink = () => {
+        this.setState({openLink:true})
     }
 
     deleteLicence = () => {
@@ -133,6 +165,45 @@ class LicenceRow extends Component {
         })
     }
 
+    unlinkLicence = () => {
+        this.props.client.mutate({
+            mutation:this.state.unlinkLicenceQuery,
+            variables:{
+                _id:this.state._id
+            }
+        }).then(({data})=>{
+            data.unlinkLicence.map(qrm=>{
+                if(qrm.status){
+                    this.closeUnlink();
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.loadLicences();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+
+    linkLicence = () => {
+        this.props.client.mutate({
+            mutation:this.state.linkLicenceQuery,
+            variables:{
+                _id:this.state._id,
+                vehicle:this.state.newVehicle
+            }
+        }).then(({data})=>{
+            data.linkLicence.map(qrm=>{
+                if(qrm.status){
+                    this.closeLink();
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.loadLicences();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+
     getEndDateLabel = () => {
         let daysLeft = parseInt(moment(this.props.licence.endDate,"DD/MM/YYYY").diff(moment(),'days', true))
         if(daysLeft <= 0){
@@ -156,11 +227,24 @@ class LicenceRow extends Component {
         }
     }
 
+    getLinkButton = () => {
+        if(this.props.licence.vehicle._id != "" && this.props.licence.vehicle._id != null && this.props.licence.vehicle._id != undefined){
+            return(
+                <Button circular style={{color:"#e74c3c"}} inverted icon icon='unlinkify' onClick={this.showUnlink}/>
+            )
+        }else{
+            return(
+                <Button circular style={{color:"#2ecc71"}} inverted icon icon='linkify' onClick={this.showLink}/>
+            )
+        }
+    }
+
     getActionsCell = () => {
         if(this.props.user.isOwner){
             return (
                 <Table.Cell textAlign="center">
                     <Button circular style={{color:"#a29bfe"}} inverted icon icon='folder open' onClick={this.showDocs}/>
+                    {this.getLinkButton()}
                     <Button circular style={{color:"#2980b9"}} inverted icon icon='edit' onClick={this.showEdit}/>    
                     <Button circular style={{color:"#e74c3c"}} inverted icon icon='trash' onClick={this.showDelete}/>
                 </Table.Cell>
@@ -169,6 +253,7 @@ class LicenceRow extends Component {
             return (
                 <Table.Cell textAlign="center">
                     <Button circular style={{color:"#a29bfe"}} inverted icon icon='folder open' onClick={this.showDocs}/>
+                    {this.getLinkButton()}
                     <Button circular style={{color:"#2980b9"}} inverted icon icon='edit' onClick={this.showEdit}/>
                 </Table.Cell>
             )
@@ -181,10 +266,18 @@ class LicenceRow extends Component {
                 <Fragment>
                     <Table.Row>
                         {this.getEditSocieteCell()}
-                        <Table.Cell textAlign="center"><Input value={this.state.newNumber} onChange={this.handleChange} placeholder="Numero de licence" name="newNumber"/></Table.Cell>
-                        <Table.Cell textAlign="center"><VehiclePicker societeRestricted={this.props.hideSociete} defaultValue={this.state.newVehicle} onChange={this.handleChangeVehicle}/></Table.Cell>
-                        <Table.Cell textAlign="center"><Input defaultValue={this.state.newShiftName} onChange={this.handleChange} placeholder="Nom de tournée" name="newShiftName"/></Table.Cell>
-                        <Table.Cell textAlign="center"><Input value={this.state.newEndDate} onChange={this.handleChange} onFocus={()=>{this.showDatePicker("newEndDate")}} name="newEndDate"/></Table.Cell>
+                        <Table.Cell textAlign="center">
+                            <Input value={this.state.newNumber} onChange={this.handleChange} placeholder="Numero de licence" name="newNumber"/>
+                        </Table.Cell>
+                        <Table.Cell textAlign="center">
+                            <Table.Cell textAlign="center">{this.props.licence.vehicle.registration}</Table.Cell>
+                        </Table.Cell>
+                        <Table.Cell textAlign="center">
+                            <Input defaultValue={this.state.newShiftName} onChange={this.handleChange} placeholder="Nom de tournée" name="newShiftName"/>
+                        </Table.Cell>
+                        <Table.Cell textAlign="center">
+                            <Input value={this.state.newEndDate} onChange={this.handleChange} onFocus={()=>{this.showDatePicker("newEndDate")}} name="newEndDate"/>
+                        </Table.Cell>
                         <Table.Cell textAlign="center">
                             <Button onClick={this.closeEdit} color="red">Annuler</Button>
                             <Button onClick={this.saveEdit} color="blue">Sauvegarder</Button>
@@ -206,18 +299,32 @@ class LicenceRow extends Component {
                     </Table.Row>
                     <Modal closeOnDimmerClick={false} open={this.state.openDelete} onClose={this.closeDelete} closeIcon>
                         <Modal.Header>
-                            Confirmation de suppression 
+                            Veuillez confirmer vouloir supprimer la licence : {this.props.licence.number} ?
+                        </Modal.Header>
+                        <Modal.Actions>
+                            <Button color="black" onClick={this.closeDelete}>Annuler</Button>
+                            <Button color="red" onClick={this.deleteLicence}>Supprimer</Button>
+                        </Modal.Actions>
+                    </Modal>
+                    <Modal closeOnDimmerClick={false} open={this.state.openUnlink} onClose={this.closeUnlink} closeIcon>
+                        <Modal.Header>
+                            Dissocier la licence {this.props.licence.number} de son véhicule ?
+                        </Modal.Header>
+                        <Modal.Actions>
+                            <Button color="black" onClick={this.closeUnlink}>Annuler</Button>
+                            <Button color="red" onClick={this.unlinkLicence}>Dissocier</Button>
+                        </Modal.Actions>
+                    </Modal>
+                    <Modal closeOnDimmerClick={false} open={this.state.openLink} onClose={this.closeLink} closeIcon>
+                        <Modal.Header>
+                            Associer la licence à un véhicule
                         </Modal.Header>
                         <Modal.Content style={{textAlign:"center"}}>
-                            <Message color='red' icon>
-                                <Icon name='warning sign'/>
-                                <Message.Content style={{display:"grid",gridTemplateColumns:"1fr 2fr",gridTemplateRows:"1fr 1fr"}}>
-                                    Veuillez confirmer vouloir supprimer la licence : {this.props.licence.number} ?
-                                </Message.Content>
-                            </Message>
+                            <VehiclePicker societeRestricted={this.props.hideSociete} defaultValue={this.state.newVehicle} onChange={this.handleChangeVehicle}/>
                         </Modal.Content>
                         <Modal.Actions>
-                            <Button color="red" onClick={this.deleteLicence}>Supprimer</Button>
+                            <Button color="black" onClick={this.closeLink}>Annuler</Button>
+                            <Button color="green" onClick={this.linkLicence}>Associer</Button>
                         </Modal.Actions>
                     </Modal>
                     <Modal closeOnDimmerClick={false} open={this.state.openDocs} onClose={this.closeDocs} closeIcon>

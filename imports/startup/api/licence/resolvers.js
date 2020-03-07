@@ -18,15 +18,17 @@ export default {
                 }else{
                     licences[i].societe = {_id:"",name:""};
                 }
-                let vehicleId = l.vehicle
-                l.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(vehicleId)});
-                if(l.vehicle == null){
-                    l.vehicle = Locations.findOne({_id:new Mongo.ObjectID(vehicleId)});
-                }
-                if(l.vehicle.volume != null && l.vehicle.volume.length > 0){
-                    l.vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(l.vehicle.volume)});
-                }else{
-                    l.vehicle.volume = {_id:""};
+                if(l.vehicle != null && l.vehicle != undefined && l.vehicle != ""){
+                    let vehicleId = l.vehicle
+                    l.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(vehicleId)});
+                    if(l.vehicle == null || l.vehicle == undefined || l.vehicle == ""){
+                        l.vehicle = Locations.findOne({_id:new Mongo.ObjectID(vehicleId)});
+                    }
+                    if(l.vehicle.volume != null && l.vehicle.volume.length > 0){
+                        l.vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(l.vehicle.volume)});
+                    }else{
+                        l.vehicle.volume = {_id:""};
+                    }
                 }
             });
             return licences;
@@ -40,15 +42,17 @@ export default {
                 }else{
                     licences[i].societe = {_id:"",name:""};
                 }
-                let vehicleId = l.vehicle
-                l.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(vehicleId)});
-                if(l.vehicle == null){
-                    l.vehicle = Locations.findOne({_id:new Mongo.ObjectID(vehicleId)});
-                }
-                if(l.vehicle.volume != null && l.vehicle.volume.length > 0){
-                    l.vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(l.vehicle.volume)});
-                }else{
-                    l.vehicle.volume = {_id:""};
+                if(l.vehicle != null && l.vehicle != undefined && l.vehicle != ""){
+                    let vehicleId = l.vehicle
+                    l.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(vehicleId)});
+                    if(l.vehicle._id == null || l.vehicle._id == undefined || l.vehicle._id == ""){
+                        l.vehicle = Locations.findOne({_id:new Mongo.ObjectID(vehicleId)});
+                    }
+                    if(l.vehicle.volume != null && l.vehicle.volume.length > 0){
+                        l.vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(l.vehicle.volume)});
+                    }else{
+                        l.vehicle.volume = {_id:""};
+                    }
                 }
             });
             return licences;
@@ -57,6 +61,12 @@ export default {
     Mutation:{
         addLicence(obj, {societe,number,vehicle,endDate},{user}){
             if(user._id){
+                if(vehicle != ""){   
+                    let licence = Licences.findOne({vehicle:vehicle});
+                    if(licence != undefined){
+                        return [{status:false,message:'Création impossible : véhicule déjà associé'}];
+                    }
+                }
                 Licences.insert({
                     _id:new Mongo.ObjectID(),
                     societe:societe,
@@ -78,8 +88,12 @@ export default {
             }
             throw new Error('Unauthorized');
         },
-        editLicence(obj, {_id,societe,number,vehicle,shiftName,endDate},{user}){
+        editLicence(obj, {_id,societe,number,shiftName,endDate},{user}){
             if(user._id){
+                let licence = Licences.findOne({_id:new Mongo.ObjectID(_id)});
+                if(licence.vehicle != "" && licence.vehicle != null && licence.vehicle != undefined && societe != licence.societe){
+                    return [{status:false,message:'Modification de société impossible : véhicule affecté'}];
+                }
                 Licences.update(
                     {
                         _id: new Mongo.ObjectID(_id)
@@ -87,7 +101,6 @@ export default {
                         $set: {
                             "societe":societe,
                             "number":number,
-                            "vehicle":vehicle,
                             "shiftName":shiftName,
                             "endDate":endDate
                         }
@@ -97,5 +110,39 @@ export default {
             }
             throw new Error('Unauthorized');
         },
+        unlinkLicence(obj, {_id},{user}){
+            if(user._id){
+                Licences.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "vehicle":""
+                        }
+                    }
+                ); 
+                return [{status:true,message:'Licence dissociée'}];
+            }
+            throw new Error('Unauthorized');
+        },
+        linkLicence(obj, {_id,vehicle},{user}){
+            let licence = Licences.findOne({vehicle:vehicle});
+            if(licence != undefined){
+                return [{status:false,message:'Association impossible : véhicule déjà associé'}];
+            }
+            if(user._id){
+                Licences.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "vehicle":vehicle
+                        }
+                    }
+                ); 
+                return [{status:true,message:'Véhicule associé à la licence'}];
+            }
+            throw new Error('Unauthorized');
+        }
     }
 }

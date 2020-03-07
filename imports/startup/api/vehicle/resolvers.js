@@ -135,6 +135,13 @@ export default {
         },
         editVehicle(obj, {_id,societe,registration,firstRegistrationDate,brand,model,volume,payload,color,insurancePaid,endDate,property,purchasePrice,payementOrg,payementBeginDate,payementFormat,monthlyPayement,energy},{user}){
             if(user._id){
+                let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(_id)});
+                if(vehicle.societe != societe){
+                    let nL = Licences.find({vehicle:_id}).fetch().length
+                    if(nL > 0){
+                        return [{status:false,message:'Modification de société impossible : ' + nL + ' licence affectée'}];
+                    }
+                }
                 Vehicles.update(
                     {
                         _id: new Mongo.ObjectID(_id)

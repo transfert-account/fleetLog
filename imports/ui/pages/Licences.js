@@ -14,6 +14,7 @@ export class Licences extends Component {
     loading:true,
     licenceFilter:"",
     endDateFilter:"all",
+    freeLicenceFilter:"all",
     openAddLicence:false,
     newSociete:"",
     newNumber:"",
@@ -38,6 +39,15 @@ export class Licences extends Component {
                     }else{
                         return false
                     }
+                }
+            });
+        }
+        if(this.state.freeLicenceFilter != "all"){
+            displayed = displayed.filter(l=>{
+                if(l.vehicle._id == null){
+                    return true
+                }else{
+                    return false
                 }
             });
         }
@@ -67,7 +77,7 @@ export class Licences extends Component {
         ))
     },
     addLicenceQuery : gql`
-        mutation addLicence($societe:String!,$number:String!,$vehicle:String!,$endDate:String!){
+        mutation addLicence($societe:String!,$number:String!,$vehicle:String,$endDate:String!){
             addLicence(societe:$societe,number:$number,vehicle:$vehicle,endDate:$endDate){
                 status
                 message
@@ -131,7 +141,7 @@ export class Licences extends Component {
 
     handleChange = e =>{
         this.setState({
-        [e.target.name]:e.target.value
+            [e.target.name]:e.target.value
         });
     }
 
@@ -143,13 +153,14 @@ export class Licences extends Component {
 
     showAddLicence = () => {
         this.setState({
-        openAddLicence:true
+            openAddLicence:true
         })
     }
 
     closeAddLicence = () => {
         this.setState({
-        openAddLicence:false
+            newVehicle:"",
+            openAddLicence:false
         })
     }
 
@@ -166,7 +177,6 @@ export class Licences extends Component {
     }
 
     addLicence = () => {
-        this.closeAddLicence()
         this.props.client.mutate({
             mutation:this.state.addLicenceQuery,
             variables:{
@@ -178,6 +188,7 @@ export class Licences extends Component {
         }).then(({data})=>{
             data.addLicence.map(qrm=>{
                 if(qrm.status){
+                    this.closeAddLicence()
                     this.props.toast({message:qrm.message,type:"success"});
                     this.loadLicences();
                 }else{
@@ -196,6 +207,18 @@ export class Licences extends Component {
     setEndDateFilter = value => {
         this.setState({
             endDateFilter:value
+        })
+    }
+
+    getFreeLicenceColor = (color,filter) => {
+        if(this.state.freeLicenceFilter == filter){
+            return color
+        }
+    }
+
+    setFreeLicenceFilter = value => {
+        this.setState({
+            freeLicenceFilter:value
         })
     }
 
@@ -234,13 +257,23 @@ export class Licences extends Component {
                     </Menu>
                     <Input style={{justifySelf:"stretch"}} name="storeFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher une tournée, un numéro de licence ou une immatriculation' />
                     <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddLicence} icon labelPosition='right'>Ajouter une licence<Icon name='plus'/></Button>
-                    <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"1fr",gridGap:"16px"}}>
+                    <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"16px"}}>
                         <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
                             <Icon name='calendar check'/>
                             <Button.Group style={{placeSelf:"center"}}>
                                 <Button color={this.getEndDateColor("green","all")} onClick={()=>{this.setEndDateFilter("all")}}>Tous</Button>
                                 <Button color={this.getEndDateColor("orange","soon")} onClick={()=>{this.setEndDateFilter("soon")}}>En fin de validité</Button>
                                 <Button color={this.getEndDateColor("red","over")} onClick={()=>{this.setEndDateFilter("over")}}>Périmée</Button>
+                            </Button.Group>
+                        </Message>
+                        <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
+                            <Icon.Group size="huge">
+                                <Icon name='drivers license' />
+                                <Icon corner='bottom right' name='ban' />
+                            </Icon.Group>
+                            <Button.Group style={{placeSelf:"center"}}>
+                                <Button color={this.getFreeLicenceColor("green","all")} onClick={()=>{this.setFreeLicenceFilter("all")}}>Tous</Button>
+                                <Button color={this.getFreeLicenceColor("orange","free")} onClick={()=>{this.setFreeLicenceFilter("free")}}>Sans vehicule</Button>
                             </Button.Group>
                         </Message>
                     </div>
