@@ -29,8 +29,8 @@ class LicenceRow extends Component {
             }
         `,
         editLicenceQuery : gql`
-            mutation editLicence($_id:String!,$societe:String!,$number:String!,$vehicle:String!,$shiftName:String!,$endDate:String!){
-                editLicence(_id:$_id,societe:$societe,number:$number,vehicle:$vehicle,shiftName:$shiftName,endDate:$endDate){
+            mutation editLicence($_id:String!,$societe:String!,$number:String!,$shiftName:String!,$endDate:String!){
+                editLicence(_id:$_id,societe:$societe,number:$number,shiftName:$shiftName,endDate:$endDate){
                     status
                     message
                 }
@@ -149,7 +149,6 @@ class LicenceRow extends Component {
                 _id:this.state._id,
                 societe:this.state.newSociete,
                 number:this.state.newNumber,
-                vehicle:this.state.newVehicle,
                 shiftName:this.state.newShiftName,
                 endDate:this.state.newEndDate
             }
@@ -270,7 +269,7 @@ class LicenceRow extends Component {
                             <Input value={this.state.newNumber} onChange={this.handleChange} placeholder="Numero de licence" name="newNumber"/>
                         </Table.Cell>
                         <Table.Cell textAlign="center">
-                            <Table.Cell textAlign="center">{this.props.licence.vehicle.registration}</Table.Cell>
+                            {this.props.licence.vehicle.registration}
                         </Table.Cell>
                         <Table.Cell textAlign="center">
                             <Input defaultValue={this.state.newShiftName} onChange={this.handleChange} placeholder="Nom de tournée" name="newShiftName"/>
