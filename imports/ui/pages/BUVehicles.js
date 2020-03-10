@@ -37,6 +37,7 @@ export class BUVehicles extends Component {
         newPayementFormat:"",
         archiveFilter:false,
         reportLateFilter:"all",
+        docsFilter:"all",
         openAddVehicle:false,
         openDatePicker:false,
         datePickerTarget:"",

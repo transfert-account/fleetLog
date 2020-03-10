@@ -36,7 +36,7 @@ export default {
         buLicences(obj, args, { user }){
             let userFull = Meteor.users.findOne({_id:user._id});
             let licences = Licences.find({societe:userFull.settings.visibility}).fetch() || {};
-            licences.forEach((l,i) => {
+            licences.forEach(l => {
                 if(l.societe != null && l.societe.length > 0){
                     licences[i].societe = Societes.findOne({_id:new Mongo.ObjectID(l.societe)});
                 }else{
@@ -45,7 +45,7 @@ export default {
                 if(l.vehicle != null && l.vehicle != undefined && l.vehicle != ""){
                     let vehicleId = l.vehicle
                     l.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(vehicleId)});
-                    if(l.vehicle._id == null || l.vehicle._id == undefined || l.vehicle._id == ""){
+                    if(l.vehicle == null || l.vehicle == undefined || l.vehicle == ""){
                         l.vehicle = Locations.findOne({_id:new Mongo.ObjectID(vehicleId)});
                     }
                     if(l.vehicle.volume != null && l.vehicle.volume.length > 0){
