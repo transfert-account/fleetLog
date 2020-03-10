@@ -925,7 +925,7 @@ class Vehicle extends Component {
                     </Modal>
                     <Modal size='large' closeOnDimmerClick={false} open={this.state.openDocs} onClose={this.closeDocs} closeIcon>
                         <Modal.Header>
-                            Documents relatifs au vehicle immatriculé : {this.state.vehicle.registration}
+                            Documents relatifs au vehicule immatriculé : {this.state.vehicle.registration}
                         </Modal.Header>
                         <Modal.Content style={{textAlign:"center"}}>
                             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"24px"}}>
@@ -974,7 +974,7 @@ class Vehicle extends Component {
                     </Modal>
                     <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openDeleteKm} onClose={this.closeDeleteKm} closeIcon>
                         <Modal.Header>
-                            Supprimer le relevé kilométrique du vehicule : {this.state.vehicle.registration} datant du {/*this.state.vehicle.kms.filter(x=>x._id == this.state.selectedKm)[0].reportDate*/}?
+                            Supprimer le relevé kilométrique du vehicule : {this.state.vehicle.registration} ?
                         </Modal.Header>
                         <Modal.Actions>
                             <Button color="grey" onClick={this.closeDeleteKm}>Annuler</Button>

@@ -72,7 +72,6 @@ const affectVehicleData = vehicle => {
     }else{
         vehicle.cv = {_id:""};
     }
-    return vehicle
 }
 
 export default {
@@ -342,7 +341,7 @@ export default {
                 }).then((uploadInfo)=>{
                     return [{status:true,message:'Document sauvegardé'}];
                 }).catch(e=>{
-                    return [{status:true,message:'Erreur durant le traitement : ' + e}];
+                    return [{status:false,message:'Erreur durant le traitement : ' + e}];
                 });
             }
         }

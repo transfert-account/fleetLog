@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import { Button, Icon, Message, Input, Modal, Header } from 'semantic-ui-react';
+import { Button, Icon, Message, Input, Modal, Header, Segment } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 import { gql } from 'apollo-server-express';
 
@@ -58,21 +58,23 @@ class FileManagementPanel extends Component {
         if(this.props.fileInfos._id != "" && this.props.fileInfos._id != undefined){
             return (
                 <Fragment>
-                    <div style={{display:"grid",gridTemplateRows:"auto 1fr auto auto",gridTemplateColumns:"1fr 1fr 1fr 1fr",gridGap:"6px"}}>
-                        <p style={{gridColumnEnd:"span 4"}}><Icon name='folder open'/>{this.props.title}</p>
-                        <Message style={{gridColumnEnd:"span 4",display:"grid",gridTemplateColumns:"auto 1fr",gridTemplateRows:"auto auto auto 1fr"}} color="grey">
-                            <p className="gridLabel">Nom du fichier :</p>
-                            <p className="gridValue">{this.props.fileInfos.originalFilename}</p>
-                            <p className="gridLabel">Taille du fichier:</p>
-                            <p className="gridValue">{parseFloat(this.props.fileInfos.size/1048576).toFixed(2)} Mo</p>
-                            <p className="gridLabel">Enregistré le :</p>
-                            <p className="gridValue">{this.props.fileInfos.storageDate}</p>
-                        </Message>
-                        <Input onChange={e=>{this.props.handleInputFile(this.props.fileTarget,e)}} style={{gridColumnEnd:"span 4"}} type='file' />
-                        <Button style={{gridColumnEnd:"span 2"}} color="blue" disabled={this.props.importLocked} onClick={this.props.uploadDoc}>Importer</Button>
-                        {this.getDownloadButton()}
-                        <Button onClick={()=>{this.setState({displayStoredFileName:true})}}>Nom S3</Button>
-                    </div>
+                    <Segment raised style={{margin:"4px"}}>
+                        <div style={{display:"grid",gridTemplateRows:"auto 1fr auto auto",gridTemplateColumns:"1fr 1fr 1fr 1fr",gridGap:"6px"}}>
+                            <p style={{gridColumnEnd:"span 4"}}><Icon name='folder open'/>{this.props.title}</p>
+                            <Message style={{gridColumnEnd:"span 4",display:"grid",gridTemplateColumns:"auto 1fr",gridTemplateRows:"auto auto auto 1fr"}} color="grey">
+                                <p className="gridLabel">Nom du fichier :</p>
+                                <p className="gridValue">{this.props.fileInfos.originalFilename}</p>
+                                <p className="gridLabel">Taille du fichier:</p>
+                                <p className="gridValue">{parseFloat(this.props.fileInfos.size/1048576).toFixed(2)} Mo</p>
+                                <p className="gridLabel">Enregistré le :</p>
+                                <p className="gridValue">{this.props.fileInfos.storageDate}</p>
+                            </Message>
+                            <Input onChange={e=>{this.props.handleInputFile(this.props.fileTarget,e)}} style={{gridColumnEnd:"span 4"}} type='file' />
+                            <Button style={{gridColumnEnd:"span 2"}} color="blue" disabled={this.props.importLocked} onClick={this.props.uploadDoc}>Importer</Button>
+                            {this.getDownloadButton()}
+                            <Button onClick={()=>{this.setState({displayStoredFileName:true})}}>Nom S3</Button>
+                        </div>
+                    </Segment>
                     <Modal open={this.state.displayStoredFileName} onClose={()=>this.setState({displayStoredFileName:false})} basic size='small'>
                         <Header icon='file' content='Voici le nom complet du fichier dans le bucket Amazon S3' />
                         <Modal.Content>
@@ -101,15 +103,17 @@ class FileManagementPanel extends Component {
             )
         }else{
             return (
-                <div style={{display:"grid",gridTemplateRows:"auto 1fr auto auto",gridTemplateColumns:"1fr 1fr",gridGap:"6px"}}>
-                    <p style={{gridColumnEnd:"span 2"}}><Icon name='folder open'/>{this.props.title}</p>
-                    <Message style={{gridColumnEnd:"span 2",display:"grid",gridTemplateColumns:"1fr",gridTemplateRows:"1fr"}} color="grey">
-                        <p>Aucun fichier</p>
-                    </Message>
-                    <Input onChange={e=>{this.props.handleInputFile(this.props.fileTarget,e)}} style={{gridColumnEnd:"span 2"}} type='file' />
-                    <Button color="blue" disabled={this.props.importLocked} onClick={this.props.uploadDoc}>Importer</Button>
-                    <Button color="black" disabled onClick={this.props.downloadDoc}>Telecharger</Button>
-                </div>
+                <Segment raised style={{margin:"4px"}}>
+                    <div style={{display:"grid",gridTemplateRows:"auto 1fr auto auto",gridTemplateColumns:"1fr 1fr",gridGap:"6px"}}>
+                        <p style={{gridColumnEnd:"span 2"}}><Icon name='folder open'/>{this.props.title}</p>
+                        <Message style={{gridColumnEnd:"span 2",display:"grid",gridTemplateColumns:"1fr",gridTemplateRows:"1fr"}} color="grey">
+                            <p>Aucun fichier</p>
+                        </Message>
+                        <Input onChange={e=>{this.props.handleInputFile(this.props.fileTarget,e)}} style={{gridColumnEnd:"span 2"}} type='file' />
+                        <Button color="blue" disabled={this.props.importLocked} onClick={this.props.uploadDoc}>Importer</Button>
+                        <Button color="black" disabled onClick={this.props.downloadDoc}>Telecharger</Button>
+                    </div>
+                </Segment>
             )
         }
     }

@@ -35,6 +35,7 @@ class Locations extends Component {
         openDatePicker:false,
         archiveFilter:false,
         reportLateFilter:"all",
+        docsFilter:"all",
         datePickerTarget:"",
         maxPage:1,
         currentPage:1,
@@ -77,6 +78,15 @@ class Locations extends Component {
                     }
                 }
             });
+            displayed = displayed.filter(v =>{
+                if(this.state.docsFilter == "all"){return true}else{
+                    if(v.cg._id == "" || v.cv._id == "" || v.contrat._id == "" || v.restitution._id == ""){
+                        return true
+                    }else{
+                        return false
+                    }
+                }}
+            )
             if(this.state.locationsFiler.length>0){
                 displayed = displayed.filter(i =>
                     i.registration.toLowerCase().includes(this.state.locationsFiler.toLowerCase()) ||
@@ -161,6 +171,19 @@ class Locations extends Component {
                     archived
                     archiveReason
                     archiveDate
+                    cg{
+                        _id
+                    }
+                    cv{
+                        _id
+                    }
+                    contrat{
+                        _id
+                    }
+                    restitution
+                    {
+                        _id
+                    }
                 }
             }
         `
@@ -292,6 +315,25 @@ class Locations extends Component {
         })
     }
 
+    //MISSING DOCS FILTER
+    getDocsFilterColor = (color,filter) => {
+        if(this.state.docsFilter == filter){
+            return color
+        }
+    }
+
+    setDocsFilter = value => {
+        this.setState({
+            docsFilter:value
+        })
+    }
+
+    toggleDisplayDoc = () => {
+        this.setState({
+            displayDoc:!this.state.displayDoc
+        })
+    }
+
     loadLocations = () => {
         this.props.client.query({
             query:this.state.locationsQuery,
@@ -315,11 +357,11 @@ class Locations extends Component {
                         <Menu.Item color="blue" name='vehicules' onClick={()=>{this.props.history.push("/parc/vehicles")}}><Icon name='truck'/>Vehicules</Menu.Item>
                         <Menu.Item color="blue" name='controls' onClick={()=>{this.props.history.push("/parc/controls")}}><Icon name='clipboard check'/>Contrôles</Menu.Item>
                         <Menu.Item color="blue" name='licences' onClick={()=>{this.props.history.push("/parc/licences")}}><Icon name='drivers license'/>Licences</Menu.Item>
-                        <Menu.Item color="blue" name='locations' active onClick={()=>{this.props.history.push("/parc/locations")}} ><Icon name="calendar alternate outline"/> Locations</Menu.Item>
+                        <Menu.Item color="blue" name='locations' active onClick={()=>{this.props.history.push("/parc/locations")}} ><Icon name="calendar alternate outline"/>Locations</Menu.Item>
                     </Menu>
                     <Input style={{justifySelf:"stretch"}} name="locationsFiler" onChange={e=>{this.handleFilter(e.target.value)}} icon='search' placeholder='Rechercher une immatriculation, une marque, un modèle ou un fournisseur' />
                     <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddLocation} icon labelPosition='right'>Enregistrer une location<Icon name='plus'/></Button>
-                    <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"16px"}}>
+                    <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gridGap:"16px"}}>
                         <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
                             <Icon name='archive'/>
                             <Button.Group style={{placeSelf:"center"}}>
@@ -331,8 +373,15 @@ class Locations extends Component {
                             <Icon name='dashboard'/>
                             <Button.Group style={{placeSelf:"center"}}>
                                 <Button color={this.getKmFilterColor("green","all")} onClick={()=>{this.setReportLateFilter("all")}}>Tous</Button>
-                                <Button color={this.getKmFilterColor("orange","2w")} onClick={()=>{this.setReportLateFilter("2w")}}>Dernier relevé > 2 semaines</Button>
-                                <Button color={this.getKmFilterColor("red","4w")} onClick={()=>{this.setReportLateFilter("4w")}}>Dernier relevé > 4 semaines</Button>
+                                <Button color={this.getKmFilterColor("orange","2w")} onClick={()=>{this.setReportLateFilter("2w")}}>Relevé > 2 semaines</Button>
+                                <Button color={this.getKmFilterColor("red","4w")} onClick={()=>{this.setReportLateFilter("4w")}}>Relevé > 4 semaines</Button>
+                            </Button.Group>
+                        </Message>
+                        <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
+                            <Icon name='folder'/>
+                            <Button.Group style={{placeSelf:"center"}}>
+                                <Button color={this.getDocsFilterColor("green","all")} onClick={()=>{this.setDocsFilter("all")}}>Tous</Button>
+                                <Button color={this.getDocsFilterColor("red","missingDocs")} onClick={()=>{this.setDocsFilter("missingDocs")}}>Documents manquants</Button>
                             </Button.Group>
                         </Message>
                     </div>
@@ -348,8 +397,9 @@ class Locations extends Component {
                                     <Table.HeaderCell>Modèle</Table.HeaderCell>
                                     <Table.HeaderCell>Volume</Table.HeaderCell>
                                     <Table.HeaderCell>Charge utile</Table.HeaderCell>
-                                    <Table.HeaderCell>Fournisseur</Table.HeaderCell>
                                     <Table.HeaderCell>Fin de contrat</Table.HeaderCell>
+                                    <Table.HeaderCell>Fournisseur</Table.HeaderCell>
+                                    <Table.HeaderCell>Documents</Table.HeaderCell>
                                     <Table.HeaderCell>Actions</Table.HeaderCell>
                                 </Table.Row>
                             </Table.Header>

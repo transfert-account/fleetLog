@@ -383,6 +383,7 @@ class Vehicles extends Component {
                                     <Table.HeaderCell>Volume</Table.HeaderCell>
                                     <Table.HeaderCell>Charge utile</Table.HeaderCell>
                                     <Table.HeaderCell>Propriété</Table.HeaderCell>
+                                    <Table.HeaderCell>Documents</Table.HeaderCell>
                                     <Table.HeaderCell>Actions</Table.HeaderCell>
                                 </Table.Row>
                             </Table.Header>

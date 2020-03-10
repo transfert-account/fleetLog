@@ -59,6 +59,15 @@ export class BUVehicles extends Component {
                 v.archived == this.state.archiveFilter
             );
             displayed = displayed.filter(v =>{
+                if(this.state.docsFilter == "all"){return true}else{
+                    if(v.cg._id == "" || v.cv._id == ""){
+                        return true
+                    }else{
+                        return false
+                    }
+                }}
+            )
+            displayed = displayed.filter(v =>{
                 if(this.state.reportLateFilter == "all"){return true}else{
                     let days = parseInt(moment().diff(moment(v.lastKmUpdate, "DD/MM/YYYY"),'days'));
                     if(this.state.reportLateFilter == "2w"){
@@ -154,6 +163,12 @@ export class BUVehicles extends Component {
                     archived
                     archiveReason
                     archiveDate
+                    cg{
+                        _id
+                    }
+                    cv{
+                        _id
+                    }
                 }
             }
         `
@@ -296,6 +311,25 @@ export class BUVehicles extends Component {
         })
     }
 
+    //MISSING DOCS FILTER
+    getDocsFilterColor = (color,filter) => {
+        if(this.state.docsFilter == filter){
+            return color
+        }
+    }
+
+    setDocsFilter = value => {
+        this.setState({
+            docsFilter:value
+        })
+    }
+
+    toggleDisplayDoc = () => {
+        this.setState({
+            displayDoc:!this.state.displayDoc
+        })
+    }
+
     componentDidMount = () => {
         this.loadVehicles();
     }
@@ -312,7 +346,7 @@ export class BUVehicles extends Component {
                     </Menu>
                     <Input style={{justifySelf:"stretch"}} name="vehiclesFiler" onChange={e=>{this.handleFilter(e.target.value)}} icon='search' placeholder='Rechercher une immatriculation, une marque ou un modèle'/>
                     <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddVehicle} icon labelPosition='right'>Ajouter un véhicule<Icon name='plus'/></Button>
-                    <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"16px"}}>
+                    <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gridGap:"16px"}}>
                         <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
                             <Icon name='archive'/>
                             <Button.Group style={{placeSelf:"center"}}>
@@ -326,6 +360,13 @@ export class BUVehicles extends Component {
                                 <Button color={this.getKmFilterColor("green","all")} onClick={()=>{this.setReportLateFilter("all")}}>Tous</Button>
                                 <Button color={this.getKmFilterColor("orange","2w")} onClick={()=>{this.setReportLateFilter("2w")}}>Relevé > 2 semaines</Button>
                                 <Button color={this.getKmFilterColor("red","4w")} onClick={()=>{this.setReportLateFilter("4w")}}>Relevé > 4 semaines</Button>
+                            </Button.Group>
+                        </Message>
+                        <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
+                            <Icon name='folder'/>
+                            <Button.Group style={{placeSelf:"center"}}>
+                                <Button color={this.getDocsFilterColor("green","all")} onClick={()=>{this.setDocsFilter("all")}}>Tous</Button>
+                                <Button color={this.getDocsFilterColor("red","missingDocs")} onClick={()=>{this.setDocsFilter("missingDocs")}}>Documents manquants</Button>
                             </Button.Group>
                         </Message>
                     </div>
@@ -343,6 +384,7 @@ export class BUVehicles extends Component {
                                     <Table.HeaderCell>Volume</Table.HeaderCell>
                                     <Table.HeaderCell>Charge utile</Table.HeaderCell>
                                     <Table.HeaderCell>Propriété</Table.HeaderCell>
+                                    <Table.HeaderCell>Documents</Table.HeaderCell>
                                     <Table.HeaderCell>Actions</Table.HeaderCell>
                                 </Table.Row>
                             </Table.Header>

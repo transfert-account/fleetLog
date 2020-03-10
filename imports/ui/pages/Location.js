@@ -10,6 +10,7 @@ import BrandPicker from '../atoms/BrandPicker';
 import FournisseurPicker from '../atoms/FournisseurPicker';
 import SocietePicker from '../atoms/SocietePicker';
 import VolumePicker from '../atoms/VolumePicker';
+import FileManagementPanel from '../atoms/FileManagementPanel';
 import { withRouter } from 'react-router-dom';
 import moment from 'moment';
 import { gql } from 'apollo-server-express';
@@ -23,6 +24,10 @@ class Location extends Component {
     }
 
     state={
+        newCg:null,
+        newCv:null,
+        newContrat:null,
+        newRestitution:null,
         newSociete:"",
         newFournisseur:"",
         newRegistration:"",
@@ -111,6 +116,51 @@ class Location extends Component {
                     archiveReason
                     archiveDate
                     returned
+                    cg{
+                        _id
+                        name
+                        size
+                        path
+                        originalFilename
+                        ext
+                        type
+                        mimetype
+                        storageDate
+                    }
+                    cv{
+                        _id
+                        name
+                        size
+                        path
+                        originalFilename
+                        ext
+                        type
+                        mimetype
+                        storageDate
+                    }
+                    contrat{
+                        _id
+                        name
+                        size
+                        path
+                        originalFilename
+                        ext
+                        type
+                        mimetype
+                        storageDate
+                    }
+                    restitution
+                    {
+                        _id
+                        name
+                        size
+                        path
+                        originalFilename
+                        ext
+                        type
+                        mimetype
+                        storageDate
+                    }
                 }
             }
         `,
@@ -173,6 +223,14 @@ class Location extends Component {
         cancelEndOfLocationQuery : gql`
             mutation cancelEndOfLocation($_id:String!){
                 cancelEndOfLocation(_id:$_id){
+                    status
+                    message
+                }
+            }
+        `,
+        uploadLocationDocumentQuery : gql`
+            mutation uploadLocationDocument($_id: String!,$file: Upload!,$type: String!,$size: Int!) {
+                uploadLocationDocument(_id:$_id,file:$file,type:$type,size:$size) {
                     status
                     message
                 }
@@ -479,14 +537,103 @@ class Location extends Component {
         this.setState({openDocs:true})
     }
     closeDocs = () => {
-        this.setState({openDocs:false})
+        this.setState({openDocs:false,newCg:null,newCv:null,newContrat:null,newRestitution:null})
     }
     
-    downloadDoc = doc => {
-        
+    handleInputFile = (type,e) => {
+        if(e.target.validity.valid ){
+            this.setState({
+                [type]:e.target.files[0]
+            })
+        }
     }
-    uploadDoc = doc => {
-        
+
+    uploadDocCg = () => {
+        this.props.client.mutate({
+            mutation:this.state.uploadLocationDocumentQuery,
+            variables:{
+                _id:this.state.location._id,
+                file:this.state.newCg,
+                type:"cg",
+                size:this.state.newCg.size
+            }
+        }).then(({data})=>{
+            data.uploadLocationDocument.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.loadLocation();
+                    this.closeDocs();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+
+    uploadDocCv = () => {
+        this.props.client.mutate({
+            mutation:this.state.uploadLocationDocumentQuery,
+            variables:{
+                _id:this.state.location._id,
+                file:this.state.newCv,
+                type:"cv",
+                size:this.state.newCv.size
+            }
+        }).then(({data})=>{
+            data.uploadLocationDocument.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.loadLocation();
+                    this.closeDocs();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+
+    uploadDocContrat = () => {
+        this.props.client.mutate({
+            mutation:this.state.uploadLocationDocumentQuery,
+            variables:{
+                _id:this.state.location._id,
+                file:this.state.newContrat,
+                type:"contrat",
+                size:this.state.newContrat.size
+            }
+        }).then(({data})=>{
+            data.uploadLocationDocument.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.loadLocation();
+                    this.closeDocs();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+
+    uploadDocRestitution = () => {
+        this.props.client.mutate({
+            mutation:this.state.uploadLocationDocumentQuery,
+            variables:{
+                _id:this.state.location._id,
+                file:this.state.newRestitution,
+                type:"restitution",
+                size:this.state.newRestitution.size
+            }
+        }).then(({data})=>{
+            data.uploadLocationDocument.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.loadLocation();
+                    this.closeDocs();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
     }
 
     editInfos = () => {
@@ -910,34 +1057,16 @@ class Location extends Component {
                             <Button color="blue" onClick={this.updateLocKm}>Mettre à jour</Button>
                         </Modal.Actions>
                     </Modal>
-                    <Modal closeOnDimmerClick={false} open={this.state.openDocs} onClose={this.closeDocs} closeIcon>
+                    <Modal size='large' closeOnDimmerClick={false} open={this.state.openDocs} onClose={this.closeDocs} closeIcon>
                         <Modal.Header>
-                            Documents relatifs au location immatriculé : {this.state.location.registration}
+                            Documents relatifs au vehicule de location immatriculé : {this.state.location.registration}
                         </Modal.Header>
                         <Modal.Content style={{textAlign:"center"}}>
-                            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gridTemplateRows:"1fr auto 1fr",gridGap:"0 24px"}}>
-                                <p style={{gridColumnEnd:"span 2"}}><Icon name='folder open'/>Document 1</p>
-                                <p style={{gridColumnEnd:"span 2"}}><Icon name='folder open'/>Document 2</p>
-                                <Message style={{gridColumnEnd:"span 2",display:"grid",gridTemplateColumns:"1fr 2fr",gridTemplateRows:"1fr 1fr 1fr"}} color="grey">
-                                    <p className="gridLabel">Nom du fichier :</p>
-                                    <p className="gridValue">Doc Name XYZ</p>
-                                    <p className="gridLabel">Taille du fichier:</p>
-                                    <p className="gridValue">1234 kB</p>
-                                    <p className="gridLabel">Enregistré le :</p>
-                                    <p className="gridValue">01/02/2019</p>
-                                </Message>
-                                <Message style={{gridColumnEnd:"span 2",display:"grid",gridTemplateColumns:"1fr 2fr",gridTemplateRows:"1fr 1fr 1fr"}} color="grey">
-                                    <p className="gridLabel">Nom du fichier :</p>
-                                    <p className="gridValue">Doc Name XYZ</p>
-                                    <p className="gridLabel">Taille du fichier:</p>
-                                    <p className="gridValue">1234 kB</p>
-                                    <p className="gridLabel">Enregistré le :</p>
-                                    <p className="gridValue">01/02/2019</p>
-                                </Message>
-                                <Button color="blue" onClick={this.closeDocs}>Importer</Button>
-                                <Button color="black" onClick={this.closeDocs}>Telecharger</Button>
-                                <Button color="blue" onClick={this.closeDocs}>Importer</Button>
-                                <Button color="black" onClick={this.closeDocs}>Telecharger</Button>
+                            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"24px"}}>
+                                <FileManagementPanel importLocked={this.state.newCg == null} handleInputFile={this.handleInputFile} fileTarget="newCg" uploadDoc={this.uploadDocCg} downloadDoc={this.downloadDocCg} fileInfos={this.state.location.cg} title="Carte grise" type="cg"/>
+                                <FileManagementPanel importLocked={this.state.newCv == null} handleInputFile={this.handleInputFile} fileTarget="newCv" uploadDoc={this.uploadDocCv} downloadDoc={this.downloadDocCv} fileInfos={this.state.location.cv} title="Carte verte" type="cv"/>
+                                <FileManagementPanel importLocked={this.state.newContrat == null} handleInputFile={this.handleInputFile} fileTarget="newContrat" uploadDoc={this.uploadDocContrat} downloadDoc={this.downloadDocContrat} fileInfos={this.state.location.contrat} title="Contrat de location" type="contrat"/>
+                                <FileManagementPanel importLocked={this.state.newRestitution == null} handleInputFile={this.handleInputFile} fileTarget="newRestitution" uploadDoc={this.uploadDocRestitution} downloadDoc={this.downloadDocRestitution} fileInfos={this.state.location.restitution} title="Justificatif de restitution" type="restitution"/>
                             </div>
                         </Modal.Content>
                         <Modal.Actions>

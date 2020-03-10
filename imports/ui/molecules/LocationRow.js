@@ -12,6 +12,7 @@ class LocationRow extends Component {
     state={
         _id:this.props.rental._id,
         newSociete:this.props.rental.societe._id,
+        displayDoc:false,
         newRegistration:this.props.rental.registration,
         newFirstRegistrationDate:this.props.rental.firstRegistrationDate,
         newKm:this.props.rental.km,
@@ -109,23 +110,21 @@ class LocationRow extends Component {
         })
     }
 
-    downloadDoc = doc => {
-        
-    }
-    
-    uploadDoc = doc => {
-        
+    toggleDisplayDoc = () => {
+        this.setState({
+            displayDoc:!this.state.displayDoc
+        })
     }
 
     getEndDateLabel = () => {
         let daysLeft = parseInt(moment().diff(moment(this.props.rental.endDate,"DD/MM/YYYY"),'days', true))
         if(daysLeft >= 7){
-            return <Label color="red"> {moment(this.props.rental.endDate, "DD/MM/YYYY").fromNow()}, le {this.props.rental.endDate}</Label>
+            return <Table.Cell textAlign="center"><Label color="red"> {moment(this.props.rental.endDate, "DD/MM/YYYY").fromNow()}, le {this.props.rental.endDate}</Label></Table.Cell>
         }
         if(daysLeft >= 7){
-            return <Label color="orange"> {moment(this.props.rental.endDate, "DD/MM/YYYY").fromNow()}, le {this.props.rental.endDate}</Label>
+            return <Table.Cell textAlign="center"><Label color="orange"> {moment(this.props.rental.endDate, "DD/MM/YYYY").fromNow()}, le {this.props.rental.endDate}</Label></Table.Cell>
         }
-        return <Label color="green"> {moment(this.props.rental.endDate, "DD/MM/YYYY").fromNow()}, le {this.props.rental.endDate}</Label>
+        return <Table.Cell textAlign="center"><Label color="green"> {moment(this.props.rental.endDate, "DD/MM/YYYY").fromNow()}, le {this.props.rental.endDate}</Label></Table.Cell>
     }
 
     getSocieteCell = () => {
@@ -167,6 +166,45 @@ class LocationRow extends Component {
         }
     }
 
+    getDocsStates = () => {
+        return (
+            <Table.Cell textAlign="center">
+                <Label style={{cursor:"pointer"}} onClick={this.toggleDisplayDoc} color={this.props.rental.cg._id == "" ? "red" : "green"} image={this.state.displayDoc}>
+                    <Icon style={{margin:"0"}} name='folder' />
+                    {(this.state.displayDoc ?
+                        <Label.Detail>Carte grise</Label.Detail>
+                        :
+                        ""
+                    )}
+                </Label>
+                <Label style={{cursor:"pointer"}} onClick={this.toggleDisplayDoc} color={this.props.rental.cv._id == "" ? "red" : "green"} image={this.state.displayDoc}>
+                    <Icon style={{margin:"0"}} name='folder' />
+                    {(this.state.displayDoc ?
+                        <Label.Detail>Carte verte</Label.Detail>
+                        :
+                        ""
+                    )}
+                </Label>
+                <Label style={{cursor:"pointer"}} onClick={this.toggleDisplayDoc} color={this.props.rental.contrat._id == "" ? "red" : "green"} image={this.state.displayDoc}>
+                    <Icon style={{margin:"0"}} name='folder' />
+                    {(this.state.displayDoc ?
+                        <Label.Detail>Contrat de location</Label.Detail>
+                        :
+                        ""
+                    )}
+                </Label>
+                <Label style={{cursor:"pointer"}} onClick={this.toggleDisplayDoc} color={this.props.rental.restitution._id == "" ? "orange" : "green"} image={this.state.displayDoc}>
+                    <Icon style={{margin:"0"}} name='folder' />
+                    {(this.state.displayDoc ?
+                        <Label.Detail>Restitution</Label.Detail>
+                        :
+                        ""
+                    )}
+                </Label>
+            </Table.Cell>
+        )
+    }
+
     render() {
         return (
             <Fragment>
@@ -179,49 +217,14 @@ class LocationRow extends Component {
                     <Table.Cell textAlign="center">{this.props.rental.model.name}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.rental.volume.meterCube+" m²"}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.rental.payload} t.</Table.Cell>
+                    {this.getEndDateLabel()}
                     <Table.Cell textAlign="center">{this.props.rental.fournisseur.name}</Table.Cell>
-                    <Table.Cell textAlign="center">
-                        {this.getEndDateLabel()}
-                    </Table.Cell>
+                    {this.getDocsStates()}
                     <Table.Cell style={{textAlign:"center"}}>
                         <Button circular style={{color:"#a29bfe"}} inverted icon icon='folder open' onClick={this.showDocs}/>
                         <Button circular style={{color:"#2980b9"}} inverted icon icon='arrow right' onClick={this.navigateToLocation}/>
                     </Table.Cell>
                 </Table.Row>
-                <Modal closeOnDimmerClick={false} open={this.state.openDocs} onClose={this.closeDocs} closeIcon>
-                    <Modal.Header>
-                        Documents relatifs au location immatriculé : {this.props.rental.registration}
-                    </Modal.Header>
-                    <Modal.Content style={{textAlign:"center"}}>
-                        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gridTemplateRows:"1fr auto 1fr",gridGap:"0 24px"}}>
-                            <p style={{gridColumnEnd:"span 2"}}><Icon name='folder open'/>Document 1</p>
-                            <p style={{gridColumnEnd:"span 2"}}><Icon name='folder open'/>Document 2</p>
-                            <Message style={{gridColumnEnd:"span 2",display:"grid",gridTemplateColumns:"1fr 2fr",gridTemplateRows:"1fr 1fr 1fr"}} color="grey">
-                                <p className="gridLabel">Nom du fichier :</p>
-                                <p className="gridValue">Doc Name XYZ</p>
-                                <p className="gridLabel">Taille du fichier:</p>
-                                <p className="gridValue">1234 kB</p>
-                                <p className="gridLabel">Enregistré le :</p>
-                                <p className="gridValue">01/02/2019</p>
-                            </Message>
-                            <Message style={{gridColumnEnd:"span 2",display:"grid",gridTemplateColumns:"1fr 2fr",gridTemplateRows:"1fr 1fr 1fr"}} color="grey">
-                                <p className="gridLabel">Nom du fichier :</p>
-                                <p className="gridValue">Doc Name XYZ</p>
-                                <p className="gridLabel">Taille du fichier:</p>
-                                <p className="gridValue">1234 kB</p>
-                                <p className="gridLabel">Enregistré le :</p>
-                                <p className="gridValue">01/02/2019</p>
-                            </Message>
-                            <Button color="blue" onClick={this.closeDocs}>Importer</Button>
-                            <Button color="black" onClick={this.closeDocs}>Telecharger</Button>
-                            <Button color="blue" onClick={this.closeDocs}>Importer</Button>
-                            <Button color="black" onClick={this.closeDocs}>Telecharger</Button>
-                        </div>
-                    </Modal.Content>
-                    <Modal.Actions>
-                        <Button color="grey" onClick={this.closeDocs}>Fermer</Button>
-                    </Modal.Actions>
-                </Modal>
                 <Modal closeOnDimmerClick={false} open={this.state.openDelete} onClose={this.closeDelete} closeIcon>
                     <Modal.Header>
                         Confirmation de suppression 

@@ -7,150 +7,96 @@ import Volumes from '../volume/volumes.js';
 import Brands from '../brand/brands.js';
 import Models from '../model/models.js';
 import Colors from '../color/colors.js';
+import Documents from '../document/documents';
 import Equipements from '../equipement/equipements';
 import EquipementDescriptions from '../equipementDescription/equipementDescriptions';
+import Functions from '../common/functions';
 import moment from 'moment';
 import { Mongo } from 'meteor/mongo';
+
+const affectLocationData = location => {
+    location.lastKmUpdate = location.kms[location.kms.length-1].reportDate
+    location.km = location.kms[location.kms.length-1].kmValue
+    if(location.payementFormat == "CRB"){
+        location.property = false
+    }else{
+        location.property = true
+    }
+    if(location.volume != null && location.volume.length > 0){
+        location.volume = Volumes.findOne({_id:new Mongo.ObjectID(location.volume)});
+    }else{
+        location.volume = {_id:""};
+    }
+    if(location.brand != null && location.brand.length > 0){
+        location.brand = Brands.findOne({_id:new Mongo.ObjectID(location.brand)});
+    }else{
+        location.brand = {_id:""};
+    }
+    if(location.model != null && location.model.length > 0){
+        location.model = Models.findOne({_id:new Mongo.ObjectID(location.model)});
+    }else{
+        location.model = {_id:""};
+    }
+    if(location.color != null && location.color.length > 0){
+        location.color = Colors.findOne({_id:new Mongo.ObjectID(location.color)});
+    }else{
+        location.color = {_id:""};
+    }
+    if(location.fournisseur != null && location.fournisseur.length > 0){
+        location.fournisseur = Fournisseurs.findOne({_id:new Mongo.ObjectID(location.fournisseur)});
+    }else{
+        location.fournisseur = {_id:""};
+    }
+    if(location.societe != null && location.societe.length > 0){
+        location.societe = Societes.findOne({_id:new Mongo.ObjectID(location.societe)});
+    }else{
+        location.societe = {_id:""};
+    }
+    location.equipements = Equipements.find({location:location._id._str}).fetch() || {};
+    location.equipements.forEach((e,ei) => {
+        e.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)}) || {};
+    });
+    if(location.cg != null && location.cg.length > 0){
+        location.cg = Documents.findOne({_id:new Mongo.ObjectID(location.cg)});
+    }else{
+        location.cg = {_id:""};
+    }
+    if(location.cv != null && location.cv.length > 0){
+        location.cv = Documents.findOne({_id:new Mongo.ObjectID(location.cv)});
+    }else{
+        location.cv = {_id:""};
+    }
+    if(location.contrat != null && location.contrat.length > 0){
+        location.contrat = Documents.findOne({_id:new Mongo.ObjectID(location.contrat)});
+    }else{
+        location.contrat = {_id:""};
+    }
+    if(location.restitution != null && location.restitution.length > 0){
+        location.restitution = Documents.findOne({_id:new Mongo.ObjectID(location.restitution)});
+    }else{
+        location.restitution = {_id:""};
+    }
+}
+
 export default {
     Query : {
         location(obj, {_id}, { user }){
             let location = Locations.findOne({_id:new Mongo.ObjectID(_id)});
-            location.lastKmUpdate = location.kms[location.kms.length-1].reportDate
-            location.km = location.kms[location.kms.length-1].kmValue
-            if(location.payementFormat == "CRB"){
-                location.property = false
-            }else{
-                location.property = true
-            }
-            location.property
-            if(location.societe != null && location.societe.length > 0){
-                location.societe = Societes.findOne({_id:new Mongo.ObjectID(location.societe)});
-            }else{
-                location.societe = {_id:""};
-            }
-            if(location.volume != null && location.volume.length > 0){
-                location.volume = Volumes.findOne({_id:new Mongo.ObjectID(location.volume)});
-            }else{
-                location.volume = {_id:""};
-            }
-            if(location.brand != null && location.brand.length > 0){
-                location.brand = Brands.findOne({_id:new Mongo.ObjectID(location.brand)});
-            }else{
-                location.brand = {_id:""};
-            }
-            if(location.model != null && location.model.length > 0){
-                location.model = Models.findOne({_id:new Mongo.ObjectID(location.model)});
-            }else{
-                location.model = {_id:""};
-            }
-            if(location.color != null && location.color.length > 0){
-                location.color = Colors.findOne({_id:new Mongo.ObjectID(location.color)});
-            }else{
-                location.color = {_id:""};
-            }
-            if(location.fournisseur != null && location.fournisseur.length > 0){
-                location.fournisseur = Fournisseurs.findOne({_id:new Mongo.ObjectID(location.fournisseur)});
-            }else{
-                location.fournisseur = {_id:""};
-            }
-            location.equipements = Equipements.find({location:location._id._str}).fetch() || {};
-            location.equipements.forEach((e,ei) => {
-                e.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)}) || {};
-            });
+            affectLocationData(location)
             return location;
         },
         locations(obj, args){
             let locations = Locations.find().fetch() || {};
-            locations.forEach((l,i) => {
-                l.lastKmUpdate = l.kms[l.kms.length-1].reportDate
-                l.km = l.kms[l.kms.length-1].kmValue
-                if(l.payementFormat == "CRB"){
-                    l.property = false
-                }else{
-                    l.property = true
-                }
-                if(l.volume != null && l.volume.length > 0){
-                    l.volume = Volumes.findOne({_id:new Mongo.ObjectID(l.volume)});
-                }else{
-                    l.volume = {_id:""};
-                }
-                if(l.brand != null && l.brand.length > 0){
-                    l.brand = Brands.findOne({_id:new Mongo.ObjectID(l.brand)});
-                }else{
-                    l.brand = {_id:""};
-                }
-                if(l.model != null && l.model.length > 0){
-                    l.model = Models.findOne({_id:new Mongo.ObjectID(l.model)});
-                }else{
-                    l.model = {_id:""};
-                }
-                if(l.color != null && l.color.length > 0){
-                    l.color = Colors.findOne({_id:new Mongo.ObjectID(l.color)});
-                }else{
-                    l.color = {_id:""};
-                }
-                if(l.fournisseur != null && l.fournisseur.length > 0){
-                    l.fournisseur = Fournisseurs.findOne({_id:new Mongo.ObjectID(l.fournisseur)});
-                }else{
-                    l.fournisseur = {_id:""};
-                }
-                if(l.societe != null && l.societe.length > 0){
-                    locations[i].societe = Societes.findOne({_id:new Mongo.ObjectID(l.societe)});
-                }else{
-                    locations[i].societe = {_id:""};
-                }
-                l.equipements = Equipements.find({location:l._id._str}).fetch() || {};
-                l.equipements.forEach((e,ei) => {
-                    e.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)}) || {};
-                });
+            locations.forEach(l => {
+                affectLocationData(l)
             });
             return locations;
         },
         buLocations(obj,args,{ user }){
             let userFull = Meteor.users.findOne({_id:user._id});
             let locations = Locations.find({societe:userFull.settings.visibility}).fetch() || {};
-            locations.forEach((l,i) => {
-                l.lastKmUpdate = l.kms[l.kms.length-1].reportDate
-                l.km = l.kms[l.kms.length-1].kmValue
-                if(l.payementFormat == "CRB"){
-                    l.property = false
-                }else{
-                    l.property = true
-                }
-                if(l.volume != null && l.volume.length > 0){
-                    l.volume = Volumes.findOne({_id:new Mongo.ObjectID(l.volume)});
-                }else{
-                    l.volume = {_id:""};
-                }
-                if(l.brand != null && l.brand.length > 0){
-                    l.brand = Brands.findOne({_id:new Mongo.ObjectID(l.brand)});
-                }else{
-                    l.brand = {_id:""};
-                }
-                if(l.model != null && l.model.length > 0){
-                    l.model = Models.findOne({_id:new Mongo.ObjectID(l.model)});
-                }else{
-                    l.model = {_id:""};
-                }
-                if(l.color != null && l.color.length > 0){
-                    l.color = Colors.findOne({_id:new Mongo.ObjectID(l.color)});
-                }else{
-                    l.color = {_id:""};
-                }
-                if(l.fournisseur != null && l.fournisseur.length > 0){
-                    l.fournisseur = Fournisseurs.findOne({_id:new Mongo.ObjectID(l.fournisseur)});
-                }else{
-                    l.fournisseur = {_id:""};
-                }
-                if(l.societe != null && l.societe.length > 0){
-                    locations[i].societe = Societes.findOne({_id:new Mongo.ObjectID(l.societe)});
-                }else{
-                    locations[i].societe = {_id:""};
-                }
-                l.equipements = Equipements.find({location:l._id._str}).fetch() || {};
-                l.equipements.forEach((e,ei) => {
-                    e.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)}) || {};
-                });
+            locations.forEach(l => {
+                affectLocationData(l)
             });
             return locations;
         }
@@ -183,8 +129,11 @@ export default {
                     rentalContract:"",
                     archived:false,
                     archiveReason:"",
-                    archiveDate:""
-
+                    archiveDate:"",
+                    cg:"",
+                    cv:"",
+                    contrat:"",
+                    restitution:""
                 });
                 return [{status:true,message:'Création réussie'}];
             }
@@ -362,6 +311,80 @@ export default {
                 return [{status:true,message:'Retour de location annulé'}];
             }
             throw new Error('Unauthorized');
+        },
+        async uploadLocationDocument(obj, {_id,type,file,size},{user}){
+            if(user._id){
+                if(type != "cv" && type != "cg" && type != "contrat" && type != "restitution"){
+                    return [{status:false,message:'Type de fichier innatendu (cv/cg/contrat/restitution)'}];
+                }
+                let location = Locations.findOne({_id:new Mongo.ObjectID(_id)});
+                let societe = Societes.findOne({_id:new Mongo.ObjectID(location.societe)});
+                let docId = new Mongo.ObjectID();
+                let oldFile = null;
+                let deleteOld = false;
+                if(type == "cg"){
+                    if(location.cg != null && location.cg != undefined && location.cg != ""){
+                        deleteOld = true;
+                        oldFile = Documents.findOne({_id:new Mongo.ObjectID(location.cg)})
+                    }
+                }
+                if(type == "cv"){
+                    if(location.cv != null && location.cv != undefined && location.cv != ""){
+                        deleteOld = true;
+                        oldFile = Documents.findOne({_id:new Mongo.ObjectID(location.cv)})
+                    }
+                }
+                if(type == "contrat"){
+                    if(location.contrat != null && location.contrat != undefined && location.contrat != ""){
+                        deleteOld = true;
+                        oldFile = Documents.findOne({_id:new Mongo.ObjectID(location.contrat)})
+                    }
+                }
+                if(type == "restitution"){
+                    if(location.restitution != null && location.restitution != undefined && location.restitution != ""){
+                        deleteOld = true;
+                        oldFile = Documents.findOne({_id:new Mongo.ObjectID(location.restitution)})
+                    }
+                }
+                return await new Promise(async (resolve,reject)=>{
+                    await new Promise(async (resolve,reject)=>{
+                        let uploadInfo = await Functions.shipToBucket(await file,societe,type,docId,deleteOld,oldFile)
+                        if(uploadInfo.uploadSucces){
+                            resolve(uploadInfo)
+                        }else{
+                            reject(uploadInfo)
+                        }
+                    }).then((uploadInfo)=>{
+                        Documents.insert({
+                            _id:docId,
+                            name:uploadInfo.fileInfo.docName,
+                            size:size,
+                            path:uploadInfo.data.Location,
+                            originalFilename:uploadInfo.fileInfo.originalFilename,
+                            ext:uploadInfo.fileInfo.ext,
+                            mimetype:uploadInfo.fileInfo.mimetype,
+                            type:type,
+                            storageDate:moment().format('DD/MM/YYYY HH:mm:ss')
+                        });
+                        Locations.update(
+                            {
+                                _id: new Mongo.ObjectID(_id)
+                            }, {
+                                $set: {
+                                    [type]:docId._str
+                                }
+                            }   
+                        )
+                        resolve(uploadInfo)
+                    }).catch(e=>{
+                        reject(e)
+                    })
+                }).then((uploadInfo)=>{
+                    return [{status:true,message:'Document sauvegardé'}];
+                }).catch(e=>{
+                    return [{status:false,message:'Erreur durant le traitement : ' + e}];
+                });
+            }
         }
     }
 }

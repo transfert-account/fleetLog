@@ -10,6 +10,7 @@ class VehiclesRow extends Component {
     state={
         _id:this.props.vehicle._id,
         newSociete:this.props.vehicle.societe._id,
+        displayDoc:false,
         newRegistration:this.props.vehicle.registration,
         newFirstRegistrationDate:this.props.vehicle.firstRegistrationDate,
         newKm:this.props.vehicle.km,
@@ -70,6 +71,12 @@ class VehiclesRow extends Component {
         this.setState({editing:true})
     }
 
+    toggleDisplayDoc = () => {
+        this.setState({
+            displayDoc:!this.state.displayDoc
+        })
+    }
+
     downloadDoc = doc => {
     }
     
@@ -81,13 +88,13 @@ class VehiclesRow extends Component {
         let monthsDone = parseInt(moment().diff(moment(this.props.vehicle.payementBeginDate,"DD/MM/YYYY"),'months', true));
         let monthsLeft = totalMonths - monthsDone;
         if(parseInt(monthsLeft <= 0) || this.props.vehicle.payementFormat == "CPT"){
-            return <Label color="green">Propriété</Label>
+            return <Table.Cell textAlign="center"><Label color="green">Propriété</Label></Table.Cell>
         }else{
             if(this.props.vehicle.payementFormat == "CRB"){
-                return <Label color="orange"> {parseInt(monthsLeft)} mois restant</Label>
+                return <Table.Cell textAlign="center"><Label color="orange"> {parseInt(monthsLeft)} mois restant</Label></Table.Cell>
             }
             if(this.props.vehicle.payementFormat == "CRC"){
-                return <Label color="green"> {parseInt(monthsLeft)} mois restant</Label>
+                return <Table.Cell textAlign="center"><Label color="green"> {parseInt(monthsLeft)} mois restant</Label></Table.Cell>
             }
         }
     }
@@ -131,6 +138,29 @@ class VehiclesRow extends Component {
         }
     }
 
+    getDocsStates = () => {
+        return (
+            <Table.Cell textAlign="center">
+                <Label style={{cursor:"pointer"}} onClick={this.toggleDisplayDoc} color={this.props.vehicle.cg._id == "" ? "red" : "green"} image={this.state.displayDoc}>
+                    <Icon style={{margin:"0"}} name='folder' />
+                    {(this.state.displayDoc ?
+                        <Label.Detail>Carte grise</Label.Detail>
+                        :
+                        ""
+                    )}
+                </Label>
+                <Label style={{cursor:"pointer"}} onClick={this.toggleDisplayDoc} color={this.props.vehicle.cv._id == "" ? "red" : "green"} image={this.state.displayDoc}>
+                    <Icon style={{margin:"0"}} name='folder' />
+                    {(this.state.displayDoc ?
+                        <Label.Detail>Carte verte</Label.Detail>
+                        :
+                        ""
+                    )}
+                </Label>
+            </Table.Cell>
+        )
+    }
+
     render() {
         return (
             <Fragment>
@@ -145,9 +175,8 @@ class VehiclesRow extends Component {
                     <Table.Cell textAlign="center">{this.props.vehicle.model.name}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.vehicle.volume.meterCube+" m²"}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.vehicle.payload} t.</Table.Cell>
-                    <Table.Cell textAlign="center">
-                        {this.getPayementProgress()}
-                    </Table.Cell>
+                    {this.getPayementProgress()}
+                    {this.getDocsStates()}
                     <Table.Cell textAlign="center">
                         <Button circular style={{color:"#2980b9"}} inverted icon icon='arrow right' onClick={this.navigateToVehicle}/>
                     </Table.Cell>

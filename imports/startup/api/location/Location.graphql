@@ -12,9 +12,11 @@ type Location{
     volume:Volume
     payload:Float
     color:Color
-    cg:String
+    cg:Document
+    cv:Document
+    contrat:Document
+    restitution:Document
     insurancePaid:Float
-    cv:String
     startDate:String
     endDate:String
     price:Float
@@ -43,4 +45,5 @@ extend type Mutation{
     deleteLocation(_id:String!):[QueryResultMessage]
     endOfLocation(_id:String!,reparation:Float!,archive:Boolean):[QueryResultMessage]
     cancelEndOfLocation(_id:String!):[QueryResultMessage]
+    uploadLocationDocument(_id:String!,file:Upload!,type:String,size:Int!):[QueryResultMessage]
 }
