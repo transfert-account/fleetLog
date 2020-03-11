@@ -96,7 +96,7 @@ export class BUDashboard extends Component {
         if(this.state.dataLoaded && this.state.societeLoaded){
             return (
                 <div style={{display:"grid",gridTemplateColumns:"1fr 6fr 1fr",gridTemplateRows:"auto auto 1fr",gridGap:"16px"}}>
-                    <Header style={{placeSelf:"center",gridColumnEnd:"span 3"}} as="h1">Tableaud de bord : {this.state.dashboardRaw.societe.name}</Header>
+                    <Header style={{placeSelf:"center",gridColumnEnd:"span 3"}} as="h1">Tableau de bord : {this.state.dashboardRaw.societe.name}</Header>
                     {this.state.dashboard()}
                 </div>
             )
