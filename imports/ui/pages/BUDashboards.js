@@ -1,12 +1,25 @@
 import React, { Component } from 'react'
 import { UserContext } from '../../contexts/UserContext';
+import { Header, Dimmer, Loader } from 'semantic-ui-react';
 import DashboardUnit from '../molecules/DashboardUnit';
 import { gql } from 'apollo-server-express';
 
 export class BUDashboard extends Component {
 
     state={
+        dataLoaded:false,
+        societeLoaded:false,
+        societeFull:{},
         dashboardRaw:[],
+        societeQuery : gql`
+            query societe($_id:String!){
+                societe(_id:$_id){
+                    _id
+                    trikey
+                    name
+                }
+            }
+        `,
         dashboardQuery : gql`
             query dashboard{
                 dashboard{
@@ -33,9 +46,18 @@ export class BUDashboard extends Component {
                     commandesToDo
                     commandesDone
                     commandesReceived
+                    avgKm
+                    nbOwned
+                    nbCRB
+                    nbCRC
+                    licenceAffected
+                    licenceFree
                 }
             }
-        `
+        `,
+        dashboard : () => {
+            return <DashboardUnit dashboard={this.state.dashboardRaw}/>
+        }
     }
 
     loadDashboard = () => {
@@ -44,25 +66,47 @@ export class BUDashboard extends Component {
             fetchPolicy:"network-only"
         }).then(({data})=>{
             this.setState({
-                dashboardRaw:[data.dashboard]
+                dashboardRaw:data.dashboard,
+                dataLoaded:true
+            })
+        })
+    }
+
+    loadSociete = () => {
+        this.props.client.query({
+            query:this.state.societeQuery,
+            variables:{
+                _id:this.props.societeFilter
+            },
+            fetchPolicy:"network-only"
+        }).then(({data})=>{
+            this.setState({
+                societeFull:data.societe,
+                societeLoaded:true
             })
         })
     }
 
     componentDidMount = () => {
+        this.loadSociete()
         this.loadDashboard()
     }
 
     render() {
-        return (
-            <div style={{display:"grid",gridTemplateColumns:"1fr 2fr 1fr",gridTemplateRows:"128px auto",gridGap:"16px"}}>
-                <div style={{gridRowStart:"2",gridColumnStart:"2",justifySelf:"stretch"}}>
-                    {this.state.dashboardRaw.map(d=>{
-                        return <DashboardUnit key={"dash"+d.societe._id} dashboard={d}/>
-                    })}
+        if(this.state.dataLoaded && this.state.societeLoaded){
+            return (
+                <div style={{display:"grid",gridTemplateColumns:"1fr 6fr 1fr",gridTemplateRows:"auto auto 1fr",gridGap:"16px"}}>
+                    <Header style={{placeSelf:"center",gridColumnEnd:"span 3"}} as="h1">Tableaud de bord : {this.state.dashboardRaw.societe.name}</Header>
+                    {this.state.dashboard()}
                 </div>
-            </div>
-        )
+            )
+        }else{
+            return (
+                <Dimmer inverted active>
+                    <Loader size='massive'>Chargement du tableaud de bord ...</Loader>
+                </Dimmer>
+            )
+        }
     }
 }
 

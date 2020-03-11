@@ -18,6 +18,12 @@ type DashboardSocieteInfo{
     commandesToDo:Int
     commandesDone:Int
     commandesReceived:Int
+    avgKm:Int
+    nbOwned:Int
+    nbCRB:Int
+    nbCRC:Int
+    licenceAffected:Int
+    licenceFree:Int
 }
 
 extend type Query{

@@ -38,9 +38,9 @@ export default {
             let licences = Licences.find({societe:userFull.settings.visibility}).fetch() || {};
             licences.forEach(l => {
                 if(l.societe != null && l.societe.length > 0){
-                    licences[i].societe = Societes.findOne({_id:new Mongo.ObjectID(l.societe)});
+                    licences.societe = Societes.findOne({_id:new Mongo.ObjectID(l.societe)});
                 }else{
-                    licences[i].societe = {_id:"",name:""};
+                    licences.societe = {_id:"",name:""};
                 }
                 if(l.vehicle != null && l.vehicle != undefined && l.vehicle != ""){
                     let vehicleId = l.vehicle

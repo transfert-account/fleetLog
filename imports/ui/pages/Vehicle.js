@@ -24,7 +24,7 @@ class Vehicle extends Component {
     constructor(props) {
         super(props);
         this.chartRef = React.createRef();
-      }
+    }
 
     state={
         newCg:null,
@@ -543,6 +543,7 @@ class Vehicle extends Component {
                 newFirstRegistrationDate:data.vehicle.firstRegistrationDate,
                 newVolume:data.vehicle.volume._id,
                 newPayload:data.vehicle.payload,
+                newEnergy:data.vehicle.energy._id,
                 newColor:data.vehicle.color._id,
                 newBrand:data.vehicle.brand._id,
                 newModel:data.vehicle.model._id,

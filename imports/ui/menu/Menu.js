@@ -24,7 +24,7 @@ class Menu extends Component {
         active:"entretiens",
         label:"Entretiens",
         display:true,
-        icon:"clipboard check"
+        icon:"wrench"
       },
       {
         name:"planning/"+new Date().getFullYear()+"/"+parseInt(new Date().getMonth()+1),
@@ -75,7 +75,7 @@ class Menu extends Component {
         active:"entretiens",
         label:"Entretiens",
         display:true,
-        icon:"clipboard check"
+        icon:"wrench"
       },
       {
         name:"planning/"+new Date().getFullYear()+"/"+parseInt(new Date().getMonth()+1),
