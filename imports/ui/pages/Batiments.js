@@ -184,7 +184,7 @@ class Batiments extends Component {
                             <Icon name='calendar'/>
                             <Button.Group style={{placeSelf:"center"}}>
                                 <Button color={this.getTimeLeftFilterColor("green","all")} onClick={()=>{this.setTimeLeftFilter("all")}}>Tous</Button>
-                                <Button color={this.getTimeLeftFilterColor("orange","late")} onClick={()=>{this.setTimeLeftFilter("late")}}>Dans 4 à 8 semaines</Button>
+                                <Button color={this.getTimeLeftFilterColor("orange","late")} onClick={()=>{this.setTimeLeftFilter("late")}}>Moins de 8 semaines</Button>
                                 <Button color={this.getTimeLeftFilterColor("red","very")} onClick={()=>{this.setTimeLeftFilter("very")}}>Moins de 4 semaines</Button>
                                 <Button color={this.getTimeLeftFilterColor("black","passed")} onClick={()=>{this.setTimeLeftFilter("passed")}}>Délai dépassé</Button>
                             </Button.Group>
