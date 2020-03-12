@@ -1,42 +1,43 @@
 import React, { Component } from 'react';
-import { Icon,Input,Button,Table,Modal,Form } from 'semantic-ui-react';
+import { Icon, Input, Button, Table, Modal, Form, Message } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 import ModalDatePicker from '../atoms/ModalDatePicker'
 import SocietePicker from '../atoms/SocietePicker'
-import BatimentControlRow from '../molecules/BatimentControlRow';
+import BatimentControlRowGroup from '../molecules/BatimentControlRowGroup';
 import { gql } from 'apollo-server-express'
 
 class Batiments extends Component {
 
     state={
-        batimentControlFilter:"",
         newName:"",
         newDelai:"",
         newLastExecution:"",
+        timeLeftFilter:"all",
+        batimentFilter:"",
         openAddBatimentControl:false,
         batimentControlsRaw:[],
         batimentControls : () => {
             let displayed = Array.from(this.state.batimentControlsRaw);
-            if(this.state.batimentControlFilter.length>1){
-                displayed = displayed.filter(f => true
+            if(this.props.user.isAdmin && this.props.user.visibility == "noidthisisgroupvisibility" && this.props.societeFilter != "noidthisisgroupvisibility"){
+                displayed = displayed.filter(b =>
+                    b.societe._id == this.props.societeFilter
                 );
-                if(displayed.length == 0){
-                    return(
-                    <Table.Row key={"none"}>
-                        <Table.Cell width={16} colSpan='14' textAlign="center">
-                            <p>Aucun contrôle ne correspond à ce filtre</p>
-                        </Table.Cell>
-                    </Table.Row>
-                    )
-                }
             }
             return displayed.map(b =>(
-                <BatimentControlRow loadBatimentControls={this.loadBatiments} key={b.societe._id} batiment={b}/>
+                <BatimentControlRowGroup batimentFilter={this.state.batimentFilter} timeLeftFilter={this.state.timeLeftFilter} loadBatiments={this.loadBatiments} key={b.societe._id} batiment={b}/>
             ))
         },
         addBatimentControlQuery : gql`
-            mutation addBatimentControl($name:String!,$delay:String!,$lastExecution:String!,$societe:String!){
-            addBatimentControl(name:$name,delay:$delay,lastExecution:$lastExecution,societe:$societe){
+            mutation addBatimentControl($name:String!,$delay:Int!,$lastExecution:String!,$societe:String!){
+                addBatimentControl(name:$name,delay:$delay,lastExecution:$lastExecution,societe:$societe){
+                    status
+                    message
+                }
+            }
+        `,
+        addBatimentControlGlobalQuery : gql`
+        mutation addBatimentControlGlobal($name:String!,$delay:Int!,$lastExecution:String!){
+            addBatimentControlGlobal(name:$name,delay:$delay,lastExecution:$lastExecution){
                     status
                     message
                 }
@@ -92,7 +93,7 @@ class Batiments extends Component {
         this.setState({openDatePicker:true,datePickerTarget:target})
     }
 
-    closeDatePicker = target => {
+    closeDatePicker = () => {
         this.setState({openDatePicker:false,datePickerTarget:""})
     }
 
@@ -102,7 +103,7 @@ class Batiments extends Component {
         })
     }
 
-    loadBatimentControls = () => {
+    loadBatiments = () => {
         this.props.client.query({
             query:this.state.batimentsQuery,
             fetchPolicy:"network-only"
@@ -120,14 +121,14 @@ class Batiments extends Component {
             variables:{
                 societe:this.state.newSociete,
                 name:this.state.newName,
-                delay:this.state.newDelai,
+                delay:parseInt(this.state.newDelai),
                 lastExecution:this.state.newLastExecution
             }
         }).then(({data})=>{
             data.addBatimentControl.map(qrm=>{
                 if(qrm.status){
                     this.props.toast({message:qrm.message,type:"success"});
-                    this.loadBatimentControls();
+                    this.loadBatiments();
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
                 }
@@ -135,16 +136,61 @@ class Batiments extends Component {
         })
     }
 
+    addBatimentControlGlobal = () => {
+        this.closeAddBatimentControl()
+        this.props.client.mutate({
+            mutation:this.state.addBatimentControlGlobalQuery,
+            variables:{
+                name:this.state.newName,
+                delay:parseInt(this.state.newDelai),
+                lastExecution:this.state.newLastExecution
+            }
+        }).then(({data})=>{
+            data.addBatimentControlGlobal.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.loadBatiments();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+
+    //TIME LEFT FILTER
+    getTimeLeftFilterColor = (color,active) => {
+        if(this.state.timeLeftFilter == active){
+            return color;
+        }
+    }
+
+    setTimeLeftFilter = value => {
+        this.setState({
+            timeLeftFilter:value
+        })
+    }
+
     componentDidMount = () => {
-        this.loadBatimentControls();
+        this.loadBatiments();
     }
 
     render() {
         return (
-            <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"32px",gridTemplateRows:"auto 1fr",gridTemplateColumns:"auto 1fr auto"}}>
-                <Input style={{justifySelf:"stretch",gridColumnEnd:"span 2"}} name="storeFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher une société ou un nom' />
+            <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"32px",gridTemplateRows:"auto auto 1fr auto",gridTemplateColumns:"auto 1fr auto"}}>
+                <Input style={{justifySelf:"stretch",gridColumnEnd:"span 2"}} name="storeFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher un nom de contrôle' />
                 <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddBatimentControl} icon labelPosition='right'>Ajouter un contrôle au batiment<Icon name='plus'/></Button>
-                <div style={{gridRowStart:"2",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
+                <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"1fr",gridGap:"16px"}}>
+                        <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
+                            <Icon name='calendar'/>
+                            <Button.Group style={{placeSelf:"center"}}>
+                                <Button color={this.getTimeLeftFilterColor("green","all")} onClick={()=>{this.setTimeLeftFilter("all")}}>Tous</Button>
+                                <Button color={this.getTimeLeftFilterColor("orange","late")} onClick={()=>{this.setTimeLeftFilter("late")}}>Dans 4 à 8 semaines</Button>
+                                <Button color={this.getTimeLeftFilterColor("red","very")} onClick={()=>{this.setTimeLeftFilter("very")}}>Moins de 4 semaines</Button>
+                                <Button color={this.getTimeLeftFilterColor("black","passed")} onClick={()=>{this.setTimeLeftFilter("passed")}}>Délai dépassé</Button>
+                            </Button.Group>
+                        </Message>
+                    </div>
+                <div style={{gridRowStart:"3",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                     <Table style={{marginBottom:"0"}} celled selectable color="blue" compact>
                         <Table.Header>
                             <Table.Row textAlign='center'>
@@ -176,7 +222,9 @@ class Batiments extends Component {
                         </Form>
                     </Modal.Content>
                     <Modal.Actions>
+                        <Button color="black" onClick={this.closeAddBatimentControl}>Annuler</Button>
                         <Button color="blue" onClick={this.addBatimentControl}>Créer</Button>
+                        <Button color="teal" onClick={this.addBatimentControlGlobal}>Créer pour toutes les sociétés</Button>
                     </Modal.Actions>
                 </Modal>
                 <ModalDatePicker onSelectDatePicker={this.onSelectDatePicker} closeDatePicker={this.closeDatePicker} open={this.state.openDatePicker}/>

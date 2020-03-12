@@ -35,7 +35,23 @@ export default {
             }
             throw new Error('Unauthorized');
         },
-        editBatimentControl(obj, {_id,name,phone,mail,address},{user}){
+        addBatimentControlGlobal(obj, {name,delay,lastExecution},{user}){
+            if(user._id){
+                let societes = Societes.find().fetch();
+                societes.map(s=>{
+                    Batiments.insert({
+                        _id:new Mongo.ObjectID(),
+                        societe:s._id._str,
+                        name:name,
+                        delay:delay,
+                        lastExecution:lastExecution
+                    });
+                })
+                return [{status:true,message:'Création réussie'}];
+            }
+            throw new Error('Unauthorized');
+        },
+        editBatimentControl(obj, {_id,name,delay},{user}){
             if(user._id){
                 Batiments.update(
                     {
@@ -43,9 +59,7 @@ export default {
                     }, {
                         $set: {
                             "name":name,
-                            "phone":phone,
-                            "mail":mail,
-                            "address":address
+                            "delay":delay
                         }
                     }
                 );                
@@ -53,37 +67,27 @@ export default {
             }
             throw new Error('Unauthorized');
         },
-        updateBatimentControl(obj, {_id,name,phone,mail,address},{user}){
+        updateBatimentControl(obj, {_id,lastExecution},{user}){
             if(user._id){
                 Batiments.update(
                     {
                         _id: new Mongo.ObjectID(_id)
                     }, {
                         $set: {
-                            "name":name,
-                            "phone":phone,
-                            "mail":mail,
-                            "address":address
+                            "lastExecution":lastExecution
                         }
                     }
                 );                
-                return [{status:true,message:'Modifications sauvegardées'}];
+                return [{status:true,message:'Date du dernier contrôle sauvegardée'}];
             }
             throw new Error('Unauthorized');
         },
         deleteBatimentControl(obj, {_id},{user}){
             if(user._id){
-                let nL = Locations.find({batiment:_id}).fetch().length
-                if(nL > 0){
-                    let qrm = [];
-                    if(nL > 0){qrm.push({status:false,message:'Suppresion impossible, ' + nL + ' location(s) liée(s)'})}
-                    return qrm;
-                }else{
-                    Batiments.remove({
-                        _id:new Mongo.ObjectID(_id)
-                    });
-                    return [{status:true,message:'Suppression réussie'}];
-                }
+                Batiments.remove({
+                    _id:new Mongo.ObjectID(_id)
+                });
+                return [{status:true,message:'Suppression réussie'}];
             }
             throw new Error('Unauthorized');
         },

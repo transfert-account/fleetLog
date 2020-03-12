@@ -69,7 +69,7 @@ import BatimentResolvers from '../api/batiment/resolvers';
 import TestSchema from '../api/test/Test.graphql';
 import TestResolvers from '../api/test/resolvers.js';
 
-// #0288
+// #0294
 
 const typeDefs = [
     UserSchema,

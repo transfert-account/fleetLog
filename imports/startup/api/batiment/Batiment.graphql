@@ -16,8 +16,9 @@ extend type Query{
 }
 
 extend type Mutation{
-    addBatimentControl(name:String!,delay:String!,lastExecution:String!,societe:String!): [QueryResultMessage]
-    editBatimentControl(_id:String!,name:String!,phone:String!,mail:String!,address:String!): [QueryResultMessage]
-    updateBatimentControl(_id:String!,name:String!,phone:String!,mail:String!,address:String!): [QueryResultMessage]
+    addBatimentControl(name:String!,delay:Int!,lastExecution:String!,societe:String!): [QueryResultMessage]
+    addBatimentControlGlobal(name:String!,delay:Int!,lastExecution:String!): [QueryResultMessage]
+    editBatimentControl(_id:String!,name:String!,delay:Int!): [QueryResultMessage]
+    updateBatimentControl(_id:String!lastExecution:String!): [QueryResultMessage]
     deleteBatimentControl(_id:String!): [QueryResultMessage]
 }
