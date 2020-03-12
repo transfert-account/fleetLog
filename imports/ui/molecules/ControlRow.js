@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import { Table, Dropdown, Button, Modal, Form, Label, Icon, Header } from 'semantic-ui-react';
+import { Table, Dropdown, Button, Modal, Form, Label, Icon } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 import ModalDatePicker from '../atoms/ModalDatePicker'
 import gql from 'graphql-tag';

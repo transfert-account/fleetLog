@@ -23,7 +23,7 @@ class Fournisseurs extends Component {
             return(
               <Table.Row key={"none"}>
                 <Table.Cell width={16} colSpan='14' textAlign="center">
-                  <p>Aucune fournisseur ne correspond à ce filtre</p>
+                  <p>Aucun fournisseur ne correspond à ce filtre</p>
                 </Table.Cell>
               </Table.Row>
             )

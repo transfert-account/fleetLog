@@ -1,0 +1,23 @@
+type Batiment{
+    societe:Societe
+    controls:[BatimentControl]
+}
+
+type BatimentControl{
+    _id:String
+    name:String
+    lastExecution:String
+    delay:Int
+}
+
+extend type Query{
+    batiment : Batiment
+    batiments : [Batiment]
+}
+
+extend type Mutation{
+    addBatimentControl(name:String!,delay:String!,lastExecution:String!,societe:String!): [QueryResultMessage]
+    editBatimentControl(_id:String!,name:String!,phone:String!,mail:String!,address:String!): [QueryResultMessage]
+    updateBatimentControl(_id:String!,name:String!,phone:String!,mail:String!,address:String!): [QueryResultMessage]
+    deleteBatimentControl(_id:String!): [QueryResultMessage]
+}
