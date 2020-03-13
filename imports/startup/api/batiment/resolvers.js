@@ -19,6 +19,12 @@ export default {
             let batiments = societes.map(s=>{return{societe:s,controls:[]}});
             batiments.map(b=>affectBatimentControls(b))
             return batiments;
+        },
+        buBatiments(obj, args, {user}){
+            let societes = Societes.find({_id: new Mongo.ObjectID(user.settings.visibility)}).fetch() || {};
+            let batiments = societes.map(s=>{return{societe:s,controls:[]}});
+            batiments.map(b=>affectBatimentControls(b))
+            return batiments;
         }
     },
     Mutation:{

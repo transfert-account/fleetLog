@@ -13,6 +13,7 @@ type BatimentControl{
 extend type Query{
     batiment : Batiment
     batiments : [Batiment]
+    buBatiments : [Batiment]
 }
 
 extend type Mutation{

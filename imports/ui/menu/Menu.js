@@ -41,9 +41,9 @@ class Menu extends Component {
         icon:"sitemap"
       },
       {
-        name:"batiment",
-        active:"batiment",
-        label:"Batiment",
+        name:"batiments",
+        active:"batiments",
+        label:"Batiments",
         display:true,
         icon:"warehouse"
       },
@@ -92,9 +92,9 @@ class Menu extends Component {
         icon:"sitemap"
       },
       {
-        name:"batiment",
-        active:"batiment",
-        label:"Batiment",
+        name:"batiments",
+        active:"batiments",
+        label:"Batiments",
         display:true,
         icon:"warehouse"
       },

@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { Icon,Menu,Input,Button,Table,Modal,Form,Dropdown } from 'semantic-ui-react';
+import { Icon,Menu,Input,Button,Table,Modal,Form } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
-import FournisseurRow from '../molecules/FournisseurRow';
+import AccidentRow from '../molecules/AccidentRow';
 import { gql } from 'apollo-server-express'
 
-class Fournisseurs extends Component {
+class Accidents extends Component {
 
   state={
     fournisseurFilter:"",
@@ -28,7 +28,7 @@ class Fournisseurs extends Component {
           }
       }
       return displayed.map(f =>(
-          <FournisseurRow loadFournisseurs={this.loadFournisseurs} key={f._id} fournisseur={f}/>
+          <AccidentRow loadFournisseurs={this.loadFournisseurs} key={f._id} fournisseur={f}/>
       ))
     },
     addFournisseurQuery : gql`
@@ -135,4 +135,4 @@ const withUserContext = WrappedComponent => props => (
   </UserContext.Consumer>
 )
 
-export default wrappedInUserContext = withUserContext(Fournisseurs);
+export default wrappedInUserContext = withUserContext(Accidents);
