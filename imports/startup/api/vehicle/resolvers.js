@@ -61,6 +61,11 @@ const affectVehicleData = vehicle => {
     vehicle.equipements = Equipements.find({vehicle:vehicle._id._str}).fetch() || {};
     vehicle.equipements.forEach((e,ei) => {
         e.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)}) || {};
+        if(e.controlTech != null && e.controlTech.length > 0){
+            e.controlTech = Documents.findOne({_id:new Mongo.ObjectID(e.controlTech)});
+        }else{
+            e.controlTech = {_id:""};
+        }
     });
     if(vehicle.cg != null && vehicle.cg.length > 0){
         vehicle.cg = Documents.findOne({_id:new Mongo.ObjectID(vehicle.cg)});

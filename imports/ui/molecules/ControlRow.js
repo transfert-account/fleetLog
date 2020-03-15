@@ -1,9 +1,10 @@
 import React, { Component, Fragment } from 'react'
 import { Table, Dropdown, Button, Modal, Form, Label, Icon } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
+import ControlEquipementRow from './ControlEquipementRow';
 import ModalDatePicker from '../atoms/ModalDatePicker'
+import DocStateLabel from '../atoms/DocStateLabel'
 import gql from 'graphql-tag';
-import moment from 'moment';
 import 'moment/locale/fr';
 
 class ControlRow extends Component {
@@ -27,27 +28,6 @@ class ControlRow extends Component {
         newUpdatedControlKm:"",
         newLastControlKm:"",
         editing:false,
-        controlPeriodUnits:[
-            {
-                type:{text:"Temps",key:"t",value:"t"},
-                units:[
-                    {text:"Mois",key:"m",value:"m"},
-                    {text:"Ans",key:"y",value:"y"}
-                ]
-            },
-            {
-                type:{text:"Distance",key:"d",value:"d"},
-                units:[
-                    {text:"Kilomètres",key:"km",value:"km"},
-                ]
-            },
-            {
-                type:{text:"Temps de route",key:"r",value:"r"},
-                units:[
-                    {text:"Heures",key:"h",value:"h"},
-                ]
-            }
-        ],
         equipementDescriptions : () => {
             return this.props.equipementDescriptionsRaw.map(e => {return{text:e.name,key:e._id,value:e._id}})
         },
@@ -162,67 +142,6 @@ class ControlRow extends Component {
             this.props.loadVehicles();
         })
     }
-    getTimeBetween = (time) => {
-        if(moment(time, "DD/MM/YYYY").diff(moment())){
-            return moment(time, "DD/MM/YYYY").fromNow();
-        }else{
-            return moment(time, "DD/MM/YYYY").toNow();
-        }
-    }
-    getLastControlCell = e => {
-        if(e.equipementDescription.controlPeriodUnit == "y" || e.equipementDescription.controlPeriodUnit == "m"){
-            return(
-                <div>
-                    {e.lastControl}
-                    <Label style={{marginLeft:"16px"}} size="small" horizontal>
-                        {this.getTimeBetween(e.lastControl)}
-                    </Label>
-                </div>
-            )
-        }else{
-            return (
-                <div>
-                    {e.lastControl} km
-                    <Label style={{marginLeft:"16px"}} size="small" horizontal>
-                        il y a {this.props.vehicle.km - e.lastControl} km
-                    </Label>
-                </div>
-            )
-        }
-    }
-    getNextControlCell = e => {
-        if(e.equipementDescription.controlPeriodUnit == "y" || e.equipementDescription.controlPeriodUnit == "m"){
-            e.nextControl = moment(e.lastControl,"DD/MM/YYYY").add(e.equipementDescription.controlPeriodValue,e.equipementDescription.controlPeriodUnit.toUpperCase()).format("DD/MM/YYYY")
-            return (
-                <div>
-                    {e.nextControl}
-                    <Label color={e.color} style={{marginLeft:"16px"}} size="small" horizontal>
-                        {this.getTimeBetween(e.nextControl)}
-                    </Label>
-                </div>
-            )
-        }else{
-            if(e.nextControl > 0){
-                return (
-                    <div>
-                        {parseInt(e.lastControl) + parseInt(e.equipementDescription.controlPeriodValue)} km
-                        <Label color={e.color} style={{marginLeft:"16px"}} size="small" horizontal>
-                            dans {e.nextControl} km
-                        </Label>
-                    </div>
-                )
-            }else{
-                return (
-                    <div>
-                        {parseInt(e.lastControl) + parseInt(e.equipementDescription.controlPeriodValue)} km
-                        <Label color={e.color} style={{marginLeft:"16px"}} size="small" horizontal>
-                            dépassé de {Math.abs(e.nextControl)} km
-                        </Label>
-                    </div>
-                )
-            }
-        }
-    }
     showDetailed = detailed => {
         this.setState({detailed:detailed})
     }
@@ -308,37 +227,22 @@ class ControlRow extends Component {
         if(this.state.detailed){
             return (
                 <Table.Row>
-                    <Table.Cell style={{padding:"0"}} colSpan={7}>
+                    <Table.Cell style={{padding:"0"}} colSpan={8}>
                         <Table inverted celled selectable compact='very'>
                             <Table.Header>
                                 <Table.Row textAlign='center'>
-                                    <Table.HeaderCell width={2}>Nom</Table.HeaderCell>
-                                    <Table.HeaderCell width={3}>Attaché le</Table.HeaderCell>
-                                    <Table.HeaderCell width={3}>Dernier contrôle</Table.HeaderCell>
-                                    <Table.HeaderCell width={3}>Prochain contrôle</Table.HeaderCell>
-                                    <Table.HeaderCell width={2}>Actions</Table.HeaderCell>
+                                    <Table.HeaderCell>Nom</Table.HeaderCell>
+                                    <Table.HeaderCell>Attaché le</Table.HeaderCell>
+                                    <Table.HeaderCell>Dernier contrôle</Table.HeaderCell>
+                                    <Table.HeaderCell>Prochain contrôle</Table.HeaderCell>
+                                    <Table.HeaderCell>Documents</Table.HeaderCell>
+                                    <Table.HeaderCell>Actions</Table.HeaderCell>
                                 </Table.Row>
                             </Table.Header>
                             <Table.Body>
-                                {this.props.vehicle.equipements.map(e=>{
-                                    return(
-                                        <Table.Row key={e._id}>
-                                            <Table.Cell>{e.equipementDescription.name}</Table.Cell>
-                                            <Table.Cell>
-                                                {e.attachementDate}
-                                                <Label style={{marginLeft:"16px"}} size="small" horizontal>
-                                                    {this.getTimeBetween(e.attachementDate)}
-                                                </Label>
-                                            </Table.Cell>
-                                            <Table.Cell>{this.getLastControlCell(e)}</Table.Cell>
-                                            <Table.Cell>{this.getNextControlCell(e)}</Table.Cell>
-                                            <Table.Cell textAlign="center">
-                                                <Button circular color="green" inverted icon onClick={()=>{this.showUpdateControlDate(e._id)}} icon="wrench" />
-                                                <Button circular color="red" inverted icon onClick={()=>{this.showDissociateEquipement(e._id)}} icon="cancel" />
-                                            </Table.Cell>
-                                        </Table.Row>
-                                    )
-                                })}
+                                {this.props.vehicle.equipements.map(e=>
+                                    <ControlEquipementRow loadVehicles={this.props.loadVehicles} key={e._id} vehicle={this.props.vehicle} equipement={e}/>
+                                )}
                             </Table.Body>
                         </Table>
                     </Table.Cell>
@@ -351,7 +255,17 @@ class ControlRow extends Component {
             return <Table.Cell textAlign='center'>{this.props.vehicle.societe.name}</Table.Cell>
         }
     }
-
+    getDocsStates = () => {
+        let redDocs = this.props.vehicle.equipements.filter(e=>e.controlTech._id == "").length;
+        let greenDocs = this.props.vehicle.equipements.filter(e=>e.controlTech._id != "").length;
+        return (
+            <Table.Cell textAlign="center">
+                {(greenDocs == 0 ? "": <DocStateLabel color="green" title={"("+greenDocs+") Contrôle technique"}/>)}
+                {(redDocs == 0 ? "": <DocStateLabel color="red" title={"("+redDocs+") Contrôle technique"}/>)}
+            </Table.Cell>
+        )
+    }
+    
     render() {
         return (
             <Fragment>
@@ -364,6 +278,7 @@ class ControlRow extends Component {
                     <Table.Cell textAlign='center'>{this.getGreen()}</Table.Cell>
                     <Table.Cell textAlign='center'>{this.getOrange()}</Table.Cell>
                     <Table.Cell textAlign='center'>{this.getRed()}</Table.Cell>
+                    {this.getDocsStates()}
                     <Table.Cell textAlign='center'>
                         <Button circular style={{color:"#a29bfe"}} inverted icon icon='plus' onClick={this.showAttachEquipement}/>
                         {this.getDetailShowAndHideButton()}
@@ -385,30 +300,6 @@ class ControlRow extends Component {
                     <Modal.Actions>
                         <Button color="black" onClick={this.closeAttachEquipement}>Annuler</Button>
                         <Button color="blue" onClick={this.attachEquipement}>Attacher</Button>
-                    </Modal.Actions>
-                </Modal>
-                <Modal closeOnDimmerClick={false} open={this.state.openDissociateEquipement} onClose={this.closeDissociateEquipement} closeIcon>
-                    <Modal.Header>
-                        Dissocier ce contrôle du véhicule :
-                    </Modal.Header>
-                    <Modal.Actions>
-                        <Button color="black" onClick={this.closeDissociateEquipement}>Annuler</Button>
-                        <Button color="red" onClick={this.dissociateEquipement}>Dissocier</Button>
-                    </Modal.Actions>
-                </Modal>
-                <Modal closeOnDimmerClick={false} open={this.state.openUpdateControl} onClose={this.closeUpdateControl} closeIcon>
-                    <Modal.Header>
-                        Mise à jour du contrôle de l'equipement :
-                    </Modal.Header>
-                    <Modal.Content style={{textAlign:"center"}}>
-                        <Form style={{display:"grid",margin:"auto 25%",gridTemplateRows:"1fr",gridTemplateColumns:"1fr",gridGap:"16px"}}>
-                            <Form.Field className={this.state.hideLastControlDate}><label>Date de contrôle</label><input onChange={this.handleChange} name="newUpdatedControlDate" value={this.state.newUpdatedControlDate} onFocus={()=>{this.showDatePicker("newUpdatedControlDate")}} placeholder="Date du contrôle"/></Form.Field>
-                            <Form.Field className={this.state.hideLastControlKm}><label>Kilomètre au contrôle</label><input onChange={this.handleChange} name="newUpdatedControlKm" value={this.state.newUpdatedControlKm} placeholder="Kilomètre au contrôle"/></Form.Field>
-                        </Form>
-                    </Modal.Content>
-                    <Modal.Actions>
-                        <Button color="black" onClick={this.closeUpdateControl}>Annuler</Button>
-                        <Button color="green" onClick={this.updateControlEquipement}>Mettre à jour</Button>
                     </Modal.Actions>
                 </Modal>
                 <ModalDatePicker onSelectDatePicker={this.onSelectDatePicker} closeDatePicker={this.closeDatePicker} open={this.state.openDatePicker}/>

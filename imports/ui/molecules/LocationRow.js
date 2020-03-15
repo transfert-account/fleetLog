@@ -1,8 +1,7 @@
 import React, { Component, Fragment } from 'react'
-import { Table, Icon, Message, Input, Label, Button, Modal, Form } from 'semantic-ui-react';
+import { Table, Icon, Message, Label, Button, Modal } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
-import SocietePicker from '../atoms/SocietePicker';
-import ModalDatePicker from '../atoms/ModalDatePicker';
+import DocStateLabel from '../atoms/DocStateLabel';
 import moment from 'moment';
 import { withRouter } from 'react-router-dom';
 import gql from 'graphql-tag';
@@ -12,7 +11,6 @@ class LocationRow extends Component {
     state={
         _id:this.props.rental._id,
         newSociete:this.props.rental.societe._id,
-        displayDoc:false,
         newRegistration:this.props.rental.registration,
         newFirstRegistrationDate:this.props.rental.firstRegistrationDate,
         newKm:this.props.rental.km,
@@ -51,31 +49,9 @@ class LocationRow extends Component {
     }
 
     handleChangeSociete = (e, { value }) => this.setState({ newSociete:value })    
-
-    showDocs = () => {
-        this.setState({openDocs:true})
-    }
-    showDatePicker = target => {
-        this.setState({openDatePicker:true,datePickerTarget:target})
-    }
  
     closeDocs = () => {
         this.setState({openDocs:false})
-    }
-    closeDatePicker = target => {
-        this.setState({openDatePicker:false,datePickerTarget:""})
-    }
-
-    onSelectDatePicker = date => {
-        this.setState({
-            [this.state.datePickerTarget]:date.getDate().toString().padStart(2, '0')+"/"+parseInt(date.getMonth()+1).toString().padStart(2, '0')+"/"+date.getFullYear().toString().padStart(4, '0')
-        })
-    }
-
-    toggleProperty = () => {
-        this.setState({
-            newProperty:!this.state.newProperty
-        })
     }
     
     closeEdit = () => {
@@ -107,12 +83,6 @@ class LocationRow extends Component {
             }
         }).then(({data})=>{
             this.props.loadLocation();
-        })
-    }
-
-    toggleDisplayDoc = () => {
-        this.setState({
-            displayDoc:!this.state.displayDoc
         })
     }
 
@@ -169,38 +139,10 @@ class LocationRow extends Component {
     getDocsStates = () => {
         return (
             <Table.Cell textAlign="center">
-                <Label style={{cursor:"pointer"}} onClick={this.toggleDisplayDoc} color={this.props.rental.cg._id == "" ? "red" : "green"} image={this.state.displayDoc}>
-                    <Icon style={{margin:"0"}} name='folder' />
-                    {(this.state.displayDoc ?
-                        <Label.Detail>Carte grise</Label.Detail>
-                        :
-                        ""
-                    )}
-                </Label>
-                <Label style={{cursor:"pointer"}} onClick={this.toggleDisplayDoc} color={this.props.rental.cv._id == "" ? "red" : "green"} image={this.state.displayDoc}>
-                    <Icon style={{margin:"0"}} name='folder' />
-                    {(this.state.displayDoc ?
-                        <Label.Detail>Carte verte</Label.Detail>
-                        :
-                        ""
-                    )}
-                </Label>
-                <Label style={{cursor:"pointer"}} onClick={this.toggleDisplayDoc} color={this.props.rental.contrat._id == "" ? "red" : "green"} image={this.state.displayDoc}>
-                    <Icon style={{margin:"0"}} name='folder' />
-                    {(this.state.displayDoc ?
-                        <Label.Detail>Contrat de location</Label.Detail>
-                        :
-                        ""
-                    )}
-                </Label>
-                <Label style={{cursor:"pointer"}} onClick={this.toggleDisplayDoc} color={this.props.rental.restitution._id == "" ? "orange" : "green"} image={this.state.displayDoc}>
-                    <Icon style={{margin:"0"}} name='folder' />
-                    {(this.state.displayDoc ?
-                        <Label.Detail>Restitution</Label.Detail>
-                        :
-                        ""
-                    )}
-                </Label>
+                <DocStateLabel color={this.props.rental.cg._id == "" ? "red" : "green"} title="Carte grise"/>
+                <DocStateLabel color={this.props.rental.cg._id == "" ? "red" : "green"} title="Carte verte"/>
+                <DocStateLabel color={this.props.rental.contrat._id == "" ? "red" : "green"} title="Contrat de location"/>
+                <DocStateLabel color={this.props.rental.restitution._id == "" ? "red" : "green"} title="Restitution"/>
             </Table.Cell>
         )
     }

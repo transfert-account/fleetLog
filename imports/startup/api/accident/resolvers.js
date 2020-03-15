@@ -63,8 +63,8 @@ export default {
                     description:"",
                     dateExpert:"",
                     dateTravaux:"",
-                    newRapportExp:"",
-                    newConstat:"",
+                    rapportExp:"",
+                    constat:"",
                     constatSent:false,
                     cost:0
                 });

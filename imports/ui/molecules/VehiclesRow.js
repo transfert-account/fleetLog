@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react'
-import { Table, Icon, Message, Input, Label, Button, Modal, Form } from 'semantic-ui-react';
+import { Table, Icon, Message, Label, Button, Modal } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
+import DocStateLabel from '../atoms/DocStateLabel';
 import moment from 'moment';
 import { withRouter } from 'react-router-dom';
 import gql from 'graphql-tag';
@@ -10,7 +11,6 @@ class VehiclesRow extends Component {
     state={
         _id:this.props.vehicle._id,
         newSociete:this.props.vehicle.societe._id,
-        displayDoc:false,
         newRegistration:this.props.vehicle.registration,
         newFirstRegistrationDate:this.props.vehicle.firstRegistrationDate,
         newKm:this.props.vehicle.km,
@@ -141,22 +141,8 @@ class VehiclesRow extends Component {
     getDocsStates = () => {
         return (
             <Table.Cell textAlign="center">
-                <Label style={{cursor:"pointer"}} onClick={this.toggleDisplayDoc} color={this.props.vehicle.cg._id == "" ? "red" : "green"} image={this.state.displayDoc}>
-                    <Icon style={{margin:"0"}} name='folder' />
-                    {(this.state.displayDoc ?
-                        <Label.Detail>Carte grise</Label.Detail>
-                        :
-                        ""
-                    )}
-                </Label>
-                <Label style={{cursor:"pointer"}} onClick={this.toggleDisplayDoc} color={this.props.vehicle.cv._id == "" ? "red" : "green"} image={this.state.displayDoc}>
-                    <Icon style={{margin:"0"}} name='folder' />
-                    {(this.state.displayDoc ?
-                        <Label.Detail>Carte verte</Label.Detail>
-                        :
-                        ""
-                    )}
-                </Label>
+                <DocStateLabel color={this.props.vehicle.cg._id == "" ? "red" : "green"} title="Carte grise"/>
+                <DocStateLabel color={this.props.vehicle.cv._id == "" ? "red" : "green"} title="Carte verte"/>
             </Table.Cell>
         )
     }

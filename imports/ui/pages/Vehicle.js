@@ -12,7 +12,6 @@ import EnergyPicker from '../atoms/EnergyPicker';
 import RegistrationInput from '../atoms/RegistrationInput';
 import PayementFormatPicker from '../atoms/PayementFormatPicker';
 import FileManagementPanel from '../atoms/FileManagementPanel';
-
 import { withRouter } from 'react-router-dom';
 import { UserContext } from '../../contexts/UserContext';
 import moment from 'moment';
@@ -930,12 +929,12 @@ class Vehicle extends Component {
                         </Modal.Header>
                         <Modal.Content style={{textAlign:"center"}}>
                             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"24px"}}>
-                                <FileManagementPanel importLocked={this.state.newCg == null} handleInputFile={this.handleInputFile} fileTarget="newCg" uploadDoc={this.uploadDocCg} downloadDoc={this.downloadDocCg} fileInfos={this.state.vehicle.cg} title="Carte grise" type="cg"/>
-                                <FileManagementPanel importLocked={this.state.newCv == null} handleInputFile={this.handleInputFile} fileTarget="newCv" uploadDoc={this.uploadDocCv} downloadDoc={this.downloadDocCv} fileInfos={this.state.vehicle.cv} title="Carte verte" type="cv"/>
+                                <FileManagementPanel importLocked={this.state.newCg == null} handleInputFile={this.handleInputFile} fileTarget="newCg" uploadDoc={this.uploadDocCg} fileInfos={this.state.vehicle.cg} title="Carte grise" type="cg"/>
+                                <FileManagementPanel importLocked={this.state.newCv == null} handleInputFile={this.handleInputFile} fileTarget="newCv" uploadDoc={this.uploadDocCv} fileInfos={this.state.vehicle.cv} title="Carte verte" type="cv"/>
                             </div>
                         </Modal.Content>
                         <Modal.Actions>
-                            <Button color="grey" onClick={this.closeDocs}>Fermer</Button>
+                            <Button color="black" onClick={this.closeDocs}>Fermer</Button>
                         </Modal.Actions>
                     </Modal>
                     <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openDelete} onClose={this.closeDelete} closeIcon>

@@ -326,7 +326,7 @@ class AccidentRow extends Component {
                         </div>
                     </Modal.Content>
                     <Modal.Actions>
-                        <Button color="grey" onClick={this.closeDocs}>Fermer</Button>
+                        <Button color="black" onClick={this.closeDocs}>Fermer</Button>
                     </Modal.Actions>
                 </Modal>
                 <ModalDatePicker onSelectDatePicker={this.onSelectDatePicker} closeDatePicker={this.closeDatePicker} open={this.state.openDatePicker}/>

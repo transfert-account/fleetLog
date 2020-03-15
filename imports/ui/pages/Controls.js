@@ -11,6 +11,7 @@ export class Controls extends Component {
     state={
         vehiclesFiler:"",
         controlFilter:"all",
+        docsFilter:"all",
         vehiclesQuery : gql`
             query vehicles{
                 vehicles{
@@ -58,6 +59,17 @@ export class Controls extends Component {
                         }
                         attachementDate
                         lastControl
+                        controlTech{
+                            _id
+                            name
+                            size
+                            path
+                            originalFilename
+                            ext
+                            type
+                            mimetype
+                            storageDate
+                        }
                     }
                 }
             }
@@ -113,6 +125,17 @@ export class Controls extends Component {
                     }       
                 })
             }
+            if(this.state.docsFilter != "all"){
+                displayed = displayed.filter(v=>{
+                    if(this.state.docsFilter == "missingDocs"){
+                        if(v.redDocs > 0 ){
+                            return true
+                        }else{
+                            return false
+                        }
+                    }      
+                })
+            }
             if(this.state.vehiclesFiler.length>0){
                 displayed = displayed.filter(i =>
                     i.registration.toLowerCase().includes(this.state.vehiclesFiler.toLowerCase()) ||
@@ -155,6 +178,8 @@ export class Controls extends Component {
             fetchPolicy:"network-only"
         }).then(({data})=>{
             data.vehicles.map(v=>{
+                v.redDocs = v.equipements.filter(e=>e.controlTech._id == "").length;
+                v.greenDocs = v.equipements.filter(e=>e.controlTech._id != "").length;
                 v.red = 0;
                 v.orange = 0;
                 v.green = 0;
@@ -219,6 +244,7 @@ export class Controls extends Component {
         })
     }
 
+    //CONTROLS END DATE FILTER
     getControlFilterColor = (color,filter) => {
         if(this.state.controlFilter == filter){
             return color
@@ -229,6 +255,23 @@ export class Controls extends Component {
         this.setState({
             controlFilter:value
         })
+    }
+
+    //MISSING DOCS FILTER
+    getDocsFilterColor = (color,filter) => {
+        if(this.state.docsFilter == filter){
+            return color
+        }
+    }
+
+    setDocsFilter = value => {
+        this.setState({
+            docsFilter:value
+        })
+    }
+
+    componentDidMount = () => {
+        this.loadVehicles();
     }
 
     componentDidMount = () => {
@@ -251,7 +294,7 @@ export class Controls extends Component {
                         <Menu.Item color="blue" name='locations' onClick={()=>{this.props.history.push("/parc/locations")}} ><Icon name="calendar alternate outline"/> Locations</Menu.Item>
                     </Menu>
                     <Input style={{justifySelf:"stretch"}} onChange={this.handleFilter} icon='search' placeholder='Rechercher une immatriculation, une marque ou un modèle' />
-                    <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 2",display:"grid",gridTemplateColumns:"1fr",gridGap:"16px"}}>
+                    <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 2",display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"16px"}}>
                         <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
                             <Icon name='clipboard check'/>
                             <Button.Group style={{placeSelf:"center"}}>
@@ -260,18 +303,26 @@ export class Controls extends Component {
                                 <Button color={this.getControlFilterColor("red","over")} onClick={()=>{this.setControlFilter("over")}}>Limite dépassée</Button>
                             </Button.Group>
                         </Message>
+                        <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
+                            <Icon name='folder'/>
+                            <Button.Group style={{placeSelf:"center"}}>
+                                <Button color={this.getDocsFilterColor("green","all")} onClick={()=>{this.setDocsFilter("all")}}>Tous</Button>
+                                <Button color={this.getDocsFilterColor("red","missingDocs")} onClick={()=>{this.setDocsFilter("missingDocs")}}>Documents manquants</Button>
+                            </Button.Group>
+                        </Message>
                     </div>
                     <div style={{gridRowStart:"3",gridColumnEnd:"span 2",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                         <Table style={{marginBottom:"0"}} celled selectable color="blue" compact>
                             <Table.Header>
                                 <Table.Row>
-                                    <Table.HeaderCell textAlign='center' width={2}>Societe</Table.HeaderCell>
-                                    <Table.HeaderCell textAlign='center' width={2}>Immatriculation</Table.HeaderCell>
-                                    <Table.HeaderCell textAlign='center' width={7}>Véhicule</Table.HeaderCell>
-                                    <Table.HeaderCell textAlign='center' width={1}>OK</Table.HeaderCell>
-                                    <Table.HeaderCell textAlign='center' width={1}>Urgent</Table.HeaderCell>
-                                    <Table.HeaderCell textAlign='center' width={1}>En retard</Table.HeaderCell>
-                                    <Table.HeaderCell textAlign='center' width={2}>Actions</Table.HeaderCell>
+                                    <Table.HeaderCell textAlign='center'>Societe</Table.HeaderCell>
+                                    <Table.HeaderCell textAlign='center'>Immatriculation</Table.HeaderCell>
+                                    <Table.HeaderCell textAlign='center'>Véhicule</Table.HeaderCell>
+                                    <Table.HeaderCell textAlign='center'>OK</Table.HeaderCell>
+                                    <Table.HeaderCell textAlign='center'>Urgent</Table.HeaderCell>
+                                    <Table.HeaderCell textAlign='center'>En retard</Table.HeaderCell>
+                                    <Table.HeaderCell textAlign='center'>Documents</Table.HeaderCell>
+                                    <Table.HeaderCell textAlign='center'>Actions</Table.HeaderCell>
                                 </Table.Row>
                             </Table.Header>
                             <Table.Body>
