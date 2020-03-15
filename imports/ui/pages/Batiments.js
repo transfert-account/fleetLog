@@ -12,6 +12,7 @@ class Batiments extends Component {
         newName:"",
         newDelai:"",
         newLastExecution:"",
+        openDatePicker:false,
         timeLeftFilter:"all",
         batimentFilter:"",
         openAddBatimentControl:false,

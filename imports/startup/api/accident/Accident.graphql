@@ -1,0 +1,25 @@
+type Accident{
+    _id:String!
+    societe:Societe!
+    vehicle:Vehicle!
+    occurenceDate:String
+    description:String!
+    dateExpert:String
+    dateTravaux:String
+    constatSent:Boolean
+    rapportExp:Document
+    constat:Document
+    cost:Float
+}
+
+extend type Query{
+    accidents : [Accident]
+    buAccidents : [Accident]
+}
+
+extend type Mutation{
+    addAccident(vehicle:String!,occurenceDate:String!): [QueryResultMessage]
+    editAccident(_id:String!,occurenceDate:String!,dateExpert:String!,dateTravaux:String!,constatSent:Boolean!,cost:Float!): [QueryResultMessage]
+    editDescAccident(_id:String!,description:String!): [QueryResultMessage]
+    deleteAccident(_id:String!): [QueryResultMessage]
+}

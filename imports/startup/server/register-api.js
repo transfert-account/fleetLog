@@ -66,10 +66,13 @@ import EnergyResolvers from '../api/energy/resolvers';
 import BatimentSchema from '../api/batiment/Batiment.graphql';
 import BatimentResolvers from '../api/batiment/resolvers';
 
+import AccidentSchema from '../api/accident/Accident.graphql';
+import AccidentResolvers from '../api/accident/resolvers';
+
 import TestSchema from '../api/test/Test.graphql';
 import TestResolvers from '../api/test/resolvers.js';
 
-// #0295
+// #0301
 
 const typeDefs = [
     UserSchema,
@@ -93,6 +96,7 @@ const typeDefs = [
     DocumentSchema,
     EnergySchema,
     BatimentSchema,
+    AccidentSchema,
     TestSchema
 ];
 
@@ -118,6 +122,7 @@ const resolvers = merge(
     DocumentResolvers,
     EnergyResolvers,
     BatimentResolvers,
+    AccidentResolvers,
     TestResolvers
 );
 

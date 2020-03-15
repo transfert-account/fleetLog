@@ -18,11 +18,6 @@ class Accidents extends Component {
     accidentsRaw:[],
     accidents : () => {
       let displayed = Array.from(this.state.accidentsRaw);
-      if(this.props.user.isAdmin && this.props.user.visibility == "noidthisisgroupvisibility" && this.props.societeFilter != "noidthisisgroupvisibility"){
-        displayed = displayed.filter(a =>
-            a.societe._id == this.props.societeFilter
-        );
-      }
       if(this.state.accidentFilter.length>0){
           displayed = displayed.filter(a =>
               a.vehicle.registration.toLowerCase().includes(this.state.accidentFilter.toLowerCase())
@@ -38,7 +33,7 @@ class Accidents extends Component {
         )
       }
       return displayed.map(a =>(
-          <AccidentRow loadAccidents={this.loadAccidents} key={a._id} accident={a}/>
+          <AccidentRow hideSociete loadAccidents={this.loadAccidents} key={a._id} accident={a}/>
       ))
     },
     addAccidentQuery : gql`
@@ -49,9 +44,9 @@ class Accidents extends Component {
           }
         }
     `,
-    accidentsQuery : gql`
-      query accidents{
-        accidents{
+    buAccidentsQuery : gql`
+      query buAccidents{
+        buAccidents{
           _id
           societe{
             _id
@@ -147,11 +142,11 @@ class Accidents extends Component {
 
   loadAccidents = () => {
     this.props.client.query({
-        query:this.state.accidentsQuery,
+        query:this.state.buAccidentsQuery,
         fetchPolicy:"network-only"
     }).then(({data})=>{
         this.setState({
-          accidentsRaw:data.accidents
+          accidentsRaw:data.buAccidents
         })
     })
   }
@@ -189,7 +184,6 @@ class Accidents extends Component {
             <Table style={{marginBottom:"0"}} celled selectable color="blue" compact>
                 <Table.Header>
                     <Table.Row textAlign='center'>
-                      <Table.HeaderCell>Societe</Table.HeaderCell>
                       <Table.HeaderCell>Vehicle</Table.HeaderCell>
                       <Table.HeaderCell>Date</Table.HeaderCell>
                       <Table.HeaderCell>Date de passage Expert</Table.HeaderCell>
@@ -213,7 +207,7 @@ class Accidents extends Component {
                 <Form style={{display:"grid",gridTemplateRows:"1fr",gridTemplateColumns:"1fr 1fr",gridGap:"16px"}}>
                   <Form.Field>
                     <label>Véhicule concerné</label>
-                    <VehiclePicker defaultValue={this.state.newVehicle} onChange={this.handleChangeVehicle}/>
+                    <VehiclePicker societeRestricted defaultValue={this.state.newVehicle} onChange={this.handleChangeVehicle}/>
                   </Form.Field>
                   <Form.Field>
                     <label>Date de l'accident</label>

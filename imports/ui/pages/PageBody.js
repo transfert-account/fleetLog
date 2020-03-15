@@ -24,7 +24,9 @@ import Planning from './Planning';
 import BUPlanning from './BUPlanning';
 
 import Fournisseurs from './Fournisseurs';
+
 import Accidents from './Accidents';
+import BUAccidents from './BUAccidents';
 
 import Batiments from './Batiments';
 import BUBatiments from './BUBatiments';
@@ -76,7 +78,7 @@ class PageBody extends Component {
 
             <Route exact path='/planning/:y/:m' component={Planning}/>
 
-            <Route exact path='/accidentologie' component={WorkInProgress}/>
+            <Route exact path='/accidentologie' component={Accidents}/>
             <Route exact path='/batiments' component={Batiments}/>
 
             <Route exact path='/fournisseurs' component={Fournisseurs}/>
@@ -107,7 +109,8 @@ class PageBody extends Component {
 
             <Route exact path='/planning/:y/:m' component={BUPlanning}/>
 
-            <Route exact path='/accidentologie' component={WorkInProgress}/>
+            <Route exact path='/accidentologie' component={BUAccidents}/>
+            
             <Route exact path='/batiments' component={BUBatiments}/>
 
             <Route exact path='/fournisseurs' component={Fournisseurs}/>
@@ -139,7 +142,8 @@ class PageBody extends Component {
 
           <Route exact path='/planning/:y/:m' component={BUPlanning}/>
 
-          <Route exact path='/accidentologie' component={WorkInProgress}/>
+          <Route exact path='/accidentologie' component={BUAccidents}/>
+
           <Route exact path='/batiments' component={BUBatiments}/>
 
           <Route exact path='/fournisseurs' component={Fournisseurs}/>

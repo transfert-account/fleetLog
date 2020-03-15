@@ -130,7 +130,7 @@ class FournisseurRow extends Component {
                         <Modal.Content style={{textAlign:"center"}}>
                             <Message color='red' icon>
                                 <Icon name='warning sign'/>
-                                <Message.Content style={{display:"grid",gridTemplateColumns:"1fr 2fr",gridTemplateRows:"1fr 1fr"}}>
+                                <Message.Content>
                                     Veuillez confirmer vouloir supprimer le fournisseur : {this.props.fournisseur.name} ?
                                 </Message.Content>
                             </Message>
