@@ -221,7 +221,6 @@ class LocationRow extends Component {
                     <Table.Cell textAlign="center">{this.props.rental.fournisseur.name}</Table.Cell>
                     {this.getDocsStates()}
                     <Table.Cell style={{textAlign:"center"}}>
-                        <Button circular style={{color:"#a29bfe"}} inverted icon icon='folder open' onClick={this.showDocs}/>
                         <Button circular style={{color:"#2980b9"}} inverted icon icon='arrow right' onClick={this.navigateToLocation}/>
                     </Table.Cell>
                 </Table.Row>
