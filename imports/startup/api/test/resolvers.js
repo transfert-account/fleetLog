@@ -7,7 +7,18 @@ import { Mongo } from 'meteor/mongo';
 export default {
     Query : {
         testThis(obj, args,{user}){
-            Licences.remove({})
+            if(user._id){
+                Entretiens.update(
+                    {}, {
+                        $set: {
+                            "user":"",
+                            "occurenceDate":""
+                        }
+                    }
+                ); 
+                return [{status:true,message:'Entretien affecté'}];
+            }
+            throw new Error('Unauthorized');
             return "true";
         }
     }
