@@ -1,25 +1,29 @@
-import Vehicles from '../vehicle/vehicles';
-import Licences from '../licence/licences';
-import Locations from '../location/locations';
-import Entretiens from '../licence/licences';
+import Entretiens from '../entretien/entretiens';
 import { Mongo } from 'meteor/mongo';
 
 export default {
     Query : {
         testThis(obj, args,{user}){
             if(user._id){
-                Entretiens.update(
-                    {}, {
-                        $set: {
-                            "user":"",
-                            "occurenceDate":""
-                        }
-                    }
-                ); 
-                return [{status:true,message:'Entretien affecté'}];
+                try{
+                    Entretiens.update(
+                        {},
+                        {
+                            $set: {
+                                user:"",
+                                occurenceDate:""
+                            }
+                        },
+                        {multi:true}
+                    ); 
+                    return [{status:true,message:'Nuked'}];    
+                }catch(e){
+                    throw e;
+                    return [{status:false,message:e.message}];
+                }
+                
             }
             throw new Error('Unauthorized');
-            return "true";
         }
     }
 }

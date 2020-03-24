@@ -156,7 +156,19 @@ export default {
                 const adminUser = Meteor.users.findOne({_id:admin});
                 if(adminUser.settings.isAdmin){
                     const res =  Meteor.users.remove(_id);
-                    return [{status:true,message:'Suppression réussie'}];
+                    Entretiens.update(
+                        {
+                            user:_id
+                        },
+                        {
+                            $set: {
+                                user:"",
+                                occurenceDate:""
+                            }
+                        },
+                        {multi:true}
+                    );
+                    return [{status:true,message:'Compte supprimé, entretiens libérés'}];
                 }
                 return [{status:false,message:'Erreur durant la suppression'}];
             }

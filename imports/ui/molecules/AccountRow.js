@@ -155,11 +155,22 @@ export class AccountRow extends Component {
 
     executeNukeQuery = () => {
         this.props.client.query({
-            query:gql`query testThis{
-                testThis
-            }`
+            query:gql`
+                query testThis{
+                    testThis{
+                        status
+                        message
+                    }
+                }
+            `
         }).then(({data})=>{
-            console.log(data)
+            data.testThis.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     }
 

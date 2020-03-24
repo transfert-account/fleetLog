@@ -119,7 +119,7 @@ export default {
                 if(d.vehicles == 0){
                     d.avgKm = 0
                 }else{
-                    d.avgKm = totalKm / d.vehicles
+                    d.avgKm = parseInt(totalKm / d.vehicles);
                 }
                 d.nbOwned = 0;
                 d.nbCRB = 0
@@ -135,7 +135,7 @@ export default {
             let globalAvgKm = 0;
             let vehicles = Vehicles.find({archived:false}).fetch().map(v =>totalGlobalKm += v.kms[v.kms.length-1].kmValue)
             if(vehicles != 0){
-                globalAvgKm = totalGlobalKm /  Vehicles.find({archived:false}).fetch().length
+                globalAvgKm = parseInt(totalGlobalKm /  Vehicles.find({archived:false}).fetch().length)
             }
             let groupDashboard = {
                 societe:{_id:"noidthisisgroupvisibility",trikey:"GRP",name:"Groupe"},
@@ -276,7 +276,7 @@ export default {
                 if(d.vehicles == 0){
                     d.avgKm = 0
                 }else{
-                    d.avgKm = totalKm / d.vehicles
+                    d.avgKm = parseInt(totalKm / d.vehicles)
                 }
                 d.nbOwned = 0;
                 d.nbCRB = 0
