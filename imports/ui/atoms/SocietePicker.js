@@ -65,11 +65,11 @@ class SocietePicker extends Component {
     render() {
         if(this.props.value != "" && this.props.value != undefined){
             return (
-                <Dropdown size={(this.props.size != null ? this.props.size : "")} style={this.props.style} placeholder='Choisir une société' search selection onChange={this.props.onChange} value={this.props.value} options={this.state.societesRaw.map(x=>{return{key:x._id,text:x.name,value:x._id}})} />
+                <Dropdown error={this.props.error} size={(this.props.size != null ? this.props.size : "")} style={this.props.style} placeholder='Choisir une société' search selection onChange={this.props.onChange} value={this.props.value} options={this.state.societesRaw.map(x=>{return{key:x._id,text:x.name,value:x._id}})} />
             )
         }else{
             return (
-                <Dropdown size={(this.props.size != null ? this.props.size : "")} style={this.props.style} placeholder='Choisir une société' search selection onChange={this.props.onChange} defaultValue={this.props.defaultValue} options={this.state.societesRaw.map(x=>{return{key:x._id,text:x.name,value:x._id}})} />
+                <Dropdown error={this.props.error} size={(this.props.size != null ? this.props.size : "")} style={this.props.style} placeholder='Choisir une société' search selection onChange={this.props.onChange} defaultValue={this.props.defaultValue} options={this.state.societesRaw.map(x=>{return{key:x._id,text:x.name,value:x._id}})} />
             )
         }
     }

@@ -45,7 +45,7 @@ class OrganismPicker extends Component {
 
     render() {
         return (
-            <Dropdown size={(this.props.size != null ? this.props.size : "")} style={this.props.style} placeholder='Choisir un organisme' search selection onChange={this.props.onChange} defaultValue={this.props.defaultValue} options={this.state.organismsRaw.map(x=>{return{key:x._id,text:x.name,value:x._id}})} />
+            <Dropdown error={this.props.error} size={(this.props.size != null ? this.props.size : "")} style={this.props.style} placeholder='Choisir un organisme' search selection onChange={this.props.onChange} defaultValue={this.props.defaultValue} options={this.state.organismsRaw.map(x=>{return{key:x._id,text:x.name,value:x._id}})} />
         )
     }
 }
