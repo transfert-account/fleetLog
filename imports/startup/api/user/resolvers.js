@@ -122,13 +122,13 @@ export default {
                             "settings.isOwner": true,
                         }
                     });
-                    Meteor.users.update({
+                    /*Meteor.users.update({
                         _id: ownerUser._id
                     }, {
                         $set: {
                             "settings.isOwner": false,
                         }
-                    });
+                    });*/
                 }
                 return [{status:true,message:'Transfert de propriété réussie'}];
             }
