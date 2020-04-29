@@ -118,6 +118,13 @@ class Menu extends Component {
         label:"Administration",
         display:true,
         icon:"key"
+      },
+      {
+        name:"patchnotes",
+        active:"patchnotes",
+        label:"Notes de version",
+        display:true,
+        icon:"clipboard list"
       }
     ]
   }

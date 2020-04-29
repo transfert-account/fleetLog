@@ -6,13 +6,8 @@ export default {
     Query : {
         testThis(obj, args,{user}){
             if(user._id){
-                /*Vehicles.remove({energy:""});
-                Vehicles.remove({societe:""});
-                Vehicles.remove({brand:""});
-                Vehicles.remove({model:""});
-                Vehicles.remove({color:""});
-                Vehicles.remove({payementOrg:""});*/
                 try{
+                    /*
                     let licences = Licences.find({}).fetch();
                     let nuked = 0;
                     licences.map(l=>{
@@ -33,8 +28,8 @@ export default {
                                 );
                             }
                         }
-                    })
-                    return [{status:true,message:'Nuked : ' + nuked}];    
+                    })*/
+                    return [{status:true,message:'Nuked nothing ? Maybe, maybe not ... who knows ?'}];
                 }catch(e){
                     throw e;
                     return [{status:false,message:e.message}];

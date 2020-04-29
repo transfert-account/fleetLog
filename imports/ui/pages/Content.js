@@ -24,6 +24,7 @@ class Content extends Component {
         newColorName:"",
         newColorHex:"000000",
         newOrganism:"",
+        selectedSocieteName:"",
         openHexColorPicker:false,
         needToRefreshSocietes:false,
         needToRefreshVolumes:false,
@@ -31,6 +32,14 @@ class Content extends Component {
         needToRefreshModels:false,
         needToRefreshOrganisms:false,
         needToRefreshColors:false,
+        editSocieteQuery: gql`
+            mutation editSociete($_id:String!,$name:String!){
+                editSociete(_id:$_id,name:$name){
+                    status
+                    message
+                }
+            }
+        `,
         addSocieteQuery : gql`
             mutation addSociete($trikey:String!,$name:String!){
                 addSociete(trikey:$trikey,name:$name){
@@ -210,7 +219,12 @@ class Content extends Component {
     }
 
     //Societes
-    handleChangeSociete = (e, { value }) => this.setState({ selectedSociete:value })
+    handleChangeSociete = (e, { value }) => this.setState({ selectedSociete:value,selectedSocieteName:this.props.getSocieteName(value)})
+    showEditSociete = () => {
+        this.setState({
+            openEditSociete:true
+        })
+    }
     showAddSociete = () => {
         this.setState({
             openAddSociete:true
@@ -221,6 +235,11 @@ class Content extends Component {
             openDelSociete:true
         })
     }
+    closeEditSociete = () => {
+        this.setState({
+            openEditSociete:false
+        })
+    }
     closeAddSociete = () => {
         this.setState({
             openAddSociete:false
@@ -229,6 +248,28 @@ class Content extends Component {
     closeDelSociete = () => {
         this.setState({
             openDelSociete:false
+        })
+    }
+    editSociete = () => {
+        this.closeEditSociete()
+        this.props.client.mutate({
+            mutation:this.state.editSocieteQuery,
+            variables:{
+                name:this.state.nameSociete,
+                _id:this.state.selectedSociete
+            }
+        }).then(({data})=>{
+            data.editSociete.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.setState({
+                        needToRefreshSocietes:true,
+                        selectedSocieteName:this.props.getSocieteName(value)
+                    })
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     }
     addSociete = () => {
@@ -753,6 +794,7 @@ class Content extends Component {
                                     <SocietePicker didRefresh={this.didRefreshSocietes} needToRefresh={this.state.needToRefreshSocietes} groupAppears={false} onChange={this.handleChangeSociete} value={this.state.selectedSociete} />
                                 </Table.Cell>
                                 <Table.Cell textAlign="center">
+                                    <Button style={{margin:"4px 16px"}} color="green" onClick={this.showEditSociete} icon labelPosition='right'>Renommer<Icon name='edit'/></Button>
                                     <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddSociete} icon labelPosition='right'>Ajouter<Icon name='plus'/></Button>
                                     <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelSociete} icon labelPosition='right'>Supprimer<Icon name='trash'/></Button>
                                 </Table.Cell>
@@ -852,6 +894,20 @@ class Content extends Component {
                 </div>
 
                 {/* SOCIETE */}
+                <Modal size="mini" closeOnDimmerClick={false} open={this.state.openEditSociete} onClose={this.closeEditSociete} closeIcon>
+                    <Modal.Header>
+                        Edition du nom de la société {this.state.selectedSocieteName}
+                    </Modal.Header>
+                    <Modal.Content style={{textAlign:"center"}}>
+                        <Form style={{display:"grid",gridTemplateColumns:"1fr",gridGap:"16px"}}>
+                            <Form.Field style={{placeSelf:"stretch"}}><label>Nouveau nom de la société</label><input defaultValue={this.state.selectedSocieteName} onChange={this.handleChange} name="nameSociete"/></Form.Field>                            
+                        </Form>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <Button color="black" onClick={this.closeEditSociete}>Annuler</Button>
+                        <Button color="green" onClick={this.editSociete}>Renommer</Button>
+                    </Modal.Actions>
+                </Modal>
                 <Modal size="mini" closeOnDimmerClick={false} open={this.state.openAddSociete} onClose={this.closeAddSociete} closeIcon>
                     <Modal.Header>
                         Création de la société

@@ -10,6 +10,16 @@ export const UserContext = React.createContext();
 class Provider extends Component {
 
     state = {
+        societes:[],
+        societesQuery : gql`
+            query societes{
+                societes{
+                    _id
+                    trikey
+                    name
+                }
+            }
+        `,
         userQuery : gql`
             query user{
                 user{
@@ -45,6 +55,16 @@ class Provider extends Component {
         societeFilter:"noidthisisgroupvisibility"
     }
 
+    getSocieteName = _id => {
+        let s = this.state.societes.filter(x=>x._id == _id)[0]
+        if(s!=null){
+            return s.name;
+        }else{
+            return "[error]";
+        }
+        
+    }
+
     toast = ({message,type}) => {
         if(type == 'error'){
             toast.error(message);
@@ -61,15 +81,8 @@ class Provider extends Component {
     }
 
     componentDidMount = () => {
-        this.props.client.query({
-            query:this.state.userQuery,
-            fetchPolicy:'network-only'
-        }).then(({data})=>{
-            this.setState({
-                user:data.user,
-                users:data.users
-            })      
-        })
+        this.forceReloadUser();
+        this.loadSocietes();
     }
 
     reloadUser = () => {
@@ -98,6 +111,17 @@ class Provider extends Component {
         })
     }
 
+    loadSocietes = () => {
+        this.props.client.query({
+            query:this.state.societesQuery,
+            fetchPolicy:'network-only'
+        }).then(({data})=>{
+            this.setState({
+                societes:data.societes
+            })
+        })
+    }
+
     setSocieteFilter = _id => {
         this.setState({
             societeFilter : _id
@@ -115,6 +139,7 @@ class Provider extends Component {
                 users : this.props.users,
                 client : this.props.client,
                 societes:this.props.societes,
+                getSocieteName:this.getSocieteName,
                 reloadUser:this.reloadUser,
                 forceReloadUser:this.forceReloadUser,
                 setSocieteFilter:this.setSocieteFilter,

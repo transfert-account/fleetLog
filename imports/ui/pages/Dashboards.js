@@ -12,8 +12,8 @@ class Dashboard extends Component {
         societeFull:{},
         dashboardsRaw:[],
         societeQuery : gql`
-            query societe{
-                societe{
+            query societe($_id:String!){
+                societe(_id:$_id){
                     _id
                     trikey
                     name
@@ -84,7 +84,10 @@ class Dashboard extends Component {
         }else{
             this.props.client.query({
                 query:this.state.societeQuery,
-                fetchPolicy:"network-only"
+                fetchPolicy:"network-only",
+                variables:{
+                    _id:this.props.societeFilter
+                }
             }).then(({data})=>{
                 this.setState({
                     societeFull:data.societe,

@@ -35,6 +35,7 @@ import Compte from './Compte';
 import Accounts from './Accounts';
 import Content from './Content';
 import Equipements from './Equipements';
+import Patchnotes from './Patchnotes';
 
 import WorkInProgress from './WorkInProgress';
 
@@ -89,6 +90,8 @@ class PageBody extends Component {
             <Route exact path='/administration/content' component={Content}/>
             <Route exact path='/administration/equipements' component={Equipements}/>
             <Route exact path='/administration/pieces' component={Pieces}/>
+
+            <Route exact path='/patchnotes' component={Patchnotes}/>
             <Redirect from='*' to={'/'}/>
           </Switch>
         );
@@ -121,6 +124,8 @@ class PageBody extends Component {
             <Route exact path='/administration/content' component={Content}/>
             <Route exact path='/administration/equipements' component={Equipements}/>
             <Route exact path='/administration/pieces' component={Pieces}/>
+            
+            <Route exact path='/patchnotes' component={Patchnotes}/>
             <Redirect from='*' to={'/'}/>
           </Switch>
         );

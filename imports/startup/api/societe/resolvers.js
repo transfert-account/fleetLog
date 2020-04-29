@@ -13,6 +13,21 @@ export default {
         }
     },
     Mutation:{
+        editSociete(obj, {_id,name},{user}){
+            if(user._id){
+                Societes.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "name":name
+                        }
+                    }
+                ); 
+                return [{status:true,message:'Edition réussie'}];
+            }
+            throw new Error('Unauthorized');
+        },
         addSociete(obj, {trikey,name},{user}){
             if(user._id){
                 Societes.insert({
