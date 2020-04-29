@@ -166,27 +166,29 @@ export class Accounts extends Component {
 
   render() {
     return (
-      <div>
+      <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto 1fr auto"}}>
         <div style={{display:"flex",marginBottom:"32px",justifyContent:"space-between"}}>
           {this.getMenu()}
           <Input name="usersFilter" onChange={this.handleFilter} size='massive' icon='search' placeholder='Rechercher un compte ...' />
         </div>
-        <Table compact selectable striped color="blue">
-          <Table.Header>
-            <Table.Row>
-              <Table.HeaderCell width={3}>Nom</Table.HeaderCell>
-              <Table.HeaderCell width={3}>Compte créé le</Table.HeaderCell>
-              <Table.HeaderCell width={3}>E-mail</Table.HeaderCell>
-              <Table.HeaderCell style={{textAlign:"center"}} width={1}>Admin</Table.HeaderCell>
-              <Table.HeaderCell style={{textAlign:"center"}} width={1}>Compte actif</Table.HeaderCell>
-              <Table.HeaderCell style={{textAlign:"center"}} width={3}>Visibilité</Table.HeaderCell>
-              <Table.HeaderCell style={{textAlign:"center"}} width={2}>Actions</Table.HeaderCell>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {this.state.accounts()}
-          </Table.Body>
-        </Table>
+        <div style={{display:"block",overflowY:"auto",justifySelf:"stretch"}}>
+          <Table compact selectable striped color="blue">
+            <Table.Header>
+              <Table.Row>
+                <Table.HeaderCell width={3}>Nom</Table.HeaderCell>
+                <Table.HeaderCell width={3}>Compte créé le</Table.HeaderCell>
+                <Table.HeaderCell width={3}>E-mail</Table.HeaderCell>
+                <Table.HeaderCell style={{textAlign:"center"}} width={1}>Admin</Table.HeaderCell>
+                <Table.HeaderCell style={{textAlign:"center"}} width={1}>Compte actif</Table.HeaderCell>
+                <Table.HeaderCell style={{textAlign:"center"}} width={3}>Visibilité</Table.HeaderCell>
+                <Table.HeaderCell style={{textAlign:"center"}} width={2}>Actions</Table.HeaderCell>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {this.state.accounts()}
+            </Table.Body>
+          </Table>
+        </div>
       </div>
     )
   }
