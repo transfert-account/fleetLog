@@ -262,9 +262,10 @@ class Content extends Component {
             data.editSociete.map(qrm=>{
                 if(qrm.status){
                     this.props.toast({message:qrm.message,type:"success"});
+                    this.props.loadSocietes();
                     this.setState({
                         needToRefreshSocietes:true,
-                        selectedSocieteName:this.props.getSocieteName(value)
+                        selectedSocieteName:this.props.getSocieteName(this.state.selectedSociete)
                     })
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});

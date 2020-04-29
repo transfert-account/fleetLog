@@ -143,6 +143,7 @@ class Provider extends Component {
                 reloadUser:this.reloadUser,
                 forceReloadUser:this.forceReloadUser,
                 setSocieteFilter:this.setSocieteFilter,
+                loadSocietes:this.loadSocietes,
                 societeFilter:this.state.societeFilter,
                 toast:this.toast
             }}>

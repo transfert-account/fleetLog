@@ -21,6 +21,7 @@ class SocietePicker extends Component {
     }
 
     loadSocietes = () => {
+        console.log("reloading")
         this.props.client.query({
             query:this.state.societesQuery,
             fetchPolicy:"network-only"
@@ -57,7 +58,9 @@ class SocietePicker extends Component {
     }
 
     componentDidUpdate = () => {
+        console.log("need to refresh : " + this.props.needToRefresh)
         if(this.props.needToRefresh){
+            console.log("reloading ... ")
             this.loadSocietes();
         }
     }
