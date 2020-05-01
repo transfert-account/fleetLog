@@ -1,6 +1,7 @@
 import Vehicles from '../vehicle/vehicles';
 import Licences from '../licence/licences';
 import { Mongo } from 'meteor/mongo';
+import Vehicle from '../../../ui/pages/Vehicle';
 
 export default {
     Query : {
@@ -29,7 +30,20 @@ export default {
                             }
                         }
                     })*/
-                    return [{status:true,message:'Nuked nothing ? Maybe, maybe not ... who knows ?'}];
+                    Vehicles.update(
+                        {
+                            _id:l._id
+                        },{
+                            $set: {
+                                shared:false,
+                                sharedTo:"",
+                                sharingReason:"",
+                                sharedSince:""
+                            }
+                        },
+                        {multi:true}
+                    );
+                    return [{status:true,message:'Affected blank share target to all vehicle'}];
                 }catch(e){
                     throw e;
                     return [{status:false,message:e.message}];

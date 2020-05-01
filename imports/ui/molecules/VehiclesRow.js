@@ -77,17 +77,11 @@ class VehiclesRow extends Component {
         })
     }
 
-    downloadDoc = doc => {
-    }
-    
-    uploadDoc = doc => {
-    }
-
     getPayementProgress = () => {
         let totalMonths = this.props.vehicle.purchasePrice/this.props.vehicle.monthlyPayement;
         let monthsDone = parseInt(moment().diff(moment(this.props.vehicle.payementBeginDate,"DD/MM/YYYY"),'months', true));
         let monthsLeft = totalMonths - monthsDone;
-        if(parseInt(monthsLeft <= 0) || this.props.vehicle.payementFormat == "CPT"){
+        if(parseInt(monthsLeft) <= 0 || this.props.vehicle.payementFormat == "CPT"){
             return <Table.Cell textAlign="center"><Label color="green">Propriété</Label></Table.Cell>
         }else{
             if(this.props.vehicle.payementFormat == "CRB"){

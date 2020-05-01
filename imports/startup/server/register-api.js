@@ -72,7 +72,7 @@ import AccidentResolvers from '../api/accident/resolvers';
 import TestSchema from '../api/test/Test.graphql';
 import TestResolvers from '../api/test/resolvers.js';
 
-// #0304
+// #0305
 
 const typeDefs = [
     UserSchema,

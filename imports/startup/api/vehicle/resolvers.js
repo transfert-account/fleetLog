@@ -28,6 +28,11 @@ const affectVehicleData = vehicle => {
     }else{
         vehicle.societe = {_id:""};
     }
+    if(vehicle.shared){
+        vehicle.sharedTo = Societes.findOne({_id:new Mongo.ObjectID(vehicle.sharedTo)});
+    }else{
+        vehicle.sharedTo = {_id:""};
+    }
     if(vehicle.brand != null && vehicle.brand.length > 0){
         vehicle.brand = Brands.findOne({_id:new Mongo.ObjectID(vehicle.brand)});
     }else{
@@ -131,7 +136,11 @@ export default {
                     archiveReason:"",
                     archiveDate:"",
                     cg:"",
-                    cv:""
+                    cv:"",
+                    shared:false,
+                    sharedTo:"",
+                    sharingReason:"",
+                    sharingDate:"",
                 });
                 return [{status:true,message:'Création réussie'}];
             }
@@ -281,6 +290,45 @@ export default {
                             "archived":false,
                             "archiveReason":"",
                             "archiveDate":""
+                        }
+                    }   
+                )
+                return [{status:true,message:'Désarchivage réussi'}];
+            }
+            throw new Error('Unauthorized');
+        },
+        shareVehicle(obj, {_id,sharingReason,target},{user}){
+            if(sharingReason == ""){
+                sharingReason = "Aucune données"
+            }
+            if(user._id){
+                Vehicles.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "shared":true,
+                            "sharedTo":target,
+                            "sharingReason":sharingReason,
+                            "sharedSince": new Date().getDate().toString().padStart(2,0) + '/' + parseInt(new Date().getMonth()+1).toString().padStart(2,0) + '/' + new Date().getFullYear()
+                        }
+                    }   
+                )
+                return [{status:true,message:'Prêt réussi'}];
+            }
+            throw new Error('Unauthorized');
+        },
+        unshareVehicle(obj, {_id},{user}){
+            if(user._id){
+                Vehicles.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "shared":false,
+                            "sharedTo":"",
+                            "sharingReason":"",
+                            "sharedSince": ""
                         }
                     }   
                 )

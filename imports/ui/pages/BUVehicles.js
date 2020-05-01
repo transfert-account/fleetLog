@@ -325,9 +325,16 @@ export class BUVehicles extends Component {
         })
     }
 
-    toggleDisplayDoc = () => {
+    //SHARED FILTER
+    getSharedFilterColor = (color,filter) => {
+        if(this.state.sharedFilter == filter){
+            return color
+        }
+    }
+
+    setSharedFilter = value => {
         this.setState({
-            displayDoc:!this.state.displayDoc
+            sharedFilter:value
         })
     }
 
@@ -347,7 +354,7 @@ export class BUVehicles extends Component {
                     </Menu>
                     <Input style={{justifySelf:"stretch"}} name="vehiclesFiler" onChange={e=>{this.handleFilter(e.target.value)}} icon='search' placeholder='Rechercher une immatriculation, une marque ou un modèle'/>
                     <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddVehicle} icon labelPosition='right'>Ajouter un véhicule<Icon name='plus'/></Button>
-                    <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gridGap:"16px"}}>
+                    <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"auto auto auto auto",gridGap:"16px"}}>
                         <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
                             <Icon name='archive'/>
                             <Button.Group style={{placeSelf:"center"}}>
@@ -356,11 +363,18 @@ export class BUVehicles extends Component {
                             </Button.Group>
                         </Message>
                         <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
+                            <Icon name='handshake'/>
+                            <Button.Group style={{placeSelf:"center"}}>
+                                <Button color={this.getSharedFilterColor("green","all")} onClick={()=>{this.setSharedFilter("all")}}>Tous</Button>
+                                <Button color={this.getSharedFilterColor("teal","shared")} onClick={()=>{this.setSharedFilter("shared")}}>En prêt</Button>
+                            </Button.Group>
+                        </Message>
+                        <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
                             <Icon name='dashboard'/>
                             <Button.Group style={{placeSelf:"center"}}>
                                 <Button color={this.getKmFilterColor("green","all")} onClick={()=>{this.setReportLateFilter("all")}}>Tous</Button>
-                                <Button color={this.getKmFilterColor("orange","2w")} onClick={()=>{this.setReportLateFilter("2w")}}>Relevé > 2 semaines</Button>
-                                <Button color={this.getKmFilterColor("red","4w")} onClick={()=>{this.setReportLateFilter("4w")}}>Relevé > 4 semaines</Button>
+                                <Button color={this.getKmFilterColor("orange","2w")} onClick={()=>{this.setReportLateFilter("2w")}}>Relevé > 2 sem.</Button>
+                                <Button color={this.getKmFilterColor("red","4w")} onClick={()=>{this.setReportLateFilter("4w")}}>Relevé > 4 sem.</Button>
                             </Button.Group>
                         </Message>
                         <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>

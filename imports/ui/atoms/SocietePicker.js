@@ -9,6 +9,7 @@ class SocietePicker extends Component {
     state = {
         value:"",
         societesRaw:[],
+        excluded:this.props.excludeThis || [],
         societesQuery : gql`
             query societes{
                 societes{
@@ -21,7 +22,6 @@ class SocietePicker extends Component {
     }
 
     loadSocietes = () => {
-        console.log("reloading")
         this.props.client.query({
             query:this.state.societesQuery,
             fetchPolicy:"network-only"
@@ -38,6 +38,9 @@ class SocietePicker extends Component {
                     s._id === societe._id
                 ))
             )
+            if(this.state.excluded.length > 0){
+                societes = societes.filter(s=>!this.state.excluded.includes(s._id))
+            }
             if(!this.props.groupAppears){
                 societes = societes.filter(s=>s._id != "noidthisisgroupvisibility")
             }
@@ -58,9 +61,7 @@ class SocietePicker extends Component {
     }
 
     componentDidUpdate = () => {
-        console.log("need to refresh : " + this.props.needToRefresh)
         if(this.props.needToRefresh){
-            console.log("reloading ... ")
             this.loadSocietes();
         }
     }
