@@ -29,6 +29,7 @@ class Vehicle extends Component {
         newCg:null,
         newCv:null,
         newSociete:"",
+        newTargetSociete:"",
         newRegistration:"",
         newFirstRegistrationDate:"",
         newVolume:0,
@@ -70,7 +71,6 @@ class Vehicle extends Component {
                     _id
                     societe{
                         _id
-                        trikey
                         name
                     }
                     registration
@@ -139,6 +139,13 @@ class Vehicle extends Component {
                         mimetype
                         storageDate
                     }
+                    shared
+                    sharedTo{
+                        _id
+                        name
+                    }
+                    sharedSince
+                    sharingReason
                 }
             }
         `,
@@ -258,7 +265,9 @@ class Vehicle extends Component {
 
     handleChangeSociete = (e, { value }) => this.setState({ newSociete:value })
 
-    handleChangeTargetSociete = (e, { value }) => this.setState({ newTargetSociete:value })
+    handleChangeTargetSociete = (e, { value }) => {
+        this.setState({ newTargetSociete:value })
+    }
 
     handleChangeVolume = (e, { value }) => this.setState({ newVolume:value })
 
@@ -337,11 +346,13 @@ class Vehicle extends Component {
             variables:{
                 _id:this.state._id,
                 sharingReason:this.state.newSharingReason,
-                target:newTargetSociete
+                target:this.state.newTargetSociete
             }
         }).then(({data})=>{
             data.shareVehicle.map(qrm=>{
                 if(qrm.status){
+                    this.closeShare();
+                    this.loadVehicule();
                     this.props.toast({message:qrm.message,type:"success"});
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
@@ -360,6 +371,8 @@ class Vehicle extends Component {
         }).then(({data})=>{
             data.unshareVehicle.map(qrm=>{
                 if(qrm.status){
+                    this.closeUnshare();
+                    this.loadVehicule();
                     this.props.toast({message:qrm.message,type:"success"});
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
@@ -940,6 +953,14 @@ class Vehicle extends Component {
         }
     }
 
+    getSharedPanel = () => {
+        if(this.state.vehicle.shared){
+            return (
+                <Message color="teal" style={{margin:"0",gridColumnEnd:"span 2"}} icon='handshake outline' header={"En prêt chez : " + this.state.vehicle.sharedTo.name + ", depuis le : " + this.state.vehicle.sharedSince} content={"Justificaion : " + this.state.vehicle.sharingReason} />
+            )
+        }
+    }
+
     componentDidMount = () => {
         this.loadVehicule();
     }
@@ -966,6 +987,7 @@ class Vehicle extends Component {
                             </Button>
                             <Message style={{margin:"0"}} icon='truck' header={this.state.vehicle.registration} content={this.state.vehicle.brand.name + " - " + this.state.vehicle.model.name} />
                             {this.getArchivePanel()}
+                            {this.getSharedPanel()}
                             <div style={{gridColumnEnd:"span 2"}}>
                                 <p style={{margin:"0",fontWeight:"bold",fontSize:"2.4em"}}>
                                     {this.state.vehicle.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km

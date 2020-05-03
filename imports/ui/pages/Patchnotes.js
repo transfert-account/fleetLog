@@ -8,7 +8,7 @@ export class Patchnotes extends Component {
                 <Segment>
                     <Header color='blue' as="h2">01/05/2020 - v1.1.02</Header>
                     <List divided relaxed>
-                        <List.Item>
+                    <List.Item>
                             <List.Icon name='bug' size='large' verticalAlign='middle' />
                             <List.Content>
                                 <List.Header>Correction Payement de Véhicule</List.Header>
@@ -16,10 +16,17 @@ export class Patchnotes extends Component {
                             </List.Content>
                         </List.Item>
                         <List.Item>
+                            <List.Icon name='cog' size='large' verticalAlign='middle' />
+                            <List.Content>
+                                <List.Header>Nouveau DatePicker</List.Header>
+                                <List.Description>Le DatePicker "react-infinite-calendar" était trop instable et a été remplacé par un autre DatePicker développé from scratch</List.Description>
+                            </List.Content>
+                        </List.Item>
+                        <List.Item>
                             <List.Icon name='plus' size='large' verticalAlign='middle' />
                             <List.Content>
                                 <List.Header>Prêt entre societé</List.Header>
-                                <List.Description>Ajout des fonctions de partage/rappel des véhicules entre societés (fonction propriétaire)</List.Description>
+                                <List.Description>Ajout des fonctions de partage/rappel des véhicules entre societés (fonction propriétaire) + option de filtrage</List.Description>
                             </List.Content>
                         </List.Item>
                     </List>

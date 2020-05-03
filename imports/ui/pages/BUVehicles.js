@@ -36,6 +36,7 @@ export class BUVehicles extends Component {
         newPayementOrg:"",
         newPayementFormat:"",
         archiveFilter:false,
+        sharedFilter:false,
         reportLateFilter:"all",
         docsFilter:"all",
         openAddVehicle:false,
@@ -59,6 +60,9 @@ export class BUVehicles extends Component {
             displayed = displayed.filter(v =>
                 v.archived == this.state.archiveFilter
             );
+            if(this.state.sharedFilter){
+                displayed = displayed.filter(v => v.shared);
+            }
             displayed = displayed.filter(v =>{
                 if(this.state.docsFilter == "all"){return true}else{
                     if(v.cg._id == "" || v.cv._id == ""){
@@ -104,8 +108,8 @@ export class BUVehicles extends Component {
             }
             displayed.sort((a, b) => a.registration.localeCompare(b.registration))
             //displayed = displayed.slice((this.state.currentPage - 1) * this.state.rowByPage, this.state.currentPage * this.state.rowByPage);
-            return displayed.map(i =>(
-                <VehiclesRow hideSociete={true} loadVehicles={this.loadVehicles} societesRaw={this.state.societesRaw} key={i._id} vehicle={i}/>
+            return displayed.map(v =>(
+                <VehiclesRow hideSociete={false} loadVehicles={this.loadVehicles} societesRaw={this.state.societesRaw} key={v._id} vehicle={v}/>
             ))
         },
         addVehicleQuery : gql`
@@ -170,6 +174,13 @@ export class BUVehicles extends Component {
                     cv{
                         _id
                     }
+                    shared
+                    sharedTo{
+                        _id
+                        name
+                    }
+                    sharedSince
+                    sharingReason
                 }
             }
         `
@@ -326,8 +337,8 @@ export class BUVehicles extends Component {
     }
 
     //SHARED FILTER
-    getSharedFilterColor = (color,filter) => {
-        if(this.state.sharedFilter == filter){
+    getSharedFilterColor = (color,active) => {
+        if(this.state.sharedFilter == active){
             return color
         }
     }
@@ -365,8 +376,8 @@ export class BUVehicles extends Component {
                         <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
                             <Icon name='handshake'/>
                             <Button.Group style={{placeSelf:"center"}}>
-                                <Button color={this.getSharedFilterColor("green","all")} onClick={()=>{this.setSharedFilter("all")}}>Tous</Button>
-                                <Button color={this.getSharedFilterColor("teal","shared")} onClick={()=>{this.setSharedFilter("shared")}}>En prêt</Button>
+                                <Button color={this.getSharedFilterColor("green",false)} onClick={()=>{this.setSharedFilter(false)}}>Tous</Button>
+                                <Button color={this.getSharedFilterColor("teal",true)} onClick={()=>{this.setSharedFilter(true)}}>En prêt</Button>
                             </Button.Group>
                         </Message>
                         <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
@@ -389,6 +400,7 @@ export class BUVehicles extends Component {
                         <Table style={{marginBottom:"0"}} celled selectable color={this.getArchiveFilterColor()} compact>
                             <Table.Header>
                                 <Table.Row textAlign='center'>
+                                    <Table.HeaderCell>Societe</Table.HeaderCell>
                                     <Table.HeaderCell>Immatriculation</Table.HeaderCell>
                                     <Table.HeaderCell>Date d'immatriculation</Table.HeaderCell>
                                     <Table.HeaderCell>Énergie</Table.HeaderCell>

@@ -100,7 +100,7 @@ export default {
         },
         buVehicles(obj, args,{user}){
             let userFull = Meteor.users.findOne({_id:user._id});
-            let vehicles = Vehicles.find({societe:userFull.settings.visibility}).fetch() || {};
+            let vehicles = Vehicles.find({$or:[{sharedTo:userFull.settings.visibility},{societe:userFull.settings.visibility}]}).fetch() || {};
             vehicles.forEach(v => {
                 affectVehicleData(v)
             });
@@ -140,7 +140,7 @@ export default {
                     shared:false,
                     sharedTo:"",
                     sharingReason:"",
-                    sharingDate:"",
+                    sharedSince:"",
                 });
                 return [{status:true,message:'Création réussie'}];
             }
@@ -265,6 +265,10 @@ export default {
                 archiveReason = "Aucune données"
             }
             if(user._id){
+                let vehicle = Vehicles.find({_id:new Mongo.ObjectID(_id)}).fetch()[0];
+                if(vehicle.shared){
+                    return [{status:false,message:"Impossible d'archiver un véhicule en prêt"}];
+                }
                 Vehicles.update(
                     {
                         _id: new Mongo.ObjectID(_id)
@@ -302,6 +306,10 @@ export default {
                 sharingReason = "Aucune données"
             }
             if(user._id){
+                let vehicle = Vehicles.find({_id:new Mongo.ObjectID(_id)}).fetch()[0];
+                if(vehicle.archived){
+                    return [{status:false,message:'Impossible de prêter un véhicule archivé'}];
+                }
                 Vehicles.update(
                     {
                         _id: new Mongo.ObjectID(_id)

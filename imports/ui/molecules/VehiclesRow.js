@@ -128,7 +128,25 @@ class VehiclesRow extends Component {
 
     getSocieteCell = () => {
         if(!this.props.hideSociete){
-            return <Table.Cell textAlign="center">{this.props.vehicle.societe.name}</Table.Cell>
+            if(this.props.vehicle.shared){
+                console.log(this.props.vehicle.registration)
+                console.log(this.props.vehicle.shared)
+                console.log("prêt vers" + this.props.vehicle.sharedTo.name)
+                return(
+                    <Table.Cell textAlign="center">
+                        {this.props.vehicle.societe.name}<br/>
+                        <Label color={"teal"}> 
+                            prêt vers {this.props.vehicle.sharedTo.name}
+                        </Label>
+                    </Table.Cell>
+                )
+            }else{
+                return( 
+                    <Table.Cell textAlign="center">
+                        {this.props.vehicle.societe.name}
+                    </Table.Cell>
+                )
+            }
         }
     }
 
@@ -142,6 +160,7 @@ class VehiclesRow extends Component {
     }
 
     render() {
+        console.log(this.props.vehicle.registration)
         return (
             <Fragment>
                 <Table.Row>

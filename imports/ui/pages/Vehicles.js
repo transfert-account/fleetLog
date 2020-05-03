@@ -38,7 +38,7 @@ class Vehicles extends Component {
         archiveFilter:false,
         reportLateFilter:"all",
         docsFilter:"all",
-        sharedFilter:"all",
+        sharedFilter:false,
         openAddVehicle:false,
         openDatePicker:false,
         datePickerTarget:"",
@@ -60,9 +60,12 @@ class Vehicles extends Component {
             displayed = displayed.filter(v =>
                 v.archived == this.state.archiveFilter
             );
+            if(this.state.sharedFilter){
+                displayed = displayed.filter(v => v.shared);
+            }
             if(this.props.user.isAdmin && this.props.user.visibility == "noidthisisgroupvisibility" && this.props.societeFilter != "noidthisisgroupvisibility"){
                 displayed = displayed.filter(v =>
-                    v.societe._id == this.props.societeFilter
+                    v.societe._id == this.props.societeFilter || v.sharedTo._id == this.props.societeFilter
                 );
             }
             displayed = displayed.filter(v =>{
@@ -128,7 +131,6 @@ class Vehicles extends Component {
                     _id
                     societe{
                         _id
-                        trikey
                         name
                     }
                     registration
@@ -174,6 +176,13 @@ class Vehicles extends Component {
                     archived
                     archiveReason
                     archiveDate
+                    shared
+                    sharedTo{
+                        _id
+                        name
+                    }
+                    sharedSince
+                    sharingReason
                 }
             }
         `
@@ -356,8 +365,8 @@ class Vehicles extends Component {
     }
 
     //SHARED FILTER
-    getSharedFilterColor = (color,filter) => {
-        if(this.state.sharedFilter == filter){
+    getSharedFilterColor = (color,active) => {
+        if(this.state.sharedFilter == active){
             return color
         }
     }
@@ -395,8 +404,8 @@ class Vehicles extends Component {
                         <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
                             <Icon name='handshake'/>
                             <Button.Group style={{placeSelf:"center"}}>
-                                <Button color={this.getSharedFilterColor("green","all")} onClick={()=>{this.setSharedFilter("all")}}>Tous</Button>
-                                <Button color={this.getSharedFilterColor("teal","shared")} onClick={()=>{this.setSharedFilter("shared")}}>En prêt</Button>
+                                <Button color={this.getSharedFilterColor("green",false)} onClick={()=>{this.setSharedFilter(false)}}>Tous</Button>
+                                <Button color={this.getSharedFilterColor("teal",true)} onClick={()=>{this.setSharedFilter(true)}}>En prêt</Button>
                             </Button.Group>
                         </Message>
                         <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>

@@ -31,9 +31,7 @@ export default {
                         }
                     })*/
                     Vehicles.update(
-                        {
-                            _id:l._id
-                        },{
+                        {},{
                             $set: {
                                 shared:false,
                                 sharedTo:"",
