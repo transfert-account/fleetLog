@@ -138,16 +138,20 @@ class Vehicles extends Component {
                     km
                     lastKmUpdate
                     brand{
+                        _id
                         name
                     }
                     model{
+                        _id
                         name
                     }
                     volume{
+                        _id
                         meterCube
                     }
                     payload
                     energy{
+                        _id
                         name
                     }
                     cg{
