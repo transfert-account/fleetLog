@@ -138,26 +138,18 @@ class Vehicles extends Component {
                     km
                     lastKmUpdate
                     brand{
-                        _id
                         name
                     }
                     model{
-                        _id
                         name
                     }
                     volume{
-                        _id
                         meterCube
                     }
                     payload
-                    color{
-                        _id
-                    }
                     energy{
-                        _id
                         name
                     }
-                    insurancePaid
                     cg{
                         _id
                     }
@@ -168,21 +160,13 @@ class Vehicles extends Component {
                     property
                     purchasePrice
                     monthlyPayement
-                    payementOrg{
-                        _id
-                        name
-                    }
                     payementFormat
                     archived
-                    archiveReason
-                    archiveDate
                     shared
                     sharedTo{
                         _id
                         name
                     }
-                    sharedSince
-                    sharingReason
                 }
             }
         `
