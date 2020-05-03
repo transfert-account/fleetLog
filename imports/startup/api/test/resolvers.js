@@ -30,7 +30,7 @@ export default {
                             }
                         }
                     })*/
-                    Vehicles.update(
+                    /*Vehicles.update(
                         {},{
                             $set: {
                                 shared:false,
@@ -40,8 +40,8 @@ export default {
                             }
                         },
                         {multi:true}
-                    );
-                    return [{status:true,message:'Affected blank share target to all vehicle'}];
+                    );*/
+                    return [{status:true,message:'Nuke is empty for now'}];
                 }catch(e){
                     throw e;
                     return [{status:false,message:e.message}];

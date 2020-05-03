@@ -6,7 +6,7 @@ export class Patchnotes extends Component {
         return (
             <div>
                 <Segment>
-                    <Header color='blue' as="h2">01/05/2020 - v1.1.02</Header>
+                    <Header color='blue' as="h2">03/05/2020 - v1.1.02</Header>
                     <List divided relaxed>
                     <List.Item>
                             <List.Icon name='bug' size='large' verticalAlign='middle' />
@@ -26,7 +26,7 @@ export class Patchnotes extends Component {
                             <List.Icon name='plus' size='large' verticalAlign='middle' />
                             <List.Content>
                                 <List.Header>Prêt entre societé</List.Header>
-                                <List.Description>Ajout des fonctions de partage/rappel des véhicules entre societés (fonction propriétaire) + option de filtrage</List.Description>
+                                <List.Description>Ajout des fonctions de partage/rappel des véhicules entre societés (fonction propriétaire) + options de filtrage</List.Description>
                             </List.Content>
                         </List.Item>
                     </List>
