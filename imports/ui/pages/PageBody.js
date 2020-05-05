@@ -36,6 +36,7 @@ import Accounts from './Accounts';
 import Content from './Content';
 import Equipements from './Equipements';
 import Patchnotes from './Patchnotes';
+import ExportXL from './ExportXL';
 
 import WorkInProgress from './WorkInProgress';
 
@@ -90,6 +91,7 @@ class PageBody extends Component {
             <Route exact path='/administration/content' component={Content}/>
             <Route exact path='/administration/equipements' component={Equipements}/>
             <Route exact path='/administration/pieces' component={Pieces}/>
+            <Route exact path='/administration/exports' component={ExportXL}/>
 
             <Route exact path='/patchnotes' component={Patchnotes}/>
             <Redirect from='*' to={'/'}/>
@@ -124,6 +126,7 @@ class PageBody extends Component {
             <Route exact path='/administration/content' component={Content}/>
             <Route exact path='/administration/equipements' component={Equipements}/>
             <Route exact path='/administration/pieces' component={Pieces}/>
+            <Route exact path='/administration/exports' component={ExportXL}/>
             
             <Route exact path='/patchnotes' component={Patchnotes}/>
             <Redirect from='*' to={'/'}/>

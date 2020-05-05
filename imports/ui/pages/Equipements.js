@@ -145,6 +145,7 @@ class Equipements extends Component {
             <Menu.Item color="blue" name='controls' onClick={()=>{this.props.history.push("/administration/content")}}><Icon name='copy outline'/>Contenu</Menu.Item>
             <Menu.Item color="blue" name='equipement' active onClick={()=>{this.props.history.push("/administration/equipements")}}><Icon name='wrench'/>Contrôles</Menu.Item>
             <Menu.Item color="blue" name='pieces' onClick={()=>{this.props.history.push("/administration/pieces")}}><Icon name='cogs'/>Pièces</Menu.Item>
+            <Menu.Item color="blue" name='exports' onClick={()=>{this.props.history.push("/administration/exports")}}><Icon name='file excel outline'/>Exports</Menu.Item>
         </Menu>
       )
     }else{
@@ -154,6 +155,7 @@ class Equipements extends Component {
             <Menu.Item color="blue" name='controls' onClick={()=>{this.props.history.push("/administration/content")}}><Icon name='copy outline'/>Contenu</Menu.Item>
             <Menu.Item color="blue" name='equipement' active onClick={()=>{this.props.history.push("/administration/equipements")}}><Icon name='wrench'/>Contrôles</Menu.Item>
             <Menu.Item color="blue" name='pieces' onClick={()=>{this.props.history.push("/administration/pieces")}}><Icon name='cogs'/>Pièces</Menu.Item>
+            <Menu.Item color="blue" name='exports' onClick={()=>{this.props.history.push("/administration/exports")}}><Icon name='file excel outline'/>Exports</Menu.Item>
         </Menu>
       )
     }
@@ -171,7 +173,7 @@ class Equipements extends Component {
                     {this.getMenu()}
                 </div>
                 <Button color="blue" style={{justifySelf:"stretch",gridColumnStart:"3"}} onClick={this.showAddEquipementDescription} icon labelPosition='right'>Ajouter un contrôle<Icon name='plus'/></Button>
-                <div style={{gridRowStart:"2",gridColumnEnd:"span 4",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
+                <div style={{gridRowStart:"2",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                     <Table style={{marginBottom:"0"}} celled selectable color="blue" compact>
                         <Table.Header>
                             <Table.Row textAlign='center'>
