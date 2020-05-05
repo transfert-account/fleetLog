@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Modal, Menu, Button, Icon, Message } from 'semantic-ui-react';
+import { saveAs } from 'file-saver';
 import { UserContext } from '../../contexts/UserContext';
 import { withRouter } from 'react-router-dom';
 import gql from 'graphql-tag';
