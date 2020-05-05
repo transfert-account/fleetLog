@@ -231,7 +231,7 @@ export class ExportXL extends Component {
                         </Message>
                     </div>*/}
                     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gridGap:"12px 16px"}}>
-                        <Button onClick={this.export}>Exporter les données de tous les vehicules ({this.state.vehiclesRaw.length})</Button>
+                        <Button disabled={this.state.vehiclesRaw.length == 0} onClick={this.export}>Exporter les données du parc ({this.state.vehiclesRaw.length} vehicules)</Button>
                     </div>
                 </div>
             </Fragment>
