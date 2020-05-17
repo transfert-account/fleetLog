@@ -1015,7 +1015,7 @@ class Location extends Component {
                             <div style={{display:"grid",gridColumnEnd:"span 2",gridTemplateColumns:"1fr 1fr 1fr 1fr",gridGap:"16px"}}>
                                 <Button color="green" style={{placeSelf:"stretch",gridColumnEnd:"span 2"}} onClick={this.showUpdateLocKm} icon labelPosition='right'>MaJ kilométrage<Icon name='dashboard'/></Button>
                                 {this.getEndOfLocationButton()}
-                                <Button color="purple" style={{placeSelf:"stretch"}} onClick={this.showDocs} icon labelPosition='right'>Gérer les documents<Icon name='folder'/></Button>
+                                <Button color="purple" style={{placeSelf:"stretch"}} onClick={this.showDocs} icon labelPosition='right'>Gérer les documents<Icon name='folder open'/></Button>
                                 <Button color="blue" style={{placeSelf:"stretch",gridColumnEnd:"span 2"}} onClick={this.editInfos} icon labelPosition='right'>Editer la location<Icon name='edit'/></Button>
                                 {this.getDeleteOptions()}
                             </div>

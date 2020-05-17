@@ -3,6 +3,9 @@ import Vehicles from '../vehicle/vehicles.js';
 import Societes from '../societe/societes';
 import Models from '../model/models';
 import Brands from '../brand/brands';
+import Documents from '../document/documents';
+import Functions from '../common/functions';
+import moment from 'moment';
 import { Mongo } from 'meteor/mongo';
 
 const affectData = a => {
@@ -10,16 +13,6 @@ const affectData = a => {
         a.societe = Societes.findOne({_id:new Mongo.ObjectID(a.societe)});
     }else{
         a.societe = {_id:""};
-    }
-    if(a.rapportExp != null && a.rapportExp.length > 0){
-        a.rapportExp = Documents.findOne({_id:new Mongo.ObjectID(a.rapportExp)});
-    }else{
-        a.rapportExp = {_id:""};
-    }
-    if(a.constat != null && a.constat.length > 0){
-        a.constat = Documents.findOne({_id:new Mongo.ObjectID(a.constat)});
-    }else{
-        a.constat = {_id:""};
     }
     if(a.vehicle != null && a.vehicle.length > 0){
         a.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(a.vehicle)});
@@ -35,6 +28,21 @@ const affectData = a => {
         }
     }else{
         a.vehicle = {_id:""};
+    }
+    if(a.constat != null && a.constat.length > 0){
+        a.constat = Documents.findOne({_id:new Mongo.ObjectID(a.constat)});
+    }else{
+        a.constat = {_id:""};
+    }
+    if(a.rapportExp != null && a.rapportExp.length > 0){
+        a.rapportExp = Documents.findOne({_id:new Mongo.ObjectID(a.rapportExp)});
+    }else{
+        a.rapportExp = {_id:""};
+    }
+    if(a.facture != null && a.facture.length > 0){
+        a.facture = Documents.findOne({_id:new Mongo.ObjectID(a.facture)});
+    }else{
+        a.facture = {_id:""};
     }
 }
 
@@ -65,6 +73,7 @@ export default {
                     dateTravaux:"",
                     rapportExp:"",
                     constat:"",
+                    facture:"",
                     constatSent:false,
                     cost:0
                 });
@@ -115,5 +124,74 @@ export default {
             }
             throw new Error('Unauthorized');
         },
+        async uploadAccidentDocument(obj, {_id,type,file,size},{user}){
+            if(user._id){
+                if(type != "constat" && type != "rapportExp" && type != "facture"){
+                    return [{status:false,message:'Type de fichier innatendu (constat/rapportExp/facture)'}];
+                }
+                let accident = Accidents.findOne({_id:new Mongo.ObjectID(_id)});
+                let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(accident.vehicle)});
+                let societe = Societes.findOne({_id:new Mongo.ObjectID(vehicle.societe)});
+                let docId = new Mongo.ObjectID();
+                let oldFile = null;
+                let deleteOld = false;
+                if(type == "constat"){
+                    if(accident.constat != null && accident.constat != undefined && accident.constat != ""){
+                        deleteOld = true;
+                        oldFile = Documents.findOne({_id:new Mongo.ObjectID(accident.constat)})
+                    }
+                }
+                if(type == "rapportExp"){
+                    if(accident.rapportExp != null && accident.rapportExp != undefined && accident.rapportExp != ""){
+                        deleteOld = true;
+                        oldFile = Documents.findOne({_id:new Mongo.ObjectID(accident.rapportExp)})
+                    }
+                }
+                if(type == "facture"){
+                    if(accident.facture != null && accident.facture != undefined && accident.facture != ""){
+                        deleteOld = true;
+                        oldFile = Documents.findOne({_id:new Mongo.ObjectID(accident.facture)})
+                    }
+                }
+                return await new Promise(async (resolve,reject)=>{
+                    await new Promise(async (resolve,reject)=>{
+                        let uploadInfo = await Functions.shipToBucket(await file,societe,type,docId,deleteOld,oldFile)
+                        if(uploadInfo.uploadSucces){
+                            resolve(uploadInfo)
+                        }else{
+                            reject(uploadInfo)
+                        }
+                    }).then((uploadInfo)=>{
+                        Documents.insert({
+                            _id:docId,
+                            name:uploadInfo.fileInfo.docName,
+                            size:size,
+                            path:uploadInfo.data.Location,
+                            originalFilename:uploadInfo.fileInfo.originalFilename,
+                            ext:uploadInfo.fileInfo.ext,
+                            mimetype:uploadInfo.fileInfo.mimetype,
+                            type:type,
+                            storageDate:moment().format('DD/MM/YYYY HH:mm:ss')
+                        });
+                        Accidents.update(
+                            {
+                                _id: new Mongo.ObjectID(_id)
+                            }, {
+                                $set: {
+                                    [type]:docId._str
+                                }
+                            }   
+                        )
+                        resolve(uploadInfo)
+                    }).catch(e=>{
+                        reject(e)
+                    })
+                }).then((uploadInfo)=>{
+                    return [{status:true,message:'Document sauvegardé'}];
+                }).catch(e=>{
+                    return [{status:false,message:'Erreur durant le traitement : ' + e}];
+                });
+            }
+        }
     }
 }

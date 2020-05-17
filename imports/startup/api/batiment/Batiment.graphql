@@ -8,6 +8,7 @@ type BatimentControl{
     name:String
     lastExecution:String
     delay:Int
+    ficheInter:Document
 }
 
 extend type Query{
@@ -22,4 +23,5 @@ extend type Mutation{
     editBatimentControl(_id:String!,name:String!,delay:Int!): [QueryResultMessage]
     updateBatimentControl(_id:String!lastExecution:String!): [QueryResultMessage]
     deleteBatimentControl(_id:String!): [QueryResultMessage]
+    uploadBatimentControlDocument(_id:String!,file:Upload!,type:String,size:Int!):[QueryResultMessage]
 }

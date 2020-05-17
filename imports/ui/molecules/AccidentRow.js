@@ -3,6 +3,8 @@ import { Table, Label, Icon, Message, Button, Modal, TextArea, Form, Checkbox, I
 import { UserContext } from '../../contexts/UserContext';
 import ModalDatePicker from '../atoms/ModalDatePicker';
 import FileManagementPanel from '../atoms/FileManagementPanel';
+import DocStateLabel from '../atoms/DocStateLabel';
+import moment from 'moment';
 import gql from 'graphql-tag';
 import _ from 'lodash';
 
@@ -19,8 +21,9 @@ class AccidentRow extends Component {
         newConstatSent:this.props.accident.constatSent,
         newDateExpert:this.props.accident.dateExpert,
         newDateTravaux:this.props.accident.dateTravaux,
-        newRapportExp:this.props.accident.newRapportExp,
-        newConstat:this.props.accident.newConstat,
+        newConstat:null,
+        newRapportExp:null,
+        newFacture:null,
         newCost:this.props.accident.cost,
         deleteAccidentQuery : gql`
             mutation deleteAccident($_id:String!){
@@ -46,6 +49,14 @@ class AccidentRow extends Component {
                 }
             }
         `,
+        uploadAccidentDocumentQuery : gql`
+        mutation uploadAccidentDocument($_id: String!,$file: Upload!,$type: String!,$size: Int!) {
+            uploadAccidentDocument(_id:$_id,file:$file,type:$type,size:$size) {
+                status
+                message
+            }
+        }
+    `,
     }
 
     handleChange = e =>{
@@ -65,6 +76,14 @@ class AccidentRow extends Component {
         this.setState({
             newConstatSent:checked
         });
+    }
+
+    handleInputFile = (type,e) => {
+        if(e.target.validity.valid ){
+            this.setState({
+                [type]:e.target.files[0]
+            })
+        }
     }
 
     showDelete = () => {
@@ -170,6 +189,72 @@ class AccidentRow extends Component {
         })
     },1000);
 
+    uploadDocConstat = () => {
+        this.props.client.mutate({
+            mutation:this.state.uploadAccidentDocumentQuery,
+            variables:{
+                _id:this.props.accident._id,
+                file:this.state.newConstat,
+                type:"constat",
+                size:this.state.newConstat.size
+            }
+        }).then(({data})=>{
+            data.uploadAccidentDocument.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.loadAccidents();
+                    this.closeDocs();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    
+    uploadDocRapportExp = () => {
+        this.props.client.mutate({
+            mutation:this.state.uploadAccidentDocumentQuery,
+            variables:{
+                _id:this.props.accident._id,
+                file:this.state.newRapportExp,
+                type:"rapportExp",
+                size:this.state.newRapportExp.size
+            }
+        }).then(({data})=>{
+            data.uploadAccidentDocument.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.loadAccidents();
+                    this.closeDocs();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+
+    uploadDocFacture = () => {
+        this.props.client.mutate({
+            mutation:this.state.uploadAccidentDocumentQuery,
+            variables:{
+                _id:this.props.accident._id,
+                file:this.state.newFacture,
+                type:"facture",
+                size:this.state.newFacture.size
+            }
+        }).then(({data})=>{
+            data.uploadAccidentDocument.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.loadAccidents();
+                    this.closeDocs();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+
     getConstatSentLabel = () => {
         if(this.props.accident.constatSent){
             return <Label color="green">Constat envoyé</Label>
@@ -216,10 +301,25 @@ class AccidentRow extends Component {
                     <div className="labelBoard">Date des travaux :</div><div className="valueBoard">{this.props.accident.dateTravaux}</div>
                     <div className="labelBoard">Constat envoyé à l'assurance :</div><div className="valueBoard">{this.getConstatSentLabel()}</div>
                     <div className="labelBoard">Coût total de l'accident:</div><div className="valueBoard">{this.props.accident.cost} €</div>
+                    <div style={{gridColumnEnd:"span 2",display:"flex",justifyContent:"center"}}>
+                        <DocStateLabel opened color={this.props.accident.constat._id == "" ? "red" : "green"} title="Constat"/>
+                        <DocStateLabel opened color={this.props.accident.rapportExp._id == "" ? "red" : "green"} title="Rapport de l'expert"/>
+                        <DocStateLabel opened color={this.props.accident.facture._id == "" ? "red" : "green"} title="Facture"/>
+                    </div>
                     <Button color="blue" style={{gridColumnEnd:"span 2",justifySelf:"stretch",gridRowStart:"8"}} onClick={this.showEdit} icon labelPosition='right'>Editer<Icon name='edit'/></Button>
                 </div>
             )
         }
+    }
+
+    getDocsStates = () => {
+        return (
+            <Table.Cell textAlign="center">
+                <DocStateLabel color={this.props.accident.constat._id == "" ? "red" : "green"} title="Constat"/>
+                <DocStateLabel color={this.props.accident.rapportExp._id == "" ? "red" : "green"} title="Rapport de l'expert"/>
+                <DocStateLabel color={this.props.accident.facture._id == "" ? "red" : "green"} title="Facture"/>
+            </Table.Cell>
+        )
     }
 
     getActionsCell = () => {
@@ -262,7 +362,7 @@ class AccidentRow extends Component {
                         {this.getConstatSentLabel()}
                     </Table.Cell>
                     <Table.Cell style={{textAlign:"center"}}>{this.props.accident.cost} €</Table.Cell>
-                    <Table.Cell style={{textAlign:"center"}}>Docs here soon</Table.Cell>
+                    {this.getDocsStates()}
                     {this.getActionsCell()}
                 </Table.Row>
                 <Modal size="tiny" closeOnDimmerClick={false} open={this.state.openDelete} onClose={this.closeDelete} closeIcon>
@@ -300,7 +400,7 @@ class AccidentRow extends Component {
                                 <Icon color="black" style={{margin:"0"}} name='search' />
                             </Button.Content>
                             <Button.Content visible>
-                                <Icon color="black" style={{margin:"0"}} name='folder' />
+                                <Icon color="black" style={{margin:"0"}} name='folder open' />
                             </Button.Content>
                         </Button>
                         {this.getInfosPanel()}
@@ -323,6 +423,7 @@ class AccidentRow extends Component {
                         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"24px"}}>
                             <FileManagementPanel importLocked={this.state.newConstat == null} handleInputFile={this.handleInputFile} fileTarget="newConstat" uploadDoc={this.uploadDocConstat} downloadDoc={this.downloadDocConstat} fileInfos={this.props.accident.constat} title="Constat" type="constat"/>
                             <FileManagementPanel importLocked={this.state.newRapportExp == null} handleInputFile={this.handleInputFile} fileTarget="newRapportExp" uploadDoc={this.uploadDocRapportExp} downloadDoc={this.downloadDocRapportExp} fileInfos={this.props.accident.rapportExp} title="Rapport de l'expert" type="rapportExp"/>
+                            <FileManagementPanel importLocked={this.state.newFacture == null} handleInputFile={this.handleInputFile} fileTarget="newFacture" uploadDoc={this.uploadDocFacture} downloadDoc={this.downloadDocFacture} fileInfos={this.props.accident.facture} title="Rapport de l'expert" type="facture"/>
                         </div>
                     </Modal.Content>
                     <Modal.Actions>
@@ -342,5 +443,3 @@ const withUserContext = WrappedComponent => props => (
   )
   
 export default wrappedInUserContext = withUserContext(AccidentRow);
-
-//<Input value={this.state.newOccurenceDate} onFocus={()=>{this.showDatePicker("newOccurenceDate")}} placeholder="Date de l'accident"/>

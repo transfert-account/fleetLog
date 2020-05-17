@@ -15,6 +15,7 @@ class Batiments extends Component {
         openDatePicker:false,
         timeLeftFilter:"all",
         batimentFilter:"",
+        docsFilter:"all",
         openAddBatimentControl:false,
         batimentControlsRaw:[],
         batimentControls : () => {
@@ -25,7 +26,7 @@ class Batiments extends Component {
                 );
             }
             return displayed.map(b =>(
-                <BatimentControlRowGroup batimentFilter={this.state.batimentFilter} timeLeftFilter={this.state.timeLeftFilter} loadBatiments={this.loadBatiments} key={b.societe._id} batiment={b}/>
+                <BatimentControlRowGroup batimentFilter={this.state.batimentFilter} docsFilter={this.state.docsFilter} timeLeftFilter={this.state.timeLeftFilter} loadBatiments={this.loadBatiments} key={b.societe._id} batiment={b}/>
             ))
         },
         addBatimentControlQuery : gql`
@@ -37,8 +38,8 @@ class Batiments extends Component {
             }
         `,
         addBatimentControlGlobalQuery : gql`
-        mutation addBatimentControlGlobal($name:String!,$delay:Int!,$lastExecution:String!){
-            addBatimentControlGlobal(name:$name,delay:$delay,lastExecution:$lastExecution){
+            mutation addBatimentControlGlobal($name:String!,$delay:Int!,$lastExecution:String!){
+                addBatimentControlGlobal(name:$name,delay:$delay,lastExecution:$lastExecution){
                     status
                     message
                 }
@@ -58,6 +59,17 @@ class Batiments extends Component {
                         delay
                         lastExecution
                         delay
+                        ficheInter{
+                            _id
+                            name
+                            size
+                            path
+                            originalFilename
+                            ext
+                            type
+                            mimetype
+                            storageDate
+                        }
                     }
                 }
             }
@@ -96,6 +108,19 @@ class Batiments extends Component {
 
     closeDatePicker = () => {
         this.setState({openDatePicker:false,datePickerTarget:""})
+    }
+
+    //MISSING DOCS FILTER
+    getDocsFilterColor = (color,filter) => {
+        if(this.state.docsFilter == filter){
+            return color
+        }
+    }
+
+    setDocsFilter = value => {
+        this.setState({
+            docsFilter:value
+        })
     }
 
     onSelectDatePicker = date => {
@@ -180,7 +205,7 @@ class Batiments extends Component {
             <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"32px",gridTemplateRows:"auto auto 1fr auto",gridTemplateColumns:"auto 1fr auto"}}>
                 <Input style={{justifySelf:"stretch",gridColumnEnd:"span 2"}} name="storeFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher un nom de contrôle' />
                 <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddBatimentControl} icon labelPosition='right'>Ajouter un contrôle au batiment<Icon name='plus'/></Button>
-                <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"1fr",gridGap:"16px"}}>
+                <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"auto auto",gridGap:"16px"}}>
                         <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
                             <Icon name='calendar'/>
                             <Button.Group style={{placeSelf:"center"}}>
@@ -188,6 +213,13 @@ class Batiments extends Component {
                                 <Button color={this.getTimeLeftFilterColor("orange","late")} onClick={()=>{this.setTimeLeftFilter("late")}}>Moins de 8 semaines</Button>
                                 <Button color={this.getTimeLeftFilterColor("red","very")} onClick={()=>{this.setTimeLeftFilter("very")}}>Moins de 4 semaines</Button>
                                 <Button color={this.getTimeLeftFilterColor("black","passed")} onClick={()=>{this.setTimeLeftFilter("passed")}}>Délai dépassé</Button>
+                            </Button.Group>
+                        </Message>
+                        <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
+                            <Icon name='folder open'/>
+                            <Button.Group style={{placeSelf:"center"}}>
+                                <Button color={this.getDocsFilterColor("green","all")} onClick={()=>{this.setDocsFilter("all")}}>Tous</Button>
+                                <Button color={this.getDocsFilterColor("red","missingDocs")} onClick={()=>{this.setDocsFilter("missingDocs")}}>Documents manquants</Button>
                             </Button.Group>
                         </Message>
                     </div>
@@ -200,6 +232,7 @@ class Batiments extends Component {
                                 <Table.HeaderCell>Délai</Table.HeaderCell>
                                 <Table.HeaderCell>Dernière exécution</Table.HeaderCell>
                                 <Table.HeaderCell>Avant prochaine exécution</Table.HeaderCell>
+                                <Table.HeaderCell>Documents</Table.HeaderCell>
                                 <Table.HeaderCell>Actions</Table.HeaderCell>
                             </Table.Row>
                         </Table.Header>

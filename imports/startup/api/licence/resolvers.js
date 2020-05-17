@@ -3,6 +3,9 @@ import Vehicles from '../vehicle/vehicles';
 import Societes from '../societe/societes';
 import Locations from '../location/locations';
 import Volumes from '../volume/volumes';
+import Documents from '../document/documents';
+import Functions from '../common/functions';
+import moment from 'moment';
 import { Mongo } from 'meteor/mongo';
 
 export default {
@@ -30,6 +33,11 @@ export default {
                         l.vehicle.volume = {_id:""};
                     }
                 }
+                if(l.licence != null && l.licence.length > 0){
+                    l.licence = Documents.findOne({_id:new Mongo.ObjectID(l.licence)});
+                }else{
+                    l.licence = {_id:""};
+                }
             });
             return licences;
         },
@@ -54,6 +62,11 @@ export default {
                         l.vehicle.volume = {_id:""};
                     }
                 }
+                if(l.licence != null && l.licence.length > 0){
+                    l.licence = Documents.findOne({_id:new Mongo.ObjectID(l.licence)});
+                }else{
+                    l.licence = {_id:""};
+                }
             });
             return licences;
         }
@@ -70,6 +83,7 @@ export default {
                 Licences.insert({
                     _id:new Mongo.ObjectID(),
                     societe:societe,
+                    licence:"",
                     number:number,
                     vehicle:vehicle,
                     endDate:endDate,
@@ -143,6 +157,62 @@ export default {
                 return [{status:true,message:'Véhicule associé à la licence'}];
             }
             throw new Error('Unauthorized');
+        },
+        async uploadLicenceDocument(obj, {_id,type,file,size},{user}){
+            if(user._id){
+                if(type != "licence"){
+                    return [{status:false,message:'Type de fichier innatendu (licence)'}];
+                }
+                let licence = Licences.findOne({_id:new Mongo.ObjectID(_id)});
+                let societe = Societes.findOne({_id:new Mongo.ObjectID(licence.societe)});
+                let docId = new Mongo.ObjectID();
+                let oldFile = null;
+                let deleteOld = false;
+                if(type == "licence"){
+                    if(licence.licence != null && licence.licence != undefined && licence.licence != ""){
+                        deleteOld = true;
+                        oldFile = Documents.findOne({_id:new Mongo.ObjectID(licence.licence)})
+                    }
+                }
+                return await new Promise(async (resolve,reject)=>{
+                    await new Promise(async (resolve,reject)=>{
+                        let uploadInfo = await Functions.shipToBucket(await file,societe,type,docId,deleteOld,oldFile)
+                        if(uploadInfo.uploadSucces){
+                            resolve(uploadInfo)
+                        }else{
+                            reject(uploadInfo)
+                        }
+                    }).then((uploadInfo)=>{
+                        Documents.insert({
+                            _id:docId,
+                            name:uploadInfo.fileInfo.docName,
+                            size:size,
+                            path:uploadInfo.data.Location,
+                            originalFilename:uploadInfo.fileInfo.originalFilename,
+                            ext:uploadInfo.fileInfo.ext,
+                            mimetype:uploadInfo.fileInfo.mimetype,
+                            type:type,
+                            storageDate:moment().format('DD/MM/YYYY HH:mm:ss')
+                        });
+                        Licences.update(
+                            {
+                                _id: new Mongo.ObjectID(_id)
+                            }, {
+                                $set: {
+                                    [type]:docId._str
+                                }
+                            }   
+                        )
+                        resolve(uploadInfo)
+                    }).catch(e=>{
+                        reject(e)
+                    })
+                }).then((uploadInfo)=>{
+                    return [{status:true,message:'Document sauvegardé'}];
+                }).catch(e=>{
+                    return [{status:false,message:'Erreur durant le traitement : ' + e}];
+                });
+            }
         }
     }
 }

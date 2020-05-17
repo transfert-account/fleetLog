@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Icon, Input, Button, Table, Modal, Form } from 'semantic-ui-react';
+import { Icon, Input, Button, Table, Modal, Form, Message } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 import AccidentRow from '../molecules/AccidentRow';
 import VehiclePicker from '../atoms/VehiclePicker';
@@ -14,6 +14,7 @@ class Accidents extends Component {
     openDatePicker:false,
     datePickerTarget:"",
     newOccurenceDate:"",
+    docsFilter: "all",
     openAddAccident:false,
     accidentsRaw:[],
     accidents : () => {
@@ -28,6 +29,15 @@ class Accidents extends Component {
               a.vehicle.registration.toLowerCase().includes(this.state.accidentFilter.toLowerCase())
           );
       }
+      displayed = displayed.filter(a =>{
+        if(this.state.docsFilter == "all"){return true}else{
+            if(a.rapportExp._id == "" || a.constat._id == "" || a.facture._id == ""){
+                return true
+            }else{
+                return false
+            }
+        }}
+    )
       if(displayed.length == 0){
         return(
           <Table.Row key={"none"}>
@@ -98,6 +108,17 @@ class Accidents extends Component {
             mimetype
             storageDate
           }
+          facture{
+            _id
+            name
+            size
+            path
+            originalFilename
+            ext
+            type
+            mimetype
+            storageDate
+          }
         }
       }
     `
@@ -145,6 +166,19 @@ class Accidents extends Component {
     })
   }
 
+  //MISSING DOCS FILTER
+  getDocsFilterColor = (color,filter) => {
+    if(this.state.docsFilter == filter){
+        return color
+    }
+  }
+
+  setDocsFilter = value => {
+    this.setState({
+      docsFilter:value
+    })
+  }
+
   loadAccidents = () => {
     this.props.client.query({
         query:this.state.accidentsQuery,
@@ -182,10 +216,19 @@ class Accidents extends Component {
 
   render() {
     return (
-      <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"32px",gridTemplateRows:"auto 1fr",gridTemplateColumns:"auto 1fr auto"}}>
+      <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"32px",gridTemplateRows:"auto auto 1fr",gridTemplateColumns:"auto 1fr auto"}}>
         <Input style={{justifySelf:"stretch",gridColumnEnd:"span 2"}} name="accidentFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher un véhicule' />
         <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddAccident} icon labelPosition='right'>Nouvel accident<Icon name='plus'/></Button>
-        <div style={{gridRowStart:"2",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
+        <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"1fr",gridGap:"16px"}}>
+          <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
+            <Icon name='folder open'/>
+            <Button.Group style={{placeSelf:"center"}}>
+              <Button color={this.getDocsFilterColor("green","all")} onClick={()=>{this.setDocsFilter("all")}}>Tous</Button>
+              <Button color={this.getDocsFilterColor("red","missingDocs")} onClick={()=>{this.setDocsFilter("missingDocs")}}>Documents manquants</Button>
+            </Button.Group>
+          </Message>
+        </div>
+        <div style={{gridRowStart:"3",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
             <Table style={{marginBottom:"0"}} celled selectable color="blue" compact>
                 <Table.Header>
                     <Table.Row textAlign='center'>

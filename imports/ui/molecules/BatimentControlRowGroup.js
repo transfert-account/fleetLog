@@ -50,6 +50,15 @@ class BatimentControlRowGroup extends Component {
                         }
                     });
                 }
+                displayed = displayed.filter(b =>{
+                    if(this.props.docsFilter == "all"){return true}else{
+                        if(b.ficheInter._id == "" || b.ficheInter._id == ""){
+                            return true
+                        }else{
+                            return false
+                        }
+                    }}
+                )
                 return(
                     <Fragment>
                         {displayed.map(c=>

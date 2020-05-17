@@ -6,6 +6,56 @@ export class Patchnotes extends Component {
         return (
             <div>
                 <Segment>
+                    <Header color='blue' as="h2">17/05/2020 - v1.1.06</Header>
+                    <List divided relaxed>
+                    <List.Item>
+                            <List.Icon name='plus' size='large' verticalAlign='middle' />
+                            <List.Content>
+                                <List.Header>Stockage document : Contrôles de batiment</List.Header>
+                                <List.Description>Ajout de la fonction de stockage de documents pour les contrôles des batiments (fiche d'intervention)</List.Description>
+                            </List.Content>
+                        </List.Item>
+                        <List.Item>
+                            <List.Icon name='plus' size='large' verticalAlign='middle' />
+                            <List.Content>
+                                <List.Header>Stockage document : Entretiens</List.Header>
+                                <List.Description>Ajout de la fonction de stockage de documents pour les entretiens (fiche d'intervention)</List.Description>
+                            </List.Content>
+                        </List.Item>
+                    </List>
+                </Segment>
+                <Segment>
+                    <Header color='blue' as="h2">16/05/2020 - v1.1.05</Header>
+                    <List divided relaxed>
+                        <List.Item>
+                            <List.Icon name='plus' size='large' verticalAlign='middle' />
+                            <List.Content>
+                                <List.Header>Stockage document : Accidents</List.Header>
+                                <List.Description>Ajout de la fonction de stockage de documents pour les accidents (constats, rapports d'expert et factures)</List.Description>
+                            </List.Content>
+                        </List.Item>
+                        <List.Item>
+                            <List.Icon name='paint brush' size='large' verticalAlign='middle' />
+                            <List.Content>
+                                <List.Header>Changement d'interface : Gestion des fichiers</List.Header>
+                                <List.Description>Ajustements mineurs concernant l'UI du module de gestion de fichiers</List.Description>
+                            </List.Content>
+                        </List.Item>
+                    </List>
+                </Segment>
+                <Segment>
+                    <Header color='blue' as="h2">13/05/2020 - v1.1.04</Header>
+                    <List divided relaxed>
+                        <List.Item>
+                            <List.Icon name='plus' size='large' verticalAlign='middle' />
+                            <List.Content>
+                                <List.Header>Stockage document : Licences</List.Header>
+                                <List.Description>Ajout de la fonction de stockage de documents pour les licences</List.Description>
+                            </List.Content>
+                        </List.Item>
+                    </List>
+                </Segment>
+                <Segment>
                     <Header color='blue' as="h2">05/05/2020 - v1.1.03</Header>
                     <List divided relaxed>
                         <List.Item>

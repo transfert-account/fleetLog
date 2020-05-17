@@ -61,7 +61,7 @@ class FileManagementPanel extends Component {
                     <Segment raised style={{margin:"4px"}}>
                         <div style={{display:"grid",gridTemplateRows:"auto 1fr auto auto",gridTemplateColumns:"1fr 1fr 1fr 1fr",gridGap:"6px"}}>
                             <p style={{gridColumnEnd:"span 4"}}><Icon name='folder open'/>{this.props.title}</p>
-                            <Message style={{gridColumnEnd:"span 4",display:"grid",gridTemplateColumns:"auto 1fr",gridTemplateRows:"auto auto auto 1fr"}} color="grey">
+                            <Message color="green" style={{gridColumnEnd:"span 4",display:"grid",gridTemplateColumns:"auto 1fr",gridTemplateRows:"auto auto auto 1fr"}}>
                                 <p className="gridLabel">Nom du fichier :</p>
                                 <p className="gridValue">{this.props.fileInfos.originalFilename}</p>
                                 <p className="gridLabel">Taille du fichier:</p>
@@ -106,7 +106,7 @@ class FileManagementPanel extends Component {
                 <Segment raised style={{margin:"4px"}}>
                     <div style={{display:"grid",gridTemplateRows:"auto 1fr auto auto",gridTemplateColumns:"1fr 1fr",gridGap:"6px"}}>
                         <p style={{gridColumnEnd:"span 2"}}><Icon name='folder open'/>{this.props.title}</p>
-                        <Message style={{gridColumnEnd:"span 2",display:"grid",gridTemplateColumns:"1fr",gridTemplateRows:"1fr"}} color="grey">
+                        <Message color="red" style={{gridColumnEnd:"span 2",display:"grid",gridTemplateColumns:"1fr",gridTemplateRows:"1fr"}}>
                             <p>Aucun fichier</p>
                         </Message>
                         <Input onChange={e=>{this.props.handleInputFile(this.props.fileTarget,e)}} style={{gridColumnEnd:"span 2"}} type='file' />

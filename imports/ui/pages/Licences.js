@@ -14,6 +14,7 @@ export class Licences extends Component {
     loading:true,
     licenceFilter:"",
     endDateFilter:"all",
+    docsFilter:"all",
     freeLicenceFilter:"all",
     openAddLicence:false,
     newSociete:"",
@@ -51,6 +52,15 @@ export class Licences extends Component {
                 }
             });
         }
+        displayed = displayed.filter(l =>{
+            if(this.state.docsFilter == "all"){return true}else{
+                if(l.licence._id == "" || l.licence._id == ""){
+                    return true
+                }else{
+                    return false
+                }
+            }}
+        )
         if(this.state.licenceFilter.length>0){
             displayed = displayed.filter(l =>
                 l.shiftName.toLowerCase().includes(this.state.licenceFilter.toLowerCase()) ||
@@ -96,6 +106,17 @@ export class Licences extends Component {
             number
             shiftName
             endDate
+            licence{
+                _id
+                name
+                size
+                path
+                originalFilename
+                ext
+                type
+                mimetype
+                storageDate
+            }
             vehicle{
               _id
               registration
@@ -222,6 +243,19 @@ export class Licences extends Component {
         })
     }
 
+    //MISSING DOCS FILTER
+    getDocsFilterColor = (color,filter) => {
+        if(this.state.docsFilter == filter){
+            return color
+        }
+    }
+
+    setDocsFilter = value => {
+        this.setState({
+            docsFilter:value
+        })
+    }
+
     loadSocietes = () => {
         this.props.client.query({
             query:this.state.societesQuery,
@@ -257,7 +291,7 @@ export class Licences extends Component {
                     </Menu>
                     <Input style={{justifySelf:"stretch"}} name="storeFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher une tournée, un numéro de licence ou une immatriculation' />
                     <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddLicence} icon labelPosition='right'>Ajouter une licence<Icon name='plus'/></Button>
-                    <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"16px"}}>
+                    <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gridGap:"16px"}}>
                         <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
                             <Icon name='calendar check'/>
                             <Button.Group style={{placeSelf:"center"}}>
@@ -276,6 +310,13 @@ export class Licences extends Component {
                                 <Button color={this.getFreeLicenceColor("orange","free")} onClick={()=>{this.setFreeLicenceFilter("free")}}>Sans vehicule</Button>
                             </Button.Group>
                         </Message>
+                        <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
+                            <Icon name='folder open'/>
+                            <Button.Group style={{placeSelf:"center"}}>
+                                <Button color={this.getDocsFilterColor("green","all")} onClick={()=>{this.setDocsFilter("all")}}>Tous</Button>
+                                <Button color={this.getDocsFilterColor("red","missingDocs")} onClick={()=>{this.setDocsFilter("missingDocs")}}>Documents manquants</Button>
+                            </Button.Group>
+                        </Message>
                     </div>
                     <div style={{gridRowStart:"3",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                         <Table style={{marginBottom:"0"}} celled selectable color="blue" compact>
@@ -286,6 +327,7 @@ export class Licences extends Component {
                                     <Table.HeaderCell>Véhicule associé</Table.HeaderCell>
                                     <Table.HeaderCell>Nom de tournée</Table.HeaderCell>
                                     <Table.HeaderCell>Fin de validité</Table.HeaderCell>
+                                    <Table.HeaderCell>Docuemnts</Table.HeaderCell>
                                     <Table.HeaderCell>Actions</Table.HeaderCell>
                                 </Table.Row>
                             </Table.Header>

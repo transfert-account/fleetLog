@@ -1,5 +1,8 @@
 import Vehicles from '../vehicle/vehicles';
 import Licences from '../licence/licences';
+import Entretiens from '../entretien/entretiens';
+import Batiments from '../batiment/batiments';
+import Accidents from '../accident/accidents';
 import { Mongo } from 'meteor/mongo';
 import Vehicle from '../../../ui/pages/Vehicle';
 
@@ -30,18 +33,41 @@ export default {
                             }
                         }
                     })*/
-                    /*Vehicles.update(
+                    Batiments.update(
                         {},{
                             $set: {
-                                shared:false,
-                                sharedTo:"",
-                                sharingReason:"",
-                                sharedSince:""
+                                ficheInter:""
+                            }
+                        },
+                        {multi:true}
+                    );
+                    /*Entretiens.update(
+                        {},{
+                            $set: {
+                                ficheInter:""
+                            }
+                        },
+                        {multi:true}
+                    );
+                    Accidents.update(
+                        {},{
+                            $set: {
+                                constat:"",
+                                rapportExp:"",
+                                facture:""
+                            }
+                        },
+                        {multi:true}
+                    );
+                    Licences.update(
+                        {},{
+                            $set: {
+                                licence:""
                             }
                         },
                         {multi:true}
                     );*/
-                    return [{status:true,message:'Nuke is empty for now'}];
+                    return [{status:true,message:'Nuked : affceted empty doc to all : licences, entretiens, accidents'}];
                 }catch(e){
                     throw e;
                     return [{status:false,message:e.message}];

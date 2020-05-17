@@ -3,8 +3,10 @@ import { Loader, Table, Button, Icon, TextArea, Form, Message, Modal, Input, Dro
 import { UserContext } from '../../contexts/UserContext';
 import CommandeRow from '../molecules/CommandeRow';
 import PiecePicker from '../atoms/PiecePicker';
-import { withRouter } from 'react-router-dom';
+import FileManagementPanel from '../atoms/FileManagementPanel';
+import DocStateLabel from '../atoms/DocStateLabel';
 import ModalDatePicker from '../atoms/ModalDatePicker'
+import { withRouter } from 'react-router-dom';
 import { gql } from 'apollo-server-express';
 import _ from 'lodash';
 
@@ -27,6 +29,7 @@ class Entretien extends Component {
         openArchive:false,
         openDisArchive:false,
         newPieceType:"",
+        newFicheInter:null,
         commandesRaw:[],
         _id:this.props.match.params._id,
         loadingEntretien:true,
@@ -47,6 +50,17 @@ class Entretien extends Component {
                     }
                     time
                     status
+                    ficheInter{
+                        _id
+                        name
+                        size
+                        path
+                        originalFilename
+                        ext
+                        type
+                        mimetype
+                        storageDate
+                    }
                     vehicle{
                         _id
                         societe{
@@ -148,6 +162,14 @@ class Entretien extends Component {
                 }
             }
         `,
+        uploadEntretienDocumentQuery : gql`
+            mutation uploadEntretienDocument($_id: String!,$file: Upload!,$type: String!,$size: Int!) {
+                uploadEntretienDocument(_id:$_id,file:$file,type:$type,size:$size) {
+                    status
+                    message
+                }
+            }
+        `,
         commandes : () => {
             return (
                 this.state.commandesRaw.map(c=>{
@@ -232,6 +254,14 @@ class Entretien extends Component {
             newTitle:value
         });
         this.editTitle();
+    }
+
+    handleInputFile = (type,e) => {
+        if(e.target.validity.valid ){
+            this.setState({
+                [type]:e.target.files[0]
+            })
+        }
     }
 
     archiveEntretien = () => {
@@ -367,6 +397,13 @@ class Entretien extends Component {
         this.setState({openDisArchive:false})
     }
 
+    showDocs = () => {
+        this.setState({openDocs:true})
+    }
+    closeDocs = () => {
+        this.setState({openDocs:false})
+    }
+
     componentDidMount = () => {
         this.loadEntretien();
         this.loadCommandes();
@@ -423,6 +460,28 @@ class Entretien extends Component {
     closeAddCommande = () => {
         this.setState({
             openAddCommande:false
+        })
+    }
+
+    uploadDocFicheInter = () => {
+        this.props.client.mutate({
+            mutation:this.state.uploadEntretienDocumentQuery,
+            variables:{
+                _id:this.state.entretienRaw._id,
+                file:this.state.newFicheInter,
+                type:"ficheInter",
+                size:this.state.newFicheInter.size
+            }
+        }).then(({data})=>{
+            data.uploadEntretienDocument.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.loadEntretien();
+                    this.closeDocs();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     }
     
@@ -493,6 +552,10 @@ class Entretien extends Component {
                     <Form.Field>
                         Status de l'entretien : <span style={{fontWeight:'bold'}}>{this.getStatusLabel()}</span>
                     </Form.Field>
+                    <div style={{gridColumnEnd:"span 2",display:"flex"}}>
+                        <div style={{marginRight:"16px"}}>Documents :</div>
+                        <DocStateLabel color={this.state.entretienRaw.ficheInter._id == "" ? "red" : "green"} title="Fiche inter."/>
+                    </div>
                     <Button color="blue" icon labelPosition="left" style={{placeSelf:"stretch",gridColumnEnd:"span 2"}} onClick={()=>this.setState({editing:true})}>
                         Editer temps et status
                         <Icon name='edit' />
@@ -566,11 +629,12 @@ class Entretien extends Component {
                                 </Form.Field>
                             </Form>
                         </div>
-                        <div style={{display:"grid",gridGap:"16px",gridTemplateColumns:"1fr 1fr 1fr 1fr 1fr 1fr",gridTemplateRows:"auto 1fr"}}>
+                        <div style={{display:"grid",gridGap:"16px",gridTemplateColumns:"1fr 1fr 1fr 1fr 1fr 1fr 1fr",gridTemplateRows:"auto 1fr"}}>
                             {this.getDeleteButton()}
                             {this.getArchiveButton()}
                             <Button color="blue" style={{gridColumnEnd:(this.props.user.isOwner ? "span 2" : "span 3"),placeSelf:"stretch"}} onClick={this.showAddCommande} icon labelPosition='right'>Ajouter une piece à la commande<Icon name='plus'/></Button>
-                            <div style={{gridRowStart:"2",gridColumnEnd:"span 6"}}>
+                            <Button color="purple" style={{placeSelf:"stretch"}} onClick={this.showDocs} icon labelPosition='right'>Documents<Icon name='folder open'/></Button>
+                            <div style={{gridRowStart:"2",gridColumnEnd:"span 7"}}>
                                 <Table celled>
                                     <Table.Header>
                                         <Table.Row textAlign='center'>
@@ -647,6 +711,19 @@ class Entretien extends Component {
                         <Modal.Actions>
                             <Button color="black" onClick={this.closeDisArchive}>Annuler</Button>
                             <Button color="green" onClick={this.disArchiveEntretien}>Réactiver</Button>
+                        </Modal.Actions>
+                    </Modal>
+                    <Modal closeOnDimmerClick={false} open={this.state.openDocs} onClose={this.closeDocs} closeIcon>
+                        <Modal.Header>
+                            Documents relatifs à l'entretien du véhicule : {this.state.entretienRaw.vehicle.registration}
+                        </Modal.Header>
+                        <Modal.Content style={{textAlign:"center"}}>
+                            <div style={{display:"grid",gridTemplateColumns:"1fr",gridGap:"24px"}}>
+                                <FileManagementPanel importLocked={this.state.newFicheInter == null} handleInputFile={this.handleInputFile} fileTarget="newFicheInter" uploadDoc={this.uploadDocFicheInter} fileInfos={this.state.entretienRaw.ficheInter} title="Fiche d'intervention" type="ficheInter"/>
+                            </div>
+                        </Modal.Content>
+                        <Modal.Actions>
+                            <Button color="black" onClick={this.closeDocs}>Fermer</Button>
                         </Modal.Actions>
                     </Modal>
                     <ModalDatePicker onSelectDatePicker={this.onSelectDatePicker} closeDatePicker={this.closeDatePicker} open={this.state.openDatePicker}/>

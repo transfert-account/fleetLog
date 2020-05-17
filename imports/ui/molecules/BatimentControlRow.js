@@ -2,6 +2,8 @@ import React, { Component, Fragment } from 'react'
 import { Table, Input, Button, Label, Modal, Form } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 import ModalDatePicker from '../atoms/ModalDatePicker'
+import DocStateLabel from '../atoms/DocStateLabel';
+import FileManagementPanel from '../atoms/FileManagementPanel';
 import moment from 'moment'
 
 import gql from 'graphql-tag';
@@ -16,6 +18,7 @@ class BatimentControlRowGroup extends Component {
         openDatePicker:false,
         openDelete:false,
         openUpdate:false,
+        newFicheInter:null,
         datePickerTarget:"",
         deleteBatimentControlQuery : gql`
             mutation deleteBatimentControl($_id:String!){
@@ -40,6 +43,14 @@ class BatimentControlRowGroup extends Component {
                     message
                 }
             }
+        `,
+        uploadBatimentControlDocumentQuery : gql`
+            mutation uploadBatimentControlDocument($_id: String!,$file: Upload!,$type: String!,$size: Int!) {
+                uploadBatimentControlDocument(_id:$_id,file:$file,type:$type,size:$size) {
+                    status
+                    message
+                }
+            }
         `
     }
 
@@ -47,6 +58,14 @@ class BatimentControlRowGroup extends Component {
         this.setState({
           [e.target.name]:e.target.value
         });
+    }
+
+    handleInputFile = (type,e) => {
+        if(e.target.validity.valid ){
+            this.setState({
+                [type]:e.target.files[0]
+            })
+        }
     }
 
     showDelete = () => {
@@ -76,6 +95,13 @@ class BatimentControlRowGroup extends Component {
 
     closeDatePicker = () => {
         this.setState({openDatePicker:false,datePickerTarget:""})
+    }
+
+    showDocs = () => {
+        this.setState({openDocs:true})
+    }
+    closeDocs = () => {
+        this.setState({openDocs:false})
     }
 
     onSelectDatePicker = date => {
@@ -124,6 +150,28 @@ class BatimentControlRowGroup extends Component {
         })
     }
 
+    uploadDocFicheInter = () => {
+        this.props.client.mutate({
+            mutation:this.state.uploadBatimentControlDocumentQuery,
+            variables:{
+                _id:this.props.control._id,
+                file:this.state.newFicheInter,
+                type:"ficheInter",
+                size:this.state.newFicheInter.size
+            }
+        }).then(({data})=>{
+            data.uploadBatimentControlDocument.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.loadBatiments();
+                    this.closeDocs();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+
     saveEdit = () => {
         this.closeEdit();
         this.props.client.mutate({
@@ -160,12 +208,21 @@ class BatimentControlRowGroup extends Component {
         return <Label color="green"> {moment().to(nextDate)}, le {nextDate.format("DD/MM/YYYY")}</Label>
     }
 
+    getDocsStates = () => {
+        return (
+            <Table.Cell textAlign="center">
+                <DocStateLabel color={this.props.control.ficheInter._id == "" ? "red" : "green"} title="Fiche inter."/>
+            </Table.Cell>
+        )
+    }
+
     getActionsCell = () => {
         if(this.props.user.isOwner){
             return (
                 <Table.Cell style={{textAlign:"center"}}>
                     <Button circular style={{color:"#2ecc71"}} inverted icon icon='calendar' onClick={this.showUpdate}/>
                     <Button circular style={{color:"#2980b9"}} inverted icon icon='edit' onClick={this.showEdit}/>
+                    <Button circular style={{color:"#a29bfe"}} inverted icon icon='folder open' onClick={this.showDocs}/>
                     <Button circular style={{color:"#e74c3c"}} inverted icon icon='trash' onClick={this.showDelete}/>
                 </Table.Cell>
             )
@@ -174,6 +231,7 @@ class BatimentControlRowGroup extends Component {
                 <Table.Cell style={{textAlign:"center"}}>
                     <Button circular style={{color:"#2ecc71"}} inverted icon icon='calendar' onClick={this.showUpdate}/>
                     <Button circular style={{color:"#2980b9"}} inverted icon icon='edit' onClick={this.showEdit}/>
+                    <Button circular style={{color:"#a29bfe"}} inverted icon icon='folder open' onClick={this.showDocs}/>
                 </Table.Cell>
             )
         }
@@ -192,6 +250,7 @@ class BatimentControlRowGroup extends Component {
                     <Table.Cell textAlign="center"><Input defaultValue={this.state.newDelay} onChange={this.handleChange} placeholder="Delai entre deux exécution" name="newDelay"/></Table.Cell>
                     <Table.Cell textAlign="center">{this.props.control.lastExecution}</Table.Cell>
                     <Table.Cell textAlign="center">{this.getNextExecutionLabel(this.props.control.lastExecution,this.props.control.delay)}</Table.Cell>
+                    {this.getDocsStates()}
                     <Table.Cell style={{textAlign:"center"}}>
                         <Button onClick={this.closeEdit} color="red">Annuler</Button>
                         <Button onClick={this.saveEdit} color="blue">Sauvegarder</Button>
@@ -207,6 +266,7 @@ class BatimentControlRowGroup extends Component {
                         <Table.Cell textAlign="center">{this.props.control.delay} jours</Table.Cell>
                         <Table.Cell textAlign="center">{this.props.control.lastExecution}</Table.Cell>
                         <Table.Cell textAlign="center">{this.getNextExecutionLabel(this.props.control.lastExecution,this.props.control.delay)}</Table.Cell>
+                        {this.getDocsStates()}
                         {this.getActionsCell()}
                     </Table.Row>
                     <Modal closeOnDimmerClick={false} size="small" open={this.state.openUpdate} onClose={this.closeUpdate} closeIcon>
@@ -230,6 +290,19 @@ class BatimentControlRowGroup extends Component {
                         <Modal.Actions>
                             <Button color="black" onClick={this.closeDelete}>Annuler</Button>
                             <Button color="red" onClick={this.deleteBatimentControl}>Supprimer le contrôle</Button>
+                        </Modal.Actions>
+                    </Modal>
+                    <Modal closeOnDimmerClick={false} open={this.state.openDocs} onClose={this.closeDocs} closeIcon>
+                        <Modal.Header>
+                            Documents relatifs au contrôle {this.props.control.name} de la societe : {this.props.societe.name}
+                        </Modal.Header>
+                        <Modal.Content style={{textAlign:"center"}}>
+                            <div style={{display:"grid",gridTemplateColumns:"1fr",gridGap:"24px"}}>
+                                <FileManagementPanel importLocked={this.state.newFicheInter == null} handleInputFile={this.handleInputFile} fileTarget="newFicheInter" uploadDoc={this.uploadDocFicheInter} fileInfos={this.props.control.ficheInter} title="Fiche d'intervention" type="ficheInter"/>
+                            </div>
+                        </Modal.Content>
+                        <Modal.Actions>
+                            <Button color="black" onClick={this.closeDocs}>Fermer</Button>
                         </Modal.Actions>
                     </Modal>
                     <ModalDatePicker onSelectDatePicker={this.onSelectDatePicker} closeDatePicker={this.closeDatePicker} open={this.state.openDatePicker}/>

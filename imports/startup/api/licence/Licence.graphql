@@ -4,6 +4,7 @@ type Licence{
     number:String
     shiftName:String
     vehicle:Vehicle
+    licence:Document
     endDate:String
 }
 
@@ -19,4 +20,5 @@ extend type Mutation{
     editLicence(_id:String!,societe:String!,number:String!,shiftName:String!,endDate:String): [QueryResultMessage]
     unlinkLicence(_id:String!): [QueryResultMessage]
     linkLicence(_id:String!,vehicle:String!): [QueryResultMessage]
+    uploadLicenceDocument(_id:String!,file:Upload!,type:String,size:Int!):[QueryResultMessage]
 }

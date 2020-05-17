@@ -12,6 +12,7 @@ class Entretiens extends Component {
         newVehicle:"",
         filterArchive:false,
         openAddEntretien:false,
+        docsFilter:"all",
         orderStatusFilter:"all",
         entretiensRaw:[],
         entretiens : () => {
@@ -53,6 +54,15 @@ class Entretiens extends Component {
                     })
                 }
             }
+            displayed = displayed.filter(e =>{
+                if(this.state.docsFilter == "all"){return true}else{
+                    if(e.ficheInter._id == "" || e.ficheInter._id == ""){
+                        return true
+                    }else{
+                        return false
+                    }
+                }}
+            )
             if(this.state.entretienFilter.length>0){
                 displayed = displayed.filter(e =>
                     e.title.toLowerCase().includes(this.state.entretienFilter.toLowerCase()) ||
@@ -104,6 +114,9 @@ class Entretiens extends Component {
                         entretien
                         status
                         price
+                    }
+                    ficheInter{
+                        _id
                     }
                     vehicle{
                         _id
@@ -196,6 +209,19 @@ class Entretiens extends Component {
         })
     }
 
+    //MISSING DOCS FILTER
+    getDocsFilterColor = (color,filter) => {
+        if(this.state.docsFilter == filter){
+            return color
+        }
+    }
+
+    setDocsFilter = value => {
+        this.setState({
+            docsFilter:value
+        })
+    }
+
     loadEntretiens = () => {
         this.props.client.query({
             query:this.state.entretiensQuery,
@@ -235,7 +261,7 @@ class Entretiens extends Component {
             <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"32px",gridTemplateRows:"auto auto 1fr auto",gridTemplateColumns:"1fr auto"}}>
                 <Input style={{justifySelf:"stretch"}} name="entretienFilter" onChange={this.handleChange} icon='search' placeholder='Rechercher une immatriculation, un titre ou une description' />
                 <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddEntretien} icon labelPosition='right'>Créer un entretien<Icon name='plus'/></Button>
-                <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 2",display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"16px"}}>
+                <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 2",display:"grid",gridTemplateColumns:"auto auto auto",gridGap:"16px"}}>
                     <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
                         <Icon name='archive'/>
                         <Button.Group style={{placeSelf:"center"}}>
@@ -252,19 +278,27 @@ class Entretiens extends Component {
                             <Button color={this.getOrderStatusColor("red","toDo")} onClick={()=>{this.setOrderStatusFilter("toDo")}}>Commandes à passer</Button>
                         </Button.Group>
                     </Message>
+                    <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
+                        <Icon name='folder open'/>
+                        <Button.Group style={{placeSelf:"center"}}>
+                            <Button color={this.getDocsFilterColor("green","all")} onClick={()=>{this.setDocsFilter("all")}}>Tous</Button>
+                            <Button color={this.getDocsFilterColor("red","missingDocs")} onClick={()=>{this.setDocsFilter("missingDocs")}}>Documents manquants</Button>
+                        </Button.Group>
+                    </Message>
                 </div>
                 <div style={{gridRowStart:"3",gridColumnEnd:"span 2",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                     <Table style={{marginBottom:"0"}} celled selectable color={this.getArchiveFilterColor()} compact>
                         <Table.Header>
                             <Table.Row textAlign='center'>
-                                <Table.HeaderCell width="2">Societe</Table.HeaderCell>
-                                <Table.HeaderCell width="2">Vehicule</Table.HeaderCell>
-                                <Table.HeaderCell width="2">Titre</Table.HeaderCell>
-                                <Table.HeaderCell width="5">Description de l'entretien</Table.HeaderCell>
-                                <Table.HeaderCell width="1">A commander</Table.HeaderCell>
-                                <Table.HeaderCell width="1">Commandé</Table.HeaderCell>
-                                <Table.HeaderCell width="1">Prêt</Table.HeaderCell>
-                                <Table.HeaderCell width="2">Actions</Table.HeaderCell>
+                                <Table.HeaderCell>Societe</Table.HeaderCell>
+                                <Table.HeaderCell>Vehicule</Table.HeaderCell>
+                                <Table.HeaderCell>Titre</Table.HeaderCell>
+                                <Table.HeaderCell>Description de l'entretien</Table.HeaderCell>
+                                <Table.HeaderCell>A commander</Table.HeaderCell>
+                                <Table.HeaderCell>Commandé</Table.HeaderCell>
+                                <Table.HeaderCell>Prêt</Table.HeaderCell>
+                                <Table.HeaderCell>Documents</Table.HeaderCell>
+                                <Table.HeaderCell>Actions</Table.HeaderCell>
                             </Table.Row>
                         </Table.Header>
                         <Table.Body>

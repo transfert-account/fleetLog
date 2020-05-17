@@ -824,14 +824,14 @@ class Vehicle extends Component {
             if(this.state.vehicle.shared){
                 return(
                     <Fragment>
-                        <Button color="purple" style={{placeSelf:"stretch"}} onClick={this.showDocs} icon labelPosition='right'>Gérer les documents<Icon name='folder'/></Button>
+                        <Button color="purple" style={{placeSelf:"stretch"}} onClick={this.showDocs} icon labelPosition='right'>Gérer les documents<Icon name='folder open'/></Button>
                         <Button color="teal" style={{placeSelf:"stretch"}} onClick={this.showUnshare} icon labelPosition='right'>Rappeler le vehicule<Icon name='handshake outline'/></Button>
                     </Fragment>
                 )
             }else{
                 return(
                     <Fragment>
-                        <Button color="purple" style={{placeSelf:"stretch"}} onClick={this.showDocs} icon labelPosition='right'>Gérer les documents<Icon name='folder'/></Button>
+                        <Button color="purple" style={{placeSelf:"stretch"}} onClick={this.showDocs} icon labelPosition='right'>Gérer les documents<Icon name='folder open'/></Button>
                         <Button color="teal" style={{placeSelf:"stretch"}} onClick={this.showShare} icon labelPosition='right'>Prêter le vehicule<Icon name='handshake outline'/></Button>
                     </Fragment>
                 )
@@ -840,13 +840,13 @@ class Vehicle extends Component {
             if(this.state.vehicle.shared){
                 return(
                     <Fragment>
-                        <Button color="purple" style={{placeSelf:"stretch",gridColumnEnd:"span 2"}} onClick={this.showDocs} icon labelPosition='right'>Gérer les documents<Icon name='folder'/></Button>
+                        <Button color="purple" style={{placeSelf:"stretch",gridColumnEnd:"span 2"}} onClick={this.showDocs} icon labelPosition='right'>Gérer les documents<Icon name='folder open'/></Button>
                     </Fragment>
                 )
             }else{
                 return(
                     <Fragment>
-                        <Button color="purple" style={{placeSelf:"stretch",gridColumnEnd:"span 2"}} onClick={this.showDocs} icon labelPosition='right'>Gérer les documents<Icon name='folder'/></Button>
+                        <Button color="purple" style={{placeSelf:"stretch",gridColumnEnd:"span 2"}} onClick={this.showDocs} icon labelPosition='right'>Gérer les documents<Icon name='folder open'/></Button>
                     </Fragment>
                 )
             }

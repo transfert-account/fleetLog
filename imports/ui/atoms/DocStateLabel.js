@@ -4,7 +4,7 @@ import { Label, Icon } from 'semantic-ui-react';
 class DocStateLabel extends Component {
 
     state = {
-        details:false
+        details:this.props.opened || false
     }
 
     toggleDisplayDoc = () => {
@@ -15,7 +15,7 @@ class DocStateLabel extends Component {
     
     render() {
         return (
-            <Label style={{cursor:"pointer"}} onClick={this.toggleDisplayDoc} color={this.props.color} image={this.state.details}>
+            <Label style={{cursor:"pointer",placeSelf:"center",alignSelf:"center"}} onClick={this.toggleDisplayDoc} color={this.props.color} image={this.state.details}>
                 <Icon style={{margin:"0"}} name='folder' />
                 {(this.state.details ?
                     <Label.Detail>{this.props.title}</Label.Detail>

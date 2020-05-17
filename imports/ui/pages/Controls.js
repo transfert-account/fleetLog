@@ -304,7 +304,7 @@ export class Controls extends Component {
                             </Button.Group>
                         </Message>
                         <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
-                            <Icon name='folder'/>
+                            <Icon name='folder open'/>
                             <Button.Group style={{placeSelf:"center"}}>
                                 <Button color={this.getDocsFilterColor("green","all")} onClick={()=>{this.setDocsFilter("all")}}>Tous</Button>
                                 <Button color={this.getDocsFilterColor("red","missingDocs")} onClick={()=>{this.setDocsFilter("missingDocs")}}>Documents manquants</Button>

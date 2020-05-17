@@ -2,7 +2,9 @@ import React, { Component, Fragment } from 'react'
 import { Table, Dropdown, Icon, Message, Input, Button, Modal, Label } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 import VehiclePicker from '../atoms/VehiclePicker';
+import FileManagementPanel from '../atoms/FileManagementPanel';
 import ModalDatePicker from '../atoms/ModalDatePicker';
+import DocStateLabel from '../atoms/DocStateLabel';
 import moment from 'moment';
 import gql from 'graphql-tag';
 
@@ -15,6 +17,7 @@ class LicenceRow extends Component {
         openUnlink:false,
         openLink:false,
         openDatePicker:false,
+        newLicence:null,
         newSociete:this.props.licence.societe._id,
         newNumber:this.props.licence.number,
         newShiftName:this.props.licence.shiftName,
@@ -51,13 +54,29 @@ class LicenceRow extends Component {
                     message
                 }
             }
-        `
+        `,
+        uploadLicenceDocumentQuery : gql`
+            mutation uploadLicenceDocument($_id: String!,$file: Upload!,$type: String!,$size: Int!) {
+                uploadLicenceDocument(_id:$_id,file:$file,type:$type,size:$size) {
+                    status
+                    message
+                }
+            }
+        `,
     }
 
     handleChange = e =>{
         this.setState({
           [e.target.name]:e.target.value
         });
+    }
+
+    handleInputFile = (type,e) => {
+        if(e.target.validity.valid ){
+            this.setState({
+                [type]:e.target.files[0]
+            })
+        }
     }
 
     onSelectDatePicker = date => {
@@ -132,13 +151,27 @@ class LicenceRow extends Component {
     closeDocs = () => {
         this.setState({openDocs:false})
     }
-
-    downloadDoc = doc => {
-        
-    }
     
-    uploadDoc = doc => {
-        
+    uploadDocLicence = () => {
+        this.props.client.mutate({
+            mutation:this.state.uploadLicenceDocumentQuery,
+            variables:{
+                _id:this.props.licence._id,
+                file:this.state.newLicence,
+                type:"licence",
+                size:this.state.newLicence.size
+            }
+        }).then(({data})=>{
+            data.uploadLicenceDocument.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.loadLicences();
+                    this.closeDocs();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
     }
 
     saveEdit = () => {
@@ -238,12 +271,20 @@ class LicenceRow extends Component {
         }
     }
 
+    getDocsStates = () => {
+        return (
+            <Table.Cell textAlign="center">
+                <DocStateLabel color={this.props.licence.licence._id == "" ? "red" : "green"} title="Licence"/>
+            </Table.Cell>
+        )
+    }
+
     getActionsCell = () => {
         if(this.props.user.isOwner){
             return (
                 <Table.Cell textAlign="center">
-                    <Button circular style={{color:"#a29bfe"}} inverted icon icon='folder open' onClick={this.showDocs}/>
                     {this.getLinkButton()}
+                    <Button circular style={{color:"#a29bfe"}} inverted icon icon='folder open' onClick={this.showDocs}/>
                     <Button circular style={{color:"#2980b9"}} inverted icon icon='edit' onClick={this.showEdit}/>    
                     <Button circular style={{color:"#e74c3c"}} inverted icon icon='trash' onClick={this.showDelete}/>
                 </Table.Cell>
@@ -251,8 +292,8 @@ class LicenceRow extends Component {
         }else{
             return (
                 <Table.Cell textAlign="center">
-                    <Button circular style={{color:"#a29bfe"}} inverted icon icon='folder open' onClick={this.showDocs}/>
                     {this.getLinkButton()}
+                    <Button circular style={{color:"#a29bfe"}} inverted icon icon='folder open' onClick={this.showDocs}/>
                     <Button circular style={{color:"#2980b9"}} inverted icon icon='edit' onClick={this.showEdit}/>
                 </Table.Cell>
             )
@@ -277,6 +318,7 @@ class LicenceRow extends Component {
                         <Table.Cell textAlign="center">
                             <Input value={this.state.newEndDate} onChange={this.handleChange} onFocus={()=>{this.showDatePicker("newEndDate")}} name="newEndDate"/>
                         </Table.Cell>
+                        {this.getDocsStates()}
                         <Table.Cell textAlign="center">
                             <Button onClick={this.closeEdit} color="red">Annuler</Button>
                             <Button onClick={this.saveEdit} color="blue">Sauvegarder</Button>
@@ -294,6 +336,7 @@ class LicenceRow extends Component {
                         <Table.Cell textAlign="center">{this.props.licence.vehicle.registration}</Table.Cell>
                         <Table.Cell textAlign="center">{this.props.licence.shiftName}</Table.Cell>
                         <Table.Cell textAlign="center">{this.getEndDateLabel()}</Table.Cell>
+                        {this.getDocsStates()}
                         {this.getActionsCell()}
                     </Table.Row>
                     <Modal closeOnDimmerClick={false} open={this.state.openDelete} onClose={this.closeDelete} closeIcon>
@@ -331,33 +374,12 @@ class LicenceRow extends Component {
                             Documents relatifs à la licence : {this.props.licence.number}
                         </Modal.Header>
                         <Modal.Content style={{textAlign:"center"}}>
-                            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gridTemplateRows:"1fr auto 1fr",gridGap:"0 24px"}}>
-                                <p style={{gridColumnEnd:"span 2"}}><Icon name='folder open'/>Document 1</p>
-                                <p style={{gridColumnEnd:"span 2"}}><Icon name='folder open'/>Document 2</p>
-                                <Message style={{gridColumnEnd:"span 2",display:"grid",gridTemplateColumns:"1fr 2fr",gridTemplateRows:"1fr 1fr 1fr"}} color="grey">
-                                    <p className="gridLabel">Nom du fichier :</p>
-                                    <p className="gridValue">Doc Name XYZ</p>
-                                    <p className="gridLabel">Taille du fichier:</p>
-                                    <p className="gridValue">1234 kB</p>
-                                    <p className="gridLabel">Enregistré le :</p>
-                                    <p className="gridValue">01/02/2019</p>
-                                </Message>
-                                <Message style={{gridColumnEnd:"span 2",display:"grid",gridTemplateColumns:"1fr 2fr",gridTemplateRows:"1fr 1fr 1fr"}} color="grey">
-                                    <p className="gridLabel">Nom du fichier :</p>
-                                    <p className="gridValue">Doc Name XYZ</p>
-                                    <p className="gridLabel">Taille du fichier:</p>
-                                    <p className="gridValue">1234 kB</p>
-                                    <p className="gridLabel">Enregistré le :</p>
-                                    <p className="gridValue">01/02/2019</p>
-                                </Message>
-                                <Button color="blue" onClick={this.closeDocs}>Importer</Button>
-                                <Button color="black" onClick={this.closeDocs}>Telecharger</Button>
-                                <Button color="blue" onClick={this.closeDocs}>Importer</Button>
-                                <Button color="black" onClick={this.closeDocs}>Telecharger</Button>
+                            <div style={{display:"grid",gridTemplateColumns:"1fr",gridGap:"24px"}}>
+                                <FileManagementPanel importLocked={this.state.newLicence == null} handleInputFile={this.handleInputFile} fileTarget="newLicence" uploadDoc={this.uploadDocLicence} fileInfos={this.props.licence.licence} title="Licence" type="licence"/>
                             </div>
                         </Modal.Content>
                         <Modal.Actions>
-                            <Button color="grey" onClick={this.closeDocs}>Fermer</Button>
+                            <Button color="black" onClick={this.closeDocs}>Fermer</Button>
                         </Modal.Actions>
                     </Modal>
                 </Fragment>

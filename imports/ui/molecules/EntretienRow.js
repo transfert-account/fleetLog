@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react'
 import { Table, Button, Label, Icon } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
+import DocStateLabel from '../atoms/DocStateLabel';
 import { withRouter } from 'react-router-dom';
 import gql from 'graphql-tag';
 
@@ -83,6 +84,14 @@ class EntretienRow extends Component {
         }
     }
 
+    getDocsStates = () => {
+        return (
+            <Table.Cell textAlign="center">
+                <DocStateLabel color={this.props.entretien.ficheInter._id == "" ? "red" : "green"} title="Fiche inter."/>
+            </Table.Cell>
+        )
+    }
+
     getSocieteCell = () => {
         if(!this.props.hideSociete){
             return <Table.Cell textAlign="center">{this.props.entretien.societe.name}</Table.Cell>
@@ -100,6 +109,7 @@ class EntretienRow extends Component {
                     {this.getOrderState(1)}
                     {this.getOrderState(2)}
                     {this.getOrderState(3)}
+                    {this.getDocsStates()}
                     <Table.Cell style={{textAlign:"center"}}>
                         <Button circular style={{color:"#2980b9"}} inverted icon icon='arrow right' onClick={this.navigateToEntretien}/>
                     </Table.Cell>
