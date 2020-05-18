@@ -35,11 +35,23 @@ export class Patchnotes extends Component {
 
     render() {
         return (
-            <div style={{display:"grid",gridTemplateRows:'auto 1fr auto'}}>
+            <div style={{height:"100%",display:"grid",gridTemplateRows:'auto 1fr auto'}}>
                 <div style={{display:"flex",marginBottom:"32px",justifyContent:"space-between"}}>
                     {this.getMenu()}
                 </div>
-                <div style={{overflowY:"scroll"}}>
+                <div style={{display:"block",overflowY:"auto",justifySelf:"stretch"}}>
+                <Segment>
+                        <Header color='blue' as="h2">18/05/2020 - v1.1.07</Header>
+                        <List divided relaxed>
+                        <List.Item>
+                                <List.Icon name='plus' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Visualisation des documents</List.Header>
+                                    <List.Description>Ajout d'un onglet administration : "Documents Amazon S3" permettant la visualisation des document présent dans le bucket Amazon S3</List.Description>
+                                </List.Content>
+                            </List.Item>
+                        </List>
+                    </Segment>
                     <Segment>
                         <Header color='blue' as="h2">17/05/2020 - v1.1.06</Header>
                         <List divided relaxed>

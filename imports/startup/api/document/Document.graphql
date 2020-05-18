@@ -17,6 +17,7 @@ type Document {
 }
 
 extend type Query {
+    documents:[Document]
     getSignedDocumentDownloadLink(_id:String!):String!
 }
 

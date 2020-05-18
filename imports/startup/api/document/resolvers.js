@@ -4,6 +4,9 @@ import Functions from '../common/functions';
 
 export default {
     Query : {
+        documents(obj, {_id},{user}){
+            return Documents.find().fetch()
+        },
         async getSignedDocumentDownloadLink(obj, {_id},{user}){
             if(user._id){
                 return await new Promise(async (resolve,reject)=>{
