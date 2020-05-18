@@ -51,7 +51,7 @@ class Accidents extends Component {
       if(displayed.length == 0){
         return(
           <Table.Row key={"none"}>
-            <Table.Cell colSpan='9' textAlign="center">
+            <Table.Cell colSpan='10' textAlign="center">
               <p>Aucun accident ne correspond à ce filtre</p>
             </Table.Cell>
           </Table.Row>
