@@ -11,7 +11,7 @@ class BatimentControlRowGroup extends Component {
             if(this.props.batiment.controls.length == 0){
                 return (
                     <Table.Row error>
-                        <Table.Cell colSpan={6} textAlign="center">
+                        <Table.Cell colSpan={7} textAlign="center">
                             Aucun contrôle pour le batiment ({this.props.batiment.societe.name})
                         </Table.Cell>
                     </Table.Row>
