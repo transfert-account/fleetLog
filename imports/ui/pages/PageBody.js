@@ -92,8 +92,8 @@ class PageBody extends Component {
             <Route exact path='/administration/equipements' component={Equipements}/>
             <Route exact path='/administration/pieces' component={Pieces}/>
             <Route exact path='/administration/exports' component={ExportXL}/>
-
-            <Route exact path='/patchnotes' component={Patchnotes}/>
+            <Route exact path='/administration/patchnotes' component={Patchnotes}/>
+            
             <Redirect from='*' to={'/'}/>
           </Switch>
         );
@@ -127,8 +127,8 @@ class PageBody extends Component {
             <Route exact path='/administration/equipements' component={Equipements}/>
             <Route exact path='/administration/pieces' component={Pieces}/>
             <Route exact path='/administration/exports' component={ExportXL}/>
-            
-            <Route exact path='/patchnotes' component={Patchnotes}/>
+            <Route exact path='/administration/patchnotes' component={Patchnotes}/>
+
             <Redirect from='*' to={'/'}/>
           </Switch>
         );

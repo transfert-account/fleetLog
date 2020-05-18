@@ -120,6 +120,8 @@ export class Accounts extends Component {
             <Menu.Item color="blue" name='equipement' onClick={()=>{this.props.history.push("/administration/equipements")}}><Icon name='wrench'/>Contrôles</Menu.Item>
             <Menu.Item color="blue" name='pieces' onClick={()=>{this.props.history.push("/administration/pieces")}}><Icon name='cogs'/>Pièces</Menu.Item>
             <Menu.Item color="blue" name='exports' onClick={()=>{this.props.history.push("/administration/exports")}}><Icon name='file excel outline'/>Exports</Menu.Item>
+            <Menu.Item color="blue" name='patchnotes' onClick={()=>{this.props.history.push("/administration/patchnotes")}}><Icon name='clipboard list'/>Notes de version</Menu.Item>
+            <Menu.Item color="blue" name='documents' onClick={()=>{this.props.history.push("/administration/documents")}}><Icon name='file outline'/>Documents Amazon S3</Menu.Item>
         </Menu>
       )
     }else{
@@ -130,6 +132,8 @@ export class Accounts extends Component {
             <Menu.Item color="blue" name='equipement' onClick={()=>{this.props.history.push("/administration/equipements")}}><Icon name='wrench'/>Contrôles</Menu.Item>
             <Menu.Item color="blue" name='pieces' onClick={()=>{this.props.history.push("/administration/pieces")}}><Icon name='cogs'/>Pièces</Menu.Item>
             <Menu.Item color="blue" name='exports' onClick={()=>{this.props.history.push("/administration/exports")}}><Icon name='file excel outline'/>Exports</Menu.Item>
+            <Menu.Item color="blue" name='patchnotes' onClick={()=>{this.props.history.push("/administration/patchnotes")}}><Icon name='clipboard list'/>Notes de version</Menu.Item>
+            <Menu.Item color="blue" name='documents' onClick={()=>{this.props.history.push("/administration/documents")}}><Icon name='file outline'/>Documents Amazon S3</Menu.Item>
         </Menu>
       )
     }

@@ -125,25 +125,29 @@ export class ExportXL extends Component {
 
     getMenu = () => {
         if(this.props.user.isOwner){
-        return (
-            <Menu style={{cursor:"pointer",marginBottom:"auto"}} icon='labeled'>
-                <Menu.Item color="blue" name='comptes' onClick={()=>{this.props.history.push("/administration/accounts")}}><Icon name='users'/>Comptes</Menu.Item>
-                <Menu.Item color="blue" name='controls' onClick={()=>{this.props.history.push("/administration/content")}}><Icon name='copy outline'/>Contenu</Menu.Item>
-                <Menu.Item color="blue" name='equipement' onClick={()=>{this.props.history.push("/administration/equipements")}}><Icon name='wrench'/>Contrôles</Menu.Item>
-                <Menu.Item color="blue" name='pieces' onClick={()=>{this.props.history.push("/administration/pieces")}}><Icon name='cogs'/>Pièces</Menu.Item>
-                <Menu.Item color="blue" name='exports' active onClick={()=>{this.props.history.push("/administration/exports")}}><Icon name='file excel outline'/>Exports</Menu.Item>
-            </Menu>
-        )
+            return (
+                <Menu style={{cursor:"pointer",marginBottom:"auto"}} icon='labeled'>
+                    <Menu.Item color="blue" name='comptes' onClick={()=>{this.props.history.push("/administration/accounts")}}><Icon name='users'/>Comptes</Menu.Item>
+                    <Menu.Item color="blue" name='controls' onClick={()=>{this.props.history.push("/administration/content")}}><Icon name='copy outline'/>Contenu</Menu.Item>
+                    <Menu.Item color="blue" name='equipement' onClick={()=>{this.props.history.push("/administration/equipements")}}><Icon name='wrench'/>Contrôles</Menu.Item>
+                    <Menu.Item color="blue" name='pieces' onClick={()=>{this.props.history.push("/administration/pieces")}}><Icon name='cogs'/>Pièces</Menu.Item>
+                    <Menu.Item color="blue" name='exports' active onClick={()=>{this.props.history.push("/administration/exports")}}><Icon name='file excel outline'/>Exports</Menu.Item>
+                    <Menu.Item color="blue" name='patchnotes' onClick={()=>{this.props.history.push("/administration/patchnotes")}}><Icon name='clipboard list'/>Notes de version</Menu.Item>
+                    <Menu.Item color="blue" name='documents' onClick={()=>{this.props.history.push("/administration/documents")}}><Icon name='file outline'/>Documents Amazon S3</Menu.Item>
+                </Menu>
+            )
         }else{
-        return (
-            <Menu style={{cursor:"pointer",marginBottom:"auto"}} icon='labeled'>
-                <Menu.Item color="blue" name='comptes' onClick={()=>{this.props.history.push("/administration/accounts")}}><Icon name='users'/>Comptes</Menu.Item>
-                <Menu.Item color="blue" name='controls' onClick={()=>{this.props.history.push("/administration/content")}}><Icon name='copy outline'/>Contenu</Menu.Item>
-                <Menu.Item color="blue" name='equipement' onClick={()=>{this.props.history.push("/administration/equipements")}}><Icon name='wrench'/>Contrôles</Menu.Item>
-                <Menu.Item color="blue" name='pieces' onClick={()=>{this.props.history.push("/administration/pieces")}}><Icon name='cogs'/>Pièces</Menu.Item>
-                <Menu.Item color="blue" name='exports' active onClick={()=>{this.props.history.push("/administration/exports")}}><Icon name='file excel outline'/>Exports</Menu.Item>
-            </Menu>
-        )
+            return (
+                <Menu style={{cursor:"pointer",marginBottom:"auto"}} icon='labeled'>
+                    <Menu.Item color="blue" name='comptes' onClick={()=>{this.props.history.push("/administration/accounts")}}><Icon name='users'/>Comptes</Menu.Item>
+                    <Menu.Item color="blue" name='controls' onClick={()=>{this.props.history.push("/administration/content")}}><Icon name='copy outline'/>Contenu</Menu.Item>
+                    <Menu.Item color="blue" name='equipement' onClick={()=>{this.props.history.push("/administration/equipements")}}><Icon name='wrench'/>Contrôles</Menu.Item>
+                    <Menu.Item color="blue" name='pieces' onClick={()=>{this.props.history.push("/administration/pieces")}}><Icon name='cogs'/>Pièces</Menu.Item>
+                    <Menu.Item color="blue" name='exports' active onClick={()=>{this.props.history.push("/administration/exports")}}><Icon name='file excel outline'/>Exports</Menu.Item>
+                    <Menu.Item color="blue" name='patchnotes' onClick={()=>{this.props.history.push("/administration/patchnotes")}}><Icon name='clipboard list'/>Notes de version</Menu.Item>
+                    <Menu.Item color="blue" name='documents' onClick={()=>{this.props.history.push("/administration/documents")}}><Icon name='file outline'/>Documents Amazon S3</Menu.Item>
+                </Menu>
+            )
         }
     }
 

@@ -41,7 +41,7 @@ export default {
                         },
                         {multi:true}
                     );
-                    /*Entretiens.update(
+                    Entretiens.update(
                         {},{
                             $set: {
                                 ficheInter:""
@@ -66,8 +66,8 @@ export default {
                             }
                         },
                         {multi:true}
-                    );*/
-                    return [{status:true,message:'Nuked : affceted empty doc to all : licences, entretiens, accidents'}];
+                    );
+                    return [{status:true,message:'Nuked : affceted empty documents to every : licences, entretiens, accidents and batiments'}];
                 }catch(e){
                     throw e;
                     return [{status:false,message:e.message}];
