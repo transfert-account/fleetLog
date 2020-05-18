@@ -3,6 +3,7 @@ import { Redirect, Switch, Route } from 'react-router-dom';
 import { Button } from 'semantic-ui-react';
 import PageBody from './pages/PageBody';
 import Menu from './menu/Menu';
+import Navbar from './navbar/Navbar';
 import Home from './pages/Home';
 import NeedActivation from './pages/NeedActivation';
 import { Link,withRouter } from 'react-router-dom';
@@ -38,7 +39,8 @@ class AppBody extends Component{
             if(this.props.user.activated){
                 return(
                     <div style={{width:"100vw",minWidth:"780px",minHeight:"100vh"}}>
-                        <Menu collapsed={this.state.menuCollapsed} setMenuCollapse={this.setMenuCollapse}/>
+                        {/*<Menu collapsed={this.state.menuCollapsed} setMenuCollapse={this.setMenuCollapse}/>*/}
+                        <Navbar/>
                         <ToastContainer position="bottom-right" autoClose={5000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl pauseOnVisibilityChange draggable pauseOnHover/>
                         <PageBody collapsed={this.state.menuCollapsed} site={this.props.site}/>
                     </div>
@@ -51,8 +53,6 @@ class AppBody extends Component{
                         margin:"0",
                         padding:"32px 128px 0 160px",
                         display:"flex",
-                        backgroundColor: "#b8c6db",
-                        backgroundImage: "linear-gradient(315deg, #b8c6db 0%, #f5f7fa 74%)",
                         backgroundRepeat:"no-repeat",
                         backgroundAttachment:"fixed"
                     }}>
@@ -74,8 +74,6 @@ class AppBody extends Component{
                     margin:"0",
                     padding:"32px 128px 0 160px",
                     display:"inline-block",
-                    backgroundColor: "#b8c6db",
-                    backgroundImage: "linear-gradient(315deg, #b8c6db 0%, #f5f7fa 74%)",
                     backgroundRepeat:"no-repeat",
                     backgroundAttachment:"fixed"
                   }}>

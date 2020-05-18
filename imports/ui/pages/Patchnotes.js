@@ -15,7 +15,7 @@ export class Patchnotes extends Component {
                     <Menu.Item color="blue" name='pieces' onClick={()=>{this.props.history.push("/administration/pieces")}}><Icon name='cogs'/>Pièces</Menu.Item>
                     <Menu.Item color="blue" name='exports' onClick={()=>{this.props.history.push("/administration/exports")}}><Icon name='file excel outline'/>Exports</Menu.Item>
                     <Menu.Item color="blue" name='patchnotes' active onClick={()=>{this.props.history.push("/administration/patchnotes")}}><Icon name='clipboard list'/>Notes de version</Menu.Item>
-                    <Menu.Item color="blue" name='documents' onClick={()=>{this.props.history.push("/administration/documents")}}><Icon name='file outline'/>Documents Amazon S3</Menu.Item>
+                    <Menu.Item color="blue" name='documents' onClick={()=>{this.props.history.push("/administration/documents")}}><Icon name='file outline'/>Documents S3</Menu.Item>
                 </Menu>
             )
         }else{
@@ -27,7 +27,7 @@ export class Patchnotes extends Component {
                     <Menu.Item color="blue" name='pieces' onClick={()=>{this.props.history.push("/administration/pieces")}}><Icon name='cogs'/>Pièces</Menu.Item>
                     <Menu.Item color="blue" name='exports' onClick={()=>{this.props.history.push("/administration/exports")}}><Icon name='file excel outline'/>Exports</Menu.Item>
                     <Menu.Item color="blue" name='patchnotes' active onClick={()=>{this.props.history.push("/administration/patchnotes")}}><Icon name='clipboard list'/>Notes de version</Menu.Item>
-                    <Menu.Item color="blue" name='documents' onClick={()=>{this.props.history.push("/administration/documents")}}><Icon name='file outline'/>Documents Amazon S3</Menu.Item>
+                    <Menu.Item color="blue" name='documents' onClick={()=>{this.props.history.push("/administration/documents")}}><Icon name='file outline'/>Documents S3</Menu.Item>
                 </Menu>
             )
         }
@@ -40,14 +40,23 @@ export class Patchnotes extends Component {
                     {this.getMenu()}
                 </div>
                 <div style={{display:"block",overflowY:"auto",justifySelf:"stretch"}}>
-                <Segment>
+                    <Segment>
                         <Header color='blue' as="h2">18/05/2020 - v1.1.07</Header>
                         <List divided relaxed>
-                        <List.Item>
+                            <List.Item>
+                                <List.Icon name='plus' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Nouvelle barre de menu laterale</List.Header>
+                                    <List.Description>Le dynamisme de la barre précedente était géré en JS, celui de la nouvelle par pur CSS par soucis de performance, amélioration de design, corp de la page élargi</List.Description>
+                                </List.Content>
+                            </List.Item>
+                        </List>
+                        <List divided relaxed>
+                            <List.Item>
                                 <List.Icon name='plus' size='large' verticalAlign='middle' />
                                 <List.Content>
                                     <List.Header>Visualisation des documents</List.Header>
-                                    <List.Description>Ajout d'un onglet administration : "Documents Amazon S3" permettant la visualisation des document présent dans le bucket Amazon S3</List.Description>
+                                    <List.Description>Ajout d'un onglet administration : "Documents S3" permettant la visualisation des document présent dans le bucket Amazon S3</List.Description>
                                 </List.Content>
                             </List.Item>
                         </List>

@@ -60,6 +60,9 @@ class Provider extends Component {
         if(s!=null){
             return s.name;
         }else{
+            if(_id == "noidthisisgroupvisibility"){
+                return "Groupe"
+            }
             return "[error]";
         }
         

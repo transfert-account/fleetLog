@@ -46,22 +46,6 @@ import { UserContext } from '../../contexts/UserContext';
 
 class PageBody extends Component {
 
-  getMargin = () => {
-    if(this.props.collapsed){
-      return "0 0 0 80px";
-    }else{
-      return "0 0 0 200px";
-    }
-  }
-
-  getWidth = () => {
-    if(this.props.collapsed){
-      return "calc(100vw - 80px)";
-    }else{
-      return "calc(100vw - 200px)";
-    }
-  }
-
   getAvailableRoutes = () =>{
     if(this.props.user.isAdmin){//Si l'utilisateur est administrateur
       if(this.props.user.visibility == "noidthisisgroupvisibility"){//Si l'utilisateur a une visibilité groupe
@@ -171,12 +155,10 @@ class PageBody extends Component {
   render() {
     return (
       <div style={{
-        width:this.getWidth(),
-        margin:this.getMargin(),
+        width:"calc(100vw - 80px)",
+        margin:"0 0 0 80px",
         padding:"32px 64px 32px 64px",
         display:"inline-block",
-        backgroundColor: "#b8c6db",
-        backgroundImage: "linear-gradient(315deg, #b8c6db 0%, #f5f7fa 74%)",
         backgroundRepeat:"no-repeat",
         backgroundAttachment:"fixed",
         height:"100vh"
