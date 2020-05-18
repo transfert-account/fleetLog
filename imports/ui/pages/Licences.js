@@ -14,8 +14,8 @@ export class Licences extends Component {
     loading:true,
     licenceFilter:"",
     endDateFilter:"all",
-    docsFilter:"all",
     freeLicenceFilter:"all",
+    docsFilter:"all",
     openAddLicence:false,
     newSociete:"",
     newNumber:"",
@@ -291,7 +291,7 @@ export class Licences extends Component {
                     </Menu>
                     <Input style={{justifySelf:"stretch"}} name="storeFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher une tournée, un numéro de licence ou une immatriculation' />
                     <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddLicence} icon labelPosition='right'>Ajouter une licence<Icon name='plus'/></Button>
-                    <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gridGap:"16px"}}>
+                    <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"auto auto auto",gridGap:"16px"}}>
                         <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
                             <Icon name='calendar check'/>
                             <Button.Group style={{placeSelf:"center"}}>
@@ -327,7 +327,7 @@ export class Licences extends Component {
                                     <Table.HeaderCell>Véhicule associé</Table.HeaderCell>
                                     <Table.HeaderCell>Nom de tournée</Table.HeaderCell>
                                     <Table.HeaderCell>Fin de validité</Table.HeaderCell>
-                                    <Table.HeaderCell>Docuemnts</Table.HeaderCell>
+                                    <Table.HeaderCell>Documents</Table.HeaderCell>
                                     <Table.HeaderCell>Actions</Table.HeaderCell>
                                 </Table.Row>
                             </Table.Header>

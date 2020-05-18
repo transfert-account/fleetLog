@@ -262,6 +262,7 @@ class ControlRow extends Component {
             <Table.Cell textAlign="center">
                 {(greenDocs == 0 ? "": <DocStateLabel color="green" title={"("+greenDocs+") Contrôle technique"}/>)}
                 {(redDocs == 0 ? "": <DocStateLabel color="red" title={"("+redDocs+") Contrôle technique"}/>)}
+                {(redDocs == 0 && greenDocs == 0 ? "Aucun" : "")}
             </Table.Cell>
         )
     }

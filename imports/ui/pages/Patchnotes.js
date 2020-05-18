@@ -22,6 +22,13 @@ export class Patchnotes extends Component {
                                 <List.Description>Ajout de la fonction de stockage de documents pour les entretiens (fiche d'intervention)</List.Description>
                             </List.Content>
                         </List.Item>
+                        <List.Item>
+                            <List.Icon name='double angle up' size='large' verticalAlign='middle' />
+                            <List.Content>
+                                <List.Header>Nouveau filtre : Accidentologie</List.Header>
+                                <List.Description>Ajout du filtrage des accidents selon l'etat de l'envoi du constat</List.Description>
+                            </List.Content>
+                        </List.Item>
                     </List>
                 </Segment>
                 <Segment>
@@ -30,7 +37,7 @@ export class Patchnotes extends Component {
                         <List.Item>
                             <List.Icon name='plus' size='large' verticalAlign='middle' />
                             <List.Content>
-                                <List.Header>Stockage document : Accidents</List.Header>
+                                <List.Header>Stockage document : Accidentologie</List.Header>
                                 <List.Description>Ajout de la fonction de stockage de documents pour les accidents (constats, rapports d'expert et factures)</List.Description>
                             </List.Content>
                         </List.Item>

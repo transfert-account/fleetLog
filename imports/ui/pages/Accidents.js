@@ -15,6 +15,7 @@ class Accidents extends Component {
     datePickerTarget:"",
     newOccurenceDate:"",
     docsFilter: "all",
+    constatSentFilter: "all",
     openAddAccident:false,
     accidentsRaw:[],
     accidents : () => {
@@ -37,7 +38,16 @@ class Accidents extends Component {
                 return false
             }
         }}
-    )
+      )
+      displayed = displayed.filter(a =>{
+        if(this.state.constatSentFilter == "all"){return true}else{
+            if(a.constatSent){
+                return false
+            }else{
+                return true
+            }
+        }}
+      )
       if(displayed.length == 0){
         return(
           <Table.Row key={"none"}>
@@ -179,6 +189,19 @@ class Accidents extends Component {
     })
   }
 
+  //CONSTAT SENT FILTER
+  getConstatSentColor = (color,filter) => {
+    if(this.state.constatSentFilter == filter){
+        return color
+    }
+  }
+
+  setConstatSentFilter = value => {
+    this.setState({
+      constatSentFilter:value
+    })
+  }
+
   loadAccidents = () => {
     this.props.client.query({
         query:this.state.accidentsQuery,
@@ -219,7 +242,14 @@ class Accidents extends Component {
       <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"32px",gridTemplateRows:"auto auto 1fr",gridTemplateColumns:"auto 1fr auto"}}>
         <Input style={{justifySelf:"stretch",gridColumnEnd:"span 2"}} name="accidentFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher un véhicule' />
         <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddAccident} icon labelPosition='right'>Nouvel accident<Icon name='plus'/></Button>
-        <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"1fr",gridGap:"16px"}}>
+        <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"auto auto",gridGap:"16px"}}>
+          <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
+            <Icon name='mail'/>
+            <Button.Group style={{placeSelf:"center"}}>
+              <Button color={this.getConstatSentColor("green","all")} onClick={()=>{this.setConstatSentFilter("all")}}>Tous</Button>
+              <Button color={this.getConstatSentColor("red","notSent")} onClick={()=>{this.setConstatSentFilter("notSent")}}>Constat à envoyer</Button>
+            </Button.Group>
+          </Message>
           <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
             <Icon name='folder open'/>
             <Button.Group style={{placeSelf:"center"}}>

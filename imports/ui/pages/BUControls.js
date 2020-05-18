@@ -11,6 +11,7 @@ export class BUControls extends Component {
     state={
         vehiclesFiler:"",
         controlFilter:"all",
+        docsFilter:"all",
         buVehiclesQuery : gql`
             query buVehicles{
                 buVehicles{
@@ -58,6 +59,17 @@ export class BUControls extends Component {
                         }
                         attachementDate
                         lastControl
+                        controlTech{
+                            _id
+                            name
+                            size
+                            path
+                            originalFilename
+                            ext
+                            type
+                            mimetype
+                            storageDate
+                        }
                     }
                 }
             }
@@ -106,6 +118,17 @@ export class BUControls extends Component {
                             return false
                         }
                     }       
+                })
+            }
+            if(this.state.docsFilter != "all"){
+                displayed = displayed.filter(v=>{
+                    if(this.state.docsFilter == "missingDocs"){
+                        if(v.redDocs > 0 ){
+                            return true
+                        }else{
+                            return false
+                        }
+                    }      
                 })
             }
             if(this.state.vehiclesFiler.length>0){
@@ -225,6 +248,19 @@ export class BUControls extends Component {
         })
     }
 
+    //MISSING DOCS FILTER
+    getDocsFilterColor = (color,filter) => {
+        if(this.state.docsFilter == filter){
+            return color
+        }
+    }
+
+    setDocsFilter = value => {
+        this.setState({
+            docsFilter:value
+        })
+    }
+    
     componentDidMount = () => {
         this.loadVehicles();
         this.loadEquipementDescriptions();
@@ -245,7 +281,7 @@ export class BUControls extends Component {
                         <Menu.Item color="blue" name='locations' onClick={()=>{this.props.history.push("/parc/locations")}} ><Icon name="calendar alternate outline"/> Locations</Menu.Item>
                     </Menu>
                     <Input style={{justifySelf:"stretch"}} name="vehiclesFiler" onChange={this.handleFilter} icon='search' placeholder='Rechercher une immatriculation, une marque ou un modèle' />
-                    <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 2",display:"grid",gridTemplateColumns:"1fr",gridGap:"16px"}}>
+                    <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 2",display:"grid",gridTemplateColumns:"auto auto",gridGap:"16px"}}>
                         <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
                             <Icon name='clipboard check'/>
                             <Button.Group style={{placeSelf:"center"}}>
@@ -254,17 +290,25 @@ export class BUControls extends Component {
                                 <Button color={this.getControlFilterColor("red","over")} onClick={()=>{this.setControlFilter("over")}}>Limite dépassée</Button>
                             </Button.Group>
                         </Message>
+                        <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
+                            <Icon name='folder open'/>
+                            <Button.Group style={{placeSelf:"center"}}>
+                                <Button color={this.getDocsFilterColor("green","all")} onClick={()=>{this.setDocsFilter("all")}}>Tous</Button>
+                                <Button color={this.getDocsFilterColor("red","missingDocs")} onClick={()=>{this.setDocsFilter("missingDocs")}}>Documents manquants</Button>
+                            </Button.Group>
+                        </Message>
                     </div>
                     <div style={{gridRowStart:"3",gridColumnEnd:"span 2",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                         <Table style={{marginBottom:"0"}} celled selectable color="blue" compact>
                             <Table.Header>
                                 <Table.Row>
-                                    <Table.HeaderCell textAlign='center' width={2}>Immatriculation</Table.HeaderCell>
-                                    <Table.HeaderCell textAlign='center' width={9}>Véhicule</Table.HeaderCell>
-                                    <Table.HeaderCell textAlign='center' width={1}>OK</Table.HeaderCell>
-                                    <Table.HeaderCell textAlign='center' width={1}>Urgent</Table.HeaderCell>
-                                    <Table.HeaderCell textAlign='center' width={1}>En retard</Table.HeaderCell>
-                                    <Table.HeaderCell textAlign='center' width={2}>Actions</Table.HeaderCell>
+                                    <Table.HeaderCell textAlign='center'>Immatriculation</Table.HeaderCell>
+                                    <Table.HeaderCell textAlign='center'>Véhicule</Table.HeaderCell>
+                                    <Table.HeaderCell textAlign='center'>OK</Table.HeaderCell>
+                                    <Table.HeaderCell textAlign='center'>Urgent</Table.HeaderCell>
+                                    <Table.HeaderCell textAlign='center'>En retard</Table.HeaderCell>
+                                    <Table.HeaderCell textAlign='center'>Documents</Table.HeaderCell>
+                                    <Table.HeaderCell textAlign='center'>Actions</Table.HeaderCell>
                                 </Table.Row>
                             </Table.Header>
                             <Table.Body>
