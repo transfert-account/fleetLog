@@ -33,41 +33,15 @@ export default {
                             }
                         }
                     })*/
-                    Batiments.update(
-                        {},{
-                            $set: {
-                                ficheInter:""
-                            }
-                        },
-                        {multi:true}
-                    );
-                    Entretiens.update(
-                        {},{
-                            $set: {
-                                ficheInter:""
-                            }
-                        },
-                        {multi:true}
-                    );
-                    Accidents.update(
-                        {},{
-                            $set: {
-                                constat:"",
-                                rapportExp:"",
-                                facture:""
-                            }
-                        },
-                        {multi:true}
-                    );
-                    Licences.update(
+                    /*Licences.update(
                         {},{
                             $set: {
                                 licence:""
                             }
                         },
                         {multi:true}
-                    );
-                    return [{status:true,message:'Nuked : affceted empty documents to every : licences, entretiens, accidents and batiments'}];
+                    );*/
+                    return [{status:true,message:'Nuked : nothing, nuke is currently empty'}];
                 }catch(e){
                     throw e;
                     return [{status:false,message:e.message}];
