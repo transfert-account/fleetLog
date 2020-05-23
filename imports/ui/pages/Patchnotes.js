@@ -41,6 +41,51 @@ export class Patchnotes extends Component {
                 </div>
                 <div style={{display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                     <Segment>
+                        <Header color='blue' as="h2">20/05/2020 - v1.2.01</Header>
+                        <List divided relaxed>
+                            <List.Item>
+                                <List.Icon name='double angle up' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Amélioration du dashboard</List.Header>
+                                    <List.Description>Le nouveau dashboard comprend de nouvelles statistiques et de nouveau indicateurs (documents, répartition des véhicules par volumes et marques, etc...)</List.Description>
+                                </List.Content>
+                            </List.Item>
+                        </List>
+                    </Segment>
+                    <Segment>
+                        <Header color='blue' as="h2">19/05/2020 - v1.2.00</Header>
+                        <List divided relaxed>
+                        <List.Item>
+                                <List.Icon name='paint brush' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Nouvel écran de connexion</List.Header>
+                                    <List.Description>Changement de design de l'écran de connexion</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='cog' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Modifications des routes</List.Header>
+                                    <List.Description>Changement de la gestion interne des routes pour éviter un rechargement de la page lors de l'affichage du dashboard</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='bug' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Correction de bug : Création de compte</List.Header>
+                                    <List.Description>Correction de bug concernant la création de compte, lors d'une création rien ne se passait bien que le compte soit créé</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='bug' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Correction de bug : Suppression de compte</List.Header>
+                                    <List.Description>Correction de bug concernant la suppression de compte, lors d'une suppression, le compte était supprimé mais il fallait recharger la page pour le constater</List.Description>
+                                </List.Content>
+                            </List.Item>
+                        </List>
+                    </Segment>
+                    <Segment>
                         <Header color='blue' as="h2">18/05/2020 - v1.1.07</Header>
                         <List divided relaxed>
                             <List.Item>
@@ -50,8 +95,6 @@ export class Patchnotes extends Component {
                                     <List.Description>Le dynamisme de la barre précedente était géré en JS, celui de la nouvelle par pur CSS par soucis de performance, amélioration de design, corp de la page élargi</List.Description>
                                 </List.Content>
                             </List.Item>
-                        </List>
-                        <List divided relaxed>
                             <List.Item>
                                 <List.Icon name='plus' size='large' verticalAlign='middle' />
                                 <List.Content>
@@ -132,7 +175,7 @@ export class Patchnotes extends Component {
                                 <List.Icon name='plus' size='large' verticalAlign='middle' />
                                 <List.Content>
                                     <List.Header>Export Excel</List.Header>
-                                    <List.Description>Ajout d'une fonction d'export du parc de vehicules au format Excel .xlsx (fonction administrateur), actuellement sans filtres ni formatage du fichiers en sortie</List.Description>
+                                    <List.Description>Ajout d'une fonction d'export du parc de vehicules au format Excel .xlsx (fonction administrateur), actuellement sans filtres ni formatage du fichier en sortie</List.Description>
                                 </List.Content>
                             </List.Item>
                         </List>

@@ -35,6 +35,7 @@
   --cinder:#b2bfca;
 
   --transition-speed:600ms;
+  
 }
 
 /*//////////////////////////////////
@@ -47,6 +48,7 @@ h1,h2,h3,h4,h5,h6,#avatarWrapper>p{
 body{
   font-weight: 400;
   /*font-family: 'Open Sans', !important;*/
+  overflow: hidden;
   font-family: 'Montserrat', sans-serif !important;
 }
 #app {
@@ -94,34 +96,40 @@ body {
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
-.menuItem:hover{
-  background-image: linear-gradient(315deg, #60a3bc 0%, #82ccdd 74%);
-  color:#fff;
+.home-top-container{
+  grid-column-end:span 2;
+  display:grid;
+  position: absolute;
+  height:100vh;
+  width:100vw;
+  top:0;
+  right: 0;
+  grid-template-columns:720px 1fr;
+  justify-content:center;
+  background-image:url('/res/wall/duo1.png');
+  background-attachment: fixed;
+  background-size: cover;
 }
 
-.menuItemGreen{
-  color:#27ae60;
+.home-top-container h1{
+  font-weight: bold;
+  text-transform: uppercase;
+  text-align: center;
+  letter-spacing: 0.4ch;
+  width: 100%;
+  margin: 32px 8px;
+  font-size: 3.6em;
+  color: #ecf0f1;
 }
 
-.menuItemRed{
-  color:#e74c3c;
-}
-
-.menuItemRed:hover{
-  background-image: linear-gradient(315deg, #b33939 0%, #ff7979 74%);
-  color:#fff;
-}
-
-.menuItemGreen:hover{
-  background-image: linear-gradient(315deg, #009432 0%, #2ecc71 74%);
-  color:#fff;
-}
-
-.menuItemActive{
-  background-image: linear-gradient(315deg, #0a3d62 0%, #60a3bc 74%);
-  color:#fff;
+.home-top-container .ui.form .field>label{
+  color: #ecf0f1 !important;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
 }
 
 .firstWord{fill:none;stroke-width:2;stroke-miterlimit:2;}
@@ -320,6 +328,7 @@ body {
   height: 100%;
   z-index: 1000;
   position: fixed;
+  overflow-x: scroll;
   display: inline-block;
   background-color: var(--panel);
   box-shadow: 1px 0 5px black;
@@ -467,6 +476,7 @@ svg.peach g .fa-primary{
   background-color: var(--panel);
   box-shadow: 1px 0 5px black;
   transition: width 400ms ease;
+  overflow-x: scroll;
 }
 .navbar-societe-picker .nav-item{
   margin: 4px 0;

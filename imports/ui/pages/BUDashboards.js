@@ -4,7 +4,7 @@ import { Header, Dimmer, Loader } from 'semantic-ui-react';
 import DashboardUnit from '../molecules/DashboardUnit';
 import { gql } from 'apollo-server-express';
 
-export class BUDashboard extends Component {
+export class BUDashboards extends Component {
 
     state={
         dataLoaded:false,
@@ -34,6 +34,7 @@ export class BUDashboard extends Component {
                     locations
                     locationsLate
                     locationsVeryLate
+                    controlsTotal
                     controlsOk
                     controlsUrgent
                     controlsLate
@@ -43,15 +44,27 @@ export class BUDashboard extends Component {
                     entretiensNotReady
                     entretiensReadyAffected
                     entretiensReadyUnaffected
+                    entretiensTotalNotArchived
                     commandesToDo
                     commandesDone
                     commandesReceived
+                    commandesTotalNotArchived
                     avgKm
                     nbOwned
                     nbCRB
                     nbCRC
                     licenceAffected
                     licenceFree
+                    vehiclesVolumeRepartition{
+                        key
+                        label
+                        value
+                    }
+                    vehiclesModelRepartition{
+                        key
+                        label
+                        value
+                    }
                 }
             }
         `,
@@ -95,8 +108,7 @@ export class BUDashboard extends Component {
     render() {
         if(this.state.dataLoaded && this.state.societeLoaded){
             return (
-                <div style={{display:"grid",gridTemplateColumns:"1fr 6fr 1fr",gridTemplateRows:"auto auto 1fr",gridGap:"16px"}}>
-                    <Header style={{placeSelf:"center",gridColumnEnd:"span 3"}} as="h1">Tableau de bord : {this.state.dashboardRaw.societe.name}</Header>
+                <div style={{height:"100%",display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"32px 48px",gridTemplateRows:"minmax(0,1fr)",paddingRight:"16px"}}>
                     {this.state.dashboard()}
                 </div>
             )
@@ -116,4 +128,4 @@ const withUserContext = WrappedComponent => props => (
     </UserContext.Consumer>
 )
 
-export default wrappedInUserContext = withUserContext(BUDashboard);
+export default wrappedInUserContext = withUserContext(BUDashboards);

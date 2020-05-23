@@ -1,4 +1,5 @@
 import Societes from '../societe/societes.js';
+import Entretiens from '../entretien/entretiens';
 
 export default {
     Query : {

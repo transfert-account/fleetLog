@@ -16,7 +16,7 @@ class Menu extends Component {
     selectingSociete:false,
     menuItems:[
       {
-        name:"",
+        name:"home",
         active:"home",
         label:"Accueil",
         display:true,
@@ -82,7 +82,7 @@ class Menu extends Component {
     ],
     menuItemsAdmin:[
       {
-        name:"",
+        name:"home",
         active:"home",
         label:"Accueil",
         display:true,
@@ -189,7 +189,7 @@ class Menu extends Component {
       return(
         <li className="nav-item" name="filter">
           <a href="#" className="nav-link" onClick={this.showFilter}>
-            <DuoIcon name="filter" color="gold"/>
+            <DuoIcon name="folders-tree" color="gold"/>
             <span className="link-text">{this.props.getSocieteName(this.props.societeFilter).toUpperCase()}</span>
           </a>
         </li>
@@ -199,7 +199,7 @@ class Menu extends Component {
         return(
           <li className="nav-item" name="filter">
             <a href="#" className="nav-link" onClick={this.showFilter}>
-              <DuoIcon name="filter" color="blue"/>
+              <DuoIcon name="folders-tree" color="blue"/>
               <span className="link-text">{this.props.getSocieteName(this.props.societeFilter).toUpperCase()}</span>
             </a>
           </li>
@@ -208,7 +208,7 @@ class Menu extends Component {
         return(
           <li className="nav-item" name="filter">
             <a href="#" className="nav-link" onClick={this.showFilter}>
-              <DuoIcon name="filter" color="blue"/>
+              <DuoIcon name="folders-tree" color="blue"/>
               <span className="link-text">{this.props.getSocieteName(this.props.societeFilter).toUpperCase()}</span>
             </a>
           </li>
@@ -233,7 +233,7 @@ class Menu extends Component {
             <li className="nav-item" name={"logout"}>
               <a href="#" className="nav-link" key={"logout"} onClick={this.logout}>
                 <DuoIcon name="poweroff" color="red"/>
-                <span className="link-text">LOG OUT</span>
+                <span className="link-text">SE DÉCONNECTER</span>
               </a>
             </li>
           </ul>

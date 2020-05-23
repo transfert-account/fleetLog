@@ -4,7 +4,7 @@ import { Header, Dimmer, Loader } from 'semantic-ui-react';
 import DashboardUnit from '../molecules/DashboardUnit';
 import { gql } from 'apollo-server-express';
 
-class Dashboard extends Component {
+class Dashboards extends Component {
 
     state={
         dataLoaded:false,
@@ -34,6 +34,7 @@ class Dashboard extends Component {
                     locations
                     locationsLate
                     locationsVeryLate
+                    controlsTotal
                     controlsOk
                     controlsUrgent
                     controlsLate
@@ -43,15 +44,27 @@ class Dashboard extends Component {
                     entretiensNotReady
                     entretiensReadyAffected
                     entretiensReadyUnaffected
+                    entretiensTotalNotArchived
                     commandesToDo
                     commandesDone
                     commandesReceived
+                    commandesTotalNotArchived
                     avgKm
                     nbOwned
                     nbCRB
                     nbCRC
                     licenceAffected
                     licenceFree
+                    vehiclesVolumeRepartition{
+                        key
+                        label
+                        value
+                    }
+                    vehiclesModelRepartition{
+                        key
+                        label
+                        value
+                    }
                 }
             }
         `,
@@ -105,8 +118,7 @@ class Dashboard extends Component {
     render() {
         if(this.state.dataLoaded && this.state.societeLoaded){
             return (
-                <div style={{display:"grid",gridTemplateColumns:"1fr 6fr 1fr",gridTemplateRows:"auto auto 1fr",gridGap:"16px"}}>
-                    <Header style={{placeSelf:"center",gridColumnEnd:"span 3"}} as="h1">Tableau de bord : {this.state.dashboardsRaw.filter(d=>d.societe._id == this.props.societeFilter)[0].societe.name}</Header>
+                <div style={{height:"100%",display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"32px 80px",gridTemplateRows:"minmax(0, 1fr)",paddingRight:"16px"}}>
                     {this.state.dashboard()}
                 </div>
             )
@@ -126,4 +138,4 @@ const withUserContext = WrappedComponent => props => (
     </UserContext.Consumer>
 )
 
-export default wrappedInUserContext = withUserContext(Dashboard);
+export default wrappedInUserContext = withUserContext(Dashboards);

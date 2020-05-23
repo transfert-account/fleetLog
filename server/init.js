@@ -8,9 +8,7 @@ Accounts.onCreateUser(function(options, user) {
     user.profile.firstname = options.profile.firstname;
     user.profile.lastname = options.profile.lastname;
     user.profile.avatar = (Math.floor(Math.random()*260)+1).toString().padStart(3,"0")+".png"
-
     user.settings = options.settings || {};
-
     if(Meteor.users.find().count() == 0){
         user.settings.isOwner = true;
         user.settings.isAdmin = true;
@@ -20,9 +18,7 @@ Accounts.onCreateUser(function(options, user) {
         user.settings.isAdmin = options.settings.isOwner;
         user.settings.activated = false;
     }
-
     user.settings.visibility = options.settings.visibility;
-
     // Returns the user object
     return user;
- });
+});

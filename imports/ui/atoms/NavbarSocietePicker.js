@@ -84,7 +84,6 @@ class NavbarSocietePicker extends Component {
                             </a>
                         </li>
                         {this.state.societesRaw.map(s=>{
-                            console.log(s.name)
                             return(
                                 <li className="nav-item" name={s.name} key={s.name}>
                                     <a href="#" className="nav-link" key={s.name} onClick={()=>{this.handleSocieteFilterChange(s._id)}} style={{textDecoration: 'none'}}>
