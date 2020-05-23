@@ -13,6 +13,9 @@ type DashboardSocieteInfo{
     licences:Int
     licencesEndSoon:Int
     licencesOver:Int
+    batiments:Int
+    batimentsEndSoon:Int
+    batimentsOver:Int
     entretiensNotReady:Int
     entretiensReadyAffected:Int
     entretiensReadyUnaffected:Int

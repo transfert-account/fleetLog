@@ -41,6 +41,9 @@ export class BUDashboards extends Component {
                     licences
                     licencesEndSoon
                     licencesOver
+                    batiments
+                    batimentsEndSoon
+                    batimentsOver
                     entretiensNotReady
                     entretiensReadyAffected
                     entretiensReadyUnaffected

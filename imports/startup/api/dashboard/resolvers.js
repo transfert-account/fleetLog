@@ -7,6 +7,7 @@ import Equipements from '../equipement/equipements'
 import EquipementDescriptions from '../equipementDescription/equipementDescriptions'
 import Commandes from '../commande/commandes';
 import Licences from '../licence/licences';
+import Batiments from '../batiment/batiments';
 import Societes from '../societe/societes';
 import moment from 'moment';
 import { Mongo } from 'meteor/mongo';
@@ -87,6 +88,11 @@ export default {
                 d.licencesOver = Licences.find({societe:d.societe._id._str}).fetch().filter(l=>moment(l.endDate,"DD/MM/YYYY").diff(moment(),'days', true)<0).length
                 d.licenceFree = Licences.find({societe:d.societe._id._str,vehicle:""}).fetch().length;
                 d.licenceAffected = d.licences - d.licenceFree;
+
+                d.batiments = Batiments.find({societe:d.societe._id._str}).fetch().length
+                d.batimentsEndSoon = Batiments.find({societe:d.societe._id._str}).fetch().filter(l=>moment(l.lastExecution,"DD/MM/YYYY").add(l.delay,"days").diff(moment(),'days', true)<14).length
+                d.batimentsOver = Batiments.find({societe:d.societe._id._str}).fetch().filter(l=>moment(l.lastExecution,"DD/MM/YYYY").add(l.delay,"days").diff(moment(),'days', true)<0).length
+
                 d.commandesToDo = 0;
                 d.commandesDone = 0;
                 d.commandesReceived = 0;
@@ -208,6 +214,9 @@ export default {
                 licences:dashboards.reduce((a, b)=> a + b.licences, 0),
                 licencesEndSoon:dashboards.reduce((a, b)=> a + b.licencesEndSoon, 0),
                 licencesOver:dashboards.reduce((a, b)=> a + b.licencesOver, 0),
+                batiments:dashboards.reduce((a, b)=> a + b.batiments, 0),
+                batimentsEndSoon:dashboards.reduce((a, b)=> a + b.batimentsEndSoon, 0),
+                batimentsOver:dashboards.reduce((a, b)=> a + b.batimentsOver, 0),
                 entretiensNotReady:dashboards.reduce((a, b)=> a + b.entretiensNotReady, 0),
                 entretiensReadyAffected:dashboards.reduce((a, b)=> a + b.entretiensReadyAffected, 0),
                 entretiensReadyUnaffected:dashboards.reduce((a, b)=> a + b.entretiensReadyUnaffected, 0),
@@ -302,6 +311,11 @@ export default {
                 d.licencesEndSoon = Licences.find({societe:d.societe._id._str}).fetch().filter(l=>moment(l.endDate,"DD/MM/YYYY").diff(moment(),'days', true)<14).length
                 d.licencesOver = Licences.find({societe:d.societe._id._str}).fetch().filter(l=>moment(l.endDate,"DD/MM/YYYY").diff(moment(),'days', true)<0).length
                 d.licenceFree = Licences.find({societe:d.societe._id._str,vehicle:""}).fetch().length;
+
+                d.batiments = Batiments.find({societe:d.societe._id._str}).fetch().length
+                d.batimentsEndSoon = Batiments.find({societe:d.societe._id._str}).fetch().filter(l=>moment(l.lastExecution,"DD/MM/YYYY").add(l.delay,"days").diff(moment(),'days', true)<14).length
+                d.batimentsOver = Batiments.find({societe:d.societe._id._str}).fetch().filter(l=>moment(l.lastExecution,"DD/MM/YYYY").add(l.delay,"days").diff(moment(),'days', true)<0).length
+
                 d.licenceAffected = d.licences - d.licenceFree;
                 d.commandesToDo = 0;
                 d.commandesDone = 0;
