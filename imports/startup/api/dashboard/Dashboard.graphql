@@ -20,6 +20,9 @@ type DashboardSocieteInfo{
     entretiensReadyAffected:Int
     entretiensReadyUnaffected:Int
     entretiensTotalNotArchived:Int
+    accidentsThisYear:Int
+    accidentsOpened:Int
+    totalAccidentsCost:Float
     commandesToDo:Int
     commandesDone:Int
     commandesReceived:Int

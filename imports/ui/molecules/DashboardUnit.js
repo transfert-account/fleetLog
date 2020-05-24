@@ -90,21 +90,21 @@ export class DashboardUnit extends Component {
                                 </Table.Cell>
                                 <Table.Cell textAlign="right">
                                     Total :
-                                    <Label onClick={this.navigateToLicences} style={{marginLeft:"4px",cursor:"pointer"}} color={this.getColorIfAny(this.props.dashboard.licences,"green")} image>
+                                    <Label onClick={this.navigateToLicences} style={{marginLeft:"4px",cursor:"pointer"}} color={this.getColorIfAny(this.props.dashboard.batiments,"green")} image>
                                         <Icon style={{margin:"0"}} name='warehouse' />
                                         <Label.Detail>{this.props.dashboard.batiments}</Label.Detail>
                                     </Label>
                                 </Table.Cell>
                                 <Table.Cell textAlign="right">
                                     Execution proche :
-                                    <Label onClick={this.navigateToLicences} style={{marginLeft:"4px",cursor:"pointer"}} color={this.getColorIfAny(this.props.dashboard.licencesEndSoon,"orange")} image>
+                                    <Label onClick={this.navigateToLicences} style={{marginLeft:"4px",cursor:"pointer"}} color={this.getColorIfAny(this.props.dashboard.batimentsEndSoon,"orange")} image>
                                         <Icon style={{margin:"0"}} name='clock' />
                                         <Label.Detail>{this.props.dashboard.batimentsEndSoon}</Label.Detail>
                                     </Label>
                                 </Table.Cell>
                                 <Table.Cell textAlign="right">
                                     En retard :
-                                    <Label onClick={this.navigateToLicences} style={{marginLeft:"4px",cursor:"pointer"}} color={this.getColorIfAny(this.props.dashboard.licencesOver,"red")} image>
+                                    <Label onClick={this.navigateToLicences} style={{marginLeft:"4px",cursor:"pointer"}} color={this.getColorIfAny(this.props.dashboard.batimentsOver,"red")} image>
                                         <Icon style={{margin:"0"}} name='warning sign' />
                                         <Label.Detail>{this.props.dashboard.batimentsOver}</Label.Detail>
                                     </Label>
@@ -118,24 +118,24 @@ export class DashboardUnit extends Component {
                                     </Header>
                                 </Table.Cell>
                                 <Table.Cell textAlign="right">
-                                    Total :
-                                    <Label onClick={this.navigateToLicences} style={{marginLeft:"4px",cursor:"pointer"}} color={this.getColorIfAny(this.props.dashboard.licences,"green")} image>
+                                    Cette année :
+                                    <Label onClick={this.navigateToLicences} style={{marginLeft:"4px",cursor:"pointer"}} color={this.getColorIfAny(this.props.dashboard.accidentsThisYear,"green")} image>
                                         <Icon style={{margin:"0"}} name='file text' />
-                                        <Label.Detail>{this.props.dashboard.licences}</Label.Detail>
+                                        <Label.Detail>{this.props.dashboard.accidentsThisYear}</Label.Detail>
                                     </Label>
                                 </Table.Cell>
                                 <Table.Cell textAlign="right">
                                     Ouvert :
-                                    <Label onClick={this.navigateToLicences} style={{marginLeft:"4px",cursor:"pointer"}} color={this.getColorIfAny(this.props.dashboard.licencesEndSoon,"orange")} image>
+                                    <Label onClick={this.navigateToLicences} style={{marginLeft:"4px",cursor:"pointer"}} color={this.getColorIfAny(this.props.dashboard.accidentsOpened,"orange")} image>
                                         <Icon style={{margin:"0"}} name='clock' />
-                                        <Label.Detail>{this.props.dashboard.licencesEndSoon}</Label.Detail>
+                                        <Label.Detail>{this.props.dashboard.accidentsOpened}</Label.Detail>
                                     </Label>
                                 </Table.Cell>
                                 <Table.Cell textAlign="right">
-                                    Coût des réparations :
-                                    <Label onClick={this.navigateToLicences} style={{marginLeft:"4px",cursor:"pointer"}} color={this.getColorIfAny(this.props.dashboard.licencesOver,"red")} image>
+                                    Réparations :
+                                    <Label onClick={this.navigateToLicences} style={{marginLeft:"4px",cursor:"pointer"}} color={this.getColorIfAny(this.props.dashboard.totalAccidentsCost,"grey")} image>
                                         <Icon style={{margin:"0"}} name='euro' />
-                                        <Label.Detail>{this.props.dashboard.licencesOver}</Label.Detail>
+                                        <Label.Detail>{this.props.dashboard.totalAccidentsCost}</Label.Detail>
                                     </Label>
                                 </Table.Cell>
                             </Table.Row>

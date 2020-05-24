@@ -48,6 +48,9 @@ export class BUDashboards extends Component {
                     entretiensReadyAffected
                     entretiensReadyUnaffected
                     entretiensTotalNotArchived
+                    accidentsThisYear
+                    accidentsOpened
+                    totalAccidentsCost
                     commandesToDo
                     commandesDone
                     commandesReceived
@@ -111,7 +114,7 @@ export class BUDashboards extends Component {
     render() {
         if(this.state.dataLoaded && this.state.societeLoaded){
             return (
-                <div style={{height:"100%",display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"32px 48px",gridTemplateRows:"minmax(0,1fr)",paddingRight:"16px"}}>
+                <div style={{height:"100%",display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"16px 48px",gridTemplateRows:"minmax(0,1fr)",paddingRight:"16px"}}>
                     {this.state.dashboard()}
                 </div>
             )

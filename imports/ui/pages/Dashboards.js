@@ -48,6 +48,9 @@ class Dashboards extends Component {
                     entretiensReadyAffected
                     entretiensReadyUnaffected
                     entretiensTotalNotArchived
+                    accidentsThisYear
+                    accidentsOpened
+                    totalAccidentsCost
                     commandesToDo
                     commandesDone
                     commandesReceived
@@ -121,7 +124,7 @@ class Dashboards extends Component {
     render() {
         if(this.state.dataLoaded && this.state.societeLoaded){
             return (
-                <div style={{height:"100%",display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"32px 80px",gridTemplateRows:"minmax(0, 1fr)",paddingRight:"16px"}}>
+                <div style={{height:"100%",display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"16px 80px",gridTemplateRows:"minmax(0, 1fr)",paddingRight:"16px"}}>
                     {this.state.dashboard()}
                 </div>
             )
