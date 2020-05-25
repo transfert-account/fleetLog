@@ -188,22 +188,35 @@ export default {
             let vehiclesVolumeRepartition = [];
             let vehiclesModelRepartition = [];
             let vsRawG = Vehicles.find().fetch();
-                vsRawG.map(v=>{
-                    v.model = Models.findOne({_id:new Mongo.ObjectID(v.model)})
-                    v.volume = Volumes.findOne({_id:new Mongo.ObjectID(v.volume)})
-                })
-                vsRawG.map(v=>{
-                    if(vehiclesModelRepartition.filter(mr=>mr.key == v.model._id._str).length>0){
-                        vehiclesModelRepartition.filter(mr=>mr.key == v.model._id._str)[0].value++; 
-                    }else{
-                        vehiclesModelRepartition.push({key:v.model._id._str,label:v.model.name,value:1})
-                    }
-                    if(vehiclesVolumeRepartition.filter(mr=>mr.key == v.volume._id._str).length>0){
-                        vehiclesVolumeRepartition.filter(mr=>mr.key == v.volume._id._str)[0].value++; 
-                    }else{
-                        vehiclesVolumeRepartition.push({key:v.volume._id._str,label:v.volume.meterCube,value:1})
-                    }
-                })
+            vsRawG.map(v=>{
+                v.model = Models.findOne({_id:new Mongo.ObjectID(v.model)})
+                v.volume = Volumes.findOne({_id:new Mongo.ObjectID(v.volume)})
+            })
+            vsRawG.map(v=>{
+                if(vehiclesModelRepartition.filter(mr=>mr.key == v.model._id._str).length>0){
+                    vehiclesModelRepartition.filter(mr=>mr.key == v.model._id._str)[0].value++; 
+                }else{
+                    vehiclesModelRepartition.push({key:v.model._id._str,label:v.model.name,value:1})
+                }
+                if(vehiclesVolumeRepartition.filter(mr=>mr.key == v.volume._id._str).length>0){
+                    vehiclesVolumeRepartition.filter(mr=>mr.key == v.volume._id._str)[0].value++; 
+                }else{
+                    vehiclesVolumeRepartition.push({key:v.volume._id._str,label:v.volume.meterCube,value:1})
+                }
+            })
+            let vehicleCV = 0;
+            let vehicleCG = 0;
+            let locationCV = 0;
+            let locationCG = 0;
+            let locationContrat = 0;
+            let locationJustification = 0;
+            let entretiensFicheInter = 0;
+            let controlsFicheInter = 0;
+            let batimentsFicheInter = 0;
+            let licencesLicence = 0;
+            let accidentsConstat = 0;
+            let accidentsExpert = 0;
+            let accidentsFacture = 0;
             let groupDashboard = {
                 societe:{_id:"noidthisisgroupvisibility",trikey:"GRP",name:"Groupe"},
                 vehicles:dashboards.reduce((a, b) => a + (b.vehicles), 0),
@@ -240,7 +253,20 @@ export default {
                 licenceAffected:dashboards.reduce((a, b)=> a + b.licenceAffected, 0),
                 licenceFree:dashboards.reduce((a, b)=> a + b.licenceFree, 0),
                 vehiclesVolumeRepartition:vehiclesVolumeRepartition,
-                vehiclesModelRepartition:vehiclesModelRepartition
+                vehiclesModelRepartition:vehiclesModelRepartition,
+                vehicleCV:dashboards.reduce((a, b)=> a + b.vehicleCV, 0),
+                vehicleCG:dashboards.reduce((a, b)=> a + b.vehicleCG, 0),
+                locationCV:dashboards.reduce((a, b)=> a + b.locationCV, 0),
+                locationCG:dashboards.reduce((a, b)=> a + b.locationCG, 0),
+                locationContrat:dashboards.reduce((a, b)=> a + b.locationContrat, 0),
+                locationJustification:dashboards.reduce((a, b)=> a + b.locationJustification, 0),
+                entretiensFicheInter:dashboards.reduce((a, b)=> a + b.entretiensFicheInter, 0),
+                controlsFicheInter:dashboards.reduce((a, b)=> a + b.controlsFicheInter, 0),
+                batimentsFicheInter:dashboards.reduce((a, b)=> a + b.batimentsFicheInter, 0),
+                licencesLicence:dashboards.reduce((a, b)=> a + b.licencesLicence, 0),
+                accidentsConstat:dashboards.reduce((a, b)=> a + b.accidentsConstat, 0),
+                accidentsExpert:dashboards.reduce((a, b)=> a + b.accidentsExpert, 0),
+                accidentsFacture:dashboards.reduce((a, b)=> a + b.accidentsFacture, 0)
             }
             dashboards.push(groupDashboard);
             return dashboards;
@@ -411,6 +437,19 @@ export default {
                     }
                 })
             })
+            let vehicleCV = 0;
+            let vehicleCG = 0;
+            let locationCV = 0;
+            let locationCG = 0;
+            let locationContrat = 0;
+            let locationJustification = 0;
+            let entretiensFicheInter = 0;
+            let controlsFicheInter = 0;
+            let batimentsFicheInter = 0;
+            let licencesLicence = 0;
+            let accidentsConstat = 0;
+            let accidentsExpert = 0;
+            let accidentsFacture = 0;
             return dashboard[0];
         }
     }
