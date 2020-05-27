@@ -33,15 +33,15 @@ export default {
                             }
                         }
                     })*/
-                    /*Licences.update(
+                    Accidents.update(
                         {},{
                             $set: {
-                                licence:""
+                                archived:false
                             }
                         },
                         {multi:true}
-                    );*/
-                    return [{status:true,message:'Nuked : nothing, nuke is currently empty'}];
+                    );
+                    return [{status:true,message:'Nuked : set all accidents as not archived'}];
                 }catch(e){
                     throw e;
                     return [{status:false,message:e.message}];

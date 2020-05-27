@@ -71,6 +71,71 @@ export class BUDashboards extends Component {
                         label
                         value
                     }
+                    vehicleCV{
+                        total
+                        affected
+                        missing
+                    }
+                    vehicleCG{
+                        total
+                        affected
+                        missing
+                    }
+                    locationCV{
+                        total
+                        affected
+                        missing
+                    }
+                    locationCG{
+                        total
+                        affected
+                        missing
+                    }
+                    locationContrat{
+                        total
+                        affected
+                        missing
+                    }
+                    locationRestitution{
+                        total
+                        affected
+                        missing
+                    }
+                    entretiensFicheInter{
+                        total
+                        affected
+                        missing
+                    }
+                    controlsFicheInter{
+                        total
+                        affected
+                        missing
+                    }
+                    batimentsFicheInter{
+                        total
+                        affected
+                        missing
+                    }
+                    licencesLicence{
+                        total
+                        affected
+                        missing
+                    }
+                    accidentsConstat{
+                        total
+                        affected
+                        missing
+                    }
+                    accidentsExpert{
+                        total
+                        affected
+                        missing
+                    }
+                    accidentsFacture{
+                        total
+                        affected
+                        missing
+                    }
                 }
             }
         `,

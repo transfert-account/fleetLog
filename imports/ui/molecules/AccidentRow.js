@@ -15,6 +15,8 @@ class AccidentRow extends Component {
         details:false,
         editing:false,
         openDocs:false,
+        openArchive:false,
+        openUnArchive:false,
         newVehicle:this.props.accident.vehicle._id,
         newOccurenceDate:this.props.accident.occurenceDate,
         newDescription:this.props.accident.description,
@@ -50,13 +52,29 @@ class AccidentRow extends Component {
             }
         `,
         uploadAccidentDocumentQuery : gql`
-        mutation uploadAccidentDocument($_id: String!,$file: Upload!,$type: String!,$size: Int!) {
-            uploadAccidentDocument(_id:$_id,file:$file,type:$type,size:$size) {
-                status
-                message
+            mutation uploadAccidentDocument($_id: String!,$file: Upload!,$type: String!,$size: Int!) {
+                uploadAccidentDocument(_id:$_id,file:$file,type:$type,size:$size) {
+                    status
+                    message
+                }
             }
-        }
-    `,
+        `,
+        archiveAccidentQuery : gql`
+            mutation archiveAccident($_id: String!) {
+                archiveAccident(_id:$_id) {
+                    status
+                    message
+                }
+            }
+        `,
+        unArchiveAccidentQuery : gql`
+            mutation unArchiveAccident($_id: String!) {
+                unArchiveAccident(_id:$_id) {
+                    status
+                    message
+                }
+            }
+        `,
     }
 
     handleChange = e =>{
@@ -91,6 +109,20 @@ class AccidentRow extends Component {
     }
     closeDelete = () => {
         this.setState({openDelete:false})
+    }
+
+    showArchive = () => {
+        this.setState({openArchive:true})
+    }
+    closeArchive = () => {
+        this.setState({openArchive:false})
+    }
+
+    showUnArchive = () => {
+        this.setState({openUnArchive:true})
+    }
+    closeUnArchive = () => {
+        this.setState({openUnArchive:false})
     }
     
     closeDetails = () => {
@@ -137,6 +169,43 @@ class AccidentRow extends Component {
             }
         }).then(({data})=>{
             data.deleteAccident.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.loadAccidents();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+
+    archiveAccident = () => {
+        this.closeArchive();
+        this.props.client.mutate({
+            mutation:this.state.archiveAccidentQuery,
+            variables:{
+                _id:this.state._id,
+            }
+        }).then(({data})=>{
+            data.archiveAccident.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.loadAccidents();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    unArchiveAccident = () => {
+        this.closeUnArchive();
+        this.props.client.mutate({
+            mutation:this.state.unArchiveAccidentQuery,
+            variables:{
+                _id:this.state._id,
+            }
+        }).then(({data})=>{
+            data.unArchiveAccident.map(qrm=>{
                 if(qrm.status){
                     this.props.toast({message:qrm.message,type:"success"});
                     this.loadAccidents();
@@ -263,6 +332,14 @@ class AccidentRow extends Component {
         }
     }
 
+    getArchiveButton = () => {
+        if(this.props.accident.archived){
+            return <Button color="green" style={{justifySelf:"stretch",gridRowStart:"8"}} onClick={this.showUnArchive} icon labelPosition='right'>Désarchiver<Icon name='check'/></Button>
+        }else{
+            return <Button color="orange" style={{justifySelf:"stretch",gridRowStart:"8"}} onClick={this.showArchive} icon labelPosition='right'>Archiver<Icon name='archive'/></Button>
+        }
+    }
+
     getInfosPanel = () => {
         if(this.state.editing){
             return (
@@ -306,7 +383,8 @@ class AccidentRow extends Component {
                         <DocStateLabel opened color={this.props.accident.rapportExp._id == "" ? "red" : "green"} title="Rapport de l'expert"/>
                         <DocStateLabel opened color={this.props.accident.facture._id == "" ? "red" : "green"} title="Facture"/>
                     </div>
-                    <Button color="blue" style={{gridColumnEnd:"span 2",justifySelf:"stretch",gridRowStart:"8"}} onClick={this.showEdit} icon labelPosition='right'>Editer<Icon name='edit'/></Button>
+                    <Button color="blue" style={{justifySelf:"stretch",gridRowStart:"8"}} onClick={this.showEdit} icon labelPosition='right'>Editer<Icon name='edit'/></Button>
+                    {this.getArchiveButton()}
                 </div>
             )
         }
@@ -428,6 +506,24 @@ class AccidentRow extends Component {
                     </Modal.Content>
                     <Modal.Actions>
                         <Button color="black" onClick={this.closeDocs}>Fermer</Button>
+                    </Modal.Actions>
+                </Modal>
+                <Modal size='large' closeOnDimmerClick={false} open={this.state.openArchive} onClose={this.closeArchive} closeIcon>
+                    <Modal.Header>
+                        Archiver l'accident du véhicule : {this.props.accident.vehicle.registration} ?
+                    </Modal.Header>
+                    <Modal.Actions>
+                        <Button color="orange" onClick={this.archiveAccident}>Archiver</Button>
+                        <Button color="black" onClick={this.closeArchive}>Fermer</Button>
+                    </Modal.Actions>
+                </Modal>
+                <Modal size='large' closeOnDimmerClick={false} open={this.state.openUnArchive} onClose={this.closeUnArchive} closeIcon>
+                    <Modal.Header>
+                        Désrchiver l'accident du véhicule : {this.props.accident.vehicle.registration} ?
+                    </Modal.Header>
+                    <Modal.Actions>
+                        <Button color="green" onClick={this.unArchiveAccident}>Désarchiver</Button>
+                        <Button color="black" onClick={this.closeUnArchive}>Fermer</Button>
                     </Modal.Actions>
                 </Modal>
                 <ModalDatePicker onSelectDatePicker={this.onSelectDatePicker} closeDatePicker={this.closeDatePicker} open={this.state.openDatePicker}/>

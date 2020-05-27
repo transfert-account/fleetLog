@@ -14,6 +14,7 @@ class Accidents extends Component {
     openDatePicker:false,
     datePickerTarget:"",
     newOccurenceDate:"",
+    archiveFilter:false,
     docsFilter: "all",
     constatSentFilter: "all",
     openAddAccident:false,
@@ -25,6 +26,9 @@ class Accidents extends Component {
             a.societe._id == this.props.societeFilter
         );
       }
+      displayed = displayed.filter(a =>
+          a.archived == this.state.archiveFilter
+      );
       if(this.state.accidentFilter.length>0){
           displayed = displayed.filter(a =>
               a.vehicle.registration.toLowerCase().includes(this.state.accidentFilter.toLowerCase())
@@ -96,6 +100,7 @@ class Accidents extends Component {
           dateTravaux
           constatSent
           cost
+          archived
           constat{
             _id
             name
@@ -189,6 +194,20 @@ class Accidents extends Component {
     })
   }
 
+  //ARCHIVE FILTER
+  getArchiveFilterColor = (color,active) => {
+    if(this.state.archiveFilter == active){
+        return color;
+    }
+  }
+
+  switchArchiveFilter = () => {
+      this.setState({
+          archiveFilter:!this.state.archiveFilter
+      })
+      this.loadAccidents();
+  }
+
   //CONSTAT SENT FILTER
   getConstatSentColor = (color,filter) => {
     if(this.state.constatSentFilter == filter){
@@ -242,7 +261,14 @@ class Accidents extends Component {
       <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"32px",gridTemplateRows:"auto auto 1fr",gridTemplateColumns:"auto 1fr auto"}}>
         <Input style={{justifySelf:"stretch",gridColumnEnd:"span 2"}} name="accidentFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher un véhicule' />
         <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddAccident} icon labelPosition='right'>Nouvel accident<Icon name='plus'/></Button>
-        <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"auto auto",gridGap:"16px"}}>
+        <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"auto auto auto",gridGap:"16px"}}>
+          <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
+            <Icon name='archive'/>
+            <Button.Group style={{placeSelf:"center"}}>
+                <Button color={this.getArchiveFilterColor("green",false)} onClick={this.switchArchiveFilter}>Actuels</Button>
+                <Button color={this.getArchiveFilterColor("orange",true)} onClick={this.switchArchiveFilter}>Archives</Button>
+            </Button.Group>
+          </Message>
           <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
             <Icon name='mail'/>
             <Button.Group style={{placeSelf:"center"}}>

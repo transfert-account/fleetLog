@@ -13,6 +13,336 @@ import Accidents from '../accident/accidents';
 import moment from 'moment';
 import { Mongo } from 'meteor/mongo';
 
+const affectDashboardData = d => {
+    d.vehicleCV = {total:0,affected:0,missing:0};
+    d.vehicleCG = {total:0,affected:0,missing:0};
+    d.locationCV = {total:0,affected:0,missing:0};
+    d.locationCG = {total:0,affected:0,missing:0};
+    d.locationContrat = {total:0,affected:0,missing:0};
+    d.locationRestitution = {total:0,affected:0,missing:0};
+    d.batimentsFicheInter = {total:0,affected:0,missing:0};
+    d.entretiensFicheInter = {total:0,affected:0,missing:0};
+    d.controlsFicheInter = {total:0,affected:0,missing:0};
+    d.licencesLicence = {total:0,affected:0,missing:0};
+    d.accidentsConstat = {total:0,affected:0,missing:0};
+    d.accidentsExpert = {total:0,affected:0,missing:0};
+    d.accidentsFacture = {total:0,affected:0,missing:0};
+    d.vehicles = Vehicles.find({societe:d.societe._id._str,archived:false}).fetch().length
+    d.vehiclesLate = Vehicles.find({societe:d.societe._id._str,archived:false}).fetch().filter(v=>moment(v.kms[v.kms.length-1].reportDate,"DD/MM/YYYY").diff(moment(),'days', true)>14).length
+    d.vehiclesVeryLate = Vehicles.find({societe:d.societe._id._str,archived:false}).fetch().filter(v=>moment(v.kms[v.kms.length-1].reportDate,"DD/MM/YYYY").diff(moment(),'days', true)>28).length
+    let locationsRaw = Locations.find({societe:d.societe._id._str,archived:false}).fetch();
+    locationsRaw.map(l=>{
+        if(l.cv != ""){
+            d.locationCV.total += 1;
+            d.locationCV.affected += 1;
+        }else{
+            d.locationCV.total += 1;
+            d.locationCV.missing += 1;
+        }
+        if(l.cg != ""){
+            d.locationCG.total += 1;
+            d.locationCG.affected += 1;
+        }else{
+            d.locationCG.total += 1;
+            d.locationCG.missing += 1;
+        }
+        if(l.contrat != ""){
+            d.locationContrat.total += 1;
+            d.locationContrat.affected += 1;
+        }else{
+            d.locationContrat.total += 1;
+            d.locationContrat.missing += 1;
+        }
+        if(l.restitution != ""){
+            d.locationRestitution.total += 1;
+            d.locationRestitution.affected += 1;
+        }else{
+            d.locationRestitution.total += 1;
+            d.locationRestitution.missing += 1;
+        }
+    })
+    d.locations = locationsRaw.length
+    d.locationsLate = locationsRaw.filter(l=>moment(l.kms[l.kms.length-1].reportDate,"DD/MM/YYYY").diff(moment(),'days', true)>14).length
+    d.locationsVeryLate = locationsRaw.filter(l=>moment(l.kms[l.kms.length-1].reportDate,"DD/MM/YYYY").diff(moment(),'days', true)>28).length
+    d.controlsTotal = 0;
+    d.controlsOk = 0;
+    d.controlsUrgent = 0;
+    d.controlsLate = 0;
+    Vehicles.find({societe:d.societe._id._str,archived:false}).fetch().map(v=>{
+        if(v.cv != ""){
+            d.vehicleCV.total += 1;
+            d.vehicleCV.affected += 1;
+        }else{
+            d.vehicleCV.total += 1;
+            d.vehicleCV.missing += 1;
+        }
+        if(v.cg != ""){
+            d.vehicleCG.total += 1;
+            d.vehicleCG.affected += 1;
+        }else{
+            d.vehicleCG.total += 1;
+            d.vehicleCG.missing += 1;
+        }
+        v.equipements = Equipements.find({vehicle:v._id._str}).fetch() || {};
+        v.equipements.forEach(e => {
+            e.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)}) || {};
+        });
+        v.equipements.map(e=>{
+            if(e.ficheInter != ""){
+                d.controlsFicheInter.total += 1;
+                d.controlsFicheInter.affected += 1;    
+            }else{
+                d.controlsFicheInter.total += 1;
+                d.controlsFicheInter.missing += 1;    
+            }
+            e.nextControl = 0;
+            e.alertStep = 0;
+            e.color = "green";
+            if(e.equipementDescription.unitType == "t"){
+                if(e.equipementDescription.controlPeriodUnit == "y"){
+                    e.nextControl = moment(e.lastControl,"DD/MM/YYYY").add(e.equipementDescription.controlPeriodValue,"Y");
+                }
+                if(e.equipementDescription.controlPeriodUnit == "m"){
+                    e.nextControl = moment(e.lastControl,"DD/MM/YYYY").add(e.equipementDescription.controlPeriodValue,'M');
+                }
+                if(e.equipementDescription.alertStepUnit == "y"){
+                    e.alertStep = moment(e.lastControl,"DD/MM/YYYY").add(e.equipementDescription.alertStepValue,"Y");
+                }
+                if(e.equipementDescription.alertStepUnit == "m"){
+                    e.alertStep = moment(e.lastControl,"DD/MM/YYYY").add(e.equipementDescription.alertStepValue,'M');
+                }
+                if(moment(e.alertStep, "DD/MM/YYYY").diff(moment())<0){
+                    e.color = "orange"
+                }
+                if(moment(e.nextControl, "DD/MM/YYYY").diff(moment())<0){
+                    e.color = "red"
+                }
+            }
+            if(e.equipementDescription.unitType == "d"){
+                e.nextControl = (parseInt(e.lastControl) + parseInt(e.equipementDescription.controlPeriodValue)) - parseInt(v.km)
+                if(e.nextControl<e.equipementDescription.alertStepValue){
+                    e.color = "orange";
+                }
+                if(e.nextControl<0){
+                    e.color = "red";
+                }
+            }
+            if(e.color == "green"){
+                d.controlsOk ++;
+                d.controlsTotal ++;
+            }
+            if(e.color == "orange"){
+                d.controlsUrgent ++;
+                d.controlsTotal ++;
+            }
+            if(e.color == "red"){
+                d.controlsLate ++;
+                d.controlsTotal ++;
+            }
+        })
+    })
+    let licencesRaw = Licences.find({societe:d.societe._id._str}).fetch();
+    licencesRaw.map(l=>{
+        if(l.licence != ""){
+            d.licencesLicence.total += 1;
+            d.licencesLicence.affected += 1;
+        }else{
+            d.licencesLicence.total += 1;
+            d.licencesLicence.missing += 1;
+        }
+    })
+    d.licences = licencesRaw.length;
+    d.licencesEndSoon = licencesRaw.filter(l=>moment(l.endDate,"DD/MM/YYYY").diff(moment(),'days', true)<14).length
+    d.licencesOver = licencesRaw.filter(l=>moment(l.endDate,"DD/MM/YYYY").diff(moment(),'days', true)<0).length
+    d.licenceFree = Licences.find({societe:d.societe._id._str,vehicle:""}).fetch().length;
+    d.licenceAffected = d.licences - d.licenceFree;
+    let batimentsRaw = Batiments.find({societe:d.societe._id._str}).fetch()
+    batimentsRaw.map(b=>{
+        if(b.ficheInter != ""){
+            d.batimentsFicheInter.total += 1;
+            d.batimentsFicheInter.affected += 1;
+        }else{
+            d.batimentsFicheInter.total += 1;
+            d.batimentsFicheInter.missing += 1;
+        }
+    })
+    d.batiments = batimentsRaw.length;                
+    d.batimentsEndSoon = batimentsRaw.filter(l=>moment(l.lastExecution,"DD/MM/YYYY").add(l.delay,"days").diff(moment(),'days', true)<14).length
+    d.batimentsOver = batimentsRaw.filter(l=>moment(l.lastExecution,"DD/MM/YYYY").add(l.delay,"days").diff(moment(),'days', true)<0).length
+    let accidentsRaw = Accidents.find({societe:d.societe._id._str}).fetch();
+    accidentsRaw.map(a=>{
+        if(!a.archived){
+            if(a.constat != ""){
+                d.accidentsConstat.total += 1;
+                d.accidentsConstat.affected += 1;
+            }else{
+                d.accidentsConstat.total += 1;
+                d.accidentsConstat.missing += 1;
+            }
+            if(a.rapportExp != ""){
+                d.accidentsExpert.total += 1;
+                d.accidentsExpert.affected += 1;
+            }else{
+                d.accidentsExpert.total += 1;
+                d.accidentsExpert.missing += 1;
+            }
+            if(a.facture != ""){
+                d.accidentsFacture.total += 1;
+                d.accidentsFacture.affected += 1;
+            }else{
+                d.accidentsFacture.total += 1;
+                d.accidentsFacture.missing += 1;
+            }
+        }
+    })
+
+    d.accidentsThisYear = accidentsRaw.filter(a=>{return moment(a.occurenceDate,"DD/MM/YYYY").year() == new Date().getFullYear()}).length;
+    d.accidentsOpened = accidentsRaw.filter(a=>{return a.archived == false}).length;
+    d.totalAccidentsCost = accidentsRaw.reduce((a, b)=> a + b.cost, 0);
+
+    d.commandesToDo = 0;
+    d.commandesDone = 0;
+    d.commandesReceived = 0;
+    d.commandesTotalNotArchived = 0;
+    d.entretiensTotalNotArchived = 0;
+    
+    let entretiens = Entretiens.find({societe:d.societe._id._str,archived:false}).fetch() || {};
+    entretiens.forEach(e => {
+        e.commandes = Commandes.find({entretien:e._id._str}).fetch() || [];
+    });
+    entretiens.map(e=>{
+        if(e.ficheInter != ""){
+            d.entretiensFicheInter.total += 1;
+            d.entretiensFicheInter.affected += 1;    
+        }else{
+            d.entretiensFicheInter.total += 1;
+            d.entretiensFicheInter.missing += 1;    
+        }
+        d.entretiensTotalNotArchived++;
+        let lowestStatus = 3;
+        e.commandes.map(c=>{
+            d.commandesTotalNotArchived++;
+            if(c.status == 1){
+                d.commandesToDo++;
+            }
+            if(c.status == 2){
+                d.commandesDone++;
+            }
+            if(c.status == 3){
+                d.commandesReceived++;
+            }
+            if(c.status != 3){
+                lowestStatus = c.status
+            }
+        })
+        if(lowestStatus != 3){
+            e.ready = false
+        }else{
+            e.ready = true
+        }
+    })
+    d.entretiensNotReady = entretiens.filter(e=>!e.ready).length
+    entretiens = entretiens.filter(e=>e.ready)
+    d.entretiensReadyAffected = entretiens.filter(e=>e.user != "").length
+    d.entretiensReadyUnaffected = entretiens.filter(e=>e.user == "").length
+    d.nbOwned = 0;
+    d.nbCRB = 0
+    d.nbCRC = 0
+    Vehicles.find({societe:d.societe._id._str,archived:false}).fetch().map(v=>{
+        let totalMonths = v.purchasePrice/v.monthlyPayement;
+        let monthsDone = parseInt(moment().diff(moment(v.payementBeginDate,"DD/MM/YYYY"),'months', true));
+        let monthsLeft = totalMonths - monthsDone;
+        if(parseInt(monthsLeft <= 0) || v.payementFormat == "CPT"){
+            d.nbOwned ++;
+        }else{
+            if(v.payementFormat == "CRB"){
+                d.nbCRB ++;
+            }if(v.payementFormat == "CRC"){
+                d.nbCRC ++;
+            }
+        }
+    })
+    let vsRaw = Vehicles.find({societe:d.societe._id._str,archived:false}).fetch();
+    d.vehiclesVolumeRepartition = [];
+    d.vehiclesModelRepartition = [];
+    vsRaw.map(v=>{
+        v.model = Models.findOne({_id:new Mongo.ObjectID(v.model)})
+        v.volume = Volumes.findOne({_id:new Mongo.ObjectID(v.volume)})
+    })
+    vsRaw.map(v=>{
+        if(d.vehiclesModelRepartition.filter(mr=>mr.key == v.model._id._str).length>0){
+            d.vehiclesModelRepartition.filter(mr=>mr.key == v.model._id._str)[0].value++; 
+        }else{
+            d.vehiclesModelRepartition.push({key:v.model._id._str,label:v.model.name,value:1})
+        }
+        if(d.vehiclesVolumeRepartition.filter(mr=>mr.key == v.volume._id._str).length>0){
+            d.vehiclesVolumeRepartition.filter(mr=>mr.key == v.volume._id._str)[0].value++; 
+        }else{
+            d.vehiclesVolumeRepartition.push({key:v.volume._id._str,label:v.volume.meterCube,value:1})
+        }
+    })
+    d.avgKm = 0;
+    Vehicles.find({societe:d.societe._id._str,archived:false}).fetch().map(v =>d.avgKm += v.kms[v.kms.length-1].kmValue)
+    let nbV = Vehicles.find({societe:d.societe._id._str,archived:false}).fetch().length
+    if(d.avgKm != 0 && nbV != 0){
+        d.avgKm = parseInt(d.avgKm / nbV)
+    }
+}
+
+const getGroupAvgKms = () => {
+    let avgKm = 0;
+    Vehicles.find({archived:false}).fetch().map(v =>avgKm += v.kms[v.kms.length-1].kmValue)
+    let nbV = Vehicles.find({archived:false}).fetch().length
+    if(avgKm != 0 && nbV != 0){
+        avgKm = parseInt(avgKm / nbV)
+        return avgKm;
+    }else{
+        return 0;
+    }
+    
+}
+
+const docDeepReduce = (ds,prop) => {
+    return {
+        total:ds.reduce((a, b)=> a + b[prop].total, 0),
+        affected:ds.reduce((a, b)=> a + b[prop].affected, 0),
+        missing:ds.reduce((a, b)=> a + b[prop].missing, 0)
+    }
+}
+
+const getGroupVehicleRepartition = type => {
+    let vehiclesVolumeRepartition = [];
+    let vehiclesModelRepartition = [];
+    let vsRawG = Vehicles.find({archived:false}).fetch();
+    vsRawG.map(v=>{
+        v.model = Models.findOne({_id:new Mongo.ObjectID(v.model)})
+        v.volume = Volumes.findOne({_id:new Mongo.ObjectID(v.volume)})
+    })
+    vsRawG.map(v=>{
+        if(type == "vehiclesModelRepartition"){
+            if(vehiclesModelRepartition.filter(mr=>mr.key == v.model._id._str).length>0){
+                vehiclesModelRepartition.filter(mr=>mr.key == v.model._id._str)[0].value++; 
+            }else{
+                vehiclesModelRepartition.push({key:v.model._id._str,label:v.model.name,value:1})
+            }
+        }
+        if(type == "vehiclesVolumeRepartition"){
+            if(vehiclesVolumeRepartition.filter(vr=>vr.key == v.volume._id._str).length>0){
+                vehiclesVolumeRepartition.filter(vr=>vr.key == v.volume._id._str)[0].value++; 
+            }else{
+                vehiclesVolumeRepartition.push({key:v.volume._id._str,label:v.volume.meterCube,value:1})
+            }
+        }
+    })
+    if(type == "vehiclesVolumeRepartition"){
+        return vehiclesVolumeRepartition;
+    }
+    if(type == "vehiclesModelRepartition"){
+        return vehiclesModelRepartition;
+    }
+    return {key:"err",label:"err",value:1};
+}
+
 export default {
     Query : {
         dashboards(obj, args,{user}){
@@ -22,201 +352,8 @@ export default {
                 dashboards.push({societe:s})
             })
             dashboards.map(d=>{
-                d.vehicles = Vehicles.find({societe:d.societe._id._str,archived:false}).fetch().length
-                d.vehiclesLate = Vehicles.find({societe:d.societe._id._str,archived:false}).fetch().filter(v=>moment(v.kms[v.kms.length-1].reportDate,"DD/MM/YYYY").diff(moment(),'days', true)>14).length
-                d.vehiclesVeryLate = Vehicles.find({societe:d.societe._id._str,archived:false}).fetch().filter(v=>moment(v.kms[v.kms.length-1].reportDate,"DD/MM/YYYY").diff(moment(),'days', true)>28).length
-                d.locations = Locations.find({societe:d.societe._id._str,archived:false}).fetch().length
-                d.locationsLate = Locations.find({societe:d.societe._id._str,archived:false}).fetch().filter(l=>moment(l.kms[l.kms.length-1].reportDate,"DD/MM/YYYY").diff(moment(),'days', true)>14).length
-                d.locationsVeryLate = Locations.find({societe:d.societe._id._str,archived:false}).fetch().filter(l=>moment(l.kms[l.kms.length-1].reportDate,"DD/MM/YYYY").diff(moment(),'days', true)>28).length
-                d.controlsTotal = 0;
-                d.controlsOk = 0;
-                d.controlsUrgent = 0;
-                d.controlsLate = 0;
-                Vehicles.find({societe:d.societe._id._str,archived:false}).fetch().map(v=>{
-                    v.equipements = Equipements.find({vehicle:v._id._str}).fetch() || {};
-                    v.equipements.forEach(e => {
-                        e.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)}) || {};
-                    });
-                    v.equipements.map(e=>{
-                        e.nextControl = 0;
-                        e.alertStep = 0;
-                        e.color = "green";
-                        if(e.equipementDescription.unitType == "t"){
-                            if(e.equipementDescription.controlPeriodUnit == "y"){
-                                e.nextControl = moment(e.lastControl,"DD/MM/YYYY").add(e.equipementDescription.controlPeriodValue,"Y");
-                            }
-                            if(e.equipementDescription.controlPeriodUnit == "m"){
-                                e.nextControl = moment(e.lastControl,"DD/MM/YYYY").add(e.equipementDescription.controlPeriodValue,'M');
-                            }
-                            if(e.equipementDescription.alertStepUnit == "y"){
-                                e.alertStep = moment(e.lastControl,"DD/MM/YYYY").add(e.equipementDescription.alertStepValue,"Y");
-                            }
-                            if(e.equipementDescription.alertStepUnit == "m"){
-                                e.alertStep = moment(e.lastControl,"DD/MM/YYYY").add(e.equipementDescription.alertStepValue,'M');
-                            }
-                            if(moment(e.alertStep, "DD/MM/YYYY").diff(moment())<0){
-                                e.color = "orange"
-                            }
-                            if(moment(e.nextControl, "DD/MM/YYYY").diff(moment())<0){
-                                e.color = "red"
-                            }
-                        }
-                        if(e.equipementDescription.unitType == "d"){
-                            e.nextControl = (parseInt(e.lastControl) + parseInt(e.equipementDescription.controlPeriodValue)) - parseInt(v.km)
-                            if(e.nextControl<e.equipementDescription.alertStepValue){
-                                e.color = "orange";
-                            }
-                            if(e.nextControl<0){
-                                e.color = "red";
-                            }
-                        }
-                        if(e.color == "green"){
-                            d.controlsOk ++;
-                            d.controlsTotal ++;
-                        }
-                        if(e.color == "orange"){
-                            d.controlsUrgent ++;
-                            d.controlsTotal ++;
-                        }
-                        if(e.color == "red"){
-                            d.controlsLate ++;
-                            d.controlsTotal ++;
-                        }
-                    })
-                })
-                d.licences = Licences.find({societe:d.societe._id._str}).fetch().length
-                d.licencesEndSoon = Licences.find({societe:d.societe._id._str}).fetch().filter(l=>moment(l.endDate,"DD/MM/YYYY").diff(moment(),'days', true)<14).length
-                d.licencesOver = Licences.find({societe:d.societe._id._str}).fetch().filter(l=>moment(l.endDate,"DD/MM/YYYY").diff(moment(),'days', true)<0).length
-                d.licenceFree = Licences.find({societe:d.societe._id._str,vehicle:""}).fetch().length;
-                d.licenceAffected = d.licences - d.licenceFree;
-
-                d.batiments = Batiments.find({societe:d.societe._id._str}).fetch().length
-                d.batimentsEndSoon = Batiments.find({societe:d.societe._id._str}).fetch().filter(l=>moment(l.lastExecution,"DD/MM/YYYY").add(l.delay,"days").diff(moment(),'days', true)<14).length
-                d.batimentsOver = Batiments.find({societe:d.societe._id._str}).fetch().filter(l=>moment(l.lastExecution,"DD/MM/YYYY").add(l.delay,"days").diff(moment(),'days', true)<0).length
-
-                d.accidentsThisYear = Accidents.find({societe:d.societe._id._str}).fetch().filter(a=>{return moment(a.occurenceDate,"DD/MM/YYYY").year() == new Date().getFullYear()}).length;
-                d.accidentsOpened = Accidents.find({societe:d.societe._id._str}).fetch().filter(a=>{return a.constatSent == false}).length;
-                d.totalAccidentsCost = Accidents.find({societe:d.societe._id._str}).fetch().reduce((a, b)=> a + b.cost, 0);
-
-                d.commandesToDo = 0;
-                d.commandesDone = 0;
-                d.commandesReceived = 0;
-                d.commandesTotalNotArchived = 0;
-                d.entretiensTotalNotArchived = 0;
-                let entretiens = Entretiens.find({societe:d.societe._id._str,archived:false}).fetch() || {};
-                entretiens.forEach(e => {
-                    e.commandes = Commandes.find({entretien:e._id._str}).fetch() || [];
-                });
-                entretiens.map(e=>{
-                    d.entretiensTotalNotArchived++;
-                    let lowestStatus = 3;
-                    e.commandes.map(c=>{
-                        d.commandesTotalNotArchived++;
-                        if(c.status == 1){
-                            d.commandesToDo++;
-                        }
-                        if(c.status == 2){
-                            d.commandesDone++;
-                        }
-                        if(c.status == 3){
-                            d.commandesReceived++;
-                        }
-                        if(c.status != 3){
-                            lowestStatus = c.status
-                        }
-                    })
-                    if(lowestStatus != 3){
-                        e.ready = false
-                    }else{
-                        e.ready = true
-                    }
-                })
-                d.entretiensNotReady = entretiens.filter(e=>!e.ready).length
-                entretiens = entretiens.filter(e=>e.ready)
-                d.entretiensReadyAffected = entretiens.filter(e=>e.user != "").length
-                d.entretiensReadyUnaffected = entretiens.filter(e=>e.user == "").length
-                let totalKm = 0;
-                Vehicles.find({societe:d.societe._id._str,archived:false}).fetch().map(v =>totalKm += v.kms[v.kms.length-1].kmValue)
-                if(d.vehicles == 0){
-                    d.avgKm = 0
-                }else{
-                    d.avgKm = parseInt(totalKm / d.vehicles);
-                }
-                d.nbOwned = 0;
-                d.nbCRB = 0
-                d.nbCRC = 0
-                Vehicles.find({societe:d.societe._id._str,archived:false}).fetch().map(v=>{
-                    let totalMonths = v.purchasePrice/v.monthlyPayement;
-                    let monthsDone = parseInt(moment().diff(moment(v.payementBeginDate,"DD/MM/YYYY"),'months', true));
-                    let monthsLeft = totalMonths - monthsDone;
-                    if(parseInt(monthsLeft <= 0) || v.payementFormat == "CPT"){
-                        d.nbOwned ++;
-                    }else{
-                        if(v.payementFormat == "CRB"){
-                            d.nbCRB ++;
-                        }if(v.payementFormat == "CRC"){
-                            d.nbCRC ++;
-                        }
-                    }
-                })
-                let vsRaw = Vehicles.find({societe:d.societe._id._str}).fetch();
-                vsRaw.map(v=>{
-                    v.model = Models.findOne({_id:new Mongo.ObjectID(v.model)})
-                    v.volume = Volumes.findOne({_id:new Mongo.ObjectID(v.volume)})
-                })
-                d.vehiclesVolumeRepartition = [];
-                d.vehiclesModelRepartition = [];
-                vsRaw.map(v=>{
-                    if(d.vehiclesModelRepartition.filter(mr=>mr.key == v.model._id._str).length>0){
-                        d.vehiclesModelRepartition.filter(mr=>mr.key == v.model._id._str)[0].value++; 
-                    }else{
-                        d.vehiclesModelRepartition.push({key:v.model._id._str,label:v.model.name,value:1})
-                    }
-                    if(d.vehiclesVolumeRepartition.filter(mr=>mr.key == v.volume._id._str).length>0){
-                        d.vehiclesVolumeRepartition.filter(mr=>mr.key == v.volume._id._str)[0].value++; 
-                    }else{
-                        d.vehiclesVolumeRepartition.push({key:v.volume._id._str,label:v.volume.meterCube,value:1})
-                    }
-                })
+                affectDashboardData(d)
             })
-            let totalGlobalKm = 0;
-            let globalAvgKm = 0;
-            let vehicles = Vehicles.find({archived:false}).fetch().map(v =>totalGlobalKm += v.kms[v.kms.length-1].kmValue)
-            if(vehicles != 0){
-                globalAvgKm = parseInt(totalGlobalKm /  Vehicles.find({archived:false}).fetch().length)
-            }
-            let vehiclesVolumeRepartition = [];
-            let vehiclesModelRepartition = [];
-            let vsRawG = Vehicles.find().fetch();
-            vsRawG.map(v=>{
-                v.model = Models.findOne({_id:new Mongo.ObjectID(v.model)})
-                v.volume = Volumes.findOne({_id:new Mongo.ObjectID(v.volume)})
-            })
-            vsRawG.map(v=>{
-                if(vehiclesModelRepartition.filter(mr=>mr.key == v.model._id._str).length>0){
-                    vehiclesModelRepartition.filter(mr=>mr.key == v.model._id._str)[0].value++; 
-                }else{
-                    vehiclesModelRepartition.push({key:v.model._id._str,label:v.model.name,value:1})
-                }
-                if(vehiclesVolumeRepartition.filter(mr=>mr.key == v.volume._id._str).length>0){
-                    vehiclesVolumeRepartition.filter(mr=>mr.key == v.volume._id._str)[0].value++; 
-                }else{
-                    vehiclesVolumeRepartition.push({key:v.volume._id._str,label:v.volume.meterCube,value:1})
-                }
-            })
-            let vehicleCV = 0;
-            let vehicleCG = 0;
-            let locationCV = 0;
-            let locationCG = 0;
-            let locationContrat = 0;
-            let locationJustification = 0;
-            let entretiensFicheInter = 0;
-            let controlsFicheInter = 0;
-            let batimentsFicheInter = 0;
-            let licencesLicence = 0;
-            let accidentsConstat = 0;
-            let accidentsExpert = 0;
-            let accidentsFacture = 0;
             let groupDashboard = {
                 societe:{_id:"noidthisisgroupvisibility",trikey:"GRP",name:"Groupe"},
                 vehicles:dashboards.reduce((a, b) => a + (b.vehicles), 0),
@@ -246,27 +383,27 @@ export default {
                 commandesDone:dashboards.reduce((a, b)=> a + b.commandesDone, 0),
                 commandesReceived:dashboards.reduce((a, b)=> a + b.commandesReceived, 0),
                 commandesTotalNotArchived:dashboards.reduce((a, b)=> a + b.commandesTotalNotArchived, 0),
-                avgKm:globalAvgKm,
                 nbOwned:dashboards.reduce((a, b)=> a + b.nbOwned, 0),
                 nbCRB:dashboards.reduce((a, b)=> a + b.nbCRB, 0),
                 nbCRC:dashboards.reduce((a, b)=> a + b.nbCRC, 0),
                 licenceAffected:dashboards.reduce((a, b)=> a + b.licenceAffected, 0),
                 licenceFree:dashboards.reduce((a, b)=> a + b.licenceFree, 0),
-                vehiclesVolumeRepartition:vehiclesVolumeRepartition,
-                vehiclesModelRepartition:vehiclesModelRepartition,
-                vehicleCV:dashboards.reduce((a, b)=> a + b.vehicleCV, 0),
-                vehicleCG:dashboards.reduce((a, b)=> a + b.vehicleCG, 0),
-                locationCV:dashboards.reduce((a, b)=> a + b.locationCV, 0),
-                locationCG:dashboards.reduce((a, b)=> a + b.locationCG, 0),
-                locationContrat:dashboards.reduce((a, b)=> a + b.locationContrat, 0),
-                locationJustification:dashboards.reduce((a, b)=> a + b.locationJustification, 0),
-                entretiensFicheInter:dashboards.reduce((a, b)=> a + b.entretiensFicheInter, 0),
-                controlsFicheInter:dashboards.reduce((a, b)=> a + b.controlsFicheInter, 0),
-                batimentsFicheInter:dashboards.reduce((a, b)=> a + b.batimentsFicheInter, 0),
-                licencesLicence:dashboards.reduce((a, b)=> a + b.licencesLicence, 0),
-                accidentsConstat:dashboards.reduce((a, b)=> a + b.accidentsConstat, 0),
-                accidentsExpert:dashboards.reduce((a, b)=> a + b.accidentsExpert, 0),
-                accidentsFacture:dashboards.reduce((a, b)=> a + b.accidentsFacture, 0)
+                avgKm:getGroupAvgKms(),
+                vehicleCV:docDeepReduce(dashboards,"vehicleCV"),
+                vehicleCG:docDeepReduce(dashboards,"vehicleCG"),
+                locationCV:docDeepReduce(dashboards,"locationCV"),
+                locationCG:docDeepReduce(dashboards,"locationCG"),
+                locationContrat:docDeepReduce(dashboards,"locationContrat"),
+                locationRestitution:docDeepReduce(dashboards,"locationRestitution"),
+                entretiensFicheInter:docDeepReduce(dashboards,"entretiensFicheInter"),
+                controlsFicheInter:docDeepReduce(dashboards,"controlsFicheInter"),
+                batimentsFicheInter:docDeepReduce(dashboards,"batimentsFicheInter"),
+                licencesLicence:docDeepReduce(dashboards,"licencesLicence"),
+                accidentsConstat:docDeepReduce(dashboards,"accidentsConstat"),
+                accidentsExpert:docDeepReduce(dashboards,"accidentsExpert"),
+                accidentsFacture:docDeepReduce(dashboards,"accidentsFacture"),
+                vehiclesVolumeRepartition:getGroupVehicleRepartition("vehiclesVolumeRepartition"),
+                vehiclesModelRepartition:getGroupVehicleRepartition("vehiclesModelRepartition")
             }
             dashboards.push(groupDashboard);
             return dashboards;
@@ -279,177 +416,8 @@ export default {
                 dashboard.push({societe:s})
             })
             dashboard.map(d=>{
-                d.vehicles = Vehicles.find({societe:d.societe._id._str,archived:false}).fetch().length
-                d.vehiclesLate = Vehicles.find({societe:d.societe._id._str,archived:false}).fetch().filter(v=>moment(v.kms[v.kms.length-1].reportDate,"DD/MM/YYYY").diff(moment(),'days', true)>14).length
-                d.vehiclesVeryLate = Vehicles.find({societe:d.societe._id._str,archived:false}).fetch().filter(v=>moment(v.kms[v.kms.length-1].reportDate,"DD/MM/YYYY").diff(moment(),'days', true)>28).length
-                d.locations = Locations.find({societe:d.societe._id._str,archived:false}).fetch().length
-                d.locationsLate = Locations.find({societe:d.societe._id._str,archived:false}).fetch().filter(l=>moment(l.kms[l.kms.length-1].reportDate,"DD/MM/YYYY").diff(moment(),'days', true)>14).length
-                d.locationsVeryLate = Locations.find({societe:d.societe._id._str,archived:false}).fetch().filter(l=>moment(l.kms[l.kms.length-1].reportDate,"DD/MM/YYYY").diff(moment(),'days', true)>28).length
-                d.controlsTotal = 0;
-                d.controlsOk = 0;
-                d.controlsUrgent = 0;
-                d.controlsLate = 0;
-                Vehicles.find({societe:d.societe._id._str,archived:false}).fetch().map(v=>{
-                    v.equipements = Equipements.find({vehicle:v._id._str}).fetch() || {};
-                    v.equipements.forEach(e => {
-                        e.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)}) || {};
-                    });
-                    v.equipements.map(e=>{
-                        e.nextControl = 0;
-                        e.alertStep = 0;
-                        e.color = "green";
-                        if(e.equipementDescription.unitType == "t"){
-                            if(e.equipementDescription.controlPeriodUnit == "y"){
-                                e.nextControl = moment(e.lastControl,"DD/MM/YYYY").add(e.equipementDescription.controlPeriodValue,"Y");
-                            }
-                            if(e.equipementDescription.controlPeriodUnit == "m"){
-                                e.nextControl = moment(e.lastControl,"DD/MM/YYYY").add(e.equipementDescription.controlPeriodValue,'M');
-                            }
-                            if(e.equipementDescription.alertStepUnit == "y"){
-                                e.alertStep = moment(e.lastControl,"DD/MM/YYYY").add(e.equipementDescription.alertStepValue,"Y");
-                            }
-                            if(e.equipementDescription.alertStepUnit == "m"){
-                                e.alertStep = moment(e.lastControl,"DD/MM/YYYY").add(e.equipementDescription.alertStepValue,'M');
-                            }
-                            if(moment(e.alertStep, "DD/MM/YYYY").diff(moment())<0){
-                                e.color = "orange"
-                            }
-                            if(moment(e.nextControl, "DD/MM/YYYY").diff(moment())<0){
-                                e.color = "red"
-                            }
-                        }
-                        if(e.equipementDescription.unitType == "d"){
-                            e.nextControl = (parseInt(e.lastControl) + parseInt(e.equipementDescription.controlPeriodValue)) - parseInt(v.km)
-                            if(e.nextControl<e.equipementDescription.alertStepValue){
-                                e.color = "orange";
-                            }
-                            if(e.nextControl<0){
-                                e.color = "red";
-                            }
-                        }
-                        if(e.color == "green"){
-                            d.controlsOk ++;
-                            d.controlsTotal ++;
-                        }
-                        if(e.color == "orange"){
-                            d.controlsUrgent ++;
-                            d.controlsTotal ++;
-                        }
-                        if(e.color == "red"){
-                            d.controlsLate ++;
-                            d.controlsTotal ++;
-                        }
-                    })
-                })
-                d.licences = Licences.find({societe:d.societe._id._str}).fetch().length
-                d.licencesEndSoon = Licences.find({societe:d.societe._id._str}).fetch().filter(l=>moment(l.endDate,"DD/MM/YYYY").diff(moment(),'days', true)<14).length
-                d.licencesOver = Licences.find({societe:d.societe._id._str}).fetch().filter(l=>moment(l.endDate,"DD/MM/YYYY").diff(moment(),'days', true)<0).length
-                d.licenceFree = Licences.find({societe:d.societe._id._str,vehicle:""}).fetch().length;
-
-                d.batiments = Batiments.find({societe:d.societe._id._str}).fetch().length
-                d.batimentsEndSoon = Batiments.find({societe:d.societe._id._str}).fetch().filter(l=>moment(l.lastExecution,"DD/MM/YYYY").add(l.delay,"days").diff(moment(),'days', true)<14).length
-                d.batimentsOver = Batiments.find({societe:d.societe._id._str}).fetch().filter(l=>moment(l.lastExecution,"DD/MM/YYYY").add(l.delay,"days").diff(moment(),'days', true)<0).length
-                
-                d.accidentsThisYear = Accidents.find({societe:d.societe._id._str}).fetch().filter(a=>{return moment(a.occurenceDate,"DD/MM/YYYY").year() == new Date().getFullYear()}).length;
-                d.accidentsOpened = Accidents.find({societe:d.societe._id._str}).fetch().filter(a=>{return a.constatSent == false}).length;
-                d.totalAccidentsCost = Accidents.find({societe:d.societe._id._str}).fetch().reduce((a, b)=> a + b.cost, 0);
-
-                d.licenceAffected = d.licences - d.licenceFree;
-                d.commandesToDo = 0;
-                d.commandesDone = 0;
-                d.commandesReceived = 0;
-                d.commandesTotalNotArchived = 0;
-                d.entretiensTotalNotArchived = 0;
-
-                let entretiens = Entretiens.find({societe:d.societe._id._str,archived:false}).fetch() || {};
-                entretiens.forEach(e => {
-                    e.commandes = Commandes.find({entretien:e._id._str}).fetch() || [];
-                });
-                entretiens.map(e=>{
-                    d.entretiensTotalNotArchived++;
-                    let lowestStatus = 3;
-                    e.commandes.map(c=>{
-                        d.commandesTotalNotArchived++;
-                        if(c.status == 1){
-                            d.commandesToDo++;
-                        }
-                        if(c.status == 2){
-                            d.commandesDone++;
-                        }
-                        if(c.status == 3){
-                            d.commandesReceived++;
-                        }
-                        if(c.status != 3){
-                            lowestStatus = c.status
-                        }
-                    })
-                    if(lowestStatus != 3){
-                        e.ready = false
-                    }else{
-                        e.ready = true
-                    }
-                })
-                d.entretiensNotReady = entretiens.filter(e=>!e.ready).length
-                entretiens = entretiens.filter(e=>e.ready)
-                d.entretiensReadyAffected = entretiens.filter(e=>e.user != "").length
-                d.entretiensReadyUnaffected = entretiens.filter(e=>e.user == "").length
-                let totalKm = 0;
-                Vehicles.find({societe:d.societe._id._str,archived:false}).fetch().map(v =>totalKm += v.kms[v.kms.length-1].kmValue)
-                if(d.vehicles == 0){
-                    d.avgKm = 0
-                }else{
-                    d.avgKm = parseInt(totalKm / d.vehicles)
-                }
-                d.nbOwned = 0;
-                d.nbCRB = 0;
-                d.nbCRC = 0;
-                Vehicles.find({societe:d.societe._id._str,archived:false}).fetch().map(v=>{
-                    let totalMonths = v.purchasePrice/v.monthlyPayement;
-                    let monthsDone = parseInt(moment().diff(moment(v.payementBeginDate,"DD/MM/YYYY"),'months', true));
-                    let monthsLeft = totalMonths - monthsDone;
-                    if(parseInt(monthsLeft <= 0) || v.payementFormat == "CPT"){
-                        d.nbOwned ++;
-                    }else{
-                        if(v.payementFormat == "CRB"){
-                            d.nbCRB ++;
-                        }if(v.payementFormat == "CRC"){
-                            d.nbCRC ++;
-                        }
-                    }
-                })
-                let vsRaw = Vehicles.find({societe:d.societe._id._str}).fetch();
-                vsRaw.map(v=>{
-                    v.model = Models.findOne({_id:v.model})
-                    v.volume = Volumes.findOne({_id:v.volume})
-                })
-                d.vehiclesVolumeRepartition = [];
-                d.vehiclesModelRepartition = [];
-                vsRaw.map(v=>{
-                    if(d.vehiclesModelRepartition.filter(mr=>mr.key == v.model._id._str).length>0){
-                        d.vehiclesModelRepartition.filter(mr=>mr.key == v.model._id._str)[0].value++; 
-                    }else{
-                        d.vehiclesModelRepartition.push({key:v.model._id._str,label:v.model.name,value:1})
-                    }
-                    if(d.vehiclesVolumeRepartition.filter(mr=>mr.key == v.volume._id._str).length>0){
-                        d.vehiclesVolumeRepartition.filter(mr=>mr.key == v.volume._id._str)[0].value++; 
-                    }else{
-                        d.vehiclesVolumeRepartition.push({key:v.volume._id._str,label:v.volume.meterCube,value:1})
-                    }
-                })
+                affectDashboardData(d)
             })
-            let vehicleCV = 0;
-            let vehicleCG = 0;
-            let locationCV = 0;
-            let locationCG = 0;
-            let locationContrat = 0;
-            let locationJustification = 0;
-            let entretiensFicheInter = 0;
-            let controlsFicheInter = 0;
-            let batimentsFicheInter = 0;
-            let licencesLicence = 0;
-            let accidentsConstat = 0;
-            let accidentsExpert = 0;
-            let accidentsFacture = 0;
             return dashboard[0];
         }
     }

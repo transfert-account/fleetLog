@@ -53,6 +53,22 @@ export class DashboardUnit extends Component {
         this.props.history.push("/entretiens");
     }
 
+    getDocIndicatorCell = (cell,onClick) => {
+        let data = this.props.dashboard[cell]
+        return(
+            <Table.Cell textAlign="center">
+                <Label onClick={onClick} style={{marginLeft:"4px",cursor:"pointer"}} color={this.getColorIfAny(data.affected,"green")} image>
+                    <Icon style={{margin:"0"}} name='folder'/>
+                    <Label.Detail>{data.affected}</Label.Detail>
+                </Label>
+                <Label onClick={onClick} style={{marginLeft:"4px",cursor:"pointer"}} color={this.getColorIfAny(data.missing,"red")} image>
+                    <Icon style={{margin:"0"}} name='folder'/>
+                    <Label.Detail>{data.missing}</Label.Detail>
+                </Label>
+            </Table.Cell>
+        )
+    }
+
     getParcDiv = () => {
         return (
             <div style={{display:"grid",gridTemplateRows:"auto"}}>
@@ -468,10 +484,8 @@ export class DashboardUnit extends Component {
                                             <Header.Content>Vehicules</Header.Content>
                                         </Header>
                                     </Table.Cell>
-                                    <Table.Cell textAlign="right">
-                                    </Table.Cell>
-                                    <Table.Cell textAlign="right">
-                                    </Table.Cell>
+                                    {this.getDocIndicatorCell("vehicleCV",this.navigateToVehicles)}
+                                    {this.getDocIndicatorCell("vehicleCG",this.navigateToVehicles)}
                                     <Table.Cell textAlign="right">
                                     </Table.Cell>
                                     <Table.Cell textAlign="right">
@@ -483,14 +497,10 @@ export class DashboardUnit extends Component {
                                             <Header.Content>Location</Header.Content>
                                         </Header>
                                     </Table.Cell>
-                                    <Table.Cell textAlign="right">
-                                    </Table.Cell>
-                                    <Table.Cell textAlign="right">
-                                    </Table.Cell>
-                                    <Table.Cell textAlign="right">
-                                    </Table.Cell>
-                                    <Table.Cell textAlign="right">
-                                    </Table.Cell>
+                                    {this.getDocIndicatorCell("locationCV",this.navigateToLocations)}
+                                    {this.getDocIndicatorCell("locationCG",this.navigateToLocations)}
+                                    {this.getDocIndicatorCell("locationContrat",this.navigateToLocations)}
+                                    {this.getDocIndicatorCell("locationRestitution",this.navigateToLocations)}
                                 </Table.Row>
                             </Table.Body>
                         </Table>
@@ -510,8 +520,7 @@ export class DashboardUnit extends Component {
                                             <Header.Content>Entretiens</Header.Content>
                                         </Header>
                                     </Table.Cell>
-                                    <Table.Cell textAlign="right">
-                                    </Table.Cell>
+                                    {this.getDocIndicatorCell("entretiensFicheInter",this.navigateToEntretiens)}
                                 </Table.Row>
                                 <Table.Row>
                                     <Table.Cell textAlign="right">
@@ -519,8 +528,7 @@ export class DashboardUnit extends Component {
                                             <Header.Content>Contrôles technique</Header.Content>
                                         </Header>
                                     </Table.Cell>
-                                    <Table.Cell textAlign="right">
-                                    </Table.Cell>
+                                    {this.getDocIndicatorCell("controlsFicheInter",this.navigateToControls)}
                                 </Table.Row>
                                 <Table.Row>
                                     <Table.Cell textAlign="right">
@@ -528,8 +536,7 @@ export class DashboardUnit extends Component {
                                             <Header.Content>Contrôles batiment</Header.Content>
                                         </Header>
                                     </Table.Cell>
-                                    <Table.Cell textAlign="right">
-                                    </Table.Cell>
+                                    {this.getDocIndicatorCell("batimentsFicheInter",this.navigateToBatiments)}
                                 </Table.Row>
                             </Table.Body>
                         </Table>
@@ -549,8 +556,7 @@ export class DashboardUnit extends Component {
                                             <Header.Content>Licence</Header.Content>
                                         </Header>
                                     </Table.Cell>
-                                    <Table.Cell textAlign="right">
-                                    </Table.Cell>
+                                    {this.getDocIndicatorCell("licencesLicence",this.navigateToLicences)}
                                 </Table.Row>
                             </Table.Body>
                         </Table>
@@ -580,12 +586,9 @@ export class DashboardUnit extends Component {
                                             <Header.Content>Accidents</Header.Content>
                                         </Header>
                                     </Table.Cell>
-                                    <Table.Cell textAlign="right">
-                                    </Table.Cell>
-                                    <Table.Cell textAlign="right">
-                                    </Table.Cell>
-                                    <Table.Cell textAlign="right">
-                                    </Table.Cell>
+                                    {this.getDocIndicatorCell("accidentsConstat",this.navigateToAccidents)}
+                                    {this.getDocIndicatorCell("accidentsExpert",this.navigateToAccidents)}
+                                    {this.getDocIndicatorCell("accidentsFacture",this.navigateToAccidents)}
                                 </Table.Row>
                             </Table.Body>
                         </Table>

@@ -35,19 +35,25 @@ type DashboardSocieteInfo{
     licenceFree:Int!
     vehiclesVolumeRepartition:[VehiclesRepartitionStat]!
     vehiclesModelRepartition:[VehiclesRepartitionStat]!
-    vehicleCV:Int!
-    vehicleCG:Int!
-    locationCV:Int!
-    locationCG:Int!
-    locationContrat:Int!
-    locationJustification:Int!
-    entretiensFicheInter:Int!
-    controlsFicheInter:Int!
-    batimentsFicheInter:Int!
-    licencesLicence:Int!
-    accidentsConstat:Int!
-    accidentsExpert:Int!
-    accidentsFacture:Int!
+    vehicleCV:MissingDocIndicator!
+    vehicleCG:MissingDocIndicator!
+    locationCV:MissingDocIndicator!
+    locationCG:MissingDocIndicator!
+    locationContrat:MissingDocIndicator!
+    locationRestitution:MissingDocIndicator!
+    entretiensFicheInter:MissingDocIndicator!
+    controlsFicheInter:MissingDocIndicator!
+    batimentsFicheInter:MissingDocIndicator!
+    licencesLicence:MissingDocIndicator!
+    accidentsConstat:MissingDocIndicator!
+    accidentsExpert:MissingDocIndicator!
+    accidentsFacture:MissingDocIndicator!
+}
+
+type MissingDocIndicator {
+    total:Int!
+    affected:Int!
+    missing:Int!
 }
 
 type VehiclesRepartitionStat {

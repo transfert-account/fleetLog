@@ -41,13 +41,32 @@ export class Patchnotes extends Component {
                 </div>
                 <div style={{display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                     <Segment>
+                        <Header color='blue' as="h2">27/05/2020 - v1.2.02</Header>
+                        <List divided relaxed>
+                        <List.Item>
+                                <List.Icon name='double angle up' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Amélioration du dashboard</List.Header>
+                                    <List.Description>Le nouveau dashboard maintenant comprend des indicateurs sur le nombre de documents manquants</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='plus' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Archivage des accidents</List.Header>
+                                    <List.Description>Ajout de la fonction d'archivage des accidents</List.Description>
+                                </List.Content>
+                            </List.Item>
+                        </List>
+                    </Segment>
+                    <Segment>
                         <Header color='blue' as="h2">20/05/2020 - v1.2.01</Header>
                         <List divided relaxed>
                             <List.Item>
                                 <List.Icon name='double angle up' size='large' verticalAlign='middle' />
                                 <List.Content>
                                     <List.Header>Amélioration du dashboard</List.Header>
-                                    <List.Description>Le nouveau dashboard comprend de nouvelles statistiques et de nouveau indicateurs (documents, répartition des véhicules par volumes et marques, etc...)</List.Description>
+                                    <List.Description>Le nouveau dashboard comprend de nouvelles statistiques et de nouveau indicateurs (répartition des véhicules par volumes et marques, etc...)</List.Description>
                                 </List.Content>
                             </List.Item>
                         </List>

@@ -10,6 +10,7 @@ type Accident{
     rapportExp:Document
     constat:Document
     facture:Document
+    archived:Boolean
     cost:Float
 }
 
@@ -23,5 +24,7 @@ extend type Mutation{
     editAccident(_id:String!,occurenceDate:String!,dateExpert:String!,dateTravaux:String!,constatSent:Boolean!,cost:Float!): [QueryResultMessage]
     editDescAccident(_id:String!,description:String!): [QueryResultMessage]
     deleteAccident(_id:String!): [QueryResultMessage]
+    archiveAccident(_id:String!): [QueryResultMessage]
+    unArchiveAccident(_id:String!): [QueryResultMessage]
     uploadAccidentDocument(_id:String!,file:Upload!,type:String,size:Int!):[QueryResultMessage]
 }

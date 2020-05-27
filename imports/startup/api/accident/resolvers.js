@@ -75,6 +75,7 @@ export default {
                     constat:"",
                     facture:"",
                     constatSent:false,
+                    archived:false,
                     cost:0
                 });
                 return [{status:true,message:'Création réussie'}];
@@ -121,6 +122,36 @@ export default {
                     _id:new Mongo.ObjectID(_id)
                 });
                 return [{status:true,message:'Suppression réussie'}];
+            }
+            throw new Error('Unauthorized');
+        },
+        archiveAccident(obj, {_id},{user}){
+            if(user._id){
+                Accidents.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "archived":true
+                        }
+                    }   
+                )
+                return [{status:true,message:'Archivage réussi'}];
+            }
+            throw new Error('Unauthorized');
+        },
+        unArchiveAccident(obj, {_id},{user}){
+            if(user._id){
+                Accidents.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "archived":false
+                        }
+                    }   
+                )
+                return [{status:true,message:'Désarchivage réussi'}];
             }
             throw new Error('Unauthorized');
         },
