@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import { Table, Icon, Message, Button, Modal, Header, Label } from 'semantic-ui-react';
+import { Table, Icon, Message, Button, Modal, Header, Label, List } from 'semantic-ui-react';
 import SocietePicker from '../atoms/SocietePicker';
 import { UserContext } from '../../contexts/UserContext';
 import gql from 'graphql-tag';
@@ -29,7 +29,7 @@ export class AccountRow extends Component {
         this.props.client.query({
             query:this.state.getSignedDocumentDownloadLinkQuery,
             variables:{
-                _id:this.props.fileInfos._id
+                _id:this.props.document._id
             }
         }).then((data)=>{
             this.setState({
@@ -38,6 +38,26 @@ export class AccountRow extends Component {
                 signedDownloadLink:data.data.getSignedDocumentDownloadLink
             })
         })
+    }
+
+    closeDelete = () => {
+        this.setState({openDelete:false})
+    }
+
+    showDelete = () => {
+        this.setState({openDelete:true})
+    }
+
+    reloadDocuments = () => {
+        this.props.reloadDocuments()
+    }
+
+    getDownloadLink = () => {
+        if(this.state.linkGenerated){
+            return <a href={this.state.signedDownloadLink} target="blank" download>{this.state.signedDownloadLink}</a>
+        }else{
+            return <p>Cliquez sur "Générer" pour faire apparaître le lien de téléchargement</p>
+        }
     }
 
     getDownloadButton = () => {
@@ -58,18 +78,6 @@ export class AccountRow extends Component {
         }
     }
 
-    closeDelete = () => {
-        this.setState({openDelete:false})
-    }
-
-    showDelete = () => {
-        this.setState({openDelete:true})
-    }
-
-    reloadDocuments = () => {
-        this.props.reloadDocuments()
-    }
-
     render() {
         return (
             <Fragment>
@@ -79,28 +87,32 @@ export class AccountRow extends Component {
                     <Table.Cell textAlign="center">{this.props.document.ext}</Table.Cell>
                     <Table.Cell textAlign="center">{parseFloat(this.props.document.size/1048576).toFixed(2)} Mo</Table.Cell>
                     <Table.Cell textAlign="center">
-                        {<Label style={{marginRight:"16px"}}> {moment(this.props.document.storageDate.split(" ")[0], "DD/MM/YYYY").fromNow()}</Label>}
+                        {<Label style={{marginRight:"16px"}}> {moment(this.props.document.storageDate.split(" ")[0],"DD/MM/YYYY").fromNow()}</Label>}
                         le {this.props.document.storageDate.split(" ").join(" à ")}
                     </Table.Cell>
                     <Table.Cell textAlign="center">
                         <Button circular style={{color:"#00a8ff"}} inverted icon icon='search' onClick={()=>{this.setState({displayStoredFileName:true})}}/>
-                        {/*<Button circular style={{color:"#e74c3c"}} inverted icon icon='trash' onClick={()=>{console.log("delete : " + this.props.document.originalFilename)}}/>*/}
                     </Table.Cell>
                 </Table.Row>
-                {/*path + name*/}
-                <Modal open={this.state.displayStoredFileName} onClose={()=>this.setState({displayStoredFileName:false})} basic size='small'>
-                    <Header icon='file' content='Voici le nom complet du fichier et son chemin dans le bucket Amazon S3' />
+                <Modal open={this.state.displayStoredFileName} onClose={()=>this.setState({displayStoredFileName:false})}>
+                    <Header icon='file' content={this.props.document.name} />
                     <Modal.Content>
-                        <p>
-                            Nom : {this.props.document.name}
-                        </p>
-                        <p>
-                            Chemin : {this.props.document.path}
-                        </p>
+                        <List divided relaxed>
+                            <List.Item>
+                                <List.Icon name='folder open' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Chemin</List.Header>
+                                    <List.Description>{this.props.document.path}</List.Description>
+                                </List.Content>
+                            </List.Item>
+                        </List>
+                        <br/>
+                        {this.getDownloadLink()}
                     </Modal.Content>
                     <Modal.Actions>
-                        <Button basic color='red' onClick={()=>this.setState({displayStoredFileName:false})} inverted>
-                            <Icon name='cancel' /> Fermer
+                        {this.getDownloadButton()}
+                        <Button basic color='red' onClick={()=>this.setState({displayStoredFileName:false})}>
+                            <Icon name='cancel'/> Fermer
                         </Button>
                     </Modal.Actions>
                 </Modal>
@@ -126,17 +138,6 @@ export class AccountRow extends Component {
                     <Modal.Actions>
                         <Button color="black" onClick={this.closeDelete}>Annuler</Button>
                         <Button color="red" onClick={()=>{this.props.deleteDocument(this.props.document._id)}}>Supprimer</Button>
-                    </Modal.Actions>
-                </Modal>
-                <Modal open={this.state.displayDownloadLink} onClose={()=>this.setState({displayDownloadLink:false,linkGenerated:false,signedDownloadLink:""})} basic size='small'>
-                    <Header icon='file' content='Voici le lien de téléchargement, il est valide pendant 2 minutes à partir de sa génération' />
-                    <Modal.Content>
-                        <a href={this.state.signedDownloadLink} target="blank" download>{this.state.signedDownloadLink}</a>
-                    </Modal.Content>
-                    <Modal.Actions>
-                        <Button basic color='red' onClick={()=>this.setState({displayDownloadLink:false,linkGenerated:false,signedDownloadLink:""})} inverted>
-                            <Icon name='cancel' /> Fermer
-                        </Button>
                     </Modal.Actions>
                 </Modal>
             </Fragment>

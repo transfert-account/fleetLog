@@ -40,6 +40,18 @@ export class Patchnotes extends Component {
                     {this.getMenu()}
                 </div>
                 <div style={{display:"block",overflowY:"auto",justifySelf:"stretch"}}>
+                <Segment>
+                        <Header color='blue' as="h2">27/05/2020 - v1.2.03</Header>
+                        <List divided relaxed>
+                        <List.Item>
+                                <List.Icon name='plus' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Télechargement des fichiers</List.Header>
+                                    <List.Description>Il est maintenant possible de télécharger les documents depuis leur liste dans le menu d'administration</List.Description>
+                                </List.Content>
+                            </List.Item>
+                        </List>
+                    </Segment>
                     <Segment>
                         <Header color='blue' as="h2">27/05/2020 - v1.2.02</Header>
                         <List divided relaxed>
