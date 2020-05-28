@@ -33,15 +33,15 @@ export default {
                             }
                         }
                     })*/
-                    Accidents.update(
+                    /*Accidents.update(
                         {},{
                             $set: {
                                 archived:false
                             }
                         },
                         {multi:true}
-                    );
-                    return [{status:true,message:'Nuked : set all accidents as not archived'}];
+                    );*/
+                    return [{status:true,message:'Nuked : nothing, nuke is currently empty'}];
                 }catch(e){
                     throw e;
                     return [{status:false,message:e.message}];
