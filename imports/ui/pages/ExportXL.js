@@ -52,6 +52,10 @@ export class ExportXL extends Component {
                     purchasePrice
                     monthlyPayement
                     payementFormat
+                    payementTime{
+                        _id
+                        months
+                    }
                     archived
                     shared
                     sharedTo{
@@ -181,9 +185,10 @@ export class ExportXL extends Component {
                 "Charge utile (t.)":v.payload,
                 "Energie":v.energy.name,
                 "Propriété":v.property,
-                "Paiement mensuel":v.monthlyPayement,
-                "Coût":v.purchasePrice,
                 "Date de début de payement":v.payementBeginDate,
+                "Coût":v.purchasePrice,
+                "Durée de financement (en mois)":v.payementTime.months,
+                "Paiement mensuel":v.monthlyPayement,
                 "Format de payement":v.payementFormat,
                 "Archivé":v.archived
             })

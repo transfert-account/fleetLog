@@ -40,8 +40,34 @@ export class Patchnotes extends Component {
                     {this.getMenu()}
                 </div>
                 <div style={{display:"block",overflowY:"auto",justifySelf:"stretch"}}>
-                <Segment>
-                        <Header color='blue' as="h2">27/05/2020 - v1.2.03</Header>
+                    <Segment>
+                        <Header color='blue' as="h2">02/06/2020 - v1.2.04</Header>
+                        <List divided relaxed>
+                            <List.Item>
+                                <List.Icon name='double angle up' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Modifications des finances</List.Header>
+                                    <List.Description>Modification du calcul des finances d'un véhicule : le financement mensuel est maintenant calculé par rapport au prix du véhicule et sa durée de financement</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='double angle up' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Modifications de la page véhicule</List.Header>
+                                    <List.Description>Modification de l'interface d'édition d'un véhicule, séparation de l'édition de la partie technique et de la partie finances</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='plus' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Ajout d'un élément de contenu</List.Header>
+                                    <List.Description>Ajout des durées de financement dans l'onglet contenu du menu administration</List.Description>
+                                </List.Content>
+                            </List.Item>
+                        </List>
+                    </Segment>
+                    <Segment>
+                        <Header color='blue' as="h2">28/05/2020 - v1.2.03</Header>
                         <List divided relaxed>
                         <List.Item>
                                 <List.Icon name='plus' size='large' verticalAlign='middle' />

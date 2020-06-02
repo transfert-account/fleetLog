@@ -6,6 +6,7 @@ import Volumes from '../volume/volumes.js';
 import Brands from '../brand/brands.js';
 import Models from '../model/models.js';
 import Organisms from '../organism/organisms.js';
+import PayementTimes from '../payementTime/payementTimes';
 import Colors from '../color/colors.js';
 import Equipements from '../equipement/equipements';
 import EquipementDescriptions from '../equipementDescription/equipementDescriptions';
@@ -63,6 +64,11 @@ const affectVehicleData = vehicle => {
     }else{
         vehicle.energy = {_id:""};
     }
+    if(vehicle.payementTime != null && vehicle.payementTime.length > 0){
+        vehicle.payementTime = PayementTimes.findOne({_id:new Mongo.ObjectID(vehicle.payementTime)});
+    }else{
+        vehicle.payementTime = {_id:""};
+    }
     vehicle.equipements = Equipements.find({vehicle:vehicle._id._str}).fetch() || {};
     vehicle.equipements.forEach((e,ei) => {
         e.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)}) || {};
@@ -108,7 +114,7 @@ export default {
         }
     },
     Mutation:{
-        addVehicle(obj, {societe,registration,firstRegistrationDate,km,lastKmUpdate,brand,model,volume,payload,color,insurancePaid,payementBeginDate,purchasePrice,monthlyPayement,payementOrg,payementFormat,energy},{user}){
+        addVehicle(obj, {societe,registration,firstRegistrationDate,km,lastKmUpdate,brand,model,volume,payload,color,insurancePaid,payementBeginDate,purchasePrice,payementTime,monthlyPayement,payementOrg,payementFormat,energy},{user}){
             if(user._id){
                 Vehicles.insert({
                     _id:new Mongo.ObjectID(),
@@ -130,6 +136,7 @@ export default {
                     energy:energy,
                     purchasePrice:purchasePrice,
                     monthlyPayement:monthlyPayement,
+                    payementTime:payementTime,
                     payementOrg:payementOrg,
                     payementFormat:payementFormat,
                     archived:false,
@@ -146,7 +153,7 @@ export default {
             }
             throw new Error('Unauthorized');
         },
-        editVehicle(obj, {_id,societe,registration,firstRegistrationDate,brand,model,volume,payload,color,insurancePaid,endDate,property,purchasePrice,payementOrg,payementBeginDate,payementFormat,monthlyPayement,energy},{user}){
+        editVehicleTech(obj, {_id,societe,registration,firstRegistrationDate,brand,model,volume,payload,color,energy},{user}){
             if(user._id){
                 let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(_id)});
                 if(vehicle.societe != societe){
@@ -168,6 +175,22 @@ export default {
                             "volume":volume,
                             "payload":payload,
                             "color":color,
+                            "energy":energy
+                        }
+                    }
+                );                
+                return [{status:true,message:'Modifications sauvegardées'}];
+            }
+            throw new Error('Unauthorized');
+        },
+        editVehicleFinances(obj, {_id,insurancePaid,endDate,property,purchasePrice,payementOrg,payementBeginDate,payementTime,payementFormat,monthlyPayement},{user}){
+            if(user._id){
+                Vehicles.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "payementTime":payementTime,
                             "insurancePaid":insurancePaid,
                             "endDate":endDate,
                             "property":property,
@@ -175,8 +198,7 @@ export default {
                             "monthlyPayement":monthlyPayement,
                             "payementOrg":payementOrg,
                             "payementFormat":payementFormat,
-                            "payementBeginDate":payementBeginDate,
-                            "energy":energy
+                            "payementBeginDate":payementBeginDate
                         }
                     }
                 );                

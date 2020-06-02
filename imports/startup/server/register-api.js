@@ -51,6 +51,9 @@ import ModelResolvers from '../api/model/resolvers.js';
 import OrganismSchema from '../api/organism/Organism.graphql';
 import OrganismResolvers from '../api/organism/resolvers.js';
 
+import PayementTimeSchema from '../api/payementTime/PayementTime.graphql';
+import PayementTimeResolvers from '../api/payementTime/resolvers.js';
+
 import ColorSchema from '../api/color/Color.graphql';
 import ColorResolvers from '../api/color/resolvers.js';
 
@@ -72,7 +75,7 @@ import AccidentResolvers from '../api/accident/resolvers';
 import TestSchema from '../api/test/Test.graphql';
 import TestResolvers from '../api/test/resolvers.js';
 
-// #0321
+// #0324
 
 const typeDefs = [
     UserSchema,
@@ -91,6 +94,7 @@ const typeDefs = [
     BrandSchema,
     ModelSchema,
     OrganismSchema,
+    PayementTimeSchema,
     ColorSchema,
     DashboardSchema,
     DocumentSchema,
@@ -117,6 +121,7 @@ const resolvers = merge(
     BrandResolvers,
     ModelResolvers,
     OrganismResolvers,
+    PayementTimeResolvers,
     ColorResolvers,
     DashboardResolvers,
     DocumentResolvers,

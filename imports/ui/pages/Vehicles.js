@@ -6,6 +6,7 @@ import VehiclesRow from '../molecules/VehiclesRow';
 import SocietePicker from '../atoms/SocietePicker';
 import RegistrationInput from '../atoms/RegistrationInput';
 import PayementFormatPicker from '../atoms/PayementFormatPicker';
+import PayementTimePicker from '../atoms/PayementTimePicker';
 import VolumePicker from '../atoms/VolumePicker';
 import ColorPicker from '../atoms/ColorPicker';
 import ModelPicker from '../atoms/ModelPicker';
@@ -32,6 +33,7 @@ class Vehicles extends Component {
         newInsurancePaid:"",
         newPayementBeginDate:"",
         newPurchasePrice:"",
+        newPayementTime:"",
         newMonthlyPayement:"",
         newPayementOrg:"",
         newPayementFormat:"",
@@ -118,8 +120,8 @@ class Vehicles extends Component {
             ))
         },
         addVehicleQuery : gql`
-            mutation addVehicle($societe:String!,$registration:String!,$firstRegistrationDate:String!,$km:Int!,$lastKmUpdate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$insurancePaid:Float!,$payementBeginDate:String!,$purchasePrice:Float,$monthlyPayement:Float,$payementOrg:String,$payementFormat:String,$energy:String!){
-                addVehicle(societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,km:$km,lastKmUpdate:$lastKmUpdate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,payementBeginDate:$payementBeginDate,purchasePrice:$purchasePrice,monthlyPayement:$monthlyPayement,payementOrg:$payementOrg,payementFormat:$payementFormat,energy:$energy){
+            mutation addVehicle($societe:String!,$registration:String!,$firstRegistrationDate:String!,$km:Int!,$lastKmUpdate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$insurancePaid:Float!,$payementTime:String!,$payementBeginDate:String!,$purchasePrice:Float,$monthlyPayement:Float,$payementOrg:String,$payementFormat:String,$energy:String!){
+                addVehicle(societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,km:$km,lastKmUpdate:$lastKmUpdate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,payementTime:$payementTime,payementBeginDate:$payementBeginDate,purchasePrice:$purchasePrice,monthlyPayement:$monthlyPayement,payementOrg:$payementOrg,payementFormat:$payementFormat,energy:$energy){
                     status
                     message
                 }
@@ -164,6 +166,9 @@ class Vehicles extends Component {
                     property
                     purchasePrice
                     monthlyPayement
+                    payementTime{
+                        _id
+                    }
                     payementFormat
                     archived
                     shared
@@ -219,6 +224,7 @@ class Vehicles extends Component {
                     color:this.state.newColor,
                     insurancePaid:parseFloat(this.state.newInsurancePaid),
                     payementBeginDate:this.state.newPayementBeginDate,
+                    payementTime:this.state.newPayementTime,
                     purchasePrice:parseFloat(this.state.newPurchasePrice),
                     monthlyPayement:parseFloat(this.state.newMonthlyPayement),
                     payementOrg:this.state.newPayementOrg,
@@ -258,6 +264,14 @@ class Vehicles extends Component {
     handleRegistrationChange = value => {
         this.setState({
             newRegistration : value
+        })
+    }
+
+    handleChangePayementTime = (e, obj) => {
+        let newMonthlyPayement = this.state.newPurchasePrice / parseInt(obj.options.filter(o=>o.key == obj.value)[0].text.split(" ")[0]);
+        this.setState({
+            newPayementTime:obj.value,
+            newMonthlyPayement:newMonthlyPayement.toFixed(2)
         })
     }
 
@@ -482,7 +496,9 @@ class Vehicles extends Component {
                                 </Header>
                             </Divider>
                             <Form.Field error={this.state.newPurchasePrice == ""}><label>Prix à l'achat</label><input onChange={this.handleChange} name="newPurchasePrice"/></Form.Field>
-                            <Form.Field error={this.state.newMonthlyPayement == ""}><label>Paiement mensuel</label><input onChange={this.handleChange} name="newMonthlyPayement"/></Form.Field>
+                            <Form.Field><label>Durée de financement</label>
+                                <PayementTimePicker error={this.state.newPayementTime == ""} onChange={this.handleChangePayementTime}/>
+                            </Form.Field>
                             <Form.Field><label>Organisme de financement</label>
                                 <OrganismPicker error={this.state.newPayementOrg == ""} onChange={this.handleChangeOrganism}/>
                             </Form.Field>

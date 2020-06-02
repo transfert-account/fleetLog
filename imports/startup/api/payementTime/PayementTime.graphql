@@ -1,0 +1,13 @@
+type PayementTime{
+    _id:String!
+    months:Int
+}
+
+extend type Query{
+    payementTimes : [PayementTime]
+}
+
+extend type Mutation{
+    addPayementTime(months:Int!): [QueryResultMessage]
+    deletePayementTime(_id:String!): [QueryResultMessage]
+}

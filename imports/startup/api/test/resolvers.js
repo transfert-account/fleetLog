@@ -33,15 +33,15 @@ export default {
                             }
                         }
                     })*/
-                    /*Accidents.update(
+                    Vehicles.update(
                         {},{
                             $set: {
-                                archived:false
+                                payementTime:""
                             }
                         },
                         {multi:true}
-                    );*/
-                    return [{status:true,message:'Nuked : nothing, nuke is currently empty'}];
+                    );
+                    return [{status:true,message:'Nuked : blank payementTime added to all vehicles'}];
                 }catch(e){
                     throw e;
                     return [{status:false,message:e.message}];

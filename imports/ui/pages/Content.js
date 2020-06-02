@@ -8,6 +8,7 @@ import BrandPicker from '../atoms/BrandPicker';
 import ModelPicker from '../atoms/ModelPicker';
 import EnergyPicker from '../atoms/EnergyPicker';
 import OrganismPicker from '../atoms/OrganismPicker';
+import PayementTimePicker from '../atoms/PayementTimePicker';
 import ColorPicker from '../atoms/ColorPicker';
 import { withRouter } from 'react-router-dom';
 import gql from 'graphql-tag';
@@ -24,6 +25,7 @@ class Content extends Component {
         newColorName:"",
         newColorHex:"000000",
         newOrganism:"",
+        newPayementTime:"",
         selectedSocieteName:"",
         openHexColorPicker:false,
         needToRefreshSocietes:false,
@@ -31,6 +33,7 @@ class Content extends Component {
         needToRefreshBrands:false,
         needToRefreshModels:false,
         needToRefreshOrganisms:false,
+        needToRefreshPayementTimes:false,
         needToRefreshColors:false,
         editSocieteQuery: gql`
             mutation editSociete($_id:String!,$name:String!){
@@ -185,6 +188,30 @@ class Content extends Component {
                 }
             }
         `,
+        addPayementTimeQuery : gql`
+            mutation addPayementTime($months:Int!){
+                addPayementTime(months:$months){
+                    status
+                    message
+                }
+            }
+        `,
+        deletePayementTimeQuery : gql`
+            mutation deletePayementTime($_id:String!){
+                deletePayementTime(_id:$_id){
+                    status
+                    message
+                }
+            }
+        `,
+        payementTimesQuery : gql`
+            query payementTimes{
+                payementTimes{
+                    _id
+                    months
+                }
+            }
+        `,
         addColorQuery : gql`
             mutation addColor($name:String!,$hex:String!){
                 addColor(name:$name,hex:$hex){
@@ -214,7 +241,16 @@ class Content extends Component {
 
     handleChange = e =>{
         this.setState({
-        [e.target.name]:e.target.value
+            [e.target.name]:e.target.value
+        });
+    }
+
+    handleDigitOnlyChange = e =>{
+        console.log("==============")
+        console.log(e.target.value)
+        console.log(e.target.value.replace(/\D/g,''))
+        this.setState({
+            [e.target.name]:e.target.value.replace(/\D/g,'')
         });
     }
 
@@ -660,6 +696,74 @@ class Content extends Component {
         })
     }
 
+    //PayementTime
+    handleChangePayementTime = (e, { value }) => this.setState({ selectedPayementTime:value })
+    showAddPayementTime = () => {
+        this.setState({
+            openAddPayementTime:true
+        })
+    }
+    showDelPayementTime = () => {
+        this.setState({
+            openDelPayementTime:true
+        })
+    }
+    closeAddPayementTime = () => {
+        this.setState({
+            openAddPayementTime:false
+        })
+    }
+    closeDelPayementTime = () => {
+        this.setState({
+            openDelPayementTime:false
+        })
+    }
+    addPayementTime = () => {
+        this.closeAddPayementTime()
+        this.props.client.mutate({
+            mutation:this.state.addPayementTimeQuery,
+            variables:{
+                months:parseInt(this.state.newPayementTime)
+            }
+        }).then(({data})=>{
+            data.addPayementTime.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.setState({
+                        needToRefreshPayementTimes:true
+                    })
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    deletePayementTime = () => {
+        this.closeDelPayementTime()
+        this.props.client.mutate({
+            mutation:this.state.deletePayementTimeQuery,
+            variables:{
+                _id:this.state.selectedPayementTime
+            }
+        }).then(({data})=>{
+            data.deletePayementTime.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.setState({
+                        needToRefreshPayementTimes:true
+                    })
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    didRefreshPayementTimes = () => {
+        this.setState({
+            needToRefreshPayementTimes:false
+        })
+    }
+
     //Color
     handleChangeColor = (e, { value }) => this.setState({ selectedColor:value })
     showAddColor = () => {
@@ -884,6 +988,21 @@ class Content extends Component {
                             <Table.Row>
                                 <Table.Cell>
                                     <Header style={{gridColumnStart:"2",placeSelf:"center"}} as='h2'>
+                                        <Icon name='calendar alternate outline'/>
+                                        <Header.Content>Durée de financement</Header.Content>
+                                    </Header>
+                                </Table.Cell>
+                                <Table.Cell textAlign="center">
+                                    <PayementTimePicker didRefresh={this.didRefreshPayementTimes} needToRefresh={this.state.needToRefreshPayementTimes} onChange={this.handleChangePayementTime} value={this.state.selectedPayementTime} />
+                                </Table.Cell>
+                                <Table.Cell textAlign="center">
+                                    <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddPayementTime} icon labelPosition='right'>Ajouter<Icon name='plus'/></Button>
+                                    <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelPayementTime} icon labelPosition='right'>Supprimer<Icon name='trash'/></Button>
+                                </Table.Cell>
+                            </Table.Row>
+                            <Table.Row>
+                                <Table.Cell>
+                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as='h2'>
                                         <Icon name='paint brush' />
                                         <Header.Content>Couleurs des véhicules</Header.Content>
                                     </Header>
@@ -1077,6 +1196,34 @@ class Content extends Component {
                     <Modal.Actions>
                         <Button color="black" onClick={this.closeDelOrganism}>Annuler</Button>
                         <Button color="red" onClick={this.deleteOrganism}>Supprimer</Button>
+                    </Modal.Actions>
+                </Modal>
+
+                {/* PAYEMENT TIME */}
+                <Modal size="mini" closeOnDimmerClick={false} open={this.state.openAddPayementTime} onClose={this.closeAddPayementTime} closeIcon>
+                    <Modal.Header>
+                        Ajout de la durée de financement
+                    </Modal.Header>
+                    <Modal.Content style={{textAlign:"center"}}>
+                        <Form style={{display:"grid",gridTemplateColumns:"1fr",gridGap:"16px"}}>
+                            <Form.Field style={{placeSelf:"stretch"}}>
+                                <label>Durée en mois</label>
+                                <input onChange={this.handleDigitOnlyChange} value={this.state.newPayementTime} name="newPayementTime"/>
+                            </Form.Field>
+                        </Form>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <Button color="black" onClick={this.closeAddPayementTime}>Annuler</Button>
+                        <Button color="green" onClick={this.addPayementTime}>Créer</Button>
+                    </Modal.Actions>
+                </Modal>
+                <Modal closeOnDimmerClick={false} open={this.state.openDelPayementTime} onClose={this.closeDelPayementTime} closeIcon>
+                    <Modal.Header>
+                        Suppression de la durée de financement
+                    </Modal.Header>
+                    <Modal.Actions>
+                        <Button color="black" onClick={this.closeDelPayementTime}>Annuler</Button>
+                        <Button color="red" onClick={this.deletePayementTime}>Supprimer</Button>
                     </Modal.Actions>
                 </Modal>
 

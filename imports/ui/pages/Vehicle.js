@@ -11,6 +11,7 @@ import VolumePicker from '../atoms/VolumePicker';
 import EnergyPicker from '../atoms/EnergyPicker';
 import RegistrationInput from '../atoms/RegistrationInput';
 import PayementFormatPicker from '../atoms/PayementFormatPicker';
+import PayementTimePicker from '../atoms/PayementTimePicker';
 import FileManagementPanel from '../atoms/FileManagementPanel';
 import { withRouter } from 'react-router-dom';
 import { UserContext } from '../../contexts/UserContext';
@@ -43,12 +44,14 @@ class Vehicle extends Component {
         newPayementOrg:"",
         newInsurancePaid:0,
         newPayementBeginDate:"",
+        newPayementTime:"",
         newPayementFormat:"",
         newArchiveReason:"",
         newSharingReason:"",
         newProperty:null,
         loading:true,
-        editing:false,
+        editingTech:false,
+        editingFinances:false,
         openDatePicker:false,
         openUnArchive:false,
         openDelete:false,
@@ -106,6 +109,10 @@ class Vehicle extends Component {
                     }
                     insurancePaid
                     payementBeginDate
+                    payementTime{
+                        _id
+                        months
+                    }
                     property
                     purchasePrice
                     monthlyPayement
@@ -165,9 +172,17 @@ class Vehicle extends Component {
                 }
             }
         `,
-        editVehicleQuery : gql`
-            mutation editVehicle($_id:String!,$societe:String!,$registration:String!,$firstRegistrationDate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$insurancePaid:Float!,$payementBeginDate:String!,$purchasePrice:Float!,$payementOrg:String!,$payementFormat:String!,$monthlyPayement:Float!,$energy:String!){
-                editVehicle(_id:$_id,societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,purchasePrice:$purchasePrice,payementBeginDate:$payementBeginDate,payementOrg:$payementOrg,payementFormat:$payementFormat,monthlyPayement:$monthlyPayement,energy:$energy){
+        editVehicleTechQuery : gql`
+            mutation editVehicleTech($_id:String!,$societe:String!,$registration:String!,$firstRegistrationDate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$energy:String!){
+                editVehicleTech(_id:$_id,societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,energy:$energy){
+                    status
+                    message
+                }
+            }
+        `,
+        editVehicleFinancesQuery : gql`
+            mutation editVehicleFinances($_id:String!,$insurancePaid:Float!,$payementBeginDate:String!,$purchasePrice:Float!,$payementOrg:String!,$payementFormat:String!,$payementTime:String!,$monthlyPayement:Float!){
+                editVehicleFinances(_id:$_id,insurancePaid:$insurancePaid,purchasePrice:$purchasePrice,payementBeginDate:$payementBeginDate,payementOrg:$payementOrg,payementFormat:$payementFormat,payementTime:$payementTime,monthlyPayement:$monthlyPayement){
                     status
                     message
                 }
@@ -278,6 +293,24 @@ class Vehicle extends Component {
     handleChangeEnergy = (e, { value }) => this.setState({ newEnergy:value })
   
     handleChangeOrganism = (e, { value }) => this.setState({ newPayementOrg:value })
+    
+    handleChangePayementTime = (e, obj) => {
+        let monthsPayementTime = parseInt(obj.options.filter(o=>o.key == obj.value)[0].text.split(" ")[0]);
+        let newMonthlyPayement = this.state.vehicle.purchasePrice/monthsPayementTime;
+        this.setState({
+            newPayementTime:obj.value,
+            monthsPayementTime:monthsPayementTime,
+            newMonthlyPayement:newMonthlyPayement.toFixed(2)
+        })
+    }
+
+    handleChangeTotalPrice = (e, { value }) =>{
+        let newMonthlyPayement = value/this.state.monthsPayementTime;
+        this.setState({
+            newPurchasePrice:value,
+            newMonthlyPayement:newMonthlyPayement.toFixed(2)
+        })
+    }
   
     handleChangeColor = (e, { value }) => this.setState({ newColor:value })
 
@@ -402,9 +435,9 @@ class Vehicle extends Component {
         })
     }
 
-    saveEdit = () => {
+    saveEditTech = () => {
         this.props.client.mutate({
-            mutation:this.state.editVehicleQuery,
+            mutation:this.state.editVehicleTechQuery,
             variables:{
                 _id:this.state._id,
                 societe:this.state.newSociete,
@@ -415,21 +448,41 @@ class Vehicle extends Component {
                 volume:this.state.newVolume,
                 payload:this.state.newPayload,
                 color:this.state.newColor,
-                energy:this.state.newEnergy,
+                energy:this.state.newEnergy
+            }
+        }).then(({data})=>{
+            data.editVehicleTech.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.closeEditTech();
+                    this.loadVehicule();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+
+    saveEditFinances = () => {
+        this.props.client.mutate({
+            mutation:this.state.editVehicleFinancesQuery,
+            variables:{
+                _id:this.state._id,
                 property:this.state.newProperty,
                 purchasePrice:parseFloat(this.state.newPurchasePrice),
                 insurancePaid:parseFloat(this.state.newInsurancePaid),
                 payementBeginDate:this.state.newPayementBeginDate,
                 payementOrg:this.state.newPayementOrg,
+                payementTime:this.state.newPayementTime,
                 payementBeginDate:this.state.newPayementBeginDate,
                 payementFormat:this.state.newPayementFormat,
                 monthlyPayement:parseFloat(this.state.newMonthlyPayement)
             }
         }).then(({data})=>{
-            data.editVehicle.map(qrm=>{
+            data.editVehicleFinances.map(qrm=>{
                 if(qrm.status){
                     this.props.toast({message:qrm.message,type:"success"});
-                    this.closeEditInfos();
+                    this.closeEditFinances();
                     this.loadVehicule();
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
@@ -609,15 +662,29 @@ class Vehicle extends Component {
         })
     }
 
-    editInfos = () => {
+    showEditTech = () => {
         this.setState({
-            editing:true
+            editingTech:true,
+            editingFinances:false
         })
     }
 
-    closeEditInfos = () => {
+    closeEditTech = () => {
         this.setState({
-            editing:false
+            editingTech:false
+        })
+    }
+
+    showEditFinances = () => {
+        this.setState({
+            editingFinances:true,
+            editingTech:false
+        })
+    }
+
+    closeEditFinances = () => {
+        this.setState({
+            editingFinances:false
         })
     }
 
@@ -641,6 +708,8 @@ class Vehicle extends Component {
                 newBrand:data.vehicle.brand._id,
                 newModel:data.vehicle.model._id,
                 newInsurancePaid:data.vehicle.insurancePaid,
+                monthsPayementTime:data.vehicle.payementTime.months,
+                newPayementTime:data.vehicle.payementTime._id,
                 newPayementBeginDate:data.vehicle.payementBeginDate,
                 newProperty:data.vehicle.property,
                 newPurchasePrice:data.vehicle.purchasePrice,
@@ -853,10 +922,16 @@ class Vehicle extends Component {
         }
     }
 
-    getInfoPanel = () => {
-        if(this.state.editing){
+    getTechPanel = () => {
+        if(this.state.editingTech){
             return (
                 <Form className="formBoard" style={{placeSelf:"start auto",display:"grid",gridTemplateRows:"auto",gridTemplateColumns:"1fr 1fr",gridColumnStart:"1",gridRowEnd:"span 2",gridColumnEnd:"span 2",gridGap:"0 24px"}}>
+                    <Divider style={{gridColumnEnd:"span 2",height:"23px"}} horizontal>
+                        <Header as='h4'>
+                            <Icon name='wrench' />
+                            Technique
+                        </Header>
+                    </Divider>
                     <Form.Field style={{gridColumnEnd:"span 2"}}><label>Societé</label>
                         <SocietePicker restrictToVisibility defaultValue={this.state.vehicle.societe._id} groupAppears={false} onChange={this.handleChangeSociete}/>
                     </Form.Field>
@@ -882,27 +957,8 @@ class Vehicle extends Component {
                     <Form.Field><label>Couleur</label>
                         <ColorPicker defaultValue={this.state.vehicle.color._id} onChange={this.handleChangeColor}/>
                     </Form.Field>
-                    <Divider style={{gridColumnEnd:"span 2",height:"23px"}} horizontal/>
-                    <Form.Field><label>Prix à l'achat</label>
-                        <Input defaultValue={this.state.vehicle.purchasePrice} onChange={this.handleChange} name="newPurchasePrice"/>
-                    </Form.Field>
-                    <Form.Field><label>Mensualité</label>
-                        <Input defaultValue={this.state.vehicle.monthlyPayement} onChange={this.handleChange} name="newMonthlyPayement"/>
-                    </Form.Field>
-                    <Form.Field><label>Organisme de financement</label>
-                        <OrganismPicker defaultValue={this.state.vehicle.payementOrg._id} onChange={this.handleChangeOrganism}/>
-                    </Form.Field>
-                    <Form.Field><label>Montant de l'assurance</label>
-                        <Input defaultValue={this.state.vehicle.insurancePaid} onChange={this.handleChange} name="newInsurancePaid"/>
-                    </Form.Field>
-                    <Form.Field><label>Type de financement</label>
-                        <PayementFormatPicker defaultValue={this.state.vehicle.payementFormat} change={this.handleChangePayementFormat}/>
-                    </Form.Field>
-                    <Form.Field><label>Date de début du payement</label>
-                        <Input onChange={this.handleChange} value={this.state.newPayementBeginDate} onFocus={()=>{this.showDatePicker("newPayementBeginDate")}} name="newPayementBeginDate"/>
-                    </Form.Field>
-                    <Button style={{placeSelf:"center stretch",gridColumnStart:"1"}} color="red" icon labelPosition='right' onClick={this.closeEditInfos}>Annuler<Icon name='cancel'/></Button>
-                    <Button style={{placeSelf:"center stretch",gridColumnStart:"2"}} color="green" icon labelPosition='right' onClick={this.saveEdit}>Sauvegarder<Icon name='check'/></Button>
+                    <Button style={{placeSelf:"center stretch",gridColumnStart:"1"}} color="red" icon labelPosition='right' onClick={this.closeEditTech}>Annuler<Icon name='cancel'/></Button>
+                    <Button style={{placeSelf:"center stretch",gridColumnStart:"2"}} color="green" icon labelPosition='right' onClick={this.saveEditTech}>Sauvegarder<Icon name='check'/></Button>
                 </Form>
             )
         }else{
@@ -923,22 +979,59 @@ class Vehicle extends Component {
                     <div className="labelBoard">Volume :</div><div className="valueBoard">{this.state.vehicle.volume.meterCube+" m²"}</div>
                     <div className="labelBoard">Charge utile :</div><div className="valueBoard">{this.state.vehicle.payload+" t."}</div>
                     <div className="labelBoard">Couleur :</div><div className="valueBoard">{this.state.vehicle.color.name}</div>
+                </div>
+            )
+        }
+    }
+
+    getFinancesPanel = () => {
+        if(this.state.editingFinances){
+            return (
+                <Form className="formBoard" style={{placeSelf:"start auto",display:"grid",gridTemplateRows:"auto",gridTemplateColumns:"1fr 1fr",gridColumnStart:"1",gridRowEnd:"span 2",gridColumnEnd:"span 2",gridGap:"0 24px"}}>
                     <Divider style={{gridColumnEnd:"span 2",height:"23px"}} horizontal>
                         <Header as='h4'>
                             <Icon name='euro' />
                             Finances
                         </Header>
                     </Divider>
-                    <div className="labelBoard">Montant de l'assurance :</div><div className="valueBoard">{this.state.vehicle.insurancePaid} €</div>
-                    <div className="labelBoard">Date de début de payement :</div><div className="valueBoard">{this.state.vehicle.payementBeginDate}</div>
-                    <div className="labelBoard">Prix d'achat :</div><div className="valueBoard">{this.state.vehicle.purchasePrice} €</div>
-                    {this.state.vehicle.payementFormat == "CRB" ?
-                        <Fragment><div className="labelBoard">Mensualité :</div><div className="valueBoard">{this.state.vehicle.monthlyPayement} €/mois</div></Fragment>
-                    :
-                        ""
-                    }
-                    <div className="labelBoard">Organisme de payement :</div><div className="valueBoard">{this.state.vehicle.payementOrg.name}</div>
+                    <Form.Field><label>Prix à l'achat</label>
+                        <Input defaultValue={this.state.vehicle.purchasePrice} onChange={this.handleChangeTotalPrice} name="newPurchasePrice"/>
+                    </Form.Field>
+                    <Form.Field><label>Date de début du payement</label>
+                        <Input onChange={this.handleChange} value={this.state.newPayementBeginDate} onFocus={()=>{this.showDatePicker("newPayementBeginDate")}} name="newPayementBeginDate"/>
+                    </Form.Field>
+                    <Form.Field><label>Durée de financement</label>
+                        <PayementTimePicker defaultValue={this.state.vehicle.payementTime._id} onChange={this.handleChangePayementTime}/>
+                    </Form.Field>
+                    <Form.Field><label>Organisme de financement</label>
+                        <OrganismPicker defaultValue={this.state.vehicle.payementOrg._id} onChange={this.handleChangeOrganism}/>
+                    </Form.Field>
+                    <Form.Field><label>Montant de l'assurance</label>
+                        <Input defaultValue={this.state.vehicle.insurancePaid} onChange={this.handleChange} name="newInsurancePaid"/>
+                    </Form.Field>
+                    <Form.Field><label>Type de financement</label>
+                        <PayementFormatPicker defaultValue={this.state.vehicle.payementFormat} change={this.handleChangePayementFormat}/>
+                    </Form.Field>
+                    <Button style={{placeSelf:"center stretch",gridColumnStart:"1"}} color="red" icon labelPosition='right' onClick={this.closeEditFinances}>Annuler<Icon name='cancel'/></Button>
+                    <Button style={{placeSelf:"center stretch",gridColumnStart:"2"}} color="green" icon labelPosition='right' onClick={this.saveEditFinances}>Sauvegarder<Icon name='check'/></Button>
+                </Form>
+            )
+        }else{
+            return (
+                <div className="formBoard" style={{display:"grid",gridTemplateColumns:"auto 1fr",gridColumnEnd:"span 2",gridColumnStart:"1",gridGap:"6px 24px"}}>
+                    <Divider style={{gridColumnEnd:"span 2",height:"23px"}} horizontal>
+                        <Header as='h4'>
+                            <Icon name='euro' />
+                            Finances
+                        </Header>
+                    </Divider>
                     <div className="labelBoard">Type de financement :</div><div className="valueBoard">{this.state.formats.filter(f=>f.triKey == this.state.vehicle.payementFormat)[0].label}</div>
+                    <div className="labelBoard">Prix d'achat :</div><div className="valueBoard">{this.state.vehicle.purchasePrice} €</div>
+                    <div className="labelBoard">Date de début de payement :</div><div className="valueBoard">{this.state.vehicle.payementBeginDate}</div>
+                    <div className="labelBoard">Durée de financement :</div><div className="valueBoard">{this.state.vehicle.payementTime.months + " mois"}</div>
+                    <div className="labelBoard">Payement mensuel :</div><div className="valueBoard">{this.state.vehicle.monthlyPayement.toFixed(2) + " €/mois"}</div>
+                    <div className="labelBoard">Organisme de payement :</div><div className="valueBoard">{this.state.vehicle.payementOrg.name}</div>
+                    <div className="labelBoard">Montant de l'assurance :</div><div className="valueBoard">{this.state.vehicle.insurancePaid} €</div>
                     <div style={{gridColumnEnd:"span 2"}}>{this.getPayementProgress()}</div>
                 </div>
             )
@@ -996,13 +1089,15 @@ class Vehicle extends Component {
                                     (relevé {moment(this.state.vehicle.lastKmUpdate, "DD/MM/YYYY").fromNow()})
                                 </p>
                             </div>
-                            {this.getInfoPanel()}
+                            {this.getTechPanel()}
+                            {this.getFinancesPanel()}
                         </div>
                         <div style={{display:"grid",gridTemplateColumns:"256px 1fr",gridTemplateRows:"auto 640px 1fr",gridColumnStart:"2",gridGap:"8px"}}>
                             <div style={{display:"grid",gridColumnEnd:"span 2",gridTemplateColumns:"1fr 1fr 1fr 1fr",gridGap:"16px"}}>
                                 <Button color="green" style={{placeSelf:"stretch",gridColumnEnd:"span 2"}} onClick={this.showUpdateKm} icon labelPosition='right'>MaJ kilométrage<Icon name='dashboard'/></Button>
                                 {this.getDocsAndShareOptions()}
-                                <Button color="blue" style={{placeSelf:"stretch",gridColumnEnd:"span 2"}} onClick={this.editInfos} icon labelPosition='right'>Editer le véhicule<Icon name='edit'/></Button>
+                                <Button color="blue" style={{placeSelf:"stretch"}} onClick={this.showEditTech} icon labelPosition='right'>Edition : Technique<Icon name='edit'/></Button>
+                                <Button color="blue" style={{placeSelf:"stretch"}} onClick={this.showEditFinances} icon labelPosition='right'>Edition : Finances<Icon name='edit'/></Button>
                                 {this.getDeleteOptions()}
                             </div>
                             <Table style={{placeSelf:"start",gridRowEnd:"span 2"}} basic="very">
