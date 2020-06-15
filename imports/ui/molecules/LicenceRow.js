@@ -175,12 +175,18 @@ class LicenceRow extends Component {
     }
 
     saveEdit = () => {
+        let newSociete;
+        if(this.props.hideSociete){
+            newSociete = this.props.licence.societe._id;
+        }else{
+            newSociete = this.state.newSociete;
+        }
         this.closeEdit();
         this.props.client.mutate({
             mutation:this.state.editLicenceQuery,
             variables:{
                 _id:this.state._id,
-                societe:this.state.newSociete,
+                societe:newSociete,
                 number:this.state.newNumber,
                 shiftName:this.state.newShiftName,
                 endDate:this.state.newEndDate
@@ -321,7 +327,7 @@ class LicenceRow extends Component {
                         {this.getDocsStates()}
                         <Table.Cell textAlign="center">
                             <Button onClick={this.closeEdit} color="red">Annuler</Button>
-                            <Button onClick={this.saveEdit} color="blue">Sauvegarder</Button>
+                            <Button onClick={this.saveEdit} color="green">Sauvegarder</Button>
                         </Table.Cell>
                     </Table.Row>
                     <ModalDatePicker onSelectDatePicker={this.onSelectDatePicker} closeDatePicker={this.closeDatePicker} open={this.state.openDatePicker}/>

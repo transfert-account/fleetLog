@@ -1,6 +1,7 @@
 
 import React, { Component } from 'react';
 import { Icon, Input, Button, Table, Modal, Form, Message } from 'semantic-ui-react';
+import DropdownFilter from '../atoms/DropdownFilter';
 import { UserContext } from '../../contexts/UserContext';
 import ModalDatePicker from '../atoms/ModalDatePicker'
 import SocietePicker from '../atoms/SocietePicker'

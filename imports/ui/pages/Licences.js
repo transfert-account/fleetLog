@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Icon, Menu, Input, Button, Table, Modal, Form, Loader, Message } from 'semantic-ui-react';
+import DropdownFilter from '../atoms/DropdownFilter';
 import { UserContext } from '../../contexts/UserContext';
 import LicenceRow from '../molecules/LicenceRow';
 import SocietePicker from '../atoms/SocietePicker';
@@ -21,6 +22,77 @@ export class Licences extends Component {
     newNumber:"",
     newEndDate:"",
     newVehicle:"",
+    endDateInfos:{
+        icon:"calendar check",            
+        options:[
+            {
+                key: 'enddateall',
+                text: 'Toutes les licences',
+                value: "all",
+                color:"green",
+                click:()=>{this.setEndDateFilter("all")},
+                label: { color: 'green', empty: true, circular: true },
+            },
+            {
+                key: 'enddatesoon',
+                text: 'En fin de validité',
+                value: "soon",
+                color:"orange",
+                click:()=>{this.setEndDateFilter("soon")},
+                label: { color: 'orange', empty: true, circular: true },
+            },
+            {
+                key: 'enddateover',
+                text: 'Périmée',
+                value: "over",
+                color:"red",
+                click:()=>{this.setEndDateFilter("over")},
+                label: { color: 'red', empty: true, circular: true },
+            }
+        ]
+    },
+    freeLicenceFilterInfos:{
+        icon:"drivers license",
+        options:[
+            {
+                key: 'freetrue',
+                text: 'Toutes les licences',
+                value: "all",
+                color:"green",
+                click:()=>{this.setFreeLicenceFilter("all")},
+                label: { color: 'green', empty: true, circular: true },
+            },
+            {
+                key: 'freefalse',
+                text: 'Licence sans vehicule',
+                value: "free",
+                color:"orange",
+                click:()=>{this.setFreeLicenceFilter("free")},
+                label: { color: 'orange', empty: true, circular: true }
+            }
+        ]
+    },
+    docsFilterInfos:{
+        icon:"folder open outline",            
+        options:[
+            {
+                key: 'docsall',
+                text: 'Tous les véhicules',
+                value: "all",
+                color:"green",
+                click:()=>{this.setDocsFilter("all")},
+                label: { color: 'green', empty: true, circular: true },
+            },
+            {
+                key: 'docsmissing',
+                text: 'Documents manquants',
+                value: "missingDocs",
+                color:"red",
+                click:()=>{this.setDocsFilter("missingDocs")},
+                label: { color: 'red', empty: true, circular: true }
+            }
+        ]
+    },
     societesRaw: [],
     licencesRaw : [],
     licences : () => {
@@ -219,22 +291,10 @@ export class Licences extends Component {
         })
     }
 
-    getEndDateColor = (color,filter) => {
-        if(this.state.endDateFilter == filter){
-            return color
-        }
-    }
-
     setEndDateFilter = value => {
         this.setState({
             endDateFilter:value
         })
-    }
-
-    getFreeLicenceColor = (color,filter) => {
-        if(this.state.freeLicenceFilter == filter){
-            return color
-        }
     }
 
     setFreeLicenceFilter = value => {
@@ -244,12 +304,6 @@ export class Licences extends Component {
     }
 
     //MISSING DOCS FILTER
-    getDocsFilterColor = (color,filter) => {
-        if(this.state.docsFilter == filter){
-            return color
-        }
-    }
-
     setDocsFilter = value => {
         this.setState({
             docsFilter:value
@@ -291,32 +345,10 @@ export class Licences extends Component {
                     </Menu>
                     <Input style={{justifySelf:"stretch"}} name="storeFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher une tournée, un numéro de licence ou une immatriculation' />
                     <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddLicence} icon labelPosition='right'>Ajouter une licence<Icon name='plus'/></Button>
-                    <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"auto auto auto",gridGap:"16px"}}>
-                        <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
-                            <Icon name='calendar check'/>
-                            <Button.Group style={{placeSelf:"center"}}>
-                                <Button color={this.getEndDateColor("green","all")} onClick={()=>{this.setEndDateFilter("all")}}>Tous</Button>
-                                <Button color={this.getEndDateColor("orange","soon")} onClick={()=>{this.setEndDateFilter("soon")}}>En fin de validité</Button>
-                                <Button color={this.getEndDateColor("red","over")} onClick={()=>{this.setEndDateFilter("over")}}>Périmée</Button>
-                            </Button.Group>
-                        </Message>
-                        <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
-                            <Icon.Group size="huge">
-                                <Icon name='drivers license' />
-                                <Icon corner='bottom right' name='ban' />
-                            </Icon.Group>
-                            <Button.Group style={{placeSelf:"center"}}>
-                                <Button color={this.getFreeLicenceColor("green","all")} onClick={()=>{this.setFreeLicenceFilter("all")}}>Tous</Button>
-                                <Button color={this.getFreeLicenceColor("orange","free")} onClick={()=>{this.setFreeLicenceFilter("free")}}>Sans vehicule</Button>
-                            </Button.Group>
-                        </Message>
-                        <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
-                            <Icon name='folder open'/>
-                            <Button.Group style={{placeSelf:"center"}}>
-                                <Button color={this.getDocsFilterColor("green","all")} onClick={()=>{this.setDocsFilter("all")}}>Tous</Button>
-                                <Button color={this.getDocsFilterColor("red","missingDocs")} onClick={()=>{this.setDocsFilter("missingDocs")}}>Documents manquants</Button>
-                            </Button.Group>
-                        </Message>
+                    <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gridGap:"16px"}}>
+                        <DropdownFilter infos={this.state.endDateInfos} active={this.state.endDateFilter} />
+                        <DropdownFilter infos={this.state.freeLicenceFilterInfos} active={this.state.freeLicenceFilter} />
+                        <DropdownFilter infos={this.state.docsFilterInfos} active={this.state.docsFilter} />
                     </div>
                     <div style={{gridRowStart:"3",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                         <Table style={{marginBottom:"0"}} celled selectable color="blue" compact>

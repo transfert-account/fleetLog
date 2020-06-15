@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Menu, Input, Dimmer, Loader, Table, Message, Button } from 'semantic-ui-react';
+import { Icon, Menu, Input, Dimmer, Loader, Table } from 'semantic-ui-react';
+import DropdownFilter from '../atoms/DropdownFilter';
 import { UserContext } from '../../contexts/UserContext';
 import ControlRow from '../molecules/ControlRow';
 import { gql } from 'apollo-server-express';
@@ -12,6 +13,56 @@ export class Controls extends Component {
         vehiclesFiler:"",
         controlFilter:"all",
         docsFilter:"all",
+        controlFilterInfos:{
+            icon:"clipboard check",
+            options:[
+                {
+                    key: 'timeall',
+                    text: 'Tous les entretiens',
+                    value: "all",
+                    color:"green",
+                    click:()=>{this.setControlFilter("all")},
+                    label: { color: 'green', empty: true, circular: true },
+                },
+                {
+                    key: 'timesoon',
+                    text: "Seuil d'alerte",
+                    value: "soon",
+                    color:"orange",
+                    click:()=>{this.setControlFilter("soon")},
+                    label: { color: 'orange', empty: true, circular: true },
+                },
+                {
+                    key: 'timelate',
+                    text: 'Limite dépassée',
+                    value: "over",
+                    color:"red",
+                    click:()=>{this.setControlFilter("over")},
+                    label: { color: 'red', empty: true, circular: true }
+                }
+            ]
+        },
+        docsFilterInfos:{
+            icon:"folder open outline",            
+            options:[
+                {
+                    key: 'docsall',
+                    text: 'Tous les entretiens',
+                    value: "all",
+                    color:"green",
+                    click:()=>{this.setDocsFilter("all")},
+                    label: { color: 'green', empty: true, circular: true },
+                },
+                {
+                    key: 'docsmissing',
+                    text: 'Documents manquants',
+                    value: "missingDocs",
+                    color:"red",
+                    click:()=>{this.setDocsFilter("missingDocs")},
+                    label: { color: 'red', empty: true, circular: true }
+                }
+            ]
+        },
         vehiclesQuery : gql`
             query vehicles{
                 vehicles{
@@ -156,8 +207,7 @@ export class Controls extends Component {
             return displayed.map(i =>(
                 <ControlRow loadVehicles={this.loadVehicles} equipementDescriptionsRaw={this.state.equipementDescriptionsRaw} key={i._id} vehicle={i}/>
             ))
-        },
-        
+        }
     }
 
     handleFilter = e =>{
@@ -243,14 +293,9 @@ export class Controls extends Component {
             })
         })
     }
+    
 
     //CONTROLS END DATE FILTER
-    getControlFilterColor = (color,filter) => {
-        if(this.state.controlFilter == filter){
-            return color
-        }
-    }
-
     setControlFilter = value => {
         this.setState({
             controlFilter:value
@@ -258,12 +303,6 @@ export class Controls extends Component {
     }
 
     //MISSING DOCS FILTER
-    getDocsFilterColor = (color,filter) => {
-        if(this.state.docsFilter == filter){
-            return color
-        }
-    }
-
     setDocsFilter = value => {
         this.setState({
             docsFilter:value
@@ -294,22 +333,9 @@ export class Controls extends Component {
                         <Menu.Item color="blue" name='locations' onClick={()=>{this.props.history.push("/parc/locations")}} ><Icon name="calendar alternate outline"/> Locations</Menu.Item>
                     </Menu>
                     <Input style={{justifySelf:"stretch"}} onChange={this.handleFilter} icon='search' placeholder='Rechercher une immatriculation, une marque ou un modèle' />
-                    <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 2",display:"grid",gridTemplateColumns:"auto auto",gridGap:"16px"}}>
-                        <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
-                            <Icon name='clipboard check'/>
-                            <Button.Group style={{placeSelf:"center"}}>
-                                <Button color={this.getControlFilterColor("green","all")} onClick={()=>{this.setControlFilter("all")}}>Tous</Button>
-                                <Button color={this.getControlFilterColor("orange","soon")} onClick={()=>{this.setControlFilter("soon")}}>Seuil d'alerte dépassé</Button>
-                                <Button color={this.getControlFilterColor("red","over")} onClick={()=>{this.setControlFilter("over")}}>Limite dépassée</Button>
-                            </Button.Group>
-                        </Message>
-                        <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
-                            <Icon name='folder open'/>
-                            <Button.Group style={{placeSelf:"center"}}>
-                                <Button color={this.getDocsFilterColor("green","all")} onClick={()=>{this.setDocsFilter("all")}}>Tous</Button>
-                                <Button color={this.getDocsFilterColor("red","missingDocs")} onClick={()=>{this.setDocsFilter("missingDocs")}}>Documents manquants</Button>
-                            </Button.Group>
-                        </Message>
+                    <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 2",display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"16px"}}>
+                        <DropdownFilter infos={this.state.controlFilterInfos} active={this.state.controlFilter} />
+                        <DropdownFilter infos={this.state.docsFilterInfos} active={this.state.docsFilter} />
                     </div>
                     <div style={{gridRowStart:"3",gridColumnEnd:"span 2",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                         <Table style={{marginBottom:"0"}} celled selectable color="blue" compact>

@@ -14,6 +14,32 @@ export class Patchnotes extends Component {
                 </div>
                 <div style={{display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                     <Segment>
+                        <Header color='blue' as="h2">15/06/2020 - v1.2.06</Header>
+                        <List divided relaxed>
+                            <List.Item>
+                                <List.Icon name='paint brush' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Intégration</List.Header>
+                                    <List.Description>Intégration du component filtres dans les pages de la section parc</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='plus' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Component filtre</List.Header>
+                                    <List.Description>Création d'un nouveau component de filtrage en dropdown à largeur fixe et indépendante du nombre d'option du filtre</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='bug' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Edition des licences</List.Header>
+                                    <List.Description>Résolution d'un bug empéchant la modification des licences</List.Description>
+                                </List.Content>
+                            </List.Item>
+                        </List>
+                    </Segment>
+                    <Segment>
                         <Header color='blue' as="h2">14/06/2020 - v1.2.05</Header>
                         <List divided relaxed>
                             <List.Item>

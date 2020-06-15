@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
-import { Modal, Icon, Menu, Input, Dimmer, Loader, Table, Button, Form, Divider, Header, TextArea, Message } from 'semantic-ui-react';
+import { Modal, Icon, Menu, Input, Dimmer, Loader, Table, Button, Form, Divider, Header, TextArea } from 'semantic-ui-react';
+import DropdownFilter from '../atoms/DropdownFilter';
 import ModalDatePicker from '../atoms/ModalDatePicker'
 import RegistrationInput from '../atoms/RegistrationInput';
 import { UserContext } from '../../contexts/UserContext';
@@ -36,6 +37,77 @@ class BULocations extends Component {
         archiveFilter:false,
         reportLateFilter:"all",
         docsFilter:"all",
+        archiveFilterInfos:{
+            icon:"archive",            
+            options:[
+                {
+                    key: 'archivefalse',
+                    text: 'Véhicules actuels',
+                    value: false,
+                    color:"green",
+                    click:()=>{this.switchArchiveFilter(false)},
+                    label: { color: 'green', empty: true, circular: true },
+                },
+                {
+                    key: 'archivetrue',
+                    text: 'Véhicules archivés',
+                    value: true,
+                    color:"orange",
+                    click:()=>{this.switchArchiveFilter(true)},
+                    label: { color: 'orange', empty: true, circular: true },
+                }
+            ]
+        },
+        reportLateFilterInfos:{
+            icon:"dashboard",            
+            options:[
+                {
+                    key: 'reportall',
+                    text: 'Tous les véhicules',
+                    value: "all",
+                    color:"green",
+                    click:()=>{this.setReportLateFilter("all")},
+                    label: { color: 'green', empty: true, circular: true },
+                },
+                {
+                    key: 'report2w',
+                    text: 'Relevé > 2 sem.',
+                    value: "2w",
+                    color:"orange",
+                    click:()=>{this.setReportLateFilter("2w")},
+                    label: { color: 'orange', empty: true, circular: true },
+                },
+                {
+                    key: 'report4w',
+                    text: 'Relevé > 4 sem.',
+                    value: "4w",
+                    color:"red",
+                    click:()=>{this.setReportLateFilter("4w")},
+                    label: { color: 'red', empty: true, circular: true }
+                }
+            ]
+        },
+        docsFilterInfos:{
+            icon:"folder open outline",            
+            options:[
+                {
+                    key: 'docsall',
+                    text: 'Tous les véhicules',
+                    value: "all",
+                    color:"green",
+                    click:()=>{this.setDocsFilter("all")},
+                    label: { color: 'green', empty: true, circular: true },
+                },
+                {
+                    key: 'docsmissing',
+                    text: 'Documents manquants',
+                    value: "missingDocs",
+                    color:"red",
+                    click:()=>{this.setDocsFilter("missingDocs")},
+                    label: { color: 'red', empty: true, circular: true }
+                }
+            ]
+        },
         datePickerTarget:"",
         maxPage:1,
         currentPage:1,
@@ -276,26 +348,14 @@ class BULocations extends Component {
     handleChangeVolume = (e, { value }) => this.setState({ newVolume:value })
 
     //ARCHIVE FILTER
-    getArchiveFilterColor = (color,active) => {
-        if(this.state.archiveFilter == active){
-            return color;
-        }
-    }
-
-    switchArchiveFilter = () => {
+    switchArchiveFilter = v => {
         this.setState({
-            archiveFilter:!this.state.archiveFilter
+            archiveFilter:v
         })
         this.loadVehicles();
     }
 
     //REPORT LATE FILTER
-    getKmFilterColor = (color,filter) => {
-        if(this.state.reportLateFilter == filter){
-            return color
-        }
-    }
-
     setReportLateFilter = value => {
         this.setState({
             reportLateFilter:value
@@ -303,25 +363,6 @@ class BULocations extends Component {
     }
 
     //MISSING DOCS FILTER
-    getDocsFilterColor = (color,filter) => {
-        if(this.state.docsFilter == filter){
-            return color
-        }
-    }
-
-    setDocsFilter = value => {
-        this.setState({
-            docsFilter:value
-        })
-    }
-
-    //MISSING DOCS FILTER
-    getDocsFilterColor = (color,filter) => {
-        if(this.state.docsFilter == filter){
-            return color
-        }
-    }
-
     setDocsFilter = value => {
         this.setState({
             docsFilter:value
@@ -366,31 +407,12 @@ class BULocations extends Component {
                     <Input style={{justifySelf:"stretch"}} name="locationsFiler" onChange={e=>{this.handleFilter(e.target.value)}} icon='search' placeholder='Rechercher une immatriculation, une marque, un modèle ou un fournisseur' />
                     <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddLocation} icon labelPosition='right'>Enregistrer une location<Icon name='plus'/></Button>
                     <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gridGap:"16px"}}>
-                        <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
-                            <Icon name='archive'/>
-                            <Button.Group style={{placeSelf:"center"}}>
-                                <Button color={this.getArchiveFilterColor("green",false)} onClick={this.switchArchiveFilter}>En cours</Button>
-                                <Button color={this.getArchiveFilterColor("orange",true)} onClick={this.switchArchiveFilter}>Archives</Button>
-                            </Button.Group>
-                        </Message>
-                        <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
-                            <Icon name='dashboard'/>
-                            <Button.Group style={{placeSelf:"center"}}>
-                                <Button color={this.getKmFilterColor("green","all")} onClick={()=>{this.setReportLateFilter("all")}}>Tous</Button>
-                                <Button color={this.getKmFilterColor("orange","2w")} onClick={()=>{this.setReportLateFilter("2w")}}>Relevé > 2 semaines</Button>
-                                <Button color={this.getKmFilterColor("red","4w")} onClick={()=>{this.setReportLateFilter("4w")}}>Relevé > 4 semaines</Button>
-                            </Button.Group>
-                        </Message>
-                        <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
-                            <Icon name='folder open'/>
-                            <Button.Group style={{placeSelf:"center"}}>
-                                <Button color={this.getDocsFilterColor("green","all")} onClick={()=>{this.setDocsFilter("all")}}>Tous</Button>
-                                <Button color={this.getDocsFilterColor("red","missingDocs")} onClick={()=>{this.setDocsFilter("missingDocs")}}>Documents manquants</Button>
-                            </Button.Group>
-                        </Message>
+                        <DropdownFilter infos={this.state.archiveFilterInfos} active={this.state.archiveFilter} />
+                        <DropdownFilter infos={this.state.reportLateFilterInfos} active={this.state.reportLateFilter} />
+                        <DropdownFilter infos={this.state.docsFilterInfos} active={this.state.docsFilter} />
                     </div>
                     <div style={{gridRowStart:"3",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
-                        <Table style={{marginBottom:"0"}} celled selectable color={this.getArchiveFilterColor()} compact>
+                        <Table style={{marginBottom:"0"}} celled selectable compact>
                             <Table.Header>
                                 <Table.Row textAlign='center'>
                                     <Table.HeaderCell>Immatriculation</Table.HeaderCell>

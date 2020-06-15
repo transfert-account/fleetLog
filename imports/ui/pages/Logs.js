@@ -30,8 +30,8 @@ export class Logs extends Component {
         logs : () => {
             let displayed = Array.from(this.state.logsRaw);
             displayed = displayed.filter(d=>d.number.toLowerCase().includes(this.state.logsFilter.toLowerCase()) || d.message.toLowerCase().includes(this.state.logsFilter.toLowerCase()));
-            for (let index = 10000; index < 10250; index++) {
-                displayed.push({_id:index,number:index,date:"02/02/2020",time:"12:34:56",message:"Error : can't resolve this shit !",stacktrace:"blah \nblah \nblah \nblah \nblah \nblah \nblah",type:"err",domain:"vehicles"});   
+            for (let index = 1; index < 5; index++) {
+                displayed.push({_id:index,number:index,date:"13/06/2020",time:"12:34:56",message:"Error : can't resolve this !",stacktrace:"blah \nblah \nblah \nblah \nblah \nblah \nblah",type:"err",domain:"vehicles"});   
             }
             return displayed.map(l=>(
                 <LogItem log={l}/>
