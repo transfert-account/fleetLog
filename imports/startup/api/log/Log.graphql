@@ -1,0 +1,19 @@
+type Licence{
+    _id:String
+    number:Int!
+    date:String!
+    time:String!
+    message:String!
+    stacktrace:String!
+    type:String!
+    domain:String!
+}
+
+extend type Query{
+    log(_id: String!): Log
+    logs : [Log]
+}
+
+extend type Mutation{
+    writeLog(number:Int!,date:String!,time:String,message:String!,stacktrace:String!,type:String!,domain:String!): [QueryResultMessage]
+}

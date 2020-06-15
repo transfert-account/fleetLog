@@ -41,6 +41,7 @@ import Equipements from './Equipements';
 import ExportXL from './ExportXL';
 import Patchnotes from './Patchnotes';
 import Documents from './Documents';
+import Logs from './Logs';
 
 import Dashboards from '../pages/Dashboards';
 import BUDashboards from '../pages/BUDashboards';
@@ -90,7 +91,7 @@ class PageBody extends Component {
               <Route exact path='/administration/exports' component={ExportXL}/>
               <Route exact path='/administration/patchnotes' component={Patchnotes}/>
               <Route exact path='/administration/documents' component={Documents}/>
-
+              <Route exact path='/administration/logs' component={Logs}/>
               
               <Redirect from='*' to={'/home'}/>
             </Switch>
@@ -127,6 +128,7 @@ class PageBody extends Component {
               <Route exact path='/administration/exports' component={ExportXL}/>
               <Route exact path='/administration/patchnotes' component={Patchnotes}/>
               <Route exact path='/administration/documents' component={Documents}/>
+              <Route exact path='/administration/logs' component={Logs}/>
 
               <Redirect from='*' to={'/home'}/>
             </Switch>

@@ -1,45 +1,30 @@
 import React, { Component } from 'react'
 import { Segment, Header, List, Menu, Icon } from 'semantic-ui-react';
+import AdministrationMenu from '../molecules/AdministrationMenu';
 import { withRouter } from 'react-router-dom';
 import { UserContext } from '../../contexts/UserContext';
 
 export class Patchnotes extends Component {
 
-    getMenu = () => {
-        if(this.props.user.isOwner){
-            return (
-                <Menu style={{cursor:"pointer",marginBottom:"auto"}} icon='labeled'>
-                    <Menu.Item color="blue" name='comptes' onClick={()=>{this.props.history.push("/administration/accounts")}}><Icon name='users'/>Comptes</Menu.Item>
-                    <Menu.Item color="blue" name='controls' onClick={()=>{this.props.history.push("/administration/content")}}><Icon name='copy outline'/>Contenu</Menu.Item>
-                    <Menu.Item color="blue" name='equipement' onClick={()=>{this.props.history.push("/administration/equipements")}}><Icon name='wrench'/>Contrôles</Menu.Item>
-                    <Menu.Item color="blue" name='pieces' onClick={()=>{this.props.history.push("/administration/pieces")}}><Icon name='cogs'/>Pièces</Menu.Item>
-                    <Menu.Item color="blue" name='exports' onClick={()=>{this.props.history.push("/administration/exports")}}><Icon name='file excel outline'/>Exports</Menu.Item>
-                    <Menu.Item color="blue" name='patchnotes' active onClick={()=>{this.props.history.push("/administration/patchnotes")}}><Icon name='clipboard list'/>Notes de version</Menu.Item>
-                    <Menu.Item color="blue" name='documents' onClick={()=>{this.props.history.push("/administration/documents")}}><Icon name='file outline'/>Documents S3</Menu.Item>
-                </Menu>
-            )
-        }else{
-            return (
-                <Menu style={{cursor:"pointer",marginBottom:"auto"}} icon='labeled'>
-                    <Menu.Item color="blue" name='comptes' onClick={()=>{this.props.history.push("/administration/accounts")}}><Icon name='users'/>Comptes</Menu.Item>
-                    <Menu.Item color="blue" name='controls' onClick={()=>{this.props.history.push("/administration/content")}}><Icon name='copy outline'/>Contenu</Menu.Item>
-                    <Menu.Item color="blue" name='equipement' onClick={()=>{this.props.history.push("/administration/equipements")}}><Icon name='wrench'/>Contrôles</Menu.Item>
-                    <Menu.Item color="blue" name='pieces' onClick={()=>{this.props.history.push("/administration/pieces")}}><Icon name='cogs'/>Pièces</Menu.Item>
-                    <Menu.Item color="blue" name='exports' onClick={()=>{this.props.history.push("/administration/exports")}}><Icon name='file excel outline'/>Exports</Menu.Item>
-                    <Menu.Item color="blue" name='patchnotes' active onClick={()=>{this.props.history.push("/administration/patchnotes")}}><Icon name='clipboard list'/>Notes de version</Menu.Item>
-                    <Menu.Item color="blue" name='documents' onClick={()=>{this.props.history.push("/administration/documents")}}><Icon name='file outline'/>Documents S3</Menu.Item>
-                </Menu>
-            )
-        }
-    }
-
     render() {
         return (
             <div style={{height:"100%",display:"grid",gridTemplateRows:'auto 1fr auto'}}>
                 <div style={{display:"flex",marginBottom:"32px",justifyContent:"space-between"}}>
-                    {this.getMenu()}
+                    <AdministrationMenu active="patchnotes"/>
                 </div>
                 <div style={{display:"block",overflowY:"auto",justifySelf:"stretch"}}>
+                    <Segment>
+                        <Header color='blue' as="h2">14/06/2020 - v1.2.05</Header>
+                        <List divided relaxed>
+                            <List.Item>
+                                <List.Icon name='bug' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Modifications des finances</List.Header>
+                                    <List.Description>Ajout de la fonctionalité pour les comptes user qui n'y avait pas accès jusque là</List.Description>
+                                </List.Content>
+                            </List.Item>
+                        </List>
+                    </Segment>
                     <Segment>
                         <Header color='blue' as="h2">02/06/2020 - v1.2.04</Header>
                         <List divided relaxed>

@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { Input, Table, Menu, Icon } from 'semantic-ui-react';
+import { Input, Table } from 'semantic-ui-react';
+import AdministrationMenu from '../molecules/AdministrationMenu';
 import { UserContext } from '../../contexts/UserContext';
 import AccountRow from '../molecules/AccountRow';
-import { withRouter } from 'react-router-dom';
 import gql from 'graphql-tag';
 import moment from 'moment';
 import 'moment/locale/fr';
@@ -111,34 +111,6 @@ export class Accounts extends Component {
     this.loadAccounts();
   }
 
-  getMenu = () => {
-    if(this.props.user.isOwner){
-      return (
-        <Menu style={{cursor:"pointer",marginBottom:"auto"}} icon='labeled'>
-            <Menu.Item color="blue" name='comptes' active onClick={()=>{this.props.history.push("/administration/accounts")}}><Icon name='users'/>Comptes</Menu.Item>
-            <Menu.Item color="blue" name='controls' onClick={()=>{this.props.history.push("/administration/content")}}><Icon name='copy outline'/>Contenu</Menu.Item>
-            <Menu.Item color="blue" name='equipement' onClick={()=>{this.props.history.push("/administration/equipements")}}><Icon name='wrench'/>Contrôles</Menu.Item>
-            <Menu.Item color="blue" name='pieces' onClick={()=>{this.props.history.push("/administration/pieces")}}><Icon name='cogs'/>Pièces</Menu.Item>
-            <Menu.Item color="blue" name='exports' onClick={()=>{this.props.history.push("/administration/exports")}}><Icon name='file excel outline'/>Exports</Menu.Item>
-            <Menu.Item color="blue" name='patchnotes' onClick={()=>{this.props.history.push("/administration/patchnotes")}}><Icon name='clipboard list'/>Notes de version</Menu.Item>
-            <Menu.Item color="blue" name='documents' onClick={()=>{this.props.history.push("/administration/documents")}}><Icon name='file outline'/>Documents S3</Menu.Item>
-        </Menu>
-      )
-    }else{
-      return (
-        <Menu style={{cursor:"pointer",marginBottom:"auto"}} icon='labeled'>
-            <Menu.Item color="blue" name='comptes' active onClick={()=>{this.props.history.push("/administration/accounts")}}><Icon name='users'/>Comptes</Menu.Item>
-            <Menu.Item color="blue" name='controls' onClick={()=>{this.props.history.push("/administration/content")}}><Icon name='copy outline'/>Contenu</Menu.Item>
-            <Menu.Item color="blue" name='equipement' onClick={()=>{this.props.history.push("/administration/equipements")}}><Icon name='wrench'/>Contrôles</Menu.Item>
-            <Menu.Item color="blue" name='pieces' onClick={()=>{this.props.history.push("/administration/pieces")}}><Icon name='cogs'/>Pièces</Menu.Item>
-            <Menu.Item color="blue" name='exports' onClick={()=>{this.props.history.push("/administration/exports")}}><Icon name='file excel outline'/>Exports</Menu.Item>
-            <Menu.Item color="blue" name='patchnotes' onClick={()=>{this.props.history.push("/administration/patchnotes")}}><Icon name='clipboard list'/>Notes de version</Menu.Item>
-            <Menu.Item color="blue" name='documents' onClick={()=>{this.props.history.push("/administration/documents")}}><Icon name='file outline'/>Documents S3</Menu.Item>
-        </Menu>
-      )
-    }
-  }
-
   setOwner = _id => {
     this.props.client.mutate({
       mutation : this.state.setOwnerQuery,
@@ -174,7 +146,7 @@ export class Accounts extends Component {
     return (
       <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto 1fr auto"}}>
         <div style={{display:"flex",marginBottom:"0",justifyContent:"space-between"}}>
-          {this.getMenu()}
+          <AdministrationMenu active="comptes"/>
           <Input name="usersFilter" onChange={this.handleFilter} size='massive' icon='search' placeholder='Rechercher un compte ...' />
         </div>
         <div style={{display:"block",overflowY:"auto",justifySelf:"stretch"}}>
@@ -206,4 +178,4 @@ const withUserContext = WrappedComponent => props => (
   </UserContext.Consumer>
 )
 
-export default wrappedInUserContext = withUserContext(withRouter(Accounts));
+export default wrappedInUserContext = withUserContext(Accounts);

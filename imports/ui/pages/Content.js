@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Modal, Menu, Button, Header, Icon, Form, Table } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
+import AdministrationMenu from '../molecules/AdministrationMenu';
 import HexColorCodeInput from '../atoms/HexColorCodeInput';
 import SocietePicker from '../atoms/SocietePicker';
 import VolumePicker from '../atoms/VolumePicker';
@@ -849,41 +850,12 @@ class Content extends Component {
         })
     }
 
-    //Common
-    getMenu = () => {
-        if(this.props.user.isOwner){
-        return (
-            <Menu style={{cursor:"pointer",marginBottom:"auto"}} icon='labeled'>
-                <Menu.Item color="blue" name='comptes' onClick={()=>{this.props.history.push("/administration/accounts")}}><Icon name='users'/>Comptes</Menu.Item>
-                <Menu.Item color="blue" name='controls' active onClick={()=>{this.props.history.push("/administration/content")}}><Icon name='copy outline'/>Contenu</Menu.Item>
-                <Menu.Item color="blue" name='equipement' onClick={()=>{this.props.history.push("/administration/equipements")}}><Icon name='wrench'/>Contrôles</Menu.Item>
-                <Menu.Item color="blue" name='pieces' onClick={()=>{this.props.history.push("/administration/pieces")}}><Icon name='cogs'/>Pièces</Menu.Item>
-                <Menu.Item color="blue" name='exports' onClick={()=>{this.props.history.push("/administration/exports")}}><Icon name='file excel outline'/>Exports</Menu.Item>
-                <Menu.Item color="blue" name='patchnotes' onClick={()=>{this.props.history.push("/administration/patchnotes")}}><Icon name='clipboard list'/>Notes de version</Menu.Item>
-                <Menu.Item color="blue" name='documents' onClick={()=>{this.props.history.push("/administration/documents")}}><Icon name='file outline'/>Documents S3</Menu.Item>
-            </Menu>
-        )
-        }else{
-        return (
-            <Menu style={{cursor:"pointer",marginBottom:"auto"}} icon='labeled'>
-                <Menu.Item color="blue" name='comptes' onClick={()=>{this.props.history.push("/administration/accounts")}}><Icon name='users'/>Comptes</Menu.Item>
-                <Menu.Item color="blue" name='controls' active onClick={()=>{this.props.history.push("/administration/content")}}><Icon name='copy outline'/>Contenu</Menu.Item>
-                <Menu.Item color="blue" name='equipement' onClick={()=>{this.props.history.push("/administration/equipements")}}><Icon name='wrench'/>Contrôles</Menu.Item>
-                <Menu.Item color="blue" name='pieces' onClick={()=>{this.props.history.push("/administration/pieces")}}><Icon name='cogs'/>Pièces</Menu.Item>
-                <Menu.Item color="blue" name='exports' onClick={()=>{this.props.history.push("/administration/exports")}}><Icon name='file excel outline'/>Exports</Menu.Item>
-                <Menu.Item color="blue" name='patchnotes' onClick={()=>{this.props.history.push("/administration/patchnotes")}}><Icon name='clipboard list'/>Notes de version</Menu.Item>
-                <Menu.Item color="blue" name='documents' onClick={()=>{this.props.history.push("/administration/documents")}}><Icon name='file outline'/>Documents S3</Menu.Item>
-            </Menu>
-        )
-        }
-    }
-
     render() {
         return (
             <Fragment>
                 <div>
                     <div style={{display:"flex",marginBottom:"32px",justifyContent:"space-between"}}>
-                        {this.getMenu()}
+                        <AdministrationMenu active="contenu"/>
                     </div>
                     <Table basic="very" celled>
                         <Table.Header>

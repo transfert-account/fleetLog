@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Modal, Menu, Button, Icon, Message } from 'semantic-ui-react';
+import AdministrationMenu from '../molecules/AdministrationMenu';
 import { saveAs } from 'file-saver';
 import { UserContext } from '../../contexts/UserContext';
 import { withRouter } from 'react-router-dom';
@@ -127,34 +128,6 @@ export class ExportXL extends Component {
         });
     }
 
-    getMenu = () => {
-        if(this.props.user.isOwner){
-            return (
-                <Menu style={{cursor:"pointer",marginBottom:"auto"}} icon='labeled'>
-                    <Menu.Item color="blue" name='comptes' onClick={()=>{this.props.history.push("/administration/accounts")}}><Icon name='users'/>Comptes</Menu.Item>
-                    <Menu.Item color="blue" name='controls' onClick={()=>{this.props.history.push("/administration/content")}}><Icon name='copy outline'/>Contenu</Menu.Item>
-                    <Menu.Item color="blue" name='equipement' onClick={()=>{this.props.history.push("/administration/equipements")}}><Icon name='wrench'/>Contrôles</Menu.Item>
-                    <Menu.Item color="blue" name='pieces' onClick={()=>{this.props.history.push("/administration/pieces")}}><Icon name='cogs'/>Pièces</Menu.Item>
-                    <Menu.Item color="blue" name='exports' active onClick={()=>{this.props.history.push("/administration/exports")}}><Icon name='file excel outline'/>Exports</Menu.Item>
-                    <Menu.Item color="blue" name='patchnotes' onClick={()=>{this.props.history.push("/administration/patchnotes")}}><Icon name='clipboard list'/>Notes de version</Menu.Item>
-                    <Menu.Item color="blue" name='documents' onClick={()=>{this.props.history.push("/administration/documents")}}><Icon name='file outline'/>Documents S3</Menu.Item>
-                </Menu>
-            )
-        }else{
-            return (
-                <Menu style={{cursor:"pointer",marginBottom:"auto"}} icon='labeled'>
-                    <Menu.Item color="blue" name='comptes' onClick={()=>{this.props.history.push("/administration/accounts")}}><Icon name='users'/>Comptes</Menu.Item>
-                    <Menu.Item color="blue" name='controls' onClick={()=>{this.props.history.push("/administration/content")}}><Icon name='copy outline'/>Contenu</Menu.Item>
-                    <Menu.Item color="blue" name='equipement' onClick={()=>{this.props.history.push("/administration/equipements")}}><Icon name='wrench'/>Contrôles</Menu.Item>
-                    <Menu.Item color="blue" name='pieces' onClick={()=>{this.props.history.push("/administration/pieces")}}><Icon name='cogs'/>Pièces</Menu.Item>
-                    <Menu.Item color="blue" name='exports' active onClick={()=>{this.props.history.push("/administration/exports")}}><Icon name='file excel outline'/>Exports</Menu.Item>
-                    <Menu.Item color="blue" name='patchnotes' onClick={()=>{this.props.history.push("/administration/patchnotes")}}><Icon name='clipboard list'/>Notes de version</Menu.Item>
-                    <Menu.Item color="blue" name='documents' onClick={()=>{this.props.history.push("/administration/documents")}}><Icon name='file outline'/>Documents S3</Menu.Item>
-                </Menu>
-            )
-        }
-    }
-
     loadVehicles = () => {
         this.props.client.query({
             query:this.state.vehiclesQuery,
@@ -206,7 +179,7 @@ export class ExportXL extends Component {
             <Fragment>
                 <div style={{display:"grid",gridTemplateRows:'auto auto 1fr auto'}}>
                     <div style={{display:"flex",marginBottom:"32px",justifyContent:"space-between"}}>
-                        {this.getMenu()}
+                        <AdministrationMenu active="exports"/>
                     </div>
                     {/*<div style={{placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto auto auto auto",gridGap:"16px"}}>
                         <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>

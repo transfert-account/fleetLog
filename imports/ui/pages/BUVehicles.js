@@ -5,6 +5,7 @@ import { UserContext } from '../../contexts/UserContext';
 import VehiclesRow from '../molecules/VehiclesRow';
 import SocietePicker from '../atoms/SocietePicker';
 import PayementFormatPicker from '../atoms/PayementFormatPicker';
+import PayementTimePicker from '../atoms/PayementTimePicker';
 import RegistrationInput from '../atoms/RegistrationInput';
 import ColorPicker from '../atoms/ColorPicker';
 import ModelPicker from '../atoms/ModelPicker';
@@ -31,6 +32,7 @@ export class BUVehicles extends Component {
         newEnergy:"",
         newInsurancePaid:"",
         newPayementBeginDate:"",
+        newPayementTime:"",
         newPurchasePrice:"",
         newMonthlyPayement:"",
         newPayementOrg:"",
@@ -113,8 +115,8 @@ export class BUVehicles extends Component {
             ))
         },
         addVehicleQuery : gql`
-            mutation addVehicle($societe:String!,$registration:String!,$firstRegistrationDate:String!,$km:Int!,$lastKmUpdate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$insurancePaid:Float!,$payementBeginDate:String!,$purchasePrice:Float,$monthlyPayement:Float,$payementOrg:String,$payementFormat:String,$energy:String!){
-                addVehicle(societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,km:$km,lastKmUpdate:$lastKmUpdate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,payementBeginDate:$payementBeginDate,purchasePrice:$purchasePrice,monthlyPayement:$monthlyPayement,payementOrg:$payementOrg,payementFormat:$payementFormat,energy:$energy){
+            mutation addVehicle($societe:String!,$registration:String!,$firstRegistrationDate:String!,$km:Int!,$lastKmUpdate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$insurancePaid:Float!,$payementBeginDate:String!,$purchasePrice:Float,$monthlyPayement:Float,$payementOrg:String,$payementTime:String!,$payementFormat:String,$energy:String!){
+                addVehicle(societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,km:$km,lastKmUpdate:$lastKmUpdate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,payementBeginDate:$payementBeginDate,purchasePrice:$purchasePrice,monthlyPayement:$monthlyPayement,payementOrg:$payementOrg,payementTime:$payementTime,payementFormat:$payementFormat,energy:$energy){
                     status
                     message
                 }
@@ -229,6 +231,7 @@ export class BUVehicles extends Component {
                     energy:this.state.newEnergy,
                     insurancePaid:parseFloat(this.state.newInsurancePaid),
                     payementBeginDate:this.state.newPayementBeginDate,
+                    payementTime:this.state.newPayementTime,
                     purchasePrice:parseFloat(this.state.newPurchasePrice),
                     monthlyPayement:parseFloat(this.state.newMonthlyPayement),
                     payementOrg:this.state.newPayementOrg,
@@ -268,6 +271,14 @@ export class BUVehicles extends Component {
     handleRegistrationChange = value => {
         this.setState({
             newRegistration : value
+        })
+    }
+
+    handleChangePayementTime = (e, obj) => {
+        let newMonthlyPayement = this.state.newPurchasePrice / parseInt(obj.options.filter(o=>o.key == obj.value)[0].text.split(" ")[0]);
+        this.setState({
+            newPayementTime:obj.value,
+            newMonthlyPayement:newMonthlyPayement.toFixed(2)
         })
     }
 
@@ -430,40 +441,53 @@ export class BUVehicles extends Component {
                     </Modal.Header>
                     <Modal.Content style={{textAlign:"center"}}>
                         <Form style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gridGap:"16px"}}>
-                            <Form.Field>
-                                <label>Societe</label>
-                                <SocietePicker restrictToVisibility groupAppears={false} onChange={this.handleChangeSociete}/>
+                            <Form.Field ><label>Societe</label>
+                                <SocietePicker error={this.state.newSociete == ""} restrictToVisibility groupAppears={false} onChange={this.handleChangeSociete}/>
                             </Form.Field>
-                            <RegistrationInput onChange={this.handleRegistrationChange} name="newRegistration"/>
-                            <Form.Field><label>Date de première immatriculation</label><input onChange={this.handleChange} value={this.state.newFirstRegistrationDate} onFocus={()=>{this.showDatePicker("newFirstRegistrationDate")}} placeholder="Première immatriculation" name="newFirstRegistrationDate"/></Form.Field>
+                            <RegistrationInput error={this.state.newRegistration == ""} onChange={this.handleRegistrationChange} name="newRegistration"/>
+                            <Form.Field error={this.state.newFirstRegistrationDate == ""}><label>Date de première immatriculation</label><input onChange={this.handleChange} value={this.state.newFirstRegistrationDate} onFocus={()=>{this.showDatePicker("newFirstRegistrationDate")}} placeholder="Première immatriculation" name="newFirstRegistrationDate"/></Form.Field>
                             <Divider style={{gridColumnEnd:"span 3",height:"23px"}} horizontal>
                                 <Header as='h4'>
                                     <Icon name='clipboard' />
                                     Details
                                 </Header>
                             </Divider>
-                            <Form.Field><label>Kilométrage</label><input onChange={this.handleChange} name="newKm"/></Form.Field>
-                            <Form.Field><label>Date de relevé</label><input onChange={this.handleChange} value={this.state.newLastKmUpdate} onFocus={()=>{this.showDatePicker("newLastKmUpdate")}} name="newLastKmUpdate"/></Form.Field>
-                            <Form.Field><label>Marque</label><BrandPicker onChange={this.handleChangeBrand}/></Form.Field>
-                            <Form.Field><label>Modèle</label><ModelPicker onChange={this.handleChangeModel}/></Form.Field>
-                            <Form.Field><label>Energie</label><EnergyPicker onChange={this.handleChangeEnergy}/></Form.Field>
-                            <Form.Field><label>Volume</label><VolumePicker onChange={this.handleChangeVolume}/></Form.Field>
-                            <Form.Field><label>Charge utile</label><input onChange={this.handleChange} name="newPayload"/></Form.Field>
-                            <Form.Field><label>Couleur</label><ColorPicker onChange={this.handleChangeColor}/></Form.Field>
+                            <Form.Field error={this.state.newKm == ""}><label>Kilométrage</label><input onChange={this.handleChange} name="newKm"/></Form.Field>
+                            <Form.Field error={this.state.newLastKmUpdate == ""}><label>Date de relevé</label><input onChange={this.handleChange} value={this.state.newLastKmUpdate} onFocus={()=>{this.showDatePicker("newLastKmUpdate")}} name="newLastKmUpdate"/></Form.Field>
+                            <Form.Field><label>Marque</label>
+                                <BrandPicker error={this.state.newBrand == ""} onChange={this.handleChangeBrand}/>
+                            </Form.Field>
+                            <Form.Field><label>Modèle</label>
+                                <ModelPicker error={this.state.newModel == ""} onChange={this.handleChangeModel}/>
+                            </Form.Field>
+                            <Form.Field><label>Energie</label>
+                                <EnergyPicker error={this.state.newEnergy == ""} onChange={this.handleChangeEnergy}/>
+                            </Form.Field>
+                            <Form.Field><label>Volume</label>
+                                <VolumePicker error={this.state.newVolume == ""} onChange={this.handleChangeVolume}/>
+                            </Form.Field>
+                            <Form.Field error={this.state.newPayload == 0}><label>Charge utile</label><input onChange={this.handleChange} name="newPayload"/></Form.Field>
+                            <Form.Field><label>Couleur</label>
+                                <ColorPicker error={this.state.newColor == ""} onChange={this.handleChangeColor}/>
+                            </Form.Field>
                             <Divider style={{gridColumnEnd:"span 3",height:"23px"}} horizontal>
                                 <Header as='h4'>
                                     <Icon name='euro' />
                                     Finances
                                 </Header>
                             </Divider>
-                            <Form.Field><label>Prix à l'achat</label><input onChange={this.handleChange} name="newPurchasePrice"/></Form.Field>
-                            <Form.Field><label>Paiement mensuel</label><input onChange={this.handleChange} name="newMonthlyPayement"/></Form.Field>
-                            <Form.Field><label>Organisme de financement</label><OrganismPicker onChange={this.handleChangeOrganism}/></Form.Field>
-                            <Form.Field><label>Montant de l'assurance</label><input onChange={this.handleChange} name="newInsurancePaid"/></Form.Field>
-                            <Form.Field style={{gridColumnStart:"2"}}><label>Type de financement</label>
-                                <PayementFormatPicker change={this.handleChangePayementFormat}/>
+                            <Form.Field error={this.state.newPurchasePrice == ""}><label>Prix à l'achat</label><input onChange={this.handleChange} name="newPurchasePrice"/></Form.Field>
+                            <Form.Field><label>Durée de financement</label>
+                                <PayementTimePicker error={this.state.newPayementTime == ""} onChange={this.handleChangePayementTime}/>
                             </Form.Field>
-                            <Form.Field><label>Date de début du payement</label><input onChange={this.handleChange} value={this.state.newPayementBeginDate} onFocus={()=>{this.showDatePicker("newPayementBeginDate")}} name="newPayementBeginDate"/></Form.Field>
+                            <Form.Field><label>Organisme de financement</label>
+                                <OrganismPicker error={this.state.newPayementOrg == ""} onChange={this.handleChangeOrganism}/>
+                            </Form.Field>
+                            <Form.Field error={this.state.newInsurancePaid == ""}><label>Montant de l'assurance</label><input onChange={this.handleChange} name="newInsurancePaid"/></Form.Field>
+                            <Form.Field style={{gridColumnStart:"2"}}><label>Type de financement</label>
+                                <PayementFormatPicker error={this.state.newPayementFormat == ""} change={this.handleChangePayementFormat}/>
+                            </Form.Field>
+                            <Form.Field error={this.state.newPayementBeginDate == ""}><label>Date de début du payement</label><input onChange={this.handleChange} value={this.state.newPayementBeginDate} onFocus={()=>{this.showDatePicker("newPayementBeginDate")}} name="newPayementBeginDate"/></Form.Field>
                         </Form>
                     </Modal.Content>
                     <Modal.Actions>

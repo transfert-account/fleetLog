@@ -1,5 +1,5 @@
 :root{
-  font-size: 14px;
+  font-size: 12px;
   /*--light:#bdc3c7;
   --lighter:#ecf0f1;
 
@@ -494,4 +494,25 @@ svg.peach g .fa-primary{
 .navbar-societe-picker .link-text{
   display: block;
   margin-left: 0 1.5rem;
+}
+
+/*//////////////////////////////////
+///////////// LOG ITEM /////////////
+//////////////////////////////////*/
+.log-item{
+  border-radius: 4px;
+  transition: all 160ms ease-out;
+}
+.log-number{
+  width: 64px;
+  display: inline-block;
+  font-size: 1.2rem;
+}
+.log-item:hover{
+  font-size: 1.2rem;
+  padding: 16px !important;
+  background-color: rgba(0,0,0,0.1) !important;
+}
+.log-item:hover .header{
+  color: var(--danger) !important;
 }

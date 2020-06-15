@@ -1,6 +1,7 @@
 
 import React, { Component, Fragment } from 'react';
 import { Dropdown, Modal, Menu, Button, Icon, Form, Table, Input } from 'semantic-ui-react';
+import AdministrationMenu from '../molecules/AdministrationMenu';
 import { UserContext } from '../../contexts/UserContext';
 import EquipementDescriptionRow from '../molecules/EquipementDescriptionRow';
 import { withRouter } from 'react-router-dom';
@@ -137,34 +138,6 @@ class Equipements extends Component {
     })
   }
 
-  getMenu = () => {
-    if(this.props.user.isOwner){
-      return (
-        <Menu style={{cursor:"pointer",marginBottom:"0"}} icon='labeled'>
-            <Menu.Item color="blue" name='comptes' onClick={()=>{this.props.history.push("/administration/accounts")}}><Icon name='users'/>Comptes</Menu.Item>
-            <Menu.Item color="blue" name='controls' onClick={()=>{this.props.history.push("/administration/content")}}><Icon name='copy outline'/>Contenu</Menu.Item>
-            <Menu.Item color="blue" name='equipement' active onClick={()=>{this.props.history.push("/administration/equipements")}}><Icon name='wrench'/>Contrôles</Menu.Item>
-            <Menu.Item color="blue" name='pieces' onClick={()=>{this.props.history.push("/administration/pieces")}}><Icon name='cogs'/>Pièces</Menu.Item>
-            <Menu.Item color="blue" name='exports' onClick={()=>{this.props.history.push("/administration/exports")}}><Icon name='file excel outline'/>Exports</Menu.Item>
-            <Menu.Item color="blue" name='patchnotes' onClick={()=>{this.props.history.push("/administration/patchnotes")}}><Icon name='clipboard list'/>Notes de version</Menu.Item>
-            <Menu.Item color="blue" name='documents' onClick={()=>{this.props.history.push("/administration/documents")}}><Icon name='file outline'/>Documents S3</Menu.Item>
-        </Menu>
-      )
-    }else{
-      return (
-        <Menu style={{cursor:"pointer",marginBottom:"0"}} icon='labeled'>
-            <Menu.Item color="blue" name='comptes' onClick={()=>{this.props.history.push("/administration/accounts")}}><Icon name='users'/>Comptes</Menu.Item>
-            <Menu.Item color="blue" name='controls' onClick={()=>{this.props.history.push("/administration/content")}}><Icon name='copy outline'/>Contenu</Menu.Item>
-            <Menu.Item color="blue" name='equipement' active onClick={()=>{this.props.history.push("/administration/equipements")}}><Icon name='wrench'/>Contrôles</Menu.Item>
-            <Menu.Item color="blue" name='pieces' onClick={()=>{this.props.history.push("/administration/pieces")}}><Icon name='cogs'/>Pièces</Menu.Item>
-            <Menu.Item color="blue" name='exports' onClick={()=>{this.props.history.push("/administration/exports")}}><Icon name='file excel outline'/>Exports</Menu.Item>
-            <Menu.Item color="blue" name='patchnotes' onClick={()=>{this.props.history.push("/administration/patchnotes")}}><Icon name='clipboard list'/>Notes de version</Menu.Item>
-            <Menu.Item color="blue" name='documents' onClick={()=>{this.props.history.push("/administration/documents")}}><Icon name='file outline'/>Documents S3</Menu.Item>
-        </Menu>
-      )
-    }
-  }
-
   componentDidMount = () => {
       this.loadEquipementDescriptions()
   }
@@ -174,7 +147,7 @@ class Equipements extends Component {
         <Fragment>
             <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"32px",gridTemplateRows:"auto 1fr",gridTemplateColumns:"auto 1fr auto"}}>
                 <div style={{display:"flex",marginBottom:"0",justifyContent:"space-between"}}>
-                    {this.getMenu()}
+                    <AdministrationMenu active="equipement"/>
                 </div>
                 <Button color="blue" style={{justifySelf:"stretch",gridColumnStart:"3"}} onClick={this.showAddEquipementDescription} icon labelPosition='right'>Ajouter un contrôle<Icon name='plus'/></Button>
                 <div style={{gridRowStart:"2",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Input, Table, Menu, Icon } from 'semantic-ui-react';
+import { Input, Table } from 'semantic-ui-react';
+import AdministrationMenu from '../molecules/AdministrationMenu';
 import { UserContext } from '../../contexts/UserContext';
 import DocumentRow from '../molecules/DocumentRow';
 import { withRouter } from 'react-router-dom';
@@ -47,34 +48,6 @@ export class Documents extends Component {
     this.loadDocuments();
   }
 
-  getMenu = () => {
-    if(this.props.user.isOwner){
-      return (
-        <Menu style={{cursor:"pointer",marginBottom:"auto"}} icon='labeled'>
-            <Menu.Item color="blue" name='comptes' onClick={()=>{this.props.history.push("/administration/Documents")}}><Icon name='users'/>Comptes</Menu.Item>
-            <Menu.Item color="blue" name='controls' onClick={()=>{this.props.history.push("/administration/content")}}><Icon name='copy outline'/>Contenu</Menu.Item>
-            <Menu.Item color="blue" name='equipement' onClick={()=>{this.props.history.push("/administration/equipements")}}><Icon name='wrench'/>Contrôles</Menu.Item>
-            <Menu.Item color="blue" name='pieces' onClick={()=>{this.props.history.push("/administration/pieces")}}><Icon name='cogs'/>Pièces</Menu.Item>
-            <Menu.Item color="blue" name='exports' onClick={()=>{this.props.history.push("/administration/exports")}}><Icon name='file excel outline'/>Exports</Menu.Item>
-            <Menu.Item color="blue" name='patchnotes' onClick={()=>{this.props.history.push("/administration/patchnotes")}}><Icon name='clipboard list'/>Notes de version</Menu.Item>
-            <Menu.Item color="blue" name='documents' active onClick={()=>{this.props.history.push("/administration/documents")}}><Icon name='file outline'/>Documents S3</Menu.Item>
-        </Menu>
-      )
-    }else{
-      return (
-        <Menu style={{cursor:"pointer",marginBottom:"auto"}} icon='labeled'>
-            <Menu.Item color="blue" name='comptes' onClick={()=>{this.props.history.push("/administration/Documents")}}><Icon name='users'/>Comptes</Menu.Item>
-            <Menu.Item color="blue" name='controls' onClick={()=>{this.props.history.push("/administration/content")}}><Icon name='copy outline'/>Contenu</Menu.Item>
-            <Menu.Item color="blue" name='equipement' onClick={()=>{this.props.history.push("/administration/equipements")}}><Icon name='wrench'/>Contrôles</Menu.Item>
-            <Menu.Item color="blue" name='pieces' onClick={()=>{this.props.history.push("/administration/pieces")}}><Icon name='cogs'/>Pièces</Menu.Item>
-            <Menu.Item color="blue" name='exports' onClick={()=>{this.props.history.push("/administration/exports")}}><Icon name='file excel outline'/>Exports</Menu.Item>
-            <Menu.Item color="blue" name='patchnotes' onClick={()=>{this.props.history.push("/administration/patchnotes")}}><Icon name='clipboard list'/>Notes de version</Menu.Item>
-            <Menu.Item color="blue" name='documents' active onClick={()=>{this.props.history.push("/administration/documents")}}><Icon name='file outline'/>Documents S3</Menu.Item>
-        </Menu>
-      )
-    }
-  }
-
   loadDocuments = () => {
     this.props.client.query({
       query: this.state.documentsQuery,
@@ -90,7 +63,7 @@ export class Documents extends Component {
     return (
       <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto 1fr auto"}}>
         <div style={{display:"grid",marginBottom:"0",gridTemplateColumns:"auto 1fr", gridGap:"32px"}}>
-          {this.getMenu()}
+          <AdministrationMenu active="documents"/>
           <Input name="documentsFilter" onChange={this.handleFilter} size='massive' icon='search' placeholder='Rechercher un document ...' />
         </div>
         <div style={{display:"block",overflowY:"auto",justifySelf:"stretch"}}>
