@@ -17,76 +17,94 @@ import moment from 'moment';
 import { Mongo } from 'meteor/mongo';
 
 const affectVehicleData = vehicle => {
-    vehicle.lastKmUpdate = vehicle.kms[vehicle.kms.length-1].reportDate
-    vehicle.km = vehicle.kms[vehicle.kms.length-1].kmValue
-    if(vehicle.payementFormat == "CRB"){
-        vehicle.property = false
-    }else{
-        vehicle.property = true
-    }
-    if(vehicle.societe != null && vehicle.societe.length > 0){
-        vehicle.societe = Societes.findOne({_id:new Mongo.ObjectID(vehicle.societe)});
-    }else{
-        vehicle.societe = {_id:""};
-    }
-    if(vehicle.shared){
-        vehicle.sharedTo = Societes.findOne({_id:new Mongo.ObjectID(vehicle.sharedTo)});
-    }else{
-        vehicle.sharedTo = {_id:""};
-    }
-    if(vehicle.brand != null && vehicle.brand.length > 0){
-        vehicle.brand = Brands.findOne({_id:new Mongo.ObjectID(vehicle.brand)});
-    }else{
-        vehicle.brand = {_id:""};
-    }
-    if(vehicle.model != null && vehicle.model.length > 0){
-        vehicle.model = Models.findOne({_id:new Mongo.ObjectID(vehicle.model)});
-    }else{
-        vehicle.model = {_id:""};
-    }
-    if(vehicle.payementOrg != null && vehicle.payementOrg.length > 0){
-        vehicle.payementOrg = Organisms.findOne({_id:new Mongo.ObjectID(vehicle.payementOrg)});
-    }else{
-        vehicle.payementOrg = {_id:""};
-    }
-    if(vehicle.color != null && vehicle.color.length > 0){
-        vehicle.color = Colors.findOne({_id:new Mongo.ObjectID(vehicle.color)});
-    }else{
-        vehicle.color = {_id:""};
-    }
-    if(vehicle.volume != null && vehicle.volume.length > 0){
-        vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(vehicle.volume)});
-    }else{
-        vehicle.volume = {_id:""};
-    }
-    if(vehicle.energy != null && vehicle.energy.length > 0){
-        vehicle.energy = Energies.findOne({_id:new Mongo.ObjectID(vehicle.energy)});
-    }else{
-        vehicle.energy = {_id:""};
-    }
-    if(vehicle.payementTime != null && vehicle.payementTime.length > 0){
-        vehicle.payementTime = PayementTimes.findOne({_id:new Mongo.ObjectID(vehicle.payementTime)});
-    }else{
-        vehicle.payementTime = {_id:""};
-    }
-    vehicle.equipements = Equipements.find({vehicle:vehicle._id._str}).fetch() || {};
-    vehicle.equipements.forEach((e,ei) => {
-        e.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)}) || {};
-        if(e.controlTech != null && e.controlTech.length > 0){
-            e.controlTech = Documents.findOne({_id:new Mongo.ObjectID(e.controlTech)});
+    try{
+        vehicle.lastKmUpdate = vehicle.kms[vehicle.kms.length-1].reportDate
+        vehicle.km = vehicle.kms[vehicle.kms.length-1].kmValue
+        if(vehicle.payementFormat == "CRB"){
+            vehicle.property = false
         }else{
-            e.controlTech = {_id:""};
+            vehicle.property = true
         }
-    });
-    if(vehicle.cg != null && vehicle.cg.length > 0){
-        vehicle.cg = Documents.findOne({_id:new Mongo.ObjectID(vehicle.cg)});
-    }else{
-        vehicle.cg = {_id:""};
-    }
-    if(vehicle.cv != null && vehicle.cv.length > 0){
-        vehicle.cv = Documents.findOne({_id:new Mongo.ObjectID(vehicle.cv)});
-    }else{
-        vehicle.cv = {_id:""};
+        if(vehicle.societe != null && vehicle.societe.length > 0){
+            vehicle.societe = Societes.findOne({_id:new Mongo.ObjectID(vehicle.societe)});
+        }else{
+            vehicle.societe = {_id:""};
+        }
+        if(vehicle.shared){
+            vehicle.sharedTo = Societes.findOne({_id:new Mongo.ObjectID(vehicle.sharedTo)});
+        }else{
+            vehicle.sharedTo = {_id:""};
+        }
+        if(vehicle.brand != null && vehicle.brand.length > 0){
+            vehicle.brand = Brands.findOne({_id:new Mongo.ObjectID(vehicle.brand)});
+        }else{
+            vehicle.brand = {_id:""};
+        }
+        if(vehicle.model != null && vehicle.model.length > 0){
+            vehicle.model = Models.findOne({_id:new Mongo.ObjectID(vehicle.model)});
+        }else{
+            vehicle.model = {_id:""};
+        }
+        if(vehicle.payementOrg != null && vehicle.payementOrg.length > 0){
+            vehicle.payementOrg = Organisms.findOne({_id:new Mongo.ObjectID(vehicle.payementOrg)});
+        }else{
+            vehicle.payementOrg = {_id:""};
+        }
+        if(vehicle.color != null && vehicle.color.length > 0){
+            vehicle.color = Colors.findOne({_id:new Mongo.ObjectID(vehicle.color)});
+        }else{
+            vehicle.color = {_id:""};
+        }
+        if(vehicle.volume != null && vehicle.volume.length > 0){
+            vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(vehicle.volume)});
+        }else{
+            vehicle.volume = {_id:""};
+        }
+        if(vehicle.energy != null && vehicle.energy.length > 0){
+            vehicle.energy = Energies.findOne({_id:new Mongo.ObjectID(vehicle.energy)});
+        }else{
+            vehicle.energy = {_id:""};
+        }
+        if(vehicle.payementTime != null && vehicle.payementTime.length > 0){
+            vehicle.payementTime = PayementTimes.findOne({_id:new Mongo.ObjectID(vehicle.payementTime)});
+        }else{
+            vehicle.payementTime = {_id:""};
+        }
+        vehicle.equipements = Equipements.find({vehicle:vehicle._id._str}).fetch() || {};
+        vehicle.equipements.forEach((e,ei) => {
+            e.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)}) || {};
+            if(e.controlTech != null && e.controlTech.length > 0){
+                e.controlTech = Documents.findOne({_id:new Mongo.ObjectID(e.controlTech)});
+            }else{
+                e.controlTech = {_id:""};
+            }
+        });
+        if(vehicle.cg != null && vehicle.cg.length > 0){
+            vehicle.cg = Documents.findOne({_id:new Mongo.ObjectID(vehicle.cg)});
+        }else{
+            vehicle.cg = {_id:""};
+        }
+        if(vehicle.cv != null && vehicle.cv.length > 0){
+            vehicle.cv = Documents.findOne({_id:new Mongo.ObjectID(vehicle.cv)});
+        }else{
+            vehicle.cv = {_id:""};
+        }
+        if(
+            parseInt(vehicle.purchasePrice) > 0 &&
+            parseInt(vehicle.insurancePaid) > 0 &&
+            vehicle.payementBeginDate != "" &&
+            vehicle.payementEndDate != "" &&
+            vehicle.payementTime != "" &&
+            parseInt(vehicle.monthlyPayement) > 0 &&
+            vehicle.payementOrg != "" &&
+            vehicle.payementFormat != ""
+        ){
+            vehicle.financialInfosComplete = true;
+        }else{
+            vehicle.financialInfosComplete = false;
+        }
+    }catch(e){
+        console.error(e)
     }
 }
 
@@ -114,7 +132,7 @@ export default {
         }
     },
     Mutation:{
-        addVehicle(obj, {societe,registration,firstRegistrationDate,km,lastKmUpdate,brand,model,volume,payload,color,insurancePaid,payementBeginDate,purchasePrice,payementTime,monthlyPayement,payementOrg,payementFormat,energy},{user}){
+        addVehicle(obj, {societe,registration,firstRegistrationDate,km,lastKmUpdate,brand,model,volume,payload,color,energy},{user}){
             if(user._id){
                 Vehicles.insert({
                     _id:new Mongo.ObjectID(),
@@ -126,19 +144,12 @@ export default {
                     volume:volume,
                     payload:payload,
                     color:color,
-                    insurancePaid:insurancePaid,
                     kms:[{
                         _id: new Mongo.ObjectID(),
                         kmValue:km,
                         reportDate:lastKmUpdate
                     }],
-                    payementBeginDate:payementBeginDate,
                     energy:energy,
-                    purchasePrice:purchasePrice,
-                    monthlyPayement:monthlyPayement,
-                    payementTime:payementTime,
-                    payementOrg:payementOrg,
-                    payementFormat:payementFormat,
                     archived:false,
                     archiveReason:"",
                     archiveDate:"",
@@ -148,6 +159,14 @@ export default {
                     sharedTo:"",
                     sharingReason:"",
                     sharedSince:"",
+                    insurancePaid:0,
+                    payementBeginDate:"",
+                    payementEndDate:"",
+                    purchasePrice:0,
+                    monthlyPayement:0,
+                    payementTime:"",
+                    payementOrg:"",
+                    payementFormat:""
                 });
                 return [{status:true,message:'Création réussie'}];
             }
@@ -183,7 +202,7 @@ export default {
             }
             throw new Error('Unauthorized');
         },
-        editVehicleFinances(obj, {_id,insurancePaid,endDate,property,purchasePrice,payementOrg,payementBeginDate,payementTime,payementFormat,monthlyPayement},{user}){
+        editVehicleFinances(obj, {_id,insurancePaid,endDate,property,purchasePrice,payementOrg,payementBeginDate,payementEndDate,payementTime,payementFormat,monthlyPayement},{user}){
             if(user._id){
                 Vehicles.update(
                     {
@@ -198,7 +217,8 @@ export default {
                             "monthlyPayement":monthlyPayement,
                             "payementOrg":payementOrg,
                             "payementFormat":payementFormat,
-                            "payementBeginDate":payementBeginDate
+                            "payementBeginDate":payementBeginDate,
+                            "payementEndDate":payementEndDate
                         }
                     }
                 );                

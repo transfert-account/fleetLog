@@ -13,6 +13,46 @@ export class Patchnotes extends Component {
                     <AdministrationMenu active="patchnotes"/>
                 </div>
                 <div style={{display:"block",overflowY:"auto",justifySelf:"stretch"}}>
+                <Segment>
+                        <Header color='blue' as="h2">19/06/2020 - v1.2.07</Header>
+                        <List divided relaxed>
+                            <List.Item>
+                                <List.Icon name='paint brush' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Refonte de la page locations</List.Header>
+                                    <List.Description>La page locations répartie désormais les differentes catégories d'informations en onglets, differentes améliorations graphique et d'érgonomie ont également été apportées</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='paint brush' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Refonte de la page véhicule</List.Header>
+                                    <List.Description>La page véhicule répartie désormais les differentes catégories d'informations en onglets, differentes améliorations graphique et d'érgonomie ont également été apportées</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='plus' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Véhicules : informations de financement manquantes</List.Header>
+                                    <List.Description>L'absence ou l'incomplétude des données de financement d'un véhicule est affiché dans le tableau des véhicules, il est possible de filter selon ce critère</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='wrench' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Modification : Création de véhicule</List.Header>
+                                    <List.Description>Les informations relative au financement d'un véhicule ne sont plus nécessaire à la création d'un véhicule</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='paint brush' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Intégration</List.Header>
+                                    <List.Description>Intégration du component filtre dans les pages Entretiens, Batiments et Accidentologie</List.Description>
+                                </List.Content>
+                            </List.Item>
+                        </List>
+                    </Segment>
                     <Segment>
                         <Header color='blue' as="h2">15/06/2020 - v1.2.06</Header>
                         <List divided relaxed>
@@ -20,7 +60,14 @@ export class Patchnotes extends Component {
                                 <List.Icon name='paint brush' size='large' verticalAlign='middle' />
                                 <List.Content>
                                     <List.Header>Intégration</List.Header>
-                                    <List.Description>Intégration du component filtres dans les pages de la section parc</List.Description>
+                                    <List.Description>Intégration du component filtre dans les pages de la section parc</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='paint brush' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Intégration</List.Header>
+                                    <List.Description>La taille de certain élément graphique à été légérement revue à la baisse pour s'adapter à de plus petites résolutions d'écran</List.Description>
                                 </List.Content>
                             </List.Item>
                             <List.Item>

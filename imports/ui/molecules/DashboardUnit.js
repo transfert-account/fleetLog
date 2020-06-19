@@ -474,7 +474,7 @@ export class DashboardUnit extends Component {
                                     </Table.Cell>
                                     <Table.Cell textAlign="center" width={1}>
                                         <Header as='h4'>
-                                            <Header.Content>Justifcatif de restitution</Header.Content>
+                                            <Header.Content>Restitution</Header.Content>
                                         </Header>
                                     </Table.Cell>
                                 </Table.Row>

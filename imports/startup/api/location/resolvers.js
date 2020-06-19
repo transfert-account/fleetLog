@@ -139,7 +139,7 @@ export default {
             }
             throw new Error('Unauthorized');
         },
-        editLocation(obj, {_id,societe,fournisseur,registration,firstRegistrationDate,brand,model,volume,payload,color,insurancePaid,startDate,endDate,reason,price},{user}){
+        editLocationTech(obj, {_id,societe,registration,firstRegistrationDate,brand,model,volume,payload,color},{user}){
             if(user._id){
                 Locations.update(
                     {
@@ -147,19 +147,33 @@ export default {
                     }, {
                         $set: {
                             "societe":societe,
-                            "fournisseur":fournisseur,
                             "registration":registration,
                             "firstRegistrationDate":firstRegistrationDate,
                             "brand":brand,
                             "model":model,
                             "volume":volume,
                             "payload":payload,
-                            "color":color,
+                            "color":color
+                        }
+                    }
+                );                
+                return [{status:true,message:'Modifications sauvegardées'}];
+            }
+            throw new Error('Unauthorized');
+        },
+        editLocationFinances(obj, {_id,fournisseur,insurancePaid,price,startDate,endDate,reason},{user}){
+            if(user._id){
+                Locations.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "fournisseur":fournisseur,
                             "insurancePaid":insurancePaid,
+                            "price":price,
                             "startDate":startDate,
                             "endDate":endDate,
-                            "reason":reason,
-                            "price":price
+                            "reason":reason
                         }
                     }
                 );                

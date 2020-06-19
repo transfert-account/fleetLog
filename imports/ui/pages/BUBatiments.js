@@ -8,7 +8,7 @@ import SocietePicker from '../atoms/SocietePicker'
 import BatimentControlRowGroup from '../molecules/BatimentControlRowGroup';
 import { gql } from 'apollo-server-express'
 
-class Batiments extends Component {
+class BUBatiments extends Component {
 
     state={
         newName:"",
@@ -17,6 +17,64 @@ class Batiments extends Component {
         timeLeftFilter:"all",
         batimentFilter:"",
         docsFilter:"all",
+        timeLeftFilterInfos:{
+            icon:"calendar",            
+            options:[
+                {
+                    key: 'timeleftall',
+                    text: 'Tous les contrôles',
+                    value: "all",
+                    color:"green",
+                    click:()=>{this.setTimeLeftFilter("all")},
+                    label: { color: 'green', empty: true, circular: true },
+                },
+                {
+                    key: 'timeleftsoon',
+                    text: 'Moins de 8 semaines',
+                    value: "soon",
+                    color:"yellow",
+                    click:()=>{this.setTimeLeftFilter("soon")},
+                    label: { color: 'yellow', empty: true, circular: true },
+                },
+                {
+                    key: 'timeleftvery',
+                    text: 'Moins de 4 semaines',
+                    value: "very",
+                    color:"orange",
+                    click:()=>{this.setTimeLeftFilter("very")},
+                    label: { color: 'orange', empty: true, circular: true },
+                },
+                {
+                    key: 'timeleftover',
+                    text: 'Délai dépassé',
+                    value: "over",
+                    color:"red",
+                    click:()=>{this.setTimeLeftFilter("over")},
+                    label: { color: 'red', empty: true, circular: true },
+                }
+            ]
+        },
+        docsFilterInfos:{
+            icon:"folder open outline",            
+            options:[
+                {
+                    key: 'docsall',
+                    text: 'Tous les contrôles',
+                    value: "all",
+                    color:"green",
+                    click:()=>{this.setDocsFilter("all")},
+                    label: { color: 'green', empty: true, circular: true },
+                },
+                {
+                    key: 'docsmissing',
+                    text: 'Documents manquants',
+                    value: "missingDocs",
+                    color:"red",
+                    click:()=>{this.setDocsFilter("missingDocs")},
+                    label: { color: 'red', empty: true, circular: true }
+                }
+            ]
+        },
         openAddBatimentControl:false,
         batimentControlsRaw:[],
         batimentControls : () => {
@@ -143,12 +201,6 @@ class Batiments extends Component {
     }
 
     //TIME LEFT FILTER
-    getTimeLeftFilterColor = (color,active) => {
-        if(this.state.timeLeftFilter == active){
-            return color;
-        }
-    }
-
     setTimeLeftFilter = value => {
         this.setState({
             timeLeftFilter:value
@@ -156,12 +208,6 @@ class Batiments extends Component {
     }
 
     //MISSING DOCS FILTER
-    getDocsFilterColor = (color,filter) => {
-        if(this.state.docsFilter == filter){
-            return color
-        }
-    }
-
     setDocsFilter = value => {
         this.setState({
             docsFilter:value
@@ -178,22 +224,8 @@ class Batiments extends Component {
                 <Input style={{justifySelf:"stretch",gridColumnEnd:"span 2"}} name="storeFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher un nom de contrôle' />
                 <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddBatimentControl} icon labelPosition='right'>Ajouter un contrôle au batiment<Icon name='plus'/></Button>
                 <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"auto auto",gridGap:"16px"}}>
-                    <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
-                        <Icon name='calendar'/>
-                        <Button.Group style={{placeSelf:"center"}}>
-                            <Button color={this.getTimeLeftFilterColor("green","all")} onClick={()=>{this.setTimeLeftFilter("all")}}>Tous</Button>
-                            <Button color={this.getTimeLeftFilterColor("orange","late")} onClick={()=>{this.setTimeLeftFilter("late")}}>Moins de 8 semaines</Button>
-                            <Button color={this.getTimeLeftFilterColor("red","very")} onClick={()=>{this.setTimeLeftFilter("very")}}>Moins de 4 semaines</Button>
-                            <Button color={this.getTimeLeftFilterColor("black","passed")} onClick={()=>{this.setTimeLeftFilter("passed")}}>Délai dépassé</Button>
-                        </Button.Group>
-                    </Message>
-                    <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
-                        <Icon name='folder open'/>
-                        <Button.Group style={{placeSelf:"center"}}>
-                            <Button color={this.getDocsFilterColor("green","all")} onClick={()=>{this.setDocsFilter("all")}}>Tous</Button>
-                            <Button color={this.getDocsFilterColor("red","missingDocs")} onClick={()=>{this.setDocsFilter("missingDocs")}}>Documents manquants</Button>
-                        </Button.Group>
-                    </Message>
+                    <DropdownFilter infos={this.state.timeLeftFilterInfos} active={this.state.timeLeftFilter} />
+                    <DropdownFilter infos={this.state.docsFilterInfos} active={this.state.docsFilter} />
                 </div>
                 <div style={{gridRowStart:"3",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                     <Table style={{marginBottom:"0"}} celled selectable color="blue" compact>
@@ -244,4 +276,4 @@ const withUserContext = WrappedComponent => props => (
     </UserContext.Consumer>
 )
 
-export default wrappedInUserContext = withUserContext(Batiments);
+export default wrappedInUserContext = withUserContext(BUBatiments);

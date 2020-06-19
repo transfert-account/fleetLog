@@ -189,7 +189,7 @@ class Dashboards extends Component {
     render() {
         if(this.state.dataLoaded && this.state.societeLoaded){
             return (
-                <div style={{height:"100%",display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"16px 80px",gridTemplateRows:"minmax(0, 1fr)",paddingRight:"16px"}}>
+                <div style={{height:"100%",display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"16px 40px",gridTemplateRows:"minmax(0, 1fr)"}}>
                     {this.state.dashboard()}
                 </div>
             )

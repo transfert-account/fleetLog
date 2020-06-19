@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import { Loader, Label, Button, Icon, Message, Modal, Input, Form, Table, Divider, Header, TextArea } from 'semantic-ui-react';
+import { Loader, Label, Button, Icon, Message, Modal, Input, Form, Menu, Table, Divider, Header, TextArea, Segment } from 'semantic-ui-react';
 import { Bar } from 'react-chartjs-2';
 import ModalDatePicker from '../atoms/ModalDatePicker';
 import { UserContext } from '../../contexts/UserContext';
@@ -24,6 +24,7 @@ class Location extends Component {
     }
 
     state={
+        activePanel:"tech",
         newCg:null,
         newCv:null,
         newContrat:null,
@@ -47,7 +48,8 @@ class Location extends Component {
         newPrice:"",
         newArchiveReason:"",
         loading:true,
-        editing:false,
+        editingTech:false,
+        editingFinances:false,
         openDatePicker:false,
         openEndOfLocation:false,
         openCancelEndOfLocation:false,
@@ -180,9 +182,17 @@ class Location extends Component {
                 }
             }
         `,
-        editLocationQuery : gql`
-            mutation editLocation($_id:String!,$societe:String!,$fournisseur:String!,$registration:String!,$firstRegistrationDate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$insurancePaid:Float!,$startDate:String!,$endDate:String!,$price:Float!,$reason:String!){
-                editLocation(_id:$_id,societe:$societe,fournisseur:$fournisseur,registration:$registration,firstRegistrationDate:$firstRegistrationDate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,startDate:$startDate,endDate:$endDate,price:$price,reason:$reason){
+        editLocationTechQuery : gql`
+            mutation editLocationTech($_id:String!,$societe:String!,$registration:String!,$firstRegistrationDate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!){
+                editLocationTech(_id:$_id,societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color){
+                    status
+                    message
+                }
+            }
+        `,
+        editLocationFinancesQuery : gql`
+            mutation editLocationFinances($_id:String!,$fournisseur:String!,$insurancePaid:Float!,$price:Float!,$startDate:String!,$endDate:String!,$reason:String!){
+                editLocationFinances(_id:$_id,fournisseur:$fournisseur,insurancePaid:$insurancePaid,price:$price,startDate:$startDate,endDate:$endDate,reason:$reason){
                     status
                     message
                 }
@@ -327,22 +337,39 @@ class Location extends Component {
         })
     }
 
-    saveEdit = () => {
+    saveEditTech = () => {
         this.props.client.mutate({
-            mutation:this.state.editLocationQuery,
+            mutation:this.state.editLocationTechQuery,
             variables:{
                 _id:this.state._id,
                 societe:this.state.newSociete,
                 registration:this.state.newRegistration,
-                fournisseur:this.state.newFournisseur,
                 firstRegistrationDate:this.state.newFirstRegistrationDate,
-                km:parseFloat(this.state.newKm),
-                lastKmUpdate:this.state.newLastKmUpdate,
                 brand:this.state.newBrand,
                 model:this.state.newModel,
                 volume:this.state.newVolume,
                 payload:parseFloat(this.state.newPayload),
-                color:this.state.newColor,
+                color:this.state.newColor
+            }
+        }).then(({data})=>{
+            data.editLocationTech.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.closeEditTech();
+                    this.loadLocation();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+
+    saveEditFinances = () => {
+        this.props.client.mutate({
+            mutation:this.state.editLocationFinancesQuery,
+            variables:{
+                _id:this.state._id,
+                fournisseur:this.state.newFournisseur,
                 insurancePaid:parseFloat(this.state.newInsurancePaid),
                 price:parseFloat(this.state.newPrice),
                 startDate:this.state.newStartDate,
@@ -350,10 +377,10 @@ class Location extends Component {
                 reason:this.state.newJustification
             }
         }).then(({data})=>{
-            data.editLocation.map(qrm=>{
+            data.editLocationFinances.map(qrm=>{
                 if(qrm.status){
                     this.props.toast({message:qrm.message,type:"success"});
-                    this.closeEditInfos();
+                    this.closeEditFinances();
                     this.loadLocation();
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
@@ -636,9 +663,29 @@ class Location extends Component {
         })
     }
 
-    editInfos = () => {
+    editTech = () => {
         this.setState({
-            editing:true
+            editingTech:true,
+            editingFinances:false,
+            activePanel:"tech"
+        })
+    }
+    editFinances = () => {
+        this.setState({
+            editingFinances:true,
+            editingTech:false,
+            activePanel:"finances"
+        })
+    }
+
+    closeEditTech = () => {
+        this.setState({
+            editingTech:false
+        })
+    }
+    closeEditFinances = () => {
+        this.setState({
+            editingFinances:false
         })
     }
 
@@ -660,12 +707,6 @@ class Location extends Component {
                     this.props.toast({message:qrm.message,type:"error"});
                 }
             })
-        })
-    }
-
-    closeEditInfos = () => {
-        this.setState({
-            editing:false
         })
     }
 
@@ -819,103 +860,117 @@ class Location extends Component {
         return <Label color="green"> {moment(this.state.location.endDate, "DD/MM/YYYY").fromNow()}, le {this.state.location.endDate}</Label>
     }
 
-    getInfoPanel = () => {
-        if(this.state.editing){
+    getActivePanel = () => {
+        if(this.state.activePanel == "tech"){
+            return this.getTechPanel()
+        }
+        if(this.state.activePanel == "finances"){
+            return this.getFinancesPanel()
+        }        
+    }
+    
+    getTechPanel = () => {
+        if(this.state.editingTech){
             return (
-                <Form className="formBoard" style={{placeSelf:"start auto",display:"grid",gridTemplateRows:"auto",gridTemplateColumns:"1fr 1fr",gridColumnStart:"1",gridRowEnd:"span 2",gridColumnEnd:"span 2",gridGap:"6px 24px"}}>
-                    <Form.Field>
-                        <label>Societé</label>
-                        <SocietePicker restrictToVisibility defaultValue={this.state.location.societe._id} groupAppears={false} onChange={this.handleChangeSociete}/>
-                    </Form.Field>
-                    <Form.Field>
-                        <label>Fournisseur</label>
-                        <FournisseurPicker defaultValue={this.state.location.fournisseur._id} onChange={this.handleChangeFournisseur}/>
-                    </Form.Field>
-                    <RegistrationInput onChange={this.handleRegistrationChange} defaultValue={this.state.location.registration} name="newRegistration"/>
-                    <Form.Field>
-                        <label>1ère immatriculation</label>
-                        <Input value={this.state.newFirstRegistrationDate} onFocus={()=>{this.showDatePicker("newFirstRegistrationDate")}} name="newFirstRegistrationDate"/>
-                    </Form.Field>
-                    <Form.Field>
-                        <label>Marque</label>
-                        <BrandPicker defaultValue={this.state.location.brand._id} onChange={this.handleChangeBrand}/>
-                    </Form.Field>
-                    <Form.Field>
-                        <label>Modèle</label>
-                        <ModelPicker defaultValue={this.state.location.model._id} onChange={this.handleChangeModel}/>
-                    </Form.Field>
-                    <Form.Field>
-                        <label>Volume</label>
-                        <VolumePicker defaultValue={this.state.location.volume._id} onChange={this.handleChangeVolume} name="newVolume"/>
-                    </Form.Field>
-                    <Form.Field>
-                        <label>Charge utile</label>
-                        <Input defaultValue={this.state.location.payload} onChange={this.handleChange} name="newPayload"/>
-                    </Form.Field>
-                    <Form.Field>
-                        <label>Couleur</label>
-                        <ColorPicker defaultValue={this.state.location.color._id} onChange={this.handleChangeColor}/>
-                    </Form.Field>
-                    <Form.Field>
-                        <label>Date de retrait</label>
-                        <Input value={this.state.newStartDate} onFocus={()=>{this.showDatePicker("newStartDate")}} name="newStartDate"/>
-                    </Form.Field>
-                    <Form.Field>
-                        <label>Echéance de la location</label>
-                        <Input value={this.state.newEndDate} onChange={this.handleChange} onFocus={()=>{this.showDatePicker("newEndDate")}}  name="newEndDate"/>
-                    </Form.Field>
-                    <Form.Field style={{placeSelf:"stretch",gridRowEnd:"span 3"}}>
-                        <label>Justification de la location</label>
-                        <TextArea rows={10} defaultValue={this.state.newJustification} onChange={this.handleChange} name="newJustification"/>
-                    </Form.Field>
-                    <Form.Field>
-                        <label>Prix facturé</label>
-                        <Input defaultValue={this.state.location.price} onChange={this.handleChange} name="newPrice"/>
-                    </Form.Field>
-                    <Form.Field>
-                        <label>Assurance</label>
-                        <Input defaultValue={this.state.location.insurancePaid} onChange={this.handleChange} name="newInsurancePaid"/>
-                    </Form.Field>
-                    <Button style={{placeSelf:"center stretch"}} color="red" icon labelPosition='right' onClick={this.closeEditInfos}>Annuler<Icon name='cancel'/></Button>
-                    <Button style={{placeSelf:"center stretch"}} color="green" icon labelPosition='right' onClick={this.saveEdit}>Sauvegarder<Icon name='check'/></Button>
-                </Form>
+                <Segment attached='bottom'>
+                    <Form className="formBoard" style={{placeSelf:"start auto",display:"grid",gridTemplateRows:"auto",gridTemplateColumns:"1fr 1fr",gridColumnStart:"1",gridRowEnd:"span 2",gridColumnEnd:"span 2",gridGap:"6px 24px"}}>
+                        <Form.Field>
+                            <label>Societé</label>
+                            <SocietePicker restrictToVisibility defaultValue={this.state.location.societe._id} groupAppears={false} onChange={this.handleChangeSociete}/>
+                        </Form.Field>
+                        <RegistrationInput onChange={this.handleRegistrationChange} defaultValue={this.state.location.registration} name="newRegistration"/>
+                        <Form.Field>
+                            <label>1ère immatriculation</label>
+                            <Input value={this.state.newFirstRegistrationDate} onFocus={()=>{this.showDatePicker("newFirstRegistrationDate")}} name="newFirstRegistrationDate"/>
+                        </Form.Field>
+                        <Form.Field>
+                            <label>Marque</label>
+                            <BrandPicker defaultValue={this.state.location.brand._id} onChange={this.handleChangeBrand}/>
+                        </Form.Field>
+                        <Form.Field>
+                            <label>Modèle</label>
+                            <ModelPicker defaultValue={this.state.location.model._id} onChange={this.handleChangeModel}/>
+                        </Form.Field>
+                        <Form.Field>
+                            <label>Volume</label>
+                            <VolumePicker defaultValue={this.state.location.volume._id} onChange={this.handleChangeVolume} name="newVolume"/>
+                        </Form.Field>
+                        <Form.Field>
+                            <label>Charge utile</label>
+                            <Input defaultValue={this.state.location.payload} onChange={this.handleChange} name="newPayload"/>
+                        </Form.Field>
+                        <Form.Field>
+                            <label>Couleur</label>
+                            <ColorPicker defaultValue={this.state.location.color._id} onChange={this.handleChangeColor}/>
+                        </Form.Field>
+                        <Button style={{placeSelf:"center stretch"}} color="red" icon labelPosition='right' onClick={this.closeEditTech}>Annuler<Icon name='cancel'/></Button>
+                        <Button style={{placeSelf:"center stretch"}} color="green" icon labelPosition='right' onClick={this.saveEditTech}>Sauvegarder<Icon name='check'/></Button>
+                    </Form>
+                </Segment>
             )
         }else{
             return (
-                <div className="formBoard" style={{display:"grid",gridTemplateColumns:"auto 1fr",gridColumnEnd:"span 2",gridColumnStart:"1",gridGap:"6px 24px"}}>
-                    <Divider style={{gridColumnEnd:"span 2",height:"23px"}} horizontal>
-                        <Header as='h4'>
-                            <Icon name='clipboard' />
-                            Location
-                        </Header>
-                    </Divider>
-                    <div className="labelBoard">Fournisseur :</div><div className="valueBoard">{this.state.location.fournisseur.name}</div>
-                    <div className="labelBoard">Début de la location :</div><div className="valueBoard">{this.getStartDateLabel()}</div>
-                    <div className="labelBoard">Fin de la location :</div><div className="valueBoard">{this.getEndDateLabel()}</div>
-                    <Divider style={{gridColumnEnd:"span 2",height:"23px"}} horizontal>
-                        <Header as='h4'>
-                            <Icon name='wrench' />
-                            Technique
-                        </Header>
-                    </Divider>
-                    <div className="labelBoard">Societé :</div><div className="valueBoard">{this.state.location.societe.name}</div>
-                    <div className="labelBoard">Immatriculation :</div><div className="valueBoard">{this.state.location.registration}</div>
-                    <div className="labelBoard">Date de première immatriculation :</div><div className="valueBoard">{this.state.location.firstRegistrationDate}</div>
-                    <div className="labelBoard">Marque :</div><div className="valueBoard">{this.state.location.brand.name}</div>
-                    <div className="labelBoard">Modèle :</div><div className="valueBoard">{this.state.location.model.name}</div>
-                    <div className="labelBoard">Volume :</div><div className="valueBoard">{this.state.location.volume.meterCube+" m²"}</div>
-                    <div className="labelBoard">Charge utile :</div><div className="valueBoard">{this.state.location.payload+" t."}</div>
-                    <div className="labelBoard">Couleur :</div><div className="valueBoard">{this.state.location.color.name}</div>
-                    <Divider style={{gridColumnEnd:"span 2",height:"23px"}} horizontal>
-                        <Header as='h4'>
-                            <Icon name='euro' />
-                            Finances
-                        </Header>
-                    </Divider>
-                    <div className="labelBoard">Montant de l'assurance :</div><div className="valueBoard">{this.state.location.insurancePaid} €</div>
-                    <div className="labelBoard">Coût de la location :</div><div className="valueBoard">{this.state.location.price} €</div>
-                    <div className="labelBoard">Montant des réparations :</div><div className="valueBoard">{this.state.location.reparation} €</div>
-                </div>
+                <Segment attached='bottom'>
+                    <div className="formBoard" style={{display:"grid",gridTemplateColumns:"auto 1fr",gridColumnEnd:"span 2",gridColumnStart:"1",gridGap:"6px 24px"}}>
+                        <div className="labelBoard">Societé :</div><div className="valueBoard">{this.state.location.societe.name}</div>
+                        <div className="labelBoard">Immatriculation :</div><div className="valueBoard">{this.state.location.registration}</div>
+                        <div className="labelBoard">Date de première immatriculation :</div><div className="valueBoard">{this.state.location.firstRegistrationDate}</div>
+                        <div className="labelBoard">Marque :</div><div className="valueBoard">{this.state.location.brand.name}</div>
+                        <div className="labelBoard">Modèle :</div><div className="valueBoard">{this.state.location.model.name}</div>
+                        <div className="labelBoard">Volume :</div><div className="valueBoard">{this.state.location.volume.meterCube+" m²"}</div>
+                        <div className="labelBoard">Charge utile :</div><div className="valueBoard">{this.state.location.payload+" t."}</div>
+                        <div className="labelBoard">Couleur :</div><div className="valueBoard">{this.state.location.color.name}</div>
+                    </div>
+                </Segment>
+            )
+        }
+    }
+    getFinancesPanel = () => {
+        if(this.state.editingFinances){
+            return (
+                <Segment attached='bottom'>
+                    <Form className="formBoard" style={{placeSelf:"start auto",display:"grid",gridTemplateRows:"auto",gridTemplateColumns:"1fr 1fr",gridColumnStart:"1",gridRowEnd:"span 2",gridColumnEnd:"span 2",gridGap:"6px 24px"}}>
+                        <Form.Field>
+                            <label>Fournisseur</label>
+                            <FournisseurPicker defaultValue={this.state.location.fournisseur._id} onChange={this.handleChangeFournisseur}/>
+                        </Form.Field>
+                        <Form.Field>
+                            <label>Date de retrait</label>
+                            <Input value={this.state.newStartDate} onFocus={()=>{this.showDatePicker("newStartDate")}} name="newStartDate"/>
+                        </Form.Field>
+                        <Form.Field>
+                            <label>Echéance de la location</label>
+                            <Input value={this.state.newEndDate} onChange={this.handleChange} onFocus={()=>{this.showDatePicker("newEndDate")}}  name="newEndDate"/>
+                        </Form.Field>
+                        <Form.Field style={{placeSelf:"stretch",gridRowEnd:"span 3"}}>
+                            <label>Justification de la location</label>
+                            <TextArea rows={10} defaultValue={this.state.newJustification} onChange={this.handleChange} name="newJustification"/>
+                        </Form.Field>
+                        <Form.Field>
+                            <label>Prix facturé</label>
+                            <Input defaultValue={this.state.location.price} onChange={this.handleChange} name="newPrice"/>
+                        </Form.Field>
+                        <Form.Field>
+                            <label>Assurance</label>
+                            <Input defaultValue={this.state.location.insurancePaid} onChange={this.handleChange} name="newInsurancePaid"/>
+                        </Form.Field>
+                        <Button style={{placeSelf:"center stretch"}} color="red" icon labelPosition='right' onClick={this.closeEditFinances}>Annuler<Icon name='cancel'/></Button>
+                        <Button style={{placeSelf:"center stretch"}} color="green" icon labelPosition='right' onClick={this.saveEditFinances}>Sauvegarder<Icon name='check'/></Button>
+                    </Form>
+                </Segment>
+            )
+        }else{
+            return (
+                <Segment attached='bottom'>
+                    <div className="formBoard" style={{display:"grid",gridTemplateColumns:"auto 1fr",gridColumnEnd:"span 2",gridColumnStart:"1",gridGap:"6px 24px"}}>
+                        <div className="labelBoard">Fournisseur :</div><div className="valueBoard">{this.state.location.fournisseur.name}</div>
+                        <div className="labelBoard">Début de la location :</div><div className="valueBoard">{this.getStartDateLabel()}</div>
+                        <div className="labelBoard">Fin de la location :</div><div className="valueBoard">{this.getEndDateLabel()}</div>
+                        <div className="labelBoard">Montant de l'assurance :</div><div className="valueBoard">{this.state.location.insurancePaid} €</div>
+                        <div className="labelBoard">Coût de la location :</div><div className="valueBoard">{this.state.location.price} €</div>
+                        <div className="labelBoard">Montant des réparations :</div><div className="valueBoard">{this.state.location.reparation} €</div>
+                    </div>
+                </Segment>
             )
         }
     }
@@ -989,8 +1044,8 @@ class Location extends Component {
         }else{
             return (
                 <Fragment>
-                    <div style={{display:"grid",gridGap:"24px",gridTemplateColumns:"1fr 2fr",gridTemplateRows:"auto auto 1fr"}}>
-                        <div style={{display:"grid",gridGap:"8px",gridTemplateColumns:"auto 1fr"}}>
+                    <div style={{display:"grid",gridGap:"24px",gridTemplateRows:"auto auto 1fr"}}>
+                        <div style={{display:"grid",gridGap:"16px",gridTemplateColumns:"auto 1fr auto"}}>
                             <Button animated='fade' inverted onClick={()=>{this.props.history.push("/parc/locations");}} style={{margin:"0",gridRowStart:"1",gridColumnStart:"1"}} color="grey" size="huge">
                                 <Button.Content hidden>
                                     <Icon color="black" style={{margin:"0"}} name='list ul' />
@@ -1000,39 +1055,50 @@ class Location extends Component {
                                 </Button.Content>
                             </Button>
                             <Message style={{margin:"0",gridRowStart:"1",gridColumnStart:"2"}} icon='truck' header={this.state.location.registration} content={this.state.location.brand.name + " - " + this.state.location.model.name} />
-                            {this.getArchivePanel()}
-                            <div style={{gridColumnEnd:"span 2"}}>
-                                <p style={{margin:"0",fontWeight:"bold",fontSize:"2.4em"}}>
-                                    {this.state.location.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km
-                                </p>
-                                <p style={{margin:"0",fontWeight:"bold",fontSize:"1.1em"}}>
-                                    (relevé {moment(this.state.location.lastKmUpdate, "DD/MM/YYYY").fromNow()})
-                                </p>
-                            </div>
-                            {this.getInfoPanel()}
-                        </div>
-                        <div style={{display:"grid",gridTemplateColumns:"256px 1fr",gridTemplateRows:"auto 640px 1fr",gridColumnStart:"2",gridGap:"16px"}}>
-                            <div style={{display:"grid",gridColumnEnd:"span 2",gridTemplateColumns:"1fr 1fr 1fr 1fr",gridGap:"16px"}}>
+                            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gridGap:"16px"}}>
                                 <Button color="green" style={{placeSelf:"stretch",gridColumnEnd:"span 2"}} onClick={this.showUpdateLocKm} icon labelPosition='right'>MaJ kilométrage<Icon name='dashboard'/></Button>
                                 {this.getEndOfLocationButton()}
                                 <Button color="purple" style={{placeSelf:"stretch"}} onClick={this.showDocs} icon labelPosition='right'>Gérer les documents<Icon name='folder open'/></Button>
-                                <Button color="blue" style={{placeSelf:"stretch",gridColumnEnd:"span 2"}} onClick={this.editInfos} icon labelPosition='right'>Editer la location<Icon name='edit'/></Button>
+                                <Button color="blue" style={{placeSelf:"stretch"}} onClick={this.editTech} icon labelPosition='right'>Édition : Technique<Icon name='edit'/></Button>
+                                <Button color="blue" style={{placeSelf:"stretch"}} onClick={this.editFinances} icon labelPosition='right'>Édition : Location<Icon name='edit'/></Button>
                                 {this.getDeleteOptions()}
                             </div>
-                            <Table style={{placeSelf:"start",gridRowEnd:"span 2"}} basic="very">
-                                <Table.Header>
-                                    <Table.Row>
-                                        <Table.HeaderCell>Date</Table.HeaderCell>
-                                        <Table.HeaderCell>Km</Table.HeaderCell>
-                                        <Table.HeaderCell>Suppr.</Table.HeaderCell>
-                                    </Table.Row>
-                                </Table.Header>
-                                <Table.Body>
-                                    {this.state.kmsReport()}
-                                </Table.Body>
-                            </Table>
-                            <div style={{placeSelf:"stretch"}}>
-                                <Bar ref={(reference) => this.chartRef = reference } data={this.getChartData()} style={{display:"block"}} options={{maintainAspectRatio:false,responsive:true}}/>
+                        </div>
+                        <div style={{display:"flex"}}>
+                            {this.getArchivePanel()}
+                        </div>
+                        <div style={{gridRowStart:"3",display:"grid",gridTemplateColumns:"2fr 3fr",gridGap:"24px"}}>
+                            <div>
+                                <Segment textAlign="center">
+                                    <p style={{margin:"0",fontWeight:"bold",fontSize:"2.4em"}}>
+                                        {this.state.location.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km
+                                    </p>
+                                    <p style={{margin:"0",fontWeight:"bold",fontSize:"1.1em"}}>
+                                        (relevé {moment(this.state.location.lastKmUpdate, "DD/MM/YYYY").fromNow()})
+                                    </p>
+                                </Segment>
+                                <Menu attached='top' pointing>
+                                    <Menu.Item color="blue" icon='wrench' name='Technique' active={this.state.activePanel == 'tech'} onClick={()=>{this.setState({activePanel:"tech"})}} />
+                                    <Menu.Item color="green" icon='phone' name='Location' active={this.state.activePanel == 'finances'} onClick={()=>{this.setState({activePanel:"finances"})}} />
+                                </Menu>
+                                {this.getActivePanel()}
+                            </div>
+                            <div style={{display:"grid",gridTemplateColumns:"256px 1fr",gridTemplateRows:"auto 640px 1fr",gridColumnStart:"2",gridGap:"8px"}}>
+                                <Table style={{placeSelf:"start",gridRowEnd:"span 2"}} basic="very">
+                                    <Table.Header>
+                                        <Table.Row>
+                                            <Table.HeaderCell>Date</Table.HeaderCell>
+                                            <Table.HeaderCell>Km</Table.HeaderCell>
+                                            <Table.HeaderCell>Suppr.</Table.HeaderCell>
+                                        </Table.Row>
+                                    </Table.Header>
+                                    <Table.Body>
+                                        {this.state.kmsReport()}
+                                    </Table.Body>
+                                </Table>
+                                <div style={{placeSelf:"stretch"}}>
+                                    <Bar ref={(reference) => this.chartRef = reference } data={this.getChartData()} height={400} style={{display:"block"}} options={{maintainAspectRatio:false,responsive:true}}/>
+                                </div>
                             </div>
                         </div>
                     </div>

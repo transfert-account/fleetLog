@@ -197,13 +197,13 @@ class BatimentControlRowGroup extends Component {
         let nextDate = moment(date,"DD/MM/YYYY").add(delay, 'days');
         let daysLeft = parseInt(nextDate.diff(moment(),'day', true))
         if(daysLeft <= 0){
-            return <Label color="black"> {nextDate.fromNow()}, le {nextDate.format("DD/MM/YYYY")}</Label>
+            return <Label color="red"> {nextDate.fromNow()}, le {nextDate.format("DD/MM/YYYY")}</Label>
         }
         if(daysLeft > 0 && daysLeft <= 28){
-            return <Label color="red"> {moment().to(nextDate)}, le {nextDate.format("DD/MM/YYYY")}</Label>
+            return <Label color="orange"> {moment().to(nextDate)}, le {nextDate.format("DD/MM/YYYY")}</Label>
         }
         if(daysLeft > 28 && daysLeft <= 56){
-            return <Label color="orange"> {moment().to(nextDate)}, le {nextDate.format("DD/MM/YYYY")}</Label>
+            return <Label color="yellow"> {moment().to(nextDate)}, le {nextDate.format("DD/MM/YYYY")}</Label>
         }
         return <Label color="green"> {moment().to(nextDate)}, le {nextDate.format("DD/MM/YYYY")}</Label>
     }

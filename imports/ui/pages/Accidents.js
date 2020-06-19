@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Icon, Input, Button, Table, Modal, Form, Message } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
+import DropdownFilter from '../atoms/DropdownFilter';
 import AccidentRow from '../molecules/AccidentRow';
 import VehiclePicker from '../atoms/VehiclePicker';
 import ModalDatePicker from '../atoms/ModalDatePicker';
@@ -17,6 +18,69 @@ class Accidents extends Component {
     archiveFilter:false,
     docsFilter: "all",
     constatSentFilter: "all",
+    archiveFilterInfos:{
+      icon:"archive",            
+      options:[
+          {
+              key: 'archivefalse',
+              text: 'Accidents actuels',
+              value: false,
+              color:"green",
+              click:()=>{this.switchArchiveFilter(false)},
+              label: { color: 'green', empty: true, circular: true },
+          },
+          {
+              key: 'archivetrue',
+              text: 'Accidents archivés',
+              value: true,
+              color:"orange",
+              click:()=>{this.switchArchiveFilter(true)},
+              label: { color: 'orange', empty: true, circular: true },
+          }
+      ]
+    },
+    constatSentFilterInfos:{
+        icon:"mail",            
+        options:[
+            {
+                key: 'constatAll',
+                text: 'Tous les accidents',
+                value: "all",
+                color:"green",
+                click:()=>{this.setConstatSentFilter("all")},
+                label: { color: 'green', empty: true, circular: true },
+            },
+            {
+                key: 'constatNotSent',
+                text: 'Constat à envoyer',
+                value: "notSent",
+                color:"orange",
+                click:()=>{this.setConstatSentFilter("notSent")},
+                label: { color: 'orange', empty: true, circular: true },
+            }
+        ]
+    },
+    docsFilterInfos:{
+        icon:"folder open outline",            
+        options:[
+            {
+                key: 'docsall',
+                text: 'Tous les accidents',
+                value: "all",
+                color:"green",
+                click:()=>{this.setDocsFilter("all")},
+                label: { color: 'green', empty: true, circular: true },
+            },
+            {
+                key: 'docsmissing',
+                text: 'Documents manquants',
+                value: "missingDocs",
+                color:"red",
+                click:()=>{this.setDocsFilter("missingDocs")},
+                label: { color: 'red', empty: true, circular: true }
+            }
+        ]
+    },
     openAddAccident:false,
     accidentsRaw:[],
     accidents : () => {
@@ -182,12 +246,6 @@ class Accidents extends Component {
   }
 
   //MISSING DOCS FILTER
-  getDocsFilterColor = (color,filter) => {
-    if(this.state.docsFilter == filter){
-        return color
-    }
-  }
-
   setDocsFilter = value => {
     this.setState({
       docsFilter:value
@@ -195,26 +253,14 @@ class Accidents extends Component {
   }
 
   //ARCHIVE FILTER
-  getArchiveFilterColor = (color,active) => {
-    if(this.state.archiveFilter == active){
-        return color;
-    }
-  }
-
-  switchArchiveFilter = () => {
+  switchArchiveFilter = v => {
       this.setState({
-          archiveFilter:!this.state.archiveFilter
+          archiveFilter:v
       })
       this.loadAccidents();
   }
 
   //CONSTAT SENT FILTER
-  getConstatSentColor = (color,filter) => {
-    if(this.state.constatSentFilter == filter){
-        return color
-    }
-  }
-
   setConstatSentFilter = value => {
     this.setState({
       constatSentFilter:value
@@ -262,27 +308,9 @@ class Accidents extends Component {
         <Input style={{justifySelf:"stretch",gridColumnEnd:"span 2"}} name="accidentFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher un véhicule' />
         <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddAccident} icon labelPosition='right'>Nouvel accident<Icon name='plus'/></Button>
         <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"auto auto auto",gridGap:"16px"}}>
-          <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
-            <Icon name='archive'/>
-            <Button.Group style={{placeSelf:"center"}}>
-                <Button color={this.getArchiveFilterColor("green",false)} onClick={this.switchArchiveFilter}>Actuels</Button>
-                <Button color={this.getArchiveFilterColor("orange",true)} onClick={this.switchArchiveFilter}>Archives</Button>
-            </Button.Group>
-          </Message>
-          <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
-            <Icon name='mail'/>
-            <Button.Group style={{placeSelf:"center"}}>
-              <Button color={this.getConstatSentColor("green","all")} onClick={()=>{this.setConstatSentFilter("all")}}>Tous</Button>
-              <Button color={this.getConstatSentColor("red","notSent")} onClick={()=>{this.setConstatSentFilter("notSent")}}>Constat à envoyer</Button>
-            </Button.Group>
-          </Message>
-          <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
-            <Icon name='folder open'/>
-            <Button.Group style={{placeSelf:"center"}}>
-              <Button color={this.getDocsFilterColor("green","all")} onClick={()=>{this.setDocsFilter("all")}}>Tous</Button>
-              <Button color={this.getDocsFilterColor("red","missingDocs")} onClick={()=>{this.setDocsFilter("missingDocs")}}>Documents manquants</Button>
-            </Button.Group>
-          </Message>
+          <DropdownFilter infos={this.state.archiveFilterInfos} active={this.state.archiveFilter} />
+          <DropdownFilter infos={this.state.constatSentFilterInfos} active={this.state.constatSentFilter} />
+          <DropdownFilter infos={this.state.docsFilterInfos} active={this.state.docsFilter} />
         </div>
         <div style={{gridRowStart:"3",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
             <Table style={{marginBottom:"0"}} celled selectable color="blue" compact>

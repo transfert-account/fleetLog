@@ -168,9 +168,9 @@ class PageBody extends Component {
   render() {
     return (
       <div style={{
-        width:"calc(100vw - 80px)",
-        margin:"0 0 0 80px",
-        padding:"32px 64px 32px 64px",
+        width:"calc(100vw - 5rem)",
+        margin:"0 0 0 5rem",
+        padding:"32px 48px 32px 48px",
         display:"inline-block",
         backgroundRepeat:"no-repeat",
         backgroundAttachment:"fixed",

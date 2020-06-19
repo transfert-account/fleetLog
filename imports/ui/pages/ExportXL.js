@@ -49,6 +49,7 @@ export class ExportXL extends Component {
                         _id
                     }
                     payementBeginDate
+                    payementEndDate
                     property
                     purchasePrice
                     monthlyPayement
@@ -158,17 +159,18 @@ export class ExportXL extends Component {
                 "Charge utile (t.)":v.payload,
                 "Energie":v.energy.name,
                 "Propriété":v.property,
-                "Date de début de payement":v.payementBeginDate,
-                "Coût":v.purchasePrice,
-                "Durée de financement (en mois)":v.payementTime.months,
-                "Paiement mensuel":v.monthlyPayement,
                 "Format de payement":v.payementFormat,
+                "Durée de financement (en mois)":v.payementTime.months,
+                "Début de payement":v.payementBeginDate,
+                "Fin de payement":v.payementEndDate,
+                "Coût":v.purchasePrice,
+                "Paiement mensuel":v.monthlyPayement,
                 "Archivé":v.archived
             })
         });
         var ws = XLSX.utils.json_to_sheet(exp);
         var wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "export "+(this.state.month+1).toString().padStart(2,'0')+' '+this.state.year);
+        XLSX.utils.book_append_sheet(wb, ws, "véhicules "+(new Date().getDate()) +"_"+ (new Date().getMonth() + 1).toString().padStart(2,'0') +"_"+ new Date().getFullYear());
         let wopts = { bookType:'xlsx',bookSST:false,type:'array'};
         let wbout = XLSX.write(wb,wopts);
         saveAs(new Blob([wbout],{type:"application/octet-stream"}), "export_"+this.state.vehiclesRaw.length+"v_"+new Date().getDate().toString().padStart(2,'0')+"_"+new Date().getMonth().toString().padStart(2,'0')+"_"+new Date().getFullYear().toString().padStart(4,'0')+".xlsx");

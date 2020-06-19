@@ -11,9 +11,88 @@ class BUEntretiens extends Component {
     state={
         entretienFilter:"",
         newVehicle:"",
-        filterArchive:false,
-        orderStatusFilter:"all",
+        archiveFilter:false,
         docsFilter:"all",
+        orderStatusFilter:"all",
+        archiveFilterInfos:{
+            icon:"archive",            
+            options:[
+                {
+                    key: 'archivefalse',
+                    text: 'Entretiens actuels',
+                    value: false,
+                    color:"green",
+                    click:()=>{this.switchArchiveFilter(false)},
+                    label: { color: 'green', empty: true, circular: true },
+                },
+                {
+                    key: 'archivetrue',
+                    text: 'Entretiens archivés',
+                    value: true,
+                    color:"orange",
+                    click:()=>{this.switchArchiveFilter(true)},
+                    label: { color: 'orange', empty: true, circular: true },
+                }
+            ]
+        },
+        ordersFilterInfos:{
+            icon:"shipping fast",            
+            options:[
+                {
+                    key: 'orderall',
+                    text: 'Tous les entretiens',
+                    value: "all",
+                    color:"green",
+                    click:()=>{this.setOrderStatusFilter("all")},
+                    label: { color: 'green', empty: true, circular: true },
+                },
+                {
+                    key: 'orderready',
+                    text: 'Entretiens prêts',
+                    value: "ready",
+                    color:"blue",
+                    click:()=>{this.setOrderStatusFilter("ready")},
+                    label: { color: 'blue', empty: true, circular: true }
+                },
+                {
+                    key: 'orderwaiting',
+                    text: 'Commandes en livraison',
+                    value: "waiting",
+                    color:"orange",
+                    click:()=>{this.setOrderStatusFilter("waiting")},
+                    label: { color: 'orange', empty: true, circular: true }
+                },
+                {
+                    key: 'ordertodo',
+                    text: 'Commandes à passer',
+                    value: "toDo",
+                    color:"red",
+                    click:()=>{this.setOrderStatusFilter("toDo")},
+                    label: { color: 'red', empty: true, circular: true }
+                }
+            ]
+        },
+        docsFilterInfos:{
+            icon:"folder open outline",            
+            options:[
+                {
+                    key: 'docsall',
+                    text: 'Tous les entretiens',
+                    value: "all",
+                    color:"green",
+                    click:()=>{this.setDocsFilter("all")},
+                    label: { color: 'green', empty: true, circular: true },
+                },
+                {
+                    key: 'docsmissing',
+                    text: 'Documents manquants',
+                    value: "missingDocs",
+                    color:"red",
+                    click:()=>{this.setDocsFilter("missingDocs")},
+                    label: { color: 'red', empty: true, circular: true }
+                }
+            ]
+        },
         openAddEntretien:false,
         entretiensRaw:[],
         entretiens : () => {
@@ -73,7 +152,7 @@ class BUEntretiens extends Component {
                 }
             }
             displayed = displayed.filter(e =>
-                e.archived == this.state.filterArchive
+                e.archived == this.state.archiveFilter
             );
             return displayed.map(e =>(
                 <EntretienRow hideSociete={true} loadEntretiens={this.loadEntretiens} key={e._id} entretien={e}/>
@@ -149,12 +228,6 @@ class BUEntretiens extends Component {
         `
     }
 
-    handleFilter = e => {
-        this.setState({
-          filterArchive : e.target.value
-        })
-    }
-
     handleChange = e =>{
         this.setState({
             [e.target.name]:e.target.value
@@ -172,32 +245,14 @@ class BUEntretiens extends Component {
     }
 
     //ARCHIVE FILTER
-    getArchiveFilterColor = (color,active) => {
-        if(this.state.filterArchive == active){
-            return color;
-        }
-    }
-
-    getArchiveFilterBasic = active => {
-        if(this.state.filterArchive == active){
-            return true;
-        }
-    }
-
-    switchArchiveFilter = () => {
+    switchArchiveFilter = v => {
         this.setState({
-            filterArchive:!this.state.filterArchive
+            archiveFilter:v
         })
         this.loadEntretiens();
     }
 
     //ORDER STATUS FILTER
-    getOrderStatusColor = (color,filter) => {
-        if(this.state.orderStatusFilter == filter){
-            return color
-        }
-    }
-
     setOrderStatusFilter = value => {
         this.setState({
             orderStatusFilter:value
@@ -205,12 +260,6 @@ class BUEntretiens extends Component {
     }
 
     //MISSING DOCS FILTER
-    getDocsFilterColor = (color,filter) => {
-        if(this.state.docsFilter == filter){
-            return color
-        }
-    }
-
     setDocsFilter = value => {
         this.setState({
             docsFilter:value
@@ -263,32 +312,12 @@ class BUEntretiens extends Component {
                 <Input style={{justifySelf:"stretch"}} name="entretienFilter" onChange={this.handleChange} icon='search' placeholder='Rechercher une immatriculation, un titre ou une description' />
                 <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddEntretien} icon labelPosition='right'>Créer un entretien<Icon name='plus'/></Button>
                 <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 2",display:"grid",gridTemplateColumns:"auto auto auto",gridGap:"16px"}}>
-                    <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
-                        <Icon name='archive'/>
-                        <Button.Group style={{placeSelf:"center"}}>
-                            <Button color={this.getArchiveFilterColor("green",false)} onClick={this.switchArchiveFilter}>En cours</Button>
-                            <Button color={this.getArchiveFilterColor("orange",true)} onClick={this.switchArchiveFilter}>Archives</Button>
-                        </Button.Group>
-                    </Message>
-                    <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
-                        <Icon name='shipping fast'/>
-                        <Button.Group style={{placeSelf:"center"}}>
-                            <Button color={this.getOrderStatusColor("blue","all")} onClick={()=>{this.setOrderStatusFilter("all")}}>Tous</Button>
-                            <Button color={this.getOrderStatusColor("green","ready")} onClick={()=>{this.setOrderStatusFilter("ready")}}>Entretiens prêts</Button>
-                            <Button color={this.getOrderStatusColor("orange","waiting")} onClick={()=>{this.setOrderStatusFilter("waiting")}}>Commandes en livraison</Button>
-                            <Button color={this.getOrderStatusColor("red","toDo")} onClick={()=>{this.setOrderStatusFilter("toDo")}}>Commandes à passer</Button>
-                        </Button.Group>
-                    </Message>
-                    <Message color="grey" icon style={{margin:"0",placeSelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr"}}>
-                        <Icon name='folder open'/>
-                        <Button.Group style={{placeSelf:"center"}}>
-                            <Button color={this.getDocsFilterColor("green","all")} onClick={()=>{this.setDocsFilter("all")}}>Tous</Button>
-                            <Button color={this.getDocsFilterColor("red","missingDocs")} onClick={()=>{this.setDocsFilter("missingDocs")}}>Documents manquants</Button>
-                        </Button.Group>
-                    </Message>
+                    <DropdownFilter infos={this.state.archiveFilterInfos} active={this.state.archiveFilter} />
+                    <DropdownFilter infos={this.state.ordersFilterInfos} active={this.state.orderStatusFilter} />
+                    <DropdownFilter infos={this.state.docsFilterInfos} active={this.state.docsFilter} />
                 </div>
                 <div style={{gridRowStart:"3",gridColumnEnd:"span 2",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
-                    <Table style={{marginBottom:"0"}} celled selectable color={this.getArchiveFilterColor()} compact>
+                    <Table style={{marginBottom:"0"}} celled selectable compact>
                         <Table.Header>
                             <Table.Row textAlign='center'>
                                 <Table.HeaderCell>Vehicule</Table.HeaderCell>

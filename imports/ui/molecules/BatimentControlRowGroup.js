@@ -27,7 +27,7 @@ class BatimentControlRowGroup extends Component {
                     displayed = displayed.filter(c => {
                         let nextDate = moment(c.lastExecution,"DD/MM/YYYY").add(c.delay, 'days');
                         let daysLeft = parseInt(nextDate.diff(moment(),'day', true))
-                        if(this.props.timeLeftFilter == "late"){
+                        if(this.props.timeLeftFilter == "soon"){
                             if(daysLeft <= 56){
                                 return true
                             }else{
@@ -41,7 +41,7 @@ class BatimentControlRowGroup extends Component {
                                 return false
                             }
                         }
-                        if(this.props.timeLeftFilter == "passed"){
+                        if(this.props.timeLeftFilter == "over"){
                             if(daysLeft <= 0){
                                 return true
                             }else{

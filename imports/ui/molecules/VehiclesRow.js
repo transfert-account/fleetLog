@@ -81,15 +81,33 @@ class VehiclesRow extends Component {
         let totalMonths = this.props.vehicle.purchasePrice/this.props.vehicle.monthlyPayement;
         let monthsDone = parseInt(moment().diff(moment(this.props.vehicle.payementBeginDate,"DD/MM/YYYY"),'months', true));
         let monthsLeft = totalMonths - monthsDone;
-        if(parseInt(monthsLeft) <= 0 || this.props.vehicle.payementFormat == "CPT"){
-            return <Table.Cell textAlign="center"><Label color="green">Propriété</Label></Table.Cell>
+        if(this.props.vehicle.financialInfosComplete){
+            if(parseInt(monthsLeft) <= 0 || this.props.vehicle.payementFormat == "CPT"){
+                return <Table.Cell textAlign="center"><Label color="green">Propriété</Label></Table.Cell>
+            }else{
+                if(this.props.vehicle.payementFormat == "CRB"){
+                    return <Table.Cell textAlign="center"><Label color="orange"> {parseInt(monthsLeft)} mois restant</Label></Table.Cell>
+                }
+                if(this.props.vehicle.payementFormat == "CRC"){
+                    return <Table.Cell textAlign="center"><Label color="green"> {parseInt(monthsLeft)} mois restant</Label></Table.Cell>
+                }
+            }
+        }
+    }
+
+    getFinancialInfosCompleteCell = () => {
+        if(this.props.vehicle.financialInfosComplete){
+            return (
+                <Table.Cell textAlign='center'>
+                    <Icon color='green' name='checkmark' size='large'/>
+                </Table.Cell>
+            )
         }else{
-            if(this.props.vehicle.payementFormat == "CRB"){
-                return <Table.Cell textAlign="center"><Label color="orange"> {parseInt(monthsLeft)} mois restant</Label></Table.Cell>
-            }
-            if(this.props.vehicle.payementFormat == "CRC"){
-                return <Table.Cell textAlign="center"><Label color="green"> {parseInt(monthsLeft)} mois restant</Label></Table.Cell>
-            }
+            return (
+                <Table.Cell textAlign='center' colSpan="2">
+                    <Icon color='red' name='cancel' size='large'/>
+                </Table.Cell>
+            )
         }
     }
 
@@ -162,7 +180,6 @@ class VehiclesRow extends Component {
                 <Table.Row>
                     {this.getSocieteCell()}
                     <Table.Cell textAlign="center">{this.props.vehicle.registration}</Table.Cell>
-                    <Table.Cell textAlign="center">{this.props.vehicle.firstRegistrationDate}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.vehicle.energy.name}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.vehicle.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km</Table.Cell>
                     {this.getLastReportCell()}
@@ -170,6 +187,7 @@ class VehiclesRow extends Component {
                     <Table.Cell textAlign="center">{this.props.vehicle.model.name}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.vehicle.volume.meterCube+" m²"}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.vehicle.payload} t.</Table.Cell>
+                    {this.getFinancialInfosCompleteCell()}
                     {this.getPayementProgress()}
                     {this.getDocsStates()}
                     <Table.Cell textAlign="center">
@@ -178,7 +196,7 @@ class VehiclesRow extends Component {
                 </Table.Row>
                 <Modal closeOnDimmerClick={false} open={this.state.openDelete} onClose={this.closeDelete} closeIcon>
                     <Modal.Header>
-                        Confirmation de suppression 
+                        Confirmation de suppression
                     </Modal.Header>
                     <Modal.Content style={{textAlign:"center"}}>
                         <Message color='red' icon>

@@ -42,6 +42,7 @@ export class BUVehicles extends Component {
         sharedFilter:false,
         reportLateFilter:"all",
         docsFilter:"all",
+        financeFilter:"all",
         openAddVehicle:false,
         openDatePicker:false,
         datePickerTarget:"",
@@ -65,6 +66,35 @@ export class BUVehicles extends Component {
                     color:"orange",
                     click:()=>{this.switchArchiveFilter(true)},
                     label: { color: 'orange', empty: true, circular: true },
+                }
+            ]
+        },
+        financeFilterInfos:{
+            icon:"euro",            
+            options:[
+                {
+                    key: 'financeall',
+                    text: 'Tous les véhicules',
+                    value: "all",
+                    color:"green",
+                    click:()=>{this.setFinanceFilter("all")},
+                    label: { color: 'green', empty: true, circular: true },
+                },
+                {
+                    key: 'financemissing',
+                    text: 'Infos de financement manquantes',
+                    value: "missing",
+                    color:"red",
+                    click:()=>{this.setFinanceFilter("missing")},
+                    label: { color: 'red', empty: true, circular: true },
+                },
+                {
+                    key: 'financecomplete',
+                    text: 'Infos de financement complètes',
+                    value: "complete",
+                    color:"blue",
+                    click:()=>{this.setFinanceFilter("complete")},
+                    label: { color: 'blue', empty: true, circular: true },
                 }
             ]
         },
@@ -168,6 +198,18 @@ export class BUVehicles extends Component {
                 }}
             )
             displayed = displayed.filter(v =>{
+                if(this.state.financeFilter != "all"){
+                    if(this.state.financeFilter == "missing"){
+                        return !v.financialInfosComplete
+                    }
+                    if(this.state.financeFilter == "complete"){
+                        return v.financialInfosComplete
+                    }
+                }else{
+                    return true;
+                }
+            });
+            displayed = displayed.filter(v =>{
                 if(this.state.reportLateFilter == "all"){return true}else{
                     let days = parseInt(moment().diff(moment(v.lastKmUpdate, "DD/MM/YYYY"),'days'));
                     if(this.state.reportLateFilter == "2w"){
@@ -208,8 +250,8 @@ export class BUVehicles extends Component {
             ))
         },
         addVehicleQuery : gql`
-            mutation addVehicle($societe:String!,$registration:String!,$firstRegistrationDate:String!,$km:Int!,$lastKmUpdate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$insurancePaid:Float!,$payementBeginDate:String!,$purchasePrice:Float,$monthlyPayement:Float,$payementOrg:String,$payementTime:String!,$payementFormat:String,$energy:String!){
-                addVehicle(societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,km:$km,lastKmUpdate:$lastKmUpdate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,payementBeginDate:$payementBeginDate,purchasePrice:$purchasePrice,monthlyPayement:$monthlyPayement,payementOrg:$payementOrg,payementTime:$payementTime,payementFormat:$payementFormat,energy:$energy){
+            mutation addVehicle($societe:String!,$registration:String!,$firstRegistrationDate:String!,$km:Int!,$lastKmUpdate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$energy:String!){
+                addVehicle(societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,km:$km,lastKmUpdate:$lastKmUpdate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,energy:$energy){
                     status
                     message
                 }
@@ -251,6 +293,7 @@ export class BUVehicles extends Component {
                         name
                     }
                     insurancePaid
+                    financialInfosComplete
                     payementBeginDate
                     property
                     purchasePrice
@@ -321,14 +364,7 @@ export class BUVehicles extends Component {
                     volume:this.state.newVolume,
                     payload:parseFloat(this.state.newPayload),
                     color:this.state.newColor,
-                    energy:this.state.newEnergy,
-                    insurancePaid:parseFloat(this.state.newInsurancePaid),
-                    payementBeginDate:this.state.newPayementBeginDate,
-                    payementTime:this.state.newPayementTime,
-                    purchasePrice:parseFloat(this.state.newPurchasePrice),
-                    monthlyPayement:parseFloat(this.state.newMonthlyPayement),
-                    payementOrg:this.state.newPayementOrg,
-                    payementFormat:this.state.newPayementFormat
+                    energy:this.state.newEnergy
                 }
             }).then(({data})=>{
                 data.addVehicle.map(qrm=>{
@@ -408,6 +444,14 @@ export class BUVehicles extends Component {
         this.loadVehicles();
     }
 
+    //FINANCE FILTER
+    setFinanceFilter = v => {
+        this.setState({
+            financeFilter:v
+        })
+        this.loadVehicles();
+    }
+
     //REPORT LATE FILTER
     setReportLateFilter = value => {
         this.setState({
@@ -445,8 +489,9 @@ export class BUVehicles extends Component {
                     </Menu>
                     <Input style={{justifySelf:"stretch"}} name="vehiclesFiler" onChange={e=>{this.handleFilter(e.target.value)}} icon='search' placeholder='Rechercher une immatriculation, une marque ou un modèle'/>
                     <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddVehicle} icon labelPosition='right'>Ajouter un véhicule<Icon name='plus'/></Button>
-                    <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gridGap:"16px"}}>
+                    <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr 1fr",gridGap:"16px"}}>
                         <DropdownFilter infos={this.state.archiveFilterInfos} active={this.state.archiveFilter} />
+                        <DropdownFilter infos={this.state.financeFilterInfos} active={this.state.financeFilter} />
                         <DropdownFilter infos={this.state.sharedFilterInfos} active={this.state.sharedFilter} />
                         <DropdownFilter infos={this.state.reportLateFilterInfos} active={this.state.reportLateFilter} />
                         <DropdownFilter infos={this.state.docsFilterInfos} active={this.state.docsFilter} />
@@ -457,13 +502,13 @@ export class BUVehicles extends Component {
                                 <Table.Row textAlign='center'>
                                     <Table.HeaderCell>Societe</Table.HeaderCell>
                                     <Table.HeaderCell>Immatriculation</Table.HeaderCell>
-                                    <Table.HeaderCell>Date d'immatriculation</Table.HeaderCell>
                                     <Table.HeaderCell>Énergie</Table.HeaderCell>
                                     <Table.HeaderCell>Kilométrage</Table.HeaderCell>
                                     <Table.HeaderCell>Dernier relevé</Table.HeaderCell>
                                     <Table.HeaderCell>Marque</Table.HeaderCell>
                                     <Table.HeaderCell>Modèle</Table.HeaderCell>
                                     <Table.HeaderCell>Volume</Table.HeaderCell>
+                                    <Table.HeaderCell>Infos financement</Table.HeaderCell>
                                     <Table.HeaderCell>Charge utile</Table.HeaderCell>
                                     <Table.HeaderCell>Propriété</Table.HeaderCell>
                                     <Table.HeaderCell>Documents</Table.HeaderCell>
@@ -484,18 +529,12 @@ export class BUVehicles extends Component {
                         Création du véhicule
                     </Modal.Header>
                     <Modal.Content style={{textAlign:"center"}}>
-                        <Form style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gridGap:"16px"}}>
-                            <Form.Field ><label>Societe</label>
+                        <Form style={{display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"16px"}}>
+                            <Form.Field style={{gridColumnEnd:"span 2"}}><label>Societe</label>
                                 <SocietePicker error={this.state.newSociete == ""} restrictToVisibility groupAppears={false} onChange={this.handleChangeSociete}/>
                             </Form.Field>
                             <RegistrationInput error={this.state.newRegistration == ""} onChange={this.handleRegistrationChange} name="newRegistration"/>
                             <Form.Field error={this.state.newFirstRegistrationDate == ""}><label>Date de première immatriculation</label><input onChange={this.handleChange} value={this.state.newFirstRegistrationDate} onFocus={()=>{this.showDatePicker("newFirstRegistrationDate")}} placeholder="Première immatriculation" name="newFirstRegistrationDate"/></Form.Field>
-                            <Divider style={{gridColumnEnd:"span 3",height:"23px"}} horizontal>
-                                <Header as='h4'>
-                                    <Icon name='clipboard' />
-                                    Details
-                                </Header>
-                            </Divider>
                             <Form.Field error={this.state.newKm == ""}><label>Kilométrage</label><input onChange={this.handleChange} name="newKm"/></Form.Field>
                             <Form.Field error={this.state.newLastKmUpdate == ""}><label>Date de relevé</label><input onChange={this.handleChange} value={this.state.newLastKmUpdate} onFocus={()=>{this.showDatePicker("newLastKmUpdate")}} name="newLastKmUpdate"/></Form.Field>
                             <Form.Field><label>Marque</label>
@@ -514,24 +553,6 @@ export class BUVehicles extends Component {
                             <Form.Field><label>Couleur</label>
                                 <ColorPicker error={this.state.newColor == ""} onChange={this.handleChangeColor}/>
                             </Form.Field>
-                            <Divider style={{gridColumnEnd:"span 3",height:"23px"}} horizontal>
-                                <Header as='h4'>
-                                    <Icon name='euro' />
-                                    Finances
-                                </Header>
-                            </Divider>
-                            <Form.Field error={this.state.newPurchasePrice == ""}><label>Prix à l'achat</label><input onChange={this.handleChange} name="newPurchasePrice"/></Form.Field>
-                            <Form.Field><label>Durée de financement</label>
-                                <PayementTimePicker error={this.state.newPayementTime == ""} onChange={this.handleChangePayementTime}/>
-                            </Form.Field>
-                            <Form.Field><label>Organisme de financement</label>
-                                <OrganismPicker error={this.state.newPayementOrg == ""} onChange={this.handleChangeOrganism}/>
-                            </Form.Field>
-                            <Form.Field error={this.state.newInsurancePaid == ""}><label>Montant de l'assurance</label><input onChange={this.handleChange} name="newInsurancePaid"/></Form.Field>
-                            <Form.Field style={{gridColumnStart:"2"}}><label>Type de financement</label>
-                                <PayementFormatPicker error={this.state.newPayementFormat == ""} change={this.handleChangePayementFormat}/>
-                            </Form.Field>
-                            <Form.Field error={this.state.newPayementBeginDate == ""}><label>Date de début du payement</label><input onChange={this.handleChange} value={this.state.newPayementBeginDate} onFocus={()=>{this.showDatePicker("newPayementBeginDate")}} name="newPayementBeginDate"/></Form.Field>
                         </Form>
                     </Modal.Content>
                     <Modal.Actions>

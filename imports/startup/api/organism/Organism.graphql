@@ -1,6 +1,6 @@
 type Organism{
     _id:String!
-    name:String!
+    name:String
 }
 
 extend type Query{

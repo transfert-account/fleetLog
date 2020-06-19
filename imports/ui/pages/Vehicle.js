@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import { Loader, Label, Button, Icon, Message, Modal, Progress, Input, Form, Table, Divider, Header, TextArea } from 'semantic-ui-react';
+import { Loader, Menu, Button, Icon, Message, Modal, Progress, Input, Form, Table, TextArea, Segment } from 'semantic-ui-react';
 import { Bar } from 'react-chartjs-2';
 import ModalDatePicker from '../atoms/ModalDatePicker';
 import ColorPicker from '../atoms/ColorPicker';
@@ -27,6 +27,7 @@ class Vehicle extends Component {
     }
 
     state={
+        activePanel:"tech",
         newCg:null,
         newCv:null,
         newSociete:"",
@@ -44,6 +45,7 @@ class Vehicle extends Component {
         newPayementOrg:"",
         newInsurancePaid:0,
         newPayementBeginDate:"",
+        newPayementEndDate:"",
         newPayementTime:"",
         newPayementFormat:"",
         newArchiveReason:"",
@@ -107,8 +109,10 @@ class Vehicle extends Component {
                         _id
                         name
                     }
+                    financialInfosComplete
                     insurancePaid
                     payementBeginDate
+                    payementEndDate
                     payementTime{
                         _id
                         months
@@ -181,8 +185,8 @@ class Vehicle extends Component {
             }
         `,
         editVehicleFinancesQuery : gql`
-            mutation editVehicleFinances($_id:String!,$insurancePaid:Float!,$payementBeginDate:String!,$purchasePrice:Float!,$payementOrg:String!,$payementFormat:String!,$payementTime:String!,$monthlyPayement:Float!){
-                editVehicleFinances(_id:$_id,insurancePaid:$insurancePaid,purchasePrice:$purchasePrice,payementBeginDate:$payementBeginDate,payementOrg:$payementOrg,payementFormat:$payementFormat,payementTime:$payementTime,monthlyPayement:$monthlyPayement){
+            mutation editVehicleFinances($_id:String!,$insurancePaid:Float!,$payementBeginDate:String!,$payementEndDate:String!,$purchasePrice:Float!,$payementOrg:String!,$payementFormat:String!,$payementTime:String!,$monthlyPayement:Float!){
+                editVehicleFinances(_id:$_id,insurancePaid:$insurancePaid,purchasePrice:$purchasePrice,payementBeginDate:$payementBeginDate,payementEndDate:$payementEndDate,payementOrg:$payementOrg,payementFormat:$payementFormat,payementTime:$payementTime,monthlyPayement:$monthlyPayement){
                     status
                     message
                 }
@@ -294,21 +298,21 @@ class Vehicle extends Component {
   
     handleChangeOrganism = (e, { value }) => this.setState({ newPayementOrg:value })
     
-    handleChangePayementTime = (e, obj) => {
-        let monthsPayementTime = parseInt(obj.options.filter(o=>o.key == obj.value)[0].text.split(" ")[0]);
-        let newMonthlyPayement = this.state.vehicle.purchasePrice/monthsPayementTime;
+    handleChangePayementTime = (e, { value }) => {
         this.setState({
-            newPayementTime:obj.value,
-            monthsPayementTime:monthsPayementTime,
-            newMonthlyPayement:newMonthlyPayement.toFixed(2)
+            newPayementTime:value
         })
     }
 
     handleChangeTotalPrice = (e, { value }) =>{
-        let newMonthlyPayement = value/this.state.monthsPayementTime;
         this.setState({
-            newPurchasePrice:value,
-            newMonthlyPayement:newMonthlyPayement.toFixed(2)
+            newPurchasePrice:parseFloat(value)
+        })
+    }
+
+    handleChangeMonthlyPayement = (e, { value }) =>{
+        this.setState({
+            newMonthlyPayement:parseFloat(value)
         })
     }
   
@@ -472,9 +476,9 @@ class Vehicle extends Component {
                 purchasePrice:parseFloat(this.state.newPurchasePrice),
                 insurancePaid:parseFloat(this.state.newInsurancePaid),
                 payementBeginDate:this.state.newPayementBeginDate,
+                payementEndDate:this.state.newPayementEndDate,
                 payementOrg:this.state.newPayementOrg,
                 payementTime:this.state.newPayementTime,
-                payementBeginDate:this.state.newPayementBeginDate,
                 payementFormat:this.state.newPayementFormat,
                 monthlyPayement:parseFloat(this.state.newMonthlyPayement)
             }
@@ -665,6 +669,7 @@ class Vehicle extends Component {
     showEditTech = () => {
         this.setState({
             editingTech:true,
+            activePanel:"tech",
             editingFinances:false
         })
     }
@@ -678,6 +683,7 @@ class Vehicle extends Component {
     showEditFinances = () => {
         this.setState({
             editingFinances:true,
+            activePanel:"finances",
             editingTech:false
         })
     }
@@ -711,6 +717,7 @@ class Vehicle extends Component {
                 monthsPayementTime:data.vehicle.payementTime.months,
                 newPayementTime:data.vehicle.payementTime._id,
                 newPayementBeginDate:data.vehicle.payementBeginDate,
+                newPayementEndDate:data.vehicle.payementEndDate,
                 newProperty:data.vehicle.property,
                 newPurchasePrice:data.vehicle.purchasePrice,
                 newMonthlyPayement:data.vehicle.monthlyPayement,
@@ -722,20 +729,23 @@ class Vehicle extends Component {
     }
 
     getPayementProgress = () => {
-        let totalMonths = parseInt(this.state.vehicle.purchasePrice/this.state.vehicle.monthlyPayement);
+        let totalMonths = parseInt(moment(this.state.vehicle.payementEndDate,"DD/MM/YYYY").diff(moment(this.state.vehicle.payementBeginDate,"DD/MM/YYYY"),'months', true));
+        console.log(totalMonths)
         let monthsDone = parseInt(moment().diff(moment(this.state.vehicle.payementBeginDate,"DD/MM/YYYY"),'months', true));
         if(monthsDone>totalMonths){monthsDone=totalMonths}
         let monthsLeft = totalMonths - monthsDone;
+        let value = parseInt(this.state.vehicle.monthlyPayement * monthsDone)
+        
         if(this.state.vehicle.payementFormat == "CRB"){
             if(parseInt(monthsLeft) == 0){
-                return <Progress active color="green" value={parseInt(this.state.vehicle.monthlyPayement * monthsDone)} total={this.state.vehicle.purchasePrice} progress='ratio' label="Propriété, payement terminé"/>    
+                return <Progress active color="green" value={value} total={this.state.vehicle.purchasePrice} label="Propriété, payement terminé"/>    
             }
-            return <Progress active color="orange" value={parseInt(this.state.vehicle.monthlyPayement * monthsDone)} total={this.state.vehicle.purchasePrice} progress='ratio' label={monthsLeft+" mois restant avant propriété"} />
+            return <Progress active color="orange" value={value} total={this.state.vehicle.purchasePrice} label={value + " / " + this.state.vehicle.purchasePrice + " : " + monthsLeft + " mois restant avant propriété"} />
         }else{
             if(parseInt(monthsLeft) == 0){
-                return <Progress active color="green" value={parseInt(this.state.vehicle.monthlyPayement * monthsDone)} total={this.state.vehicle.purchasePrice} progress='ratio' label="Propriété, payement terminé"/>    
+                return <Progress active color="green" value={value} total={this.state.vehicle.purchasePrice} label="Propriété, payement terminé"/>    
             }
-            return <Progress active color="green" value={parseInt(this.state.vehicle.monthlyPayement * monthsDone)} total={this.state.vehicle.purchasePrice} progress='ratio' label={"Propriété, fin de payement dans "+parseInt(monthsLeft)+" mois."} />
+            return <Progress active color="green" value={value} total={this.state.vehicle.purchasePrice} label={value + " / " + this.state.vehicle.purchasePrice + " : propriété, fin de payement prévue dans "+parseInt(monthsLeft)+" mois."} />
         }
     }
 
@@ -922,64 +932,65 @@ class Vehicle extends Component {
         }
     }
 
+    getActivePanel = () => {
+        if(this.state.activePanel == "tech"){
+            return this.getTechPanel()
+        }
+        if(this.state.activePanel == "finances"){
+            return this.getFinancesPanel()
+        }        
+    }
+
     getTechPanel = () => {
         if(this.state.editingTech){
             return (
-                <Form className="formBoard" style={{placeSelf:"start auto",display:"grid",gridTemplateRows:"auto",gridTemplateColumns:"1fr 1fr",gridColumnStart:"1",gridRowEnd:"span 2",gridColumnEnd:"span 2",gridGap:"0 24px"}}>
-                    <Divider style={{gridColumnEnd:"span 2",height:"23px"}} horizontal>
-                        <Header as='h4'>
-                            <Icon name='wrench' />
-                            Technique
-                        </Header>
-                    </Divider>
-                    <Form.Field style={{gridColumnEnd:"span 2"}}><label>Societé</label>
-                        <SocietePicker restrictToVisibility defaultValue={this.state.vehicle.societe._id} groupAppears={false} onChange={this.handleChangeSociete}/>
-                    </Form.Field>
-                    <RegistrationInput onChange={this.handleRegistrationChange} defaultValue={this.state.vehicle.registration} name="newRegistration"/>
-                    <Form.Field><label>1ère immatriculation</label>
-                        <Input defaultValue={this.state.vehicle.firstRegistrationDate} onChange={this.handleChange} name="newFirstRegistrationDate"/>
-                    </Form.Field>
-                    <Form.Field><label>Énergie</label>
-                        <EnergyPicker defaultValue={this.state.vehicle.energy._id} onChange={this.handleChangeEnergy}/>
-                    </Form.Field>
-                    <Form.Field><label>Marque</label>
-                        <BrandPicker defaultValue={this.state.vehicle.brand._id} onChange={this.handleChangeBrand}/>
-                    </Form.Field>
-                    <Form.Field><label>Modèle</label>
-                        <ModelPicker defaultValue={this.state.vehicle.model._id} onChange={this.handleChangeModel}/>
-                    </Form.Field>
-                    <Form.Field><label>Volume</label>
-                        <VolumePicker defaultValue={this.state.vehicle.volume._id} onChange={this.handleChangeVolume}/>
-                    </Form.Field>
-                    <Form.Field><label>Charge utile</label>
-                        <Input defaultValue={this.state.vehicle.payload} onChange={this.handleChange} name="newPayload"/>
-                    </Form.Field>
-                    <Form.Field><label>Couleur</label>
-                        <ColorPicker defaultValue={this.state.vehicle.color._id} onChange={this.handleChangeColor}/>
-                    </Form.Field>
-                    <Button style={{placeSelf:"center stretch",gridColumnStart:"1"}} color="red" icon labelPosition='right' onClick={this.closeEditTech}>Annuler<Icon name='cancel'/></Button>
-                    <Button style={{placeSelf:"center stretch",gridColumnStart:"2"}} color="green" icon labelPosition='right' onClick={this.saveEditTech}>Sauvegarder<Icon name='check'/></Button>
-                </Form>
+                <Segment attached='bottom'>
+                    <Form className="formBoard" style={{placeSelf:"start auto",display:"grid",gridTemplateRows:"auto",gridTemplateColumns:"1fr 1fr",gridColumnStart:"1",gridRowEnd:"span 2",gridColumnEnd:"span 2",gridGap:"0 24px"}}>
+                        <Form.Field style={{gridColumnEnd:"span 2"}}><label>Societé</label>
+                            <SocietePicker restrictToVisibility defaultValue={this.state.vehicle.societe._id} groupAppears={false} onChange={this.handleChangeSociete}/>
+                        </Form.Field>
+                        <RegistrationInput onChange={this.handleRegistrationChange} defaultValue={this.state.vehicle.registration} name="newRegistration"/>
+                        <Form.Field><label>1ère immatriculation</label>
+                            <Input defaultValue={this.state.vehicle.firstRegistrationDate} onChange={this.handleChange} name="newFirstRegistrationDate"/>
+                        </Form.Field>
+                        <Form.Field><label>Énergie</label>
+                            <EnergyPicker defaultValue={this.state.vehicle.energy._id} onChange={this.handleChangeEnergy}/>
+                        </Form.Field>
+                        <Form.Field><label>Marque</label>
+                            <BrandPicker defaultValue={this.state.vehicle.brand._id} onChange={this.handleChangeBrand}/>
+                        </Form.Field>
+                        <Form.Field><label>Modèle</label>
+                            <ModelPicker defaultValue={this.state.vehicle.model._id} onChange={this.handleChangeModel}/>
+                        </Form.Field>
+                        <Form.Field><label>Volume</label>
+                            <VolumePicker defaultValue={this.state.vehicle.volume._id} onChange={this.handleChangeVolume}/>
+                        </Form.Field>
+                        <Form.Field><label>Charge utile</label>
+                            <Input defaultValue={this.state.vehicle.payload} onChange={this.handleChange} name="newPayload"/>
+                        </Form.Field>
+                        <Form.Field><label>Couleur</label>
+                            <ColorPicker defaultValue={this.state.vehicle.color._id} onChange={this.handleChangeColor}/>
+                        </Form.Field>
+                        <Button style={{placeSelf:"center stretch",gridColumnStart:"1"}} color="red" icon labelPosition='right' onClick={this.closeEditTech}>Annuler<Icon name='cancel'/></Button>
+                        <Button style={{placeSelf:"center stretch",gridColumnStart:"2"}} color="green" icon labelPosition='right' onClick={this.saveEditTech}>Sauvegarder<Icon name='check'/></Button>
+                    </Form>
+                </Segment>
             )
         }else{
             return (
-                <div className="formBoard" style={{display:"grid",gridTemplateColumns:"auto 1fr",gridColumnEnd:"span 2",gridColumnStart:"1",gridGap:"6px 24px"}}>
-                    <Divider style={{gridColumnEnd:"span 2",height:"23px"}} horizontal>
-                        <Header as='h4'>
-                            <Icon name='wrench' />
-                            Technique
-                        </Header>
-                    </Divider>
-                    <div className="labelBoard">Societé :</div><div className="valueBoard">{this.state.vehicle.societe.name}</div>
-                    <div className="labelBoard">Immatriculation :</div><div className="valueBoard">{this.state.vehicle.registration}</div>
-                    <div className="labelBoard">Date de première immatriculation :</div><div className="valueBoard">{this.state.vehicle.firstRegistrationDate}</div>
-                    <div className="labelBoard">Énergie :</div><div className="valueBoard">{this.state.vehicle.energy.name}</div>
-                    <div className="labelBoard">Marque :</div><div className="valueBoard">{this.state.vehicle.brand.name}</div>
-                    <div className="labelBoard">Modèle :</div><div className="valueBoard">{this.state.vehicle.model.name}</div>
-                    <div className="labelBoard">Volume :</div><div className="valueBoard">{this.state.vehicle.volume.meterCube+" m²"}</div>
-                    <div className="labelBoard">Charge utile :</div><div className="valueBoard">{this.state.vehicle.payload+" t."}</div>
-                    <div className="labelBoard">Couleur :</div><div className="valueBoard">{this.state.vehicle.color.name}</div>
-                </div>
+                <Segment attached='bottom'>
+                    <div className="formBoard" style={{display:"grid",gridTemplateColumns:"auto 1fr",gridColumnEnd:"span 2",gridColumnStart:"1",gridGap:"6px 24px"}}>
+                        <div className="labelBoard">Societé :</div><div className="valueBoard">{this.state.vehicle.societe.name}</div>
+                        <div className="labelBoard">Immatriculation :</div><div className="valueBoard">{this.state.vehicle.registration}</div>
+                        <div className="labelBoard">Date de première immatriculation :</div><div className="valueBoard">{this.state.vehicle.firstRegistrationDate}</div>
+                        <div className="labelBoard">Énergie :</div><div className="valueBoard">{this.state.vehicle.energy.name}</div>
+                        <div className="labelBoard">Marque :</div><div className="valueBoard">{this.state.vehicle.brand.name}</div>
+                        <div className="labelBoard">Modèle :</div><div className="valueBoard">{this.state.vehicle.model.name}</div>
+                        <div className="labelBoard">Volume :</div><div className="valueBoard">{this.state.vehicle.volume.meterCube+" m²"}</div>
+                        <div className="labelBoard">Charge utile :</div><div className="valueBoard">{this.state.vehicle.payload+" t."}</div>
+                        <div className="labelBoard">Couleur :</div><div className="valueBoard">{this.state.vehicle.color.name}</div>
+                    </div>
+                </Segment>
             )
         }
     }
@@ -987,53 +998,72 @@ class Vehicle extends Component {
     getFinancesPanel = () => {
         if(this.state.editingFinances){
             return (
-                <Form className="formBoard" style={{placeSelf:"start auto",display:"grid",gridTemplateRows:"auto",gridTemplateColumns:"1fr 1fr",gridColumnStart:"1",gridRowEnd:"span 2",gridColumnEnd:"span 2",gridGap:"0 24px"}}>
-                    <Divider style={{gridColumnEnd:"span 2",height:"23px"}} horizontal>
-                        <Header as='h4'>
-                            <Icon name='euro' />
-                            Finances
-                        </Header>
-                    </Divider>
-                    <Form.Field><label>Prix à l'achat</label>
-                        <Input defaultValue={this.state.vehicle.purchasePrice} onChange={this.handleChangeTotalPrice} name="newPurchasePrice"/>
-                    </Form.Field>
-                    <Form.Field><label>Date de début du payement</label>
-                        <Input onChange={this.handleChange} value={this.state.newPayementBeginDate} onFocus={()=>{this.showDatePicker("newPayementBeginDate")}} name="newPayementBeginDate"/>
-                    </Form.Field>
-                    <Form.Field><label>Durée de financement</label>
-                        <PayementTimePicker defaultValue={this.state.vehicle.payementTime._id} onChange={this.handleChangePayementTime}/>
-                    </Form.Field>
-                    <Form.Field><label>Organisme de financement</label>
-                        <OrganismPicker defaultValue={this.state.vehicle.payementOrg._id} onChange={this.handleChangeOrganism}/>
-                    </Form.Field>
-                    <Form.Field><label>Montant de l'assurance</label>
-                        <Input defaultValue={this.state.vehicle.insurancePaid} onChange={this.handleChange} name="newInsurancePaid"/>
-                    </Form.Field>
-                    <Form.Field><label>Type de financement</label>
-                        <PayementFormatPicker defaultValue={this.state.vehicle.payementFormat} change={this.handleChangePayementFormat}/>
-                    </Form.Field>
-                    <Button style={{placeSelf:"center stretch",gridColumnStart:"1"}} color="red" icon labelPosition='right' onClick={this.closeEditFinances}>Annuler<Icon name='cancel'/></Button>
-                    <Button style={{placeSelf:"center stretch",gridColumnStart:"2"}} color="green" icon labelPosition='right' onClick={this.saveEditFinances}>Sauvegarder<Icon name='check'/></Button>
-                </Form>
+                <Segment attached='bottom'>
+                    <Form className="formBoard" style={{placeSelf:"start auto",display:"grid",gridTemplateRows:"auto",gridTemplateColumns:"1fr 1fr",gridColumnStart:"1",gridRowEnd:"span 2",gridColumnEnd:"span 2",gridGap:"0 24px"}}>
+                        <Form.Field><label>Montant de l'assurance</label>
+                            <Input defaultValue={this.state.vehicle.insurancePaid} onChange={this.handleChange} name="newInsurancePaid"/>
+                        </Form.Field>
+                        <Form.Field><label>Prix à l'achat</label>
+                            <Input defaultValue={this.state.vehicle.purchasePrice} onChange={this.handleChangeTotalPrice} name="newPurchasePrice"/>
+                        </Form.Field>
+                        <Form.Field><label>Date de début du payement</label>
+                            <Input onChange={this.handleChange} value={this.state.newPayementBeginDate} onFocus={()=>{this.showDatePicker("newPayementBeginDate")}} name="newPayementBeginDate"/>
+                        </Form.Field>
+                        <Form.Field><label>Date de fin du payement</label>
+                            <Input onChange={this.handleChange} value={this.state.newPayementEndDate} onFocus={()=>{this.showDatePicker("newPayementEndDate")}} name="newPayementEndDate"/>
+                        </Form.Field>
+                        <Form.Field><label>Payement mensuel</label>
+                            <Input defaultValue={this.state.vehicle.monthlyPayement} onChange={this.handleChangeMonthlyPayement} name="newMonthlyPayement"/>
+                        </Form.Field>
+                        <Form.Field><label>Durée de financement</label>
+                            <PayementTimePicker defaultValue={this.state.vehicle.payementTime._id} onChange={this.handleChangePayementTime}/>
+                        </Form.Field>
+                        <Form.Field><label>Organisme de financement</label>
+                            <OrganismPicker defaultValue={this.state.vehicle.payementOrg._id} onChange={this.handleChangeOrganism}/>
+                        </Form.Field>
+                        <Form.Field><label>Type de financement</label>
+                            <PayementFormatPicker defaultValue={this.state.vehicle.payementFormat} change={this.handleChangePayementFormat}/>
+                        </Form.Field>
+                        <Button style={{placeSelf:"center stretch",gridColumnStart:"1"}} color="red" icon labelPosition='right' onClick={this.closeEditFinances}>Annuler<Icon name='cancel'/></Button>
+                        <Button style={{placeSelf:"center stretch",gridColumnStart:"2"}} color="green" icon labelPosition='right' onClick={this.saveEditFinances}>Sauvegarder<Icon name='check'/></Button>
+                    </Form>
+                </Segment>
             )
         }else{
+            if(this.state.vehicle.financialInfosComplete){
+                return (
+                    <Segment attached='bottom'>                            
+                        <div className="formBoard" style={{display:"grid",gridTemplateColumns:"auto 1fr",gridColumnEnd:"span 2",gridColumnStart:"1",gridGap:"6px 24px"}}>
+                            <div className="labelBoard">Montant de l'assurance :</div><div className="valueBoard">{parseFloat(this.state.vehicle.insurancePaid).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ")} €</div>
+                            <div className="labelBoard">Prix d'achat :</div><div className="valueBoard">{parseFloat(this.state.vehicle.purchasePrice).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ")} €</div>
+                            <div className="labelBoard">Date de début de payement :</div><div className="valueBoard">{this.state.vehicle.payementBeginDate}</div>
+                            <div className="labelBoard">Date de fin de payement :</div><div className="valueBoard">{this.state.vehicle.payementEndDate}</div>
+                            <div className="labelBoard">Durée de financement :</div><div className="valueBoard">{this.state.vehicle.payementTime.months + " mois"}</div>
+                            <div className="labelBoard">Payement mensuel :</div><div className="valueBoard">{parseFloat(this.state.vehicle.monthlyPayement).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ")} €/mois</div>
+                            <div className="labelBoard">Type de financement :</div><div className="valueBoard">{this.state.formats.filter(f=>f.triKey == this.state.vehicle.payementFormat)[0].label}</div>
+                            <div className="labelBoard">Organisme de payement :</div><div className="valueBoard">{this.state.vehicle.payementOrg.name}</div>
+                            <div style={{gridColumnEnd:"span 2"}}>{this.getPayementProgress()}</div>
+                        </div>
+                    </Segment>
+                )
+            }else{
+                return (
+                    <Segment attached='bottom'>                            
+                        <div className="formBoard" style={{display:"grid",gridTemplateColumns:"1fr 4fr 1fr",gridTemplateRows:"2fr 1fr",gridColumnEnd:"span 2",gridColumnStart:"1"}}>
+                            <Icon style={{gridColumnStart:"2",placeSelf:"center"}} name='warning sign' color="red" size='huge' />
+                            <p style={{gridColumnStart:"2"}}>Les données de financement sont incomplètes, veuillez les compléter pour afficher cette section</p>
+                            <Button basic color="blue" style={{gridColumnStart:"2",placeSelf:"stretch"}} onClick={this.showEditFinances} icon labelPosition='right'>Renseigner les informations manquantes<Icon name='edit'/></Button>
+                        </div>
+                    </Segment>
+                )
+            }
+        }
+    }
+
+    getUncompleteFinancialPanel = () => {
+        if(!this.state.vehicle.financialInfosComplete){
             return (
-                <div className="formBoard" style={{display:"grid",gridTemplateColumns:"auto 1fr",gridColumnEnd:"span 2",gridColumnStart:"1",gridGap:"6px 24px"}}>
-                    <Divider style={{gridColumnEnd:"span 2",height:"23px"}} horizontal>
-                        <Header as='h4'>
-                            <Icon name='euro' />
-                            Finances
-                        </Header>
-                    </Divider>
-                    <div className="labelBoard">Type de financement :</div><div className="valueBoard">{this.state.formats.filter(f=>f.triKey == this.state.vehicle.payementFormat)[0].label}</div>
-                    <div className="labelBoard">Prix d'achat :</div><div className="valueBoard">{this.state.vehicle.purchasePrice} €</div>
-                    <div className="labelBoard">Date de début de payement :</div><div className="valueBoard">{this.state.vehicle.payementBeginDate}</div>
-                    <div className="labelBoard">Durée de financement :</div><div className="valueBoard">{this.state.vehicle.payementTime.months + " mois"}</div>
-                    <div className="labelBoard">Payement mensuel :</div><div className="valueBoard">{this.state.vehicle.monthlyPayement.toFixed(2) + " €/mois"}</div>
-                    <div className="labelBoard">Organisme de payement :</div><div className="valueBoard">{this.state.vehicle.payementOrg.name}</div>
-                    <div className="labelBoard">Montant de l'assurance :</div><div className="valueBoard">{this.state.vehicle.insurancePaid} €</div>
-                    <div style={{gridColumnEnd:"span 2"}}>{this.getPayementProgress()}</div>
-                </div>
+                <Message onClick={this.showEditFinances} color="red" style={{margin:"0 16px",cursor:"pointer"}} icon='euro' header={"Informations manquantes"} content={"Les informations relatives au financement de ce véhicule sont incomplètes !"} />
             )
         }
     }
@@ -1041,7 +1071,7 @@ class Vehicle extends Component {
     getArchivePanel = () => {
         if(this.state.vehicle.archived){
             return (
-                <Message color="orange" style={{margin:"0",gridColumnEnd:"span 2"}} icon='archive' header={"Archivé depuis le : " + this.state.vehicle.archiveDate} content={"Justificaion : " + this.state.vehicle.archiveReason} />
+                <Message color="orange" style={{margin:"0 16px"}} icon='archive' header={"Archivé depuis le : " + this.state.vehicle.archiveDate} content={"Justificaion : " + this.state.vehicle.archiveReason} />
             )
         }
     }
@@ -1049,7 +1079,7 @@ class Vehicle extends Component {
     getSharedPanel = () => {
         if(this.state.vehicle.shared){
             return (
-                <Message color="teal" style={{margin:"0",gridColumnEnd:"span 2"}} icon='handshake outline' header={"En prêt chez : " + this.state.vehicle.sharedTo.name + ", depuis le : " + this.state.vehicle.sharedSince} content={"Justificaion : " + this.state.vehicle.sharingReason} />
+                <Message color="teal" style={{margin:"0 16px"}} icon='handshake outline' header={"En prêt chez : " + this.state.vehicle.sharedTo.name + ", depuis le : " + this.state.vehicle.sharedSince} content={"Justificaion : " + this.state.vehicle.sharingReason} />
             )
         }
     }
@@ -1068,8 +1098,8 @@ class Vehicle extends Component {
         }else{
             return (
                 <Fragment>
-                    <div style={{display:"grid",gridGap:"24px",gridTemplateColumns:"1fr 2fr"}}>
-                        <div style={{display:"grid",gridGap:"8px",gridTemplateColumns:"auto 1fr"}}>
+                    <div style={{display:"grid",gridGap:"24px",gridTemplateRows:"auto auto 1fr"}}>
+                        <div style={{display:"grid",gridGap:"16px",gridTemplateColumns:"auto 1fr auto"}}>
                             <Button animated='fade' inverted onClick={()=>{this.props.history.push("/parc/vehicles");}} style={{margin:"0",gridRowStart:"1",gridColumnStart:"1"}} color="grey" size="huge">
                                 <Button.Content hidden>
                                     <Icon color="black" style={{margin:"0"}} name='list ul' />
@@ -1079,41 +1109,51 @@ class Vehicle extends Component {
                                 </Button.Content>
                             </Button>
                             <Message style={{margin:"0"}} icon='truck' header={this.state.vehicle.registration} content={this.state.vehicle.brand.name + " - " + this.state.vehicle.model.name} />
-                            {this.getArchivePanel()}
-                            {this.getSharedPanel()}
-                            <div style={{gridColumnEnd:"span 2"}}>
-                                <p style={{margin:"0",fontWeight:"bold",fontSize:"2.4em"}}>
-                                    {this.state.vehicle.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km
-                                </p>
-                                <p style={{margin:"0",fontWeight:"bold",fontSize:"1.1em"}}>
-                                    (relevé {moment(this.state.vehicle.lastKmUpdate, "DD/MM/YYYY").fromNow()})
-                                </p>
-                            </div>
-                            {this.getTechPanel()}
-                            {this.getFinancesPanel()}
-                        </div>
-                        <div style={{display:"grid",gridTemplateColumns:"256px 1fr",gridTemplateRows:"auto 640px 1fr",gridColumnStart:"2",gridGap:"8px"}}>
-                            <div style={{display:"grid",gridColumnEnd:"span 2",gridTemplateColumns:"1fr 1fr 1fr 1fr",gridGap:"16px"}}>
+                            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gridGap:"16px"}}>
                                 <Button color="green" style={{placeSelf:"stretch",gridColumnEnd:"span 2"}} onClick={this.showUpdateKm} icon labelPosition='right'>MaJ kilométrage<Icon name='dashboard'/></Button>
                                 {this.getDocsAndShareOptions()}
-                                <Button color="blue" style={{placeSelf:"stretch"}} onClick={this.showEditTech} icon labelPosition='right'>Edition : Technique<Icon name='edit'/></Button>
-                                <Button color="blue" style={{placeSelf:"stretch"}} onClick={this.showEditFinances} icon labelPosition='right'>Edition : Finances<Icon name='edit'/></Button>
+                                <Button color="blue" style={{placeSelf:"stretch"}} onClick={this.showEditTech} icon labelPosition='right'>Édition : Technique<Icon name='edit'/></Button>
+                                <Button color="blue" style={{placeSelf:"stretch"}} onClick={this.showEditFinances} icon labelPosition='right'>Édition : Finances<Icon name='edit'/></Button>
                                 {this.getDeleteOptions()}
                             </div>
-                            <Table style={{placeSelf:"start",gridRowEnd:"span 2"}} basic="very">
-                                <Table.Header>
-                                    <Table.Row>
-                                        <Table.HeaderCell>Date</Table.HeaderCell>
-                                        <Table.HeaderCell>Km</Table.HeaderCell>
-                                        <Table.HeaderCell>Suppr.</Table.HeaderCell>
-                                    </Table.Row>
-                                </Table.Header>
-                                <Table.Body>
-                                    {this.state.kmsReport()}
-                                </Table.Body>
-                            </Table>
-                            <div style={{placeSelf:"stretch"}}>
-                                <Bar ref={(reference) => this.chartRef = reference } data={this.getChartData()} style={{display:"block"}} options={{maintainAspectRatio:false,responsive:true}}/>
+                        </div>
+                        <div style={{display:"flex"}}>
+                            {this.getUncompleteFinancialPanel()}
+                            {this.getArchivePanel()}
+                            {this.getSharedPanel()}
+                        </div>
+                        <div style={{gridRowStart:"3",display:"grid",gridTemplateColumns:"2fr 3fr",gridGap:"24px"}}>
+                            <div>
+                                <Segment textAlign="center">
+                                    <p style={{margin:"0",fontWeight:"bold",fontSize:"2.4em"}}>
+                                        {this.state.vehicle.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km
+                                    </p>
+                                    <p style={{margin:"0",fontWeight:"bold",fontSize:"1.1em"}}>
+                                        (relevé {moment(this.state.vehicle.lastKmUpdate, "DD/MM/YYYY").fromNow()})
+                                    </p>
+                                </Segment>
+                                <Menu attached='top' pointing>
+                                    <Menu.Item color="blue" icon='wrench' name='Technique' active={this.state.activePanel == 'tech'} onClick={()=>{this.setState({activePanel:"tech"})}} />
+                                    <Menu.Item color={(this.state.vehicle.financialInfosComplete ? "green" : "red")} icon='euro' name='Finances' active={this.state.activePanel == 'finances'} onClick={()=>{this.setState({activePanel:"finances"})}} />
+                                </Menu>
+                                {this.getActivePanel()}
+                            </div>
+                            <div style={{display:"grid",gridTemplateColumns:"256px 1fr",gridTemplateRows:"auto 640px 1fr",gridColumnStart:"2",gridGap:"8px"}}>
+                                <Table style={{placeSelf:"start",gridRowEnd:"span 2"}} basic="very">
+                                    <Table.Header>
+                                        <Table.Row>
+                                            <Table.HeaderCell>Date</Table.HeaderCell>
+                                            <Table.HeaderCell>Km</Table.HeaderCell>
+                                            <Table.HeaderCell>Suppr.</Table.HeaderCell>
+                                        </Table.Row>
+                                    </Table.Header>
+                                    <Table.Body>
+                                        {this.state.kmsReport()}
+                                    </Table.Body>
+                                </Table>
+                                <div style={{placeSelf:"stretch"}}>
+                                    <Bar ref={(reference) => this.chartRef = reference } data={this.getChartData()} height={400} style={{display:"block"}} options={{maintainAspectRatio:false,responsive:true}}/>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -16,6 +16,7 @@ type Vehicle{
     cv:Document
     energy:Energy
     payementBeginDate:String
+    payementEndDate:String
     property:Boolean
     equipements:[Equipement]
     purchasePrice:Float
@@ -23,13 +24,14 @@ type Vehicle{
     payementOrg:Organism
     payementFormat:String
     payementTime:PayementTime
-    archived:Boolean!
-    archiveReason:String!
-    archiveDate:String!
-    shared:Boolean!
-    sharedTo:Societe!
-    sharingReason:String!
-    sharedSince:String!
+    archived:Boolean
+    archiveReason:String
+    archiveDate:String
+    shared:Boolean
+    sharedTo:Societe
+    sharingReason:String
+    sharedSince:String
+    financialInfosComplete:Boolean
 }
 
 type DatedKm{
@@ -45,9 +47,9 @@ extend type Query{
 }
 
 extend type Mutation{
-    addVehicle(societe:String!,registration:String!,firstRegistrationDate:String!,km:Int!,lastKmUpdate:String!,brand:String!,model:String!,volume:String!,payload:Float!,color:String!,insurancePaid:Float!,payementBeginDate:String!,purchasePrice:Float,monthlyPayement:Float,payementOrg:String,payementTime:String!,payementFormat:String,energy:String!): [QueryResultMessage]
+    addVehicle(societe:String!,registration:String!,firstRegistrationDate:String!,km:Int!,lastKmUpdate:String!,brand:String!,model:String!,volume:String!,payload:Float!,color:String!,energy:String!): [QueryResultMessage]
     editVehicleTech(_id:String!,societe:String!,registration:String!,firstRegistrationDate:String!,brand:String!,model:String!,volume:String!,payload:Float!,color:String!,energy:String!): [QueryResultMessage]
-    editVehicleFinances(_id:String!,insurancePaid:Float!,payementOrg:String!,payementBeginDate:String!,purchasePrice:Float,payementFormat:String!,payementTime:String!,monthlyPayement:Float!): [QueryResultMessage]
+    editVehicleFinances(_id:String!,insurancePaid:Float!,payementOrg:String!,payementBeginDate:String!,payementEndDate:String!,purchasePrice:Float,payementFormat:String!,payementTime:String!,monthlyPayement:Float!): [QueryResultMessage]
     updateKm(_id:String!,date:String!,kmValue:Int!):[QueryResultMessage]
     deleteKm(vehicle:String!,_id:String!):[QueryResultMessage]
     archiveVehicle(_id:String!,archiveReason:String!):[QueryResultMessage]

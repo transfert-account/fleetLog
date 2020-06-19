@@ -33,15 +33,16 @@ export default {
                             }
                         }
                     })*/
-                    /*Vehicles.update(
+                    Vehicles.update(
                         {},{
                             $set: {
-                                payementTime:""
+                                payementEndDate:"",
+                                monthlyPayement:0
                             }
                         },
                         {multi:true}
-                    );*/
-                    return [{status:true,message:'Nuked : nothing, nuke is empty'}];
+                    );
+                    return [{status:true,message:'Nuked : affected blank payement end date to all vehicles'}];
                 }catch(e){
                     throw e;
                     return [{status:false,message:e.message}];
