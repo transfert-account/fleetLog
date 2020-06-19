@@ -1063,7 +1063,7 @@ class Vehicle extends Component {
     getUncompleteFinancialPanel = () => {
         if(!this.state.vehicle.financialInfosComplete){
             return (
-                <Message onClick={this.showEditFinances} color="red" style={{margin:"0 16px",cursor:"pointer"}} icon='euro' header={"Informations manquantes"} content={"Les informations relatives au financement de ce véhicule sont incomplètes !"} />
+                <Message onClick={this.showEditFinances} color="red" style={{margin:"0 16px",cursor:"pointer"}} icon='euro' header={"Informations manquantes"} content={"Les informations relatives au financement de ce véhicule sont incomplètes, cliquez pour modifier."} />
             )
         }
     }
