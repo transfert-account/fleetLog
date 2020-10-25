@@ -42,10 +42,11 @@ export class DashboardUnit extends Component {
     }
 
     getVehiclesStats = () => {
+        let vehiclesTotal = this.props.dashboard.vehicles + this.props.dashboard.vehiclesLate + this.props.dashboard.vehiclesVeryLate
         return (
             <Fragment>
                 <Statistic style={{gridColumnStart:"2"}} color='blue' size="small">
-                    <Statistic.Value>{this.props.dashboard.vehicles}</Statistic.Value>
+                    <Statistic.Value>{vehiclesTotal}</Statistic.Value>
                     <Statistic.Label>véhicules</Statistic.Label>
                 </Statistic>
                 <Statistic style={{gridColumnStart:"3"}} color='blue' size="small">
@@ -54,7 +55,7 @@ export class DashboardUnit extends Component {
                 </Statistic>
                 <Statistic style={{gridColumnStart:"4"}} color='blue' size="small">
                     <Statistic.Value>
-                        {(this.props.dashboard.vehicles != 0 ? ((((this.props.dashboard.nbOwned + this.props.dashboard.nbCRC) / (this.props.dashboard.nbOwned + this.props.dashboard.nbCRC + this.props.dashboard.nbCRB))*100).toFixed(1)): "-")} %
+                        {(vehiclesTotal != 0 ? ((((this.props.dashboard.nbOwned + this.props.dashboard.nbCRC) / (this.props.dashboard.nbOwned + this.props.dashboard.nbCRC + this.props.dashboard.nbCRB))*100).toFixed(1)): "-")} %
                     </Statistic.Value>
                     <Statistic.Label>de véhicules en propriété</Statistic.Label>
                 </Statistic>
