@@ -28,8 +28,10 @@ const affectDashboardData = d => {
     d.accidentsExpert = {total:0,affected:0,missing:0};
     d.accidentsFacture = {total:0,affected:0,missing:0};
     d.vehicles = Vehicles.find({societe:d.societe._id._str,archived:false}).fetch().length
-    d.vehiclesLate = Vehicles.find({societe:d.societe._id._str,archived:false}).fetch().filter(v=>moment(v.kms[v.kms.length-1].reportDate,"DD/MM/YYYY").diff(moment(),'days', true)>14).length
-    d.vehiclesVeryLate = Vehicles.find({societe:d.societe._id._str,archived:false}).fetch().filter(v=>moment(v.kms[v.kms.length-1].reportDate,"DD/MM/YYYY").diff(moment(),'days', true)>28).length
+    d.vehiclesLate = Vehicles.find({societe:d.societe._id._str,archived:false}).fetch().filter(v=>moment().diff(moment(v.kms[v.kms.length-1].reportDate,"DD/MM/YYYY"),'days', true)>14).length
+    d.vehiclesVeryLate = Vehicles.find({societe:d.societe._id._str,archived:false}).fetch().filter(v=>moment().diff(moment(v.kms[v.kms.length-1].reportDate,"DD/MM/YYYY"),'days', true)>28).length
+    d.vehiclesLate = d.vehiclesLate - d.vehiclesVeryLate
+    d.vehicles = d.vehicles - d.vehiclesLate - d.vehiclesVeryLate
     let locationsRaw = Locations.find({societe:d.societe._id._str,archived:false}).fetch();
     locationsRaw.map(l=>{
         if(l.cv != ""){
@@ -62,8 +64,10 @@ const affectDashboardData = d => {
         }
     })
     d.locations = locationsRaw.length
-    d.locationsLate = locationsRaw.filter(l=>moment(l.kms[l.kms.length-1].reportDate,"DD/MM/YYYY").diff(moment(),'days', true)>14).length
-    d.locationsVeryLate = locationsRaw.filter(l=>moment(l.kms[l.kms.length-1].reportDate,"DD/MM/YYYY").diff(moment(),'days', true)>28).length
+    d.locationsLate = locationsRaw.filter(l=>moment().diff(moment(l.kms[l.kms.length-1].reportDate,"DD/MM/YYYY"),'days', true)>14).length
+    d.locationsVeryLate = locationsRaw.filter(l=>moment().diff(moment(l.kms[l.kms.length-1].reportDate,"DD/MM/YYYY"),'days', true)>28).length
+    d.locationsLate = d.locationsLate - d.locationsVeryLate
+    d.locations = d.locations - d.locationsLate - d.locationsVeryLate
     d.controlsTotal = 0;
     d.controlsOk = 0;
     d.controlsUrgent = 0;
@@ -119,7 +123,10 @@ const affectDashboardData = d => {
                 }
             }
             if(e.equipementDescription.unitType == "d"){
+                console.log("==========")
+                console.log((parseInt(e.lastControl) + " + " + parseInt(e.equipementDescription.controlPeriodValue)) + " - " + parseInt(v.km))
                 e.nextControl = (parseInt(e.lastControl) + parseInt(e.equipementDescription.controlPeriodValue)) - parseInt(v.km)
+                console.log(e.nextControl + " < " + e.equipementDescription.alertStepValue)
                 if(e.nextControl<e.equipementDescription.alertStepValue){
                     e.color = "orange";
                 }
