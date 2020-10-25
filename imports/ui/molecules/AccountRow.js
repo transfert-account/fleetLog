@@ -248,7 +248,7 @@ export class AccountRow extends Component {
                                 {((this.props.user.isOwner) ?
                                     <Dropdown style={{margin:"0",padding:"6px"}} text='Actions ...' floating labeled button className='icon'>
                                         <Dropdown.Menu>
-                                            <Dropdown.Item icon='bolt' color="violet" text='Nuke the app /!\' onClick={()=>{this.executeNukeQuery()}}/>                
+                                            <Dropdown.Item icon='bolt' color="red" text='Apply deploy mass update' onClick={()=>{this.executeNukeQuery()}}/>                
                                         </Dropdown.Menu>
                                     </Dropdown>
                                 : 

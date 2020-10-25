@@ -34,7 +34,7 @@ export default {
                             }
                         }
                     })*/
-                    Vehicles.update(
+                    /*Vehicles.update(
                         {},{
                             $set: {
                                 selling:false,
@@ -64,7 +64,7 @@ export default {
                             }
                         },
                         {multi:true}
-                    );
+                    );*/
                     /*
                     data.map(v=>{
                         console.log(v.registration + " : " + v.monthlyPayement)
