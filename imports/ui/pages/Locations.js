@@ -1,16 +1,22 @@
 import React, { Component, Fragment } from 'react';
 import { Modal, Icon, Menu, Input, Dimmer, Loader, Table, Button, Form, Divider, Header, TextArea } from 'semantic-ui-react';
-import DropdownFilter from '../atoms/DropdownFilter';
+
+import { UserContext } from '../../contexts/UserContext';
+
+import CustomFilterSegment from '../molecules/CustomFilterSegment';
+import LocationsRow from '../molecules/LocationRow';
+import BigButtonIcon from '../elements/BigIconButton';
+
+import CustomFilter from '../atoms/CustomFilter';
+import SocietePicker from '../atoms/SocietePicker';
 import ModalDatePicker from '../atoms/ModalDatePicker';
 import RegistrationInput from '../atoms/RegistrationInput';
-import { UserContext } from '../../contexts/UserContext';
-import LocationsRow from '../molecules/LocationRow';
-import SocietePicker from '../atoms/SocietePicker';
 import FournisseurPicker from '../atoms/FournisseurPicker';
 import VolumePicker from '../atoms/VolumePicker';
 import ColorPicker from '../atoms/ColorPicker';
 import ModelPicker from '../atoms/ModelPicker';
 import BrandPicker from '../atoms/BrandPicker';
+
 import { gql } from 'apollo-server-express';
 import moment from 'moment';
 
@@ -37,11 +43,24 @@ class Locations extends Component {
         archiveFilter:false,
         reportLateFilter:"all",
         docsFilter:"all",
+        filters:[
+            {
+                infos:"archiveFilterInfos",
+                filter:"archiveFilter"
+            },{
+                infos:"reportLateFilterInfos",
+                filter:"reportLateFilter"
+            },{
+                infos:"docsFilterInfos",
+                filter:"docsFilter"
+            }
+        ],
         archiveFilterInfos:{
             icon:"archive",            
             options:[
                 {
                     key: 'archivefalse',
+                    initial: true,
                     text: 'Véhicules actuels',
                     value: false,
                     color:"green",
@@ -50,6 +69,7 @@ class Locations extends Component {
                 },
                 {
                     key: 'archivetrue',
+                    initial: false,
                     text: 'Véhicules archivés',
                     value: true,
                     color:"orange",
@@ -63,6 +83,7 @@ class Locations extends Component {
             options:[
                 {
                     key: 'reportall',
+                    initial: true,
                     text: 'Tous les véhicules',
                     value: "all",
                     color:"green",
@@ -71,6 +92,7 @@ class Locations extends Component {
                 },
                 {
                     key: 'report2w',
+                    initial: false,
                     text: 'Relevé > 2 sem.',
                     value: "2w",
                     color:"orange",
@@ -79,6 +101,7 @@ class Locations extends Component {
                 },
                 {
                     key: 'report4w',
+                    initial: false,
                     text: 'Relevé > 4 sem.',
                     value: "4w",
                     color:"red",
@@ -92,6 +115,7 @@ class Locations extends Component {
             options:[
                 {
                     key: 'docsall',
+                    initial: true,
                     text: 'Tous les véhicules',
                     value: "all",
                     color:"green",
@@ -100,6 +124,7 @@ class Locations extends Component {
                 },
                 {
                     key: 'docsmissing',
+                    initial: false,
                     text: 'Documents manquants',
                     value: "missingDocs",
                     color:"red",
@@ -179,7 +204,7 @@ class Locations extends Component {
             displayed.sort((a, b) => a.registration.localeCompare(b.registration))
             //displayed = displayed.slice((this.state.currentPage - 1) * this.state.rowByPage, this.state.currentPage * this.state.rowByPage);
             return displayed.map(l =>(
-                <LocationsRow loadLocations={this.loadLocations} societesRaw={this.state.societesRaw} key={l._id} rental={l}/>)
+                <LocationsRow hideSociete={this.props.userLimited} loadLocations={this.loadLocations} societesRaw={this.state.societesRaw} key={l._id} rental={l}/>)
             )
         },
         addLocationQuery : gql`
@@ -258,31 +283,153 @@ class Locations extends Component {
                     }
                 }
             }
+        `,
+        buLocationsQuery : gql`
+            query buLocations{
+                buLocations{
+                    _id
+                    societe{
+                        _id
+                        trikey
+                        name
+                    }
+                    fournisseur{
+                        _id
+                        name
+                        phone
+                        mail
+                        address
+                    }
+                    registration
+                    firstRegistrationDate
+                    km
+                    kms{
+                        _id
+                        reportDate
+                        kmValue
+                    }
+                    lastKmUpdate
+                    brand{
+                        _id
+                        name
+                    }
+                    model{
+                        _id
+                        name
+                    }
+                    volume{
+                        _id
+                        meterCube
+                    }
+                    payload
+                    color{
+                        _id
+                        name
+                        hex
+                    }
+                    insurancePaid
+                    startDate
+                    endDate
+                    price
+                    rentalContract
+                    reason
+                    reparation
+                    archived
+                    archiveReason
+                    archiveDate
+                    cg{
+                        _id
+                    }
+                    cv{
+                        _id
+                    }
+                    contrat{
+                        _id
+                    }
+                    restitution
+                    {
+                        _id
+                    }
+                }
+            }
         `
     }
 
+    /*SHOW AND HIDE MODALS*/
+    toggleDisplayDoc = () => {
+        this.setState({
+            displayDoc:!this.state.displayDoc
+        })
+    }
     closeAddLocation = () => {
         this.setState({openAddLocation:false})
     }
-
     showAddLocation = () => {
         this.setState({openAddLocation:true})
     }
-
     showDatePicker = target => {
         this.setState({openDatePicker:true,datePickerTarget:target})
     }
-
     closeDatePicker = target => {
         this.setState({openDatePicker:false,datePickerTarget:""})
     }
-
+    /*CHANGE HANDLERS*/
     onSelectDatePicker = date => {
         this.setState({
             [this.state.datePickerTarget]:date.getDate().toString().padStart(2, '0')+"/"+parseInt(date.getMonth()+1).toString().padStart(2, '0')+"/"+date.getFullYear().toString().padStart(4, '0')
         })
     }
-
+    handleChange = e =>{
+        this.setState({
+        [e.target.name]:e.target.value
+        });
+    }
+    handleRegistrationChange = value => {
+        this.setState({
+            newRegistration : value
+        })
+    }
+    handleChangeVolume = (e, { value }) => this.setState({ newVolume:value })
+    handleChangeBrand = (e, { value }) => this.setState({ newBrand:value })
+    handleChangeModel = (e, { value }) => this.setState({ newModel:value })
+    handleChangeColor = (e, { value }) => this.setState({ newColor:value })
+    handleChangeSociete = (e, { value }) => this.setState({ newSociete:value })
+    handleChangeFournisseur = (e, { value }) => this.setState({ newFournisseur:value })
+    handleChangePayementFormat = value => {
+        this.setState({ newPayementFormat:value })
+    }
+    handleChangeVolume = (e, { value }) => this.setState({ newVolume:value })
+    
+    /*FILTERS HANDLERS*/
+    switchArchiveFilter = v => {
+        this.setState({
+            archiveFilter:v
+        })
+        this.loadVehicles();
+    }
+    setReportLateFilter = value => {
+        this.setState({
+            reportLateFilter:value
+        })
+    }
+    setDocsFilter = value => {
+        this.setState({
+            docsFilter:value
+        })
+    }
+    handleFilter = e =>{
+        this.setState({
+        locationsFiler:e
+        });
+    }
+    resetAll = () => {
+        let filterNewValues = {};
+        this.state.filters.forEach(f=>{
+            filterNewValues[f.filter] = this.state[f.infos].options.filter(o=>o.initial)[0].value
+        })
+        this.setState(filterNewValues);
+    }
+    /*DB READ AND WRITE*/
     addLocation = () => {
         this.closeAddLocation()
         this.props.client.mutate({
@@ -315,98 +462,67 @@ class Locations extends Component {
             })
         })
     }
-
-    handleChange = e =>{
-        this.setState({
-        [e.target.name]:e.target.value
-        });
-    }
-
-    handleFilter = e =>{
-        this.setState({
-        locationsFiler:e
-        });
-    }
-
-    handleRegistrationChange = value => {
-        this.setState({
-            newRegistration : value
-        })
-    }
-
-    handleChangeVolume = (e, { value }) => this.setState({ newVolume:value })
-
-    handleChangeBrand = (e, { value }) => this.setState({ newBrand:value })
-
-    handleChangeModel = (e, { value }) => this.setState({ newModel:value })
-
-    handleChangeColor = (e, { value }) => this.setState({ newColor:value })
-
-    handleChangeSociete = (e, { value }) => this.setState({ newSociete:value })
-
-    handleChangeFournisseur = (e, { value }) => this.setState({ newFournisseur:value })
-
-    handleChangePayementFormat = value => {
-        this.setState({ newPayementFormat:value })
-    }
-
-    handleChangeVolume = (e, { value }) => this.setState({ newVolume:value })
-
-    getArchiveButtonContent = () => {
-        if(this.state.archiveFilter){
-            return "Affiché : archives"
-        }else{
-            return "Affiché : valides"
-        }
-    }
-
-    //ARCHIVE FILTER
-    switchArchiveFilter = v => {
-        this.setState({
-            archiveFilter:v
-        })
-        this.loadVehicles();
-    }
-
-    //REPORT LATE FILTER
-    setReportLateFilter = value => {
-        this.setState({
-            reportLateFilter:value
-        })
-    }
-
-    //MISSING DOCS FILTER
-    setDocsFilter = value => {
-        this.setState({
-            docsFilter:value
-        })
-    }
-
-    toggleDisplayDoc = () => {
-        this.setState({
-            displayDoc:!this.state.displayDoc
-        })
-    }
-
     loadLocations = () => {
+        let locationsQuery = (this.props.userLimited ? this.state.buLocationsQuery : this.state.locationsQuery);
         this.props.client.query({
-            query:this.state.locationsQuery,
+            query:locationsQuery,
             fetchPolicy:"network-only"
         }).then(({data})=>{
+            let locations = (this.props.userLimited ? data.buLocations : data.locations);
             this.setState({
-                locationsRaw:data.locations
+                locationsRaw:locations
             })
         })
     }
-
+    /*CONTENT GETTERS*/
+    getTableHeader = () => {
+        if(this.props.userLimited){
+            return(
+                <Table.Header>
+                    <Table.Row textAlign='center'>
+                        <Table.HeaderCell>Immatriculation</Table.HeaderCell>
+                        <Table.HeaderCell>Kilométrage</Table.HeaderCell>
+                        <Table.HeaderCell>Dernier relevé</Table.HeaderCell>
+                        <Table.HeaderCell>Marque</Table.HeaderCell>
+                        <Table.HeaderCell>Modèle</Table.HeaderCell>
+                        <Table.HeaderCell>Volume</Table.HeaderCell>
+                        <Table.HeaderCell>Charge utile</Table.HeaderCell>
+                        <Table.HeaderCell>Fin de contrat</Table.HeaderCell>
+                        <Table.HeaderCell>Fournisseur</Table.HeaderCell>
+                        <Table.HeaderCell>Documents</Table.HeaderCell>
+                        <Table.HeaderCell>Actions</Table.HeaderCell>
+                    </Table.Row>
+                </Table.Header>
+            )
+        }else{
+            return(
+                <Table.Header>
+                    <Table.Row textAlign='center'>
+                        <Table.HeaderCell>Societe</Table.HeaderCell>
+                        <Table.HeaderCell>Immatriculation</Table.HeaderCell>
+                        <Table.HeaderCell>Kilométrage</Table.HeaderCell>
+                        <Table.HeaderCell>Dernier relevé</Table.HeaderCell>
+                        <Table.HeaderCell>Marque</Table.HeaderCell>
+                        <Table.HeaderCell>Modèle</Table.HeaderCell>
+                        <Table.HeaderCell>Volume</Table.HeaderCell>
+                        <Table.HeaderCell>Charge utile</Table.HeaderCell>
+                        <Table.HeaderCell>Fin de contrat</Table.HeaderCell>
+                        <Table.HeaderCell>Fournisseur</Table.HeaderCell>
+                        <Table.HeaderCell>Documents</Table.HeaderCell>
+                        <Table.HeaderCell>Actions</Table.HeaderCell>
+                    </Table.Row>
+                </Table.Header>
+            )
+        }
+    }
+    /*COMPONENTS LIFECYCLE*/
     componentDidMount = () => {
         this.loadLocations();
     }
-
     render() {
         return (
             <Fragment>
-                <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"32px",gridTemplateRows:"auto auto 1fr auto",gridTemplateColumns:"auto 1fr auto"}}>
+                <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto auto 1fr auto",gridTemplateColumns:"auto 1fr auto"}}>
                     <Menu style={{cursor:"pointer",marginBottom:"auto"}} icon='labeled'>
                         <Menu.Item color="blue" name='vehicules' onClick={()=>{this.props.history.push("/parc/vehicles")}}><Icon name='truck'/>Vehicules</Menu.Item>
                         <Menu.Item color="blue" name='controls' onClick={()=>{this.props.history.push("/parc/controls")}}><Icon name='clipboard check'/>Contrôles</Menu.Item>
@@ -414,30 +530,17 @@ class Locations extends Component {
                         <Menu.Item color="blue" name='locations' active onClick={()=>{this.props.history.push("/parc/locations")}} ><Icon name="calendar alternate outline"/>Locations</Menu.Item>
                     </Menu>
                     <Input style={{justifySelf:"stretch"}} name="locationsFiler" onChange={e=>{this.handleFilter(e.target.value)}} icon='search' placeholder='Rechercher une immatriculation, une marque, un modèle ou un fournisseur' />
-                    <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddLocation} icon labelPosition='right'>Enregistrer une location<Icon name='plus'/></Button>
-                    <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gridGap:"16px"}}>
-                        <DropdownFilter infos={this.state.archiveFilterInfos} active={this.state.archiveFilter} />
-                        <DropdownFilter infos={this.state.reportLateFilterInfos} active={this.state.reportLateFilter} />
-                        <DropdownFilter infos={this.state.docsFilterInfos} active={this.state.docsFilter} />
+                    <div style={{display:"flex",justifyContent:"flex-end"}}>
+                        <BigButtonIcon icon="plus" color="blue" onClick={this.showAddLocation} tooltip="Enregistrer une location"/>
                     </div>
+                    <CustomFilterSegment resetAll={this.resetAll} style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3"}}>
+                        <CustomFilter infos={this.state.archiveFilterInfos} active={this.state.archiveFilter} />
+                        <CustomFilter infos={this.state.reportLateFilterInfos} active={this.state.reportLateFilter} />
+                        <CustomFilter infos={this.state.docsFilterInfos} active={this.state.docsFilter} />
+                    </CustomFilterSegment>
                     <div style={{gridRowStart:"3",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                         <Table style={{marginBottom:"0"}} celled selectable compact>
-                            <Table.Header>
-                                <Table.Row textAlign='center'>
-                                    <Table.HeaderCell>Societe</Table.HeaderCell>
-                                    <Table.HeaderCell>Immatriculation</Table.HeaderCell>
-                                    <Table.HeaderCell>Kilométrage</Table.HeaderCell>
-                                    <Table.HeaderCell>Dernier relevé</Table.HeaderCell>
-                                    <Table.HeaderCell>Marque</Table.HeaderCell>
-                                    <Table.HeaderCell>Modèle</Table.HeaderCell>
-                                    <Table.HeaderCell>Volume</Table.HeaderCell>
-                                    <Table.HeaderCell>Charge utile</Table.HeaderCell>
-                                    <Table.HeaderCell>Fin de contrat</Table.HeaderCell>
-                                    <Table.HeaderCell>Fournisseur</Table.HeaderCell>
-                                    <Table.HeaderCell>Documents</Table.HeaderCell>
-                                    <Table.HeaderCell>Actions</Table.HeaderCell>
-                                </Table.Row>
-                            </Table.Header>
+                            {this.getTableHeader()}
                             <Table.Body>
                                 {this.state.locations()}
                             </Table.Body>

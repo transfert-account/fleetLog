@@ -116,12 +116,16 @@ class VehiclePicker extends Component {
             if(this.props.hideLocations){
                 return this.state.vehiclesRaw.map(v=>{return ({...v,type:"vehicle"})});    
             }
-            return this.state.vehiclesRaw.map(v=>{return ({...v,type:"vehicle"})}).concat(this.state.locationsRaw.map(l=>{return ({...l,type:"rental"})}));
+            let options = this.state.vehiclesRaw.map(v=>{return ({...v,type:"vehicle"})}).concat(this.state.locationsRaw.map(l=>{return ({...l,type:"rental"})}));
+            if(this.props.societeRestricted != null && this.props.societeRestricted != undefined){
+                options = options.filter(v=>v.societe._id == this.props.societeRestricted)
+            }
+            return options;
         }
     }
     
     loadVehicles = () => {
-        if(this.props.societeRestricted){
+        if(this.props.userRestricted){
             this.props.client.query({
                 query:this.state.buVehiclesQuery,
                 fetchPolicy:"network-only"
@@ -143,7 +147,7 @@ class VehiclePicker extends Component {
     }
 
     loadLocations = () => {
-        if(this.props.societeRestricted){
+        if(this.props.userRestricted){
             this.props.client.query({
                 query:this.state.buLocationsQuery,
                 fetchPolicy:"network-only"
@@ -175,7 +179,7 @@ class VehiclePicker extends Component {
 
     render() {
         return (
-            <Dropdown search selection style={{marginLeft:"8px"}} defaultValue={this.props.defaultValue} options={this.state.getVehiclesAndLocations().map(v=>{return{key:v._id,text:v.registration,value:v._id}})} placeholder='Choisissez un véhicule' onChange={this.setVehicle} />
+            <Dropdown search selection defaultValue={this.props.defaultValue} options={this.state.getVehiclesAndLocations().map(v=>{return{key:v._id,text:v.registration,value:v._id}})} placeholder='Choisissez un véhicule' onChange={this.setVehicle} />
         )
     }
 }

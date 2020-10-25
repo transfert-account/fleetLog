@@ -1,11 +1,17 @@
 import React, { Component } from 'react';
-import { Icon, Input, Button, Table, Modal, Form, Message } from 'semantic-ui-react';
-import DropdownFilter from '../atoms/DropdownFilter';
+import { Input, Button, Modal, Form } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
+
+import BigButtonIcon from '../elements/BigIconButton';
+
+import CustomFilterSegment from '../molecules/CustomFilterSegment';
+import BatimentControlRowGroup from '../molecules/BatimentControlRowGroup';
+
+import CustomFilter from '../atoms/CustomFilter';
 import ModalDatePicker from '../atoms/ModalDatePicker'
 import SocietePicker from '../atoms/SocietePicker'
-import BatimentControlRowGroup from '../molecules/BatimentControlRowGroup';
-import { gql } from 'apollo-server-express'
+
+import { gql } from 'apollo-server-express';
 
 class Batiments extends Component {
 
@@ -17,11 +23,21 @@ class Batiments extends Component {
         timeLeftFilter:"all",
         batimentFilter:"",
         docsFilter:"all",
+        filters:[
+            {
+                infos:"timeLeftFilterInfos",
+                filter:"timeLeftFilter"
+            },{
+                infos:"docsFilterInfos",
+                filter:"docsFilter"
+            }
+        ],
         timeLeftFilterInfos:{
             icon:"calendar",            
             options:[
                 {
                     key: 'timeleftall',
+                    initial: true,
                     text: 'Tous les contrôles',
                     value: "all",
                     color:"green",
@@ -30,6 +46,7 @@ class Batiments extends Component {
                 },
                 {
                     key: 'timeleftsoon',
+                    initial: false,
                     text: 'Moins de 8 semaines',
                     value: "soon",
                     color:"yellow",
@@ -38,6 +55,7 @@ class Batiments extends Component {
                 },
                 {
                     key: 'timeleftvery',
+                    initial: false,
                     text: 'Moins de 4 semaines',
                     value: "very",
                     color:"orange",
@@ -46,6 +64,7 @@ class Batiments extends Component {
                 },
                 {
                     key: 'timeleftover',
+                    initial: false,
                     text: 'Délai dépassé',
                     value: "over",
                     color:"red",
@@ -59,6 +78,7 @@ class Batiments extends Component {
             options:[
                 {
                     key: 'docsall',
+                    initial: true,
                     text: 'Tous les contrôles',
                     value: "all",
                     color:"green",
@@ -67,6 +87,7 @@ class Batiments extends Component {
                 },
                 {
                     key: 'docsmissing',
+                    initial: false,
                     text: 'Documents manquants',
                     value: "missingDocs",
                     color:"red",
@@ -132,67 +153,102 @@ class Batiments extends Component {
                     }
                 }
             }
+        `,
+        buBatimentsQuery : gql`
+            query buBatiments{
+                buBatiments{
+                    societe{
+                        _id
+                        trikey
+                        name
+                    }
+                    controls{
+                        _id
+                        name
+                        delay
+                        lastExecution
+                        delay
+                        ficheInter{
+                            _id
+                            name
+                            size
+                            path
+                            originalFilename
+                            ext
+                            type
+                            mimetype
+                            storageDate
+                        }
+                    }
+                }
+            }
         `
     }
-
-    handleChange = e =>{
-        this.setState({
-        [e.target.name]:e.target.value
-        });
-    }
-
-    handleFilter = e =>{
-        this.setState({
-            batimentFilter:e.target.value
-        });
-    }
-
-    handleChangeSociete = (e, { value }) => this.setState({ newSociete:value })
-
+    /*SHOW AND HIDE MODALS*/
     showAddBatimentControl = () => {
         this.setState({
-        openAddBatimentControl:true
+            openAddBatimentControl:true
         })
     }
-
     closeAddBatimentControl = () => {
         this.setState({
-        openAddBatimentControl:false
+            openAddBatimentControl:false
         })
     }
-
     showDatePicker = target => {
         this.setState({openDatePicker:true,datePickerTarget:target})
     }
-
     closeDatePicker = () => {
         this.setState({openDatePicker:false,datePickerTarget:""})
     }
-
-    //MISSING DOCS FILTER
-    setDocsFilter = value => {
-        this.setState({
-            docsFilter:value
-        })
-    }
-
+    /*CHANGE HANDLERS*/
     onSelectDatePicker = date => {
         this.setState({
             [this.state.datePickerTarget]:date.getDate().toString().padStart(2, '0')+"/"+parseInt(date.getMonth()+1).toString().padStart(2, '0')+"/"+date.getFullYear().toString().padStart(4, '0')
         })
     }
-
+    handleChange = e =>{
+        this.setState({
+        [e.target.name]:e.target.value
+        });
+    }
+    /*FILTERS HANDLERS*/
+    setTimeLeftFilter = value => {
+        this.setState({
+            timeLeftFilter:value
+        })
+    }
+    setDocsFilter = value => {
+        this.setState({
+            docsFilter:value
+        })
+    }
+    handleFilter = e =>{
+        this.setState({
+            batimentFilter:e.target.value
+        });
+    }
+    handleChangeSociete = (e, { value }) => this.setState({ newSociete:value })
+    resetAll = () => {
+        let filterNewValues = {};
+        this.state.filters.forEach(f=>{
+            filterNewValues[f.filter] = this.state[f.infos].options.filter(o=>o.initial)[0].value
+        })
+        this.setState(filterNewValues);
+    }
+    /*DB READ AND WRITE*/
     loadBatiments = () => {
+        let batimentsQuery = (this.props.userLimited ? this.state.buBatimentsQuery : this.state.batimentsQuery);
         this.props.client.query({
-            query:this.state.batimentsQuery,
+            query:batimentsQuery,
             fetchPolicy:"network-only"
         }).then(({data})=>{
+            let batiments = (this.props.userLimited ? data.buBatiments : data.batiments);
             this.setState({
-                batimentControlsRaw:data.batiments
+                batimentControlsRaw:batiments
             })
         })
     }
-
     addBatimentControl = () => {
         this.closeAddBatimentControl()
         this.props.client.mutate({
@@ -214,7 +270,6 @@ class Batiments extends Component {
             })
         })
     }
-
     addBatimentControlGlobal = () => {
         this.closeAddBatimentControl()
         this.props.client.mutate({
@@ -235,44 +290,22 @@ class Batiments extends Component {
             })
         })
     }
-
-    //TIME LEFT FILTER
-    setTimeLeftFilter = value => {
-        this.setState({
-            timeLeftFilter:value
-        })
-    }
-
+    /*CONTENT GETTERS*/
+    /*COMPONENTS LIFECYCLE*/
     componentDidMount = () => {
         this.loadBatiments();
     }
-
     render() {
         return (
-            <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"32px",gridTemplateRows:"auto auto 1fr auto",gridTemplateColumns:"auto 1fr auto"}}>
+            <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto auto 1fr auto",gridTemplateColumns:"auto 1fr auto"}}>
                 <Input style={{justifySelf:"stretch",gridColumnEnd:"span 2"}} name="storeFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher un nom de contrôle' />
-                <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddBatimentControl} icon labelPosition='right'>Ajouter un contrôle au batiment<Icon name='plus'/></Button>
-                    <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"16px"}}>
-                        <DropdownFilter infos={this.state.timeLeftFilterInfos} active={this.state.timeLeftFilter} />
-                        <DropdownFilter infos={this.state.docsFilterInfos} active={this.state.docsFilter} />
-                    </div>
+                <BigButtonIcon icon="plus" color="blue" onClick={this.showAddBatimentControl} tooltip="Ajouter un contrôle au batiment"/>
+                <CustomFilterSegment resetAll={this.resetAll} style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3"}}>
+                    <CustomFilter infos={this.state.timeLeftFilterInfos} active={this.state.timeLeftFilter} />
+                    <CustomFilter infos={this.state.docsFilterInfos} active={this.state.docsFilter} />
+                </CustomFilterSegment>
                 <div style={{gridRowStart:"3",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
-                    <Table style={{marginBottom:"0"}} celled selectable color="blue" compact>
-                        <Table.Header>
-                            <Table.Row textAlign='center'>
-                                <Table.HeaderCell>Societe</Table.HeaderCell>
-                                <Table.HeaderCell>Contrôle</Table.HeaderCell>
-                                <Table.HeaderCell>Délai</Table.HeaderCell>
-                                <Table.HeaderCell>Dernière exécution</Table.HeaderCell>
-                                <Table.HeaderCell>Avant prochaine exécution</Table.HeaderCell>
-                                <Table.HeaderCell>Documents</Table.HeaderCell>
-                                <Table.HeaderCell>Actions</Table.HeaderCell>
-                            </Table.Row>
-                        </Table.Header>
-                        <Table.Body>
-                            {this.state.batimentControls()}
-                        </Table.Body>
-                    </Table>
+                    {this.state.batimentControls()}
                 </div>
                 <Modal size="tiny" closeOnDimmerClick={false} open={this.state.openAddBatimentControl} onClose={this.closeAddBatimentControl} closeIcon>
                     <Modal.Header>

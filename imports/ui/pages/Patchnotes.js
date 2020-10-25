@@ -12,8 +12,153 @@ export class Patchnotes extends Component {
                 <div style={{display:"flex",marginBottom:"32px",justifyContent:"space-between"}}>
                     <AdministrationMenu active="patchnotes"/>
                 </div>
-                <div style={{display:"block",overflowY:"auto",justifySelf:"stretch"}}>
-                <Segment>
+                <div className="patchnote-block" style={{display:"block",overflowY:"auto",justifySelf:"stretch"}}>
+                    <Segment>
+                        <Header color='blue' as="h2">25/10/2020 - v1.3.0</Header>
+                        <List divided relaxed>
+                        <List.Item>
+                                <List.Icon name='angle double up' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Vignettes d'aperçu sur planning</List.Header>
+                                    <List.Description>Ajout de label indiquant le nombre de lignes dans les tableau même lorsqu'il ne sont pas visible. Ajout de vignette identique sur les case de chaque date indiquant les entretiens plannifié par soi même et au total</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='paint brush' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Refonte graphique du planning</List.Header>
+                                    <List.Description>Refonte graphique en flat du planning, plus compact, tableau des entretiens plus large.</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='plus' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Export Excel paramétrables</List.Header>
+                                    <List.Description>Les filtres disponibles sur les tableaux des véhicules et des entretiens sont désormais également disponible pour filtrer le contenu des exports Excel</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='plus' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Export Excel des entretiens</List.Header>
+                                    <List.Description>Il est maintenant possible d'exporter les entretiens du parc au format .xlsx dans la section Administration/Exports.</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='plus' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Génération automatique des entretiens préventifs</List.Header>
+                                    <List.Description>Les contrôles obligatoire étant dépassé leur seuil d'alerte génère un entretien préventif. Cette opération récurente s'execute toute les 24 heures à 03:00 du matin</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='plus' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Différenciation des entretiens curatif et préventif</List.Header>
+                                    <List.Description>Les entretiens créés à partir un d'un contrôle sont considéré comme préventifs, ceux créés manuellement sont considéré comme curatif, la distinction est affiché dans le tableau des entretiens</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='plus' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Création d'entretien sur la base d'un contrôle obligatoire</List.Header>
+                                    <List.Description>Il est maintenant possible de créer un entretiens depuis un contrôle obligatoire, l'entretien crée reste lié au contrôle et est accessible depuis le tableau des contrôles</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='wrench' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Modification des filtres</List.Header>
+                                    <List.Description>Les filtres ont été modifié sur toute l'application de manière à pouvoir en accumuler plus, de plus un bouton permetant leur réinitialisation à été ajouté</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='plus' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Ajout de contrôles obligatoire sur un véhicule</List.Header>
+                                    <List.Description>Il est maintenant possible d'ajouter un équipements à contrôle obligatoire sur un véhicule sans qu'il soit présent dans la liste</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='double angle up' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Affichage des contrôles obligatoire</List.Header>
+                                    <List.Description>Seul les véhicules ayant des équipements à contrôles obligatoires équipés sont visibles</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='paint brush' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Modification graphique du menu latéral</List.Header>
+                                    <List.Description>Les liens sont moins haut, la capacité totale du menu est augmenté</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='bug' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Modification des conditions de suppréssion d'un contrôle</List.Header>
+                                    <List.Description>Les contrôles ne peuvent plus être supprimés si ils sont rattaché à un ou plusieurs véhicules</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='wrench' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Formulaire de création d'un contrôle plus restrictif</List.Header>
+                                    <List.Description>Le bouton créer est désormais désactivé lorsque les informations du contrôle sont incomplètes ou incohérentes</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='plus' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Ajout de la modal de mise à jour de contrôle d'équipement</List.Header>
+                                    <List.Description>La fonction était inaccessible jusque là</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='plus' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Ajout de la modal de suppression de contrôle d'équipement</List.Header>
+                                    <List.Description>La fonction était inaccessible jusque là</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='plus' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Status de véhicule "En panne" et "En vente"</List.Header>
+                                    <List.Description>Il est maintenant possible de noter les véhicules comme étant "en panne" et "en vente"</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='plus' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Ajout de labels pour la vente, la panne et le prêt dans le tableau véhicules</List.Header>
+                                    <List.Description>Ajout de 3 labels dans une nouvelle colone "Spécificité" indiquant si le véhicule est en vente, en panne ou en prêt (la société cible du prêt est visible au survol de la souris)</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='paint brush' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Fusion des colones "Modèle", "Marque" et "Energie"</List.Header>
+                                    <List.Description>Les colones "Modèle", "Marque" et "Energie" ont fusionner en une seule pour un gain de place</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='paint brush' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Changement graphique des actions de véhicules, de locations et d'entretiens</List.Header>
+                                    <List.Description>Dans les pages de details d'un véhicule, d'une location, et d'un entretien, les bouttons d'actions en haut à droite de la page ont été modifié pour une présentation plus intuitive et agréable</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='paint brush' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Refonte complète du Dashboard</List.Header>
+                                    <List.Description>Le dashboard à été repensé pour pouvoir gagner en lisibilité. A l'exception des KPI principaux, les données dont maintenant disponibles dans des onglets plus aéré que précedement, (tous les chiffres dans les labels colorés indiquent leur signification au survol de la souris)</List.Description>
+                                </List.Content>
+                            </List.Item>
+                        </List>
+                    </Segment>
+                    <Segment>
                         <Header color='blue' as="h2">19/06/2020 - v1.2.07</Header>
                         <List divided relaxed>
                             <List.Item>

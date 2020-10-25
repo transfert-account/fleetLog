@@ -23,7 +23,7 @@ class AdministrationMenu extends Component {
             <Menu style={{cursor:"pointer",marginBottom:"auto"}} icon='labeled'>
                 {this.state.menuItems.map(i=>{
                     return(
-                        <Menu.Item color={i.color} name={i.name} active={this.props.active == i.name} onClick={()=>{this.props.history.push(i.uri)}}>
+                        <Menu.Item key={i.uri} color={i.color} name={i.name} active={this.props.active == i.name} onClick={()=>{this.props.history.push(i.uri)}}>
                             <Icon name={i.icon}/>
                             {i.label}
                         </Menu.Item>

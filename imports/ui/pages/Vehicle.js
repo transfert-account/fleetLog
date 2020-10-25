@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react'
 import { Loader, Menu, Button, Icon, Message, Modal, Progress, Input, Form, Table, TextArea, Segment } from 'semantic-ui-react';
 import { Bar } from 'react-chartjs-2';
+import BigButtonIcon from '../elements/BigIconButton';
 import ModalDatePicker from '../atoms/ModalDatePicker';
 import ColorPicker from '../atoms/ColorPicker';
 import ModelPicker from '../atoms/ModelPicker';
@@ -50,6 +51,8 @@ class Vehicle extends Component {
         newPayementFormat:"",
         newArchiveReason:"",
         newSharingReason:"",
+        newBrokenReason:"",
+        newSellingReason:"",
         newProperty:null,
         loading:true,
         editingTech:false,
@@ -59,6 +62,10 @@ class Vehicle extends Component {
         openDelete:false,
         openShare:false,
         openUnshare:false,
+        openSell:false,
+        openUnsell:false,
+        openBreak:false,
+        openUnbreak:false,
         selectedKm:null,
         openDeleteKm:false,
         openDocs:false,
@@ -157,6 +164,12 @@ class Vehicle extends Component {
                     }
                     sharedSince
                     sharingReason
+                    selling
+                    sellingReason
+                    sellingSince
+                    broken
+                    brokenReason
+                    brokenSince
                 }
             }
         `,
@@ -227,6 +240,38 @@ class Vehicle extends Component {
         unshareVehicleQuery : gql`
             mutation unshareVehicle($_id:String!){
                 unshareVehicle(_id:$_id){
+                    status
+                    message
+                }
+            }
+        `,
+        sellVehicleQuery : gql`
+            mutation sellVehicle($_id:String!,$sellingReason:String!){
+                sellVehicle(_id:$_id,sellingReason:$sellingReason){
+                    status
+                    message
+                }
+            }
+        `,
+        unsellVehicleQuery : gql`
+            mutation unsellVehicle($_id:String!){
+                unsellVehicle(_id:$_id){
+                    status
+                    message
+                }
+            }
+        `,
+        breakVehicleQuery : gql`
+            mutation breakVehicle($_id:String!,$brokenReason:String!){
+                breakVehicle(_id:$_id,brokenReason:$brokenReason){
+                    status
+                    message
+                }
+            }
+        `,
+        unbreakVehicleQuery : gql`
+            mutation unbreakVehicle($_id:String!){
+                unbreakVehicle(_id:$_id){
                     status
                     message
                 }
@@ -418,6 +463,88 @@ class Vehicle extends Component {
         })
     }
 
+    sellVehicle = () => {
+        this.closeArchive();
+        this.props.client.mutate({
+            mutation:this.state.sellVehicleQuery,
+            variables:{
+                _id:this.state._id,
+                sellingReason:this.state.newSellingReason
+            }
+        }).then(({data})=>{
+            data.sellVehicle.map(qrm=>{
+                if(qrm.status){
+                    this.closeSell();
+                    this.loadVehicule();
+                    this.props.toast({message:qrm.message,type:"success"});
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+
+    unsellVehicle = () => {
+        this.closeUnArchive();
+        this.props.client.mutate({
+            mutation:this.state.unsellVehicleQuery,
+            variables:{
+                _id:this.state._id
+            }
+        }).then(({data})=>{
+            data.unsellVehicle.map(qrm=>{
+                if(qrm.status){
+                    this.closeUnsell();
+                    this.loadVehicule();
+                    this.props.toast({message:qrm.message,type:"success"});
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+
+    breakVehicle = () => {
+        this.closeArchive();
+        this.props.client.mutate({
+            mutation:this.state.breakVehicleQuery,
+            variables:{
+                _id:this.state._id,
+                brokenReason:this.state.newBrokenReason
+            }
+        }).then(({data})=>{
+            data.breakVehicle.map(qrm=>{
+                if(qrm.status){
+                    this.closeBreak();
+                    this.loadVehicule();
+                    this.props.toast({message:qrm.message,type:"success"});
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+
+    unbreakVehicle = () => {
+        this.closeUnArchive();
+        this.props.client.mutate({
+            mutation:this.state.unbreakVehicleQuery,
+            variables:{
+                _id:this.state._id
+            }
+        }).then(({data})=>{
+            data.unbreakVehicle.map(qrm=>{
+                if(qrm.status){
+                    this.closeUnbreak();
+                    this.loadVehicule();
+                    this.props.toast({message:qrm.message,type:"success"});
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+
     updateKm = () => {
         this.props.client.mutate({
             mutation:this.state.updateKmQuery,
@@ -558,6 +685,50 @@ class Vehicle extends Component {
     closeUnshare = () => {
         this.setState({
             openUnshare:false
+        })
+    }
+
+    showUnsell = () => {
+        this.setState({
+            openUnsell:true
+        })
+    }
+    closeUnsell = () => {
+        this.setState({
+            openUnsell:false
+        })
+    }
+
+    showSell = () => {
+        this.setState({
+            openSell:true
+        })
+    }
+    closeSell = () => {
+        this.setState({
+            openSell:false
+        })
+    }
+
+    showBreak = () => {
+        this.setState({
+            openBreak:true
+        })
+    }
+    closeBreak = () => {
+        this.setState({
+            openBreak:false
+        })
+    }
+
+    showUnbreak = () => {
+        this.setState({
+            openUnbreak:true
+        })
+    }
+    closeUnbreak = () => {
+        this.setState({
+            openUnbreak:false
         })
     }
 
@@ -869,15 +1040,15 @@ class Vehicle extends Component {
             if(this.state.vehicle.archived){
                 return(
                     <Fragment>
-                        <Button color="orange" style={{placeSelf:"stretch"}} onClick={this.showUnArchive} icon labelPosition='right'>Désarchiver le vehicule<Icon name='share square'/></Button>
-                        <Button color="red" style={{placeSelf:"stretch"}} onClick={this.showDelete} icon labelPosition='right'>Supprimer le vehicule<Icon name='trash'/></Button>
+                        <BigButtonIcon icon="archive" color="orange" onClick={this.showUnArchive} tooltip="Désarchiver le vehicule"/>
+                        <BigButtonIcon icon="trash" color="red" onClick={this.showDelete} tooltip="Supprimer le vehicule"/>
                     </Fragment>
                 )
             }else{
                 return(
                     <Fragment>
-                        <Button color="orange" style={{placeSelf:"stretch"}} onClick={this.showArchive} icon labelPosition='right'>Archiver le vehicule<Icon name='archive'/></Button>
-                        <Button color="red" style={{placeSelf:"stretch"}} onClick={this.showDelete} icon labelPosition='right'>Supprimer le vehicule<Icon name='trash'/></Button>
+                        <BigButtonIcon icon="archive" color="orange" onClick={this.showArchive} tooltip="Archiver le vehicule"/>
+                        <BigButtonIcon icon="trash" color="red" onClick={this.showDelete} tooltip="Supprimer le vehicule"/>
                     </Fragment>
                 )
             }
@@ -885,50 +1056,64 @@ class Vehicle extends Component {
             if(this.state.vehicle.archived){
                 return(
                     <Fragment>
-                        <Button color="orange" style={{placeSelf:"stretch",gridColumnEnd:"span 2"}} onClick={this.showUnArchive} icon labelPosition='right'>Désarchiver le vehicule<Icon name='share square'/></Button>
+                        <BigButtonIcon icon="archive" color="orange" onClick={this.showUnArchive} tooltip="Désarchiver le vehicule"/>
                     </Fragment>
                 )
             }else{
                 return(
                     <Fragment>
-                        <Button color="orange" style={{placeSelf:"stretch",gridColumnEnd:"span 2"}} onClick={this.showArchive} icon labelPosition='right'>Archiver le vehicule<Icon name='archive'/></Button>
+                        <BigButtonIcon icon="archive" color="orange" onClick={this.showArchive} tooltip="Archiver le vehicule"/>
                     </Fragment>
                 )
             }
         }
     }
 
-    getDocsAndShareOptions = () => {
-        if(this.props.user.isOwner){
-            if(this.state.vehicle.shared){
-                return(
-                    <Fragment>
-                        <Button color="purple" style={{placeSelf:"stretch"}} onClick={this.showDocs} icon labelPosition='right'>Gérer les documents<Icon name='folder open'/></Button>
-                        <Button color="teal" style={{placeSelf:"stretch"}} onClick={this.showUnshare} icon labelPosition='right'>Rappeler le vehicule<Icon name='handshake outline'/></Button>
-                    </Fragment>
-                )
-            }else{
-                return(
-                    <Fragment>
-                        <Button color="purple" style={{placeSelf:"stretch"}} onClick={this.showDocs} icon labelPosition='right'>Gérer les documents<Icon name='folder open'/></Button>
-                        <Button color="teal" style={{placeSelf:"stretch"}} onClick={this.showShare} icon labelPosition='right'>Prêter le vehicule<Icon name='handshake outline'/></Button>
-                    </Fragment>
-                )
-            }
+    getShareOptions = () => {
+        if(this.state.vehicle.shared){
+            return(
+                <Fragment>
+                    <BigButtonIcon icon="handshake" color="teal" onClick={this.showUnshare} tooltip="Rappeler le vehicule"/>
+                </Fragment>
+            )
         }else{
-            if(this.state.vehicle.shared){
-                return(
-                    <Fragment>
-                        <Button color="purple" style={{placeSelf:"stretch",gridColumnEnd:"span 2"}} onClick={this.showDocs} icon labelPosition='right'>Gérer les documents<Icon name='folder open'/></Button>
-                    </Fragment>
-                )
-            }else{
-                return(
-                    <Fragment>
-                        <Button color="purple" style={{placeSelf:"stretch",gridColumnEnd:"span 2"}} onClick={this.showDocs} icon labelPosition='right'>Gérer les documents<Icon name='folder open'/></Button>
-                    </Fragment>
-                )
-            }
+            return(
+                <Fragment>
+                    <BigButtonIcon icon="handshake" color="teal" onClick={this.showShare} tooltip="Prêter le vehicule"/>
+                </Fragment>
+            )
+        }
+    }
+
+    getSellOptions = () => {
+        if(this.state.vehicle.selling){
+            return(
+                <Fragment>
+                    <BigButtonIcon icon="external alternate" color="teal" onClick={this.showUnsell} tooltip="Annuler la vente"/>
+                </Fragment>
+            )
+        }else{
+            return(
+                <Fragment>
+                    <BigButtonIcon icon="external alternate" color="teal" onClick={this.showSell} tooltip="Mettre en vente"/>
+                </Fragment>
+            )
+        }
+    }
+
+    getBrokenOptions = () => {
+        if(this.state.vehicle.broken){
+            return(
+                <Fragment>
+                    <BigButtonIcon icon="wrench" color="teal" onClick={this.showUnbreak} tooltip="Résoudre la panne"/>
+                </Fragment>
+            )
+        }else{
+            return(
+                <Fragment>
+                    <BigButtonIcon icon="wrench" color="teal" onClick={this.showBreak} tooltip="Signaler en panne"/>
+                </Fragment>
+            )
         }
     }
 
@@ -1032,7 +1217,7 @@ class Vehicle extends Component {
         }else{
             if(this.state.vehicle.financialInfosComplete){
                 return (
-                    <Segment attached='bottom'>                            
+                    <Segment attached='bottom'>                         
                         <div className="formBoard" style={{display:"grid",gridTemplateColumns:"auto 1fr",gridColumnEnd:"span 2",gridColumnStart:"1",gridGap:"6px 24px"}}>
                             <div className="labelBoard">Montant de l'assurance :</div><div className="valueBoard">{parseFloat(this.state.vehicle.insurancePaid).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ")} €</div>
                             <div className="labelBoard">Prix d'achat :</div><div className="valueBoard">{parseFloat(this.state.vehicle.purchasePrice).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ")} €</div>
@@ -1084,6 +1269,22 @@ class Vehicle extends Component {
         }
     }
 
+    getSellingPanel = () => {
+        if(this.state.vehicle.selling){
+            return (
+                <Message color="teal" style={{margin:"0 16px"}} icon='external alternate' header={"En vente depuis le : " + this.state.vehicle.sellingSince} content={"Justificaion : " + this.state.vehicle.sellingReason} />
+            )
+        }
+    }
+
+    getBrokenPanel = () => {
+        if(this.state.vehicle.broken){
+            return (
+                <Message color="teal" style={{margin:"0 16px"}} icon='wrench' header={"En panne depuis le : " + this.state.vehicle.brokenSince} content={"Justificaion : " + this.state.vehicle.brokenReason} />
+            )
+        }
+    }
+
     componentDidMount = () => {
         this.loadVehicule();
     }
@@ -1099,21 +1300,17 @@ class Vehicle extends Component {
             return (
                 <Fragment>
                     <div style={{display:"grid",gridGap:"24px",gridTemplateRows:"auto auto 1fr"}}>
-                        <div style={{display:"grid",gridGap:"16px",gridTemplateColumns:"auto 1fr auto"}}>
-                            <Button animated='fade' inverted onClick={()=>{this.props.history.push("/parc/vehicles");}} style={{margin:"0",gridRowStart:"1",gridColumnStart:"1"}} color="grey" size="huge">
-                                <Button.Content hidden>
-                                    <Icon color="black" style={{margin:"0"}} name='list ul' />
-                                </Button.Content>
-                                <Button.Content visible>
-                                    <Icon color="black" style={{margin:"0"}} name='angle double left' />
-                                </Button.Content>
-                            </Button>
+                        <div style={{display:"grid",gridGap:"32px",gridTemplateColumns:"auto 1fr auto"}}>
+                            <BigButtonIcon icon="angle double left" color="black" onClick={()=>{this.props.history.push("/parc/vehicles");}} tooltip="Retour au tableau des véhicules"/>
                             <Message style={{margin:"0"}} icon='truck' header={this.state.vehicle.registration} content={this.state.vehicle.brand.name + " - " + this.state.vehicle.model.name} />
-                            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gridGap:"16px"}}>
-                                <Button color="green" style={{placeSelf:"stretch",gridColumnEnd:"span 2"}} onClick={this.showUpdateKm} icon labelPosition='right'>MaJ kilométrage<Icon name='dashboard'/></Button>
-                                {this.getDocsAndShareOptions()}
-                                <Button color="blue" style={{placeSelf:"stretch"}} onClick={this.showEditTech} icon labelPosition='right'>Édition : Technique<Icon name='edit'/></Button>
-                                <Button color="blue" style={{placeSelf:"stretch"}} onClick={this.showEditFinances} icon labelPosition='right'>Édition : Finances<Icon name='edit'/></Button>
+                            <div style={{display:"flex",justifyContent:"flex-end"}}>
+                                <BigButtonIcon icon="dashboard" color="green" onClick={this.showUpdateKm} tooltip="Mise à jour du kilométrage"/>
+                                <BigButtonIcon icon="edit" color="blue" onClick={this.showEditTech} tooltip="Édition du paneau technique"/>
+                                <BigButtonIcon icon="edit" color="blue" onClick={this.showEditFinances} tooltip="Édition de paneau finances" spacedFromNext/>
+                                {this.getShareOptions()}
+                                {this.getSellOptions()}
+                                {this.getBrokenOptions()}
+                                <BigButtonIcon icon="folder" color="purple" onClick={this.showDocs} tooltip="Gérer les documents" spacedFromPrevious/>
                                 {this.getDeleteOptions()}
                             </div>
                         </div>
@@ -1121,6 +1318,8 @@ class Vehicle extends Component {
                             {this.getUncompleteFinancialPanel()}
                             {this.getArchivePanel()}
                             {this.getSharedPanel()}
+                            {this.getSellingPanel()}
+                            {this.getBrokenPanel()}
                         </div>
                         <div style={{gridRowStart:"3",display:"grid",gridTemplateColumns:"2fr 3fr",gridGap:"24px"}}>
                             <div>
@@ -1231,6 +1430,61 @@ class Vehicle extends Component {
                             <Button color="teal" onClick={this.unshareVehicle}>Rappeler</Button>
                         </Modal.Actions>
                     </Modal>
+                    
+                    <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openSell} onClose={this.closeSell} closeIcon>
+                        <Modal.Header>
+                            Mettre le vehicule {this.state.vehicle.registration} en vente ?
+                        </Modal.Header>
+                        <Modal.Content>
+                            <Form style={{display:"grid",gridTemplateColumns:"1fr",gridGap:"16px"}}>
+                                <Form.Field>
+                                    <label>Justification</label>
+                                    <TextArea rows={5} onChange={this.handleChange} name="newSellingReason"/>
+                                </Form.Field>
+                            </Form>
+                        </Modal.Content>
+                        <Modal.Actions>
+                            <Button color="grey" onClick={this.closeSell}>Annuler</Button>
+                            <Button color="teal" onClick={this.sellVehicle}>Mettre en vente</Button>
+                        </Modal.Actions>
+                    </Modal>
+                    <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openUnsell} onClose={this.closeUnsell} closeIcon>
+                        <Modal.Header>
+                        Annuler la mise en vente du vehicule {this.state.vehicle.registration} ?
+                        </Modal.Header>
+                        <Modal.Actions>
+                            <Button color="grey" onClick={this.closeUnsell}>Annuler</Button>
+                            <Button color="teal" onClick={this.unsellVehicle}>Annuler la vente</Button>
+                        </Modal.Actions>
+                    </Modal>
+
+                    <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openBreak} onClose={this.closeBreak} closeIcon>
+                        <Modal.Header>
+                            Mettre le vehicule {this.state.vehicle.registration} en panne ?
+                        </Modal.Header>
+                        <Modal.Content>
+                            <Form style={{display:"grid",gridTemplateColumns:"1fr",gridGap:"16px"}}>
+                                <Form.Field>
+                                    <label>Justification</label>
+                                    <TextArea rows={5} onChange={this.handleChange} name="newBrokenReason"/>
+                                </Form.Field>
+                            </Form>
+                        </Modal.Content>
+                        <Modal.Actions>
+                            <Button color="grey" onClick={this.closeBreak}>Annuler</Button>
+                            <Button color="teal" onClick={this.breakVehicle}>Mettre en panne</Button>
+                        </Modal.Actions>
+                    </Modal>
+                    <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openUnbreak} onClose={this.closeUnbreak} closeIcon>
+                        <Modal.Header>
+                        Annuler la mise en panne du vehicule {this.state.vehicle.registration} ?
+                        </Modal.Header>
+                        <Modal.Actions>
+                            <Button color="grey" onClick={this.closeUnbreak}>Annuler</Button>
+                            <Button color="teal" onClick={this.unbreakVehicle}>Annuler la panne</Button>
+                        </Modal.Actions>
+                    </Modal>
+
                     <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openArchive} onClose={this.closeArchive} closeIcon>
                         <Modal.Header>
                             Archiver le vehicule : {this.state.vehicle.registration} ?

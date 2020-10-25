@@ -1,7 +1,10 @@
 import React, { Component, Fragment } from 'react'
-import { Table, Icon, Message, Label, Button, Modal } from 'semantic-ui-react';
+import { Table, Icon, Label, Button, Popup } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
+
+import ActionsGridCell from '../atoms/ActionsGridCell';
 import DocStateLabel from '../atoms/DocStateLabel';
+
 import moment from 'moment';
 import { withRouter } from 'react-router-dom';
 import gql from 'graphql-tag';
@@ -9,74 +12,19 @@ import gql from 'graphql-tag';
 class VehiclesRow extends Component {
 
     state={
-        _id:this.props.vehicle._id,
-        newSociete:this.props.vehicle.societe._id,
-        newRegistration:this.props.vehicle.registration,
-        newFirstRegistrationDate:this.props.vehicle.firstRegistrationDate,
-        newKm:this.props.vehicle.km,
-        newLastKmUpdate:this.props.vehicle.lastKmUpdate,
-        newBrand:this.props.vehicle.brand,
-        newModel:this.props.vehicle.model,
-        newVolume:this.props.vehicle.volume.meterCube,
-        newPayload:this.props.vehicle.payload,
-        newColor:this.props.vehicle.color,
-        newInsurancePaid:this.props.vehicle.insurancePaid,
-        newPayementBeginDate:this.props.vehicle.payementBeginDate,
-        newProperty:this.props.vehicle.property,
-        openDelete:false,
-        editing:false,
-        deleteVehicleQuery : gql`
-            mutation deleteVehicle($_id:String!){
-                deleteVehicle(_id:$_id)
-            }
-        `,
+        rowActions:[
+            {color:"blue",click:()=>{this.navigateToVehicle()},icon:"arrow right",tooltip:"Voir le véhicule"},
+        ]
     }
 
-    handleChange = e =>{
-        this.setState({
-          [e.target.name]:e.target.value
-        });
-    }
-    
     navigateToVehicle = () => {
-        this.props.history.push("/parc/vehicle/"+this.state._id);
+        this.props.history.push("/parc/vehicle/"+this.props.vehicle._id);
     }
-
-    handleChangeSociete = (e, { value }) => this.setState({ newSociete:value })    
-
-    showDatePicker = target => {
-        this.setState({openDatePicker:true,datePickerTarget:target})
-    }
- 
-    closeDatePicker = target => {
-        this.setState({openDatePicker:false,datePickerTarget:""})
-    }
-
-    onSelectDatePicker = date => {
-        this.setState({
-            [this.state.datePickerTarget]:date.getDate().toString().padStart(2, '0')+"/"+parseInt(date.getMonth()+1).toString().padStart(2, '0')+"/"+date.getFullYear().toString().padStart(4, '0')
-        })
-    }
-
-    toggleProperty = () => {
-        this.setState({
-            newProperty:!this.state.newProperty
-        })
-    }
-    
-    closeEdit = () => {
-        this.setState({editing:false})
-    }
-    showEdit = () => {
-        this.setState({editing:true})
-    }
-
-    toggleDisplayDoc = () => {
-        this.setState({
-            displayDoc:!this.state.displayDoc
-        })
-    }
-
+    /*SHOW AND HIDE MODALS*/
+    /*CHANGE HANDLERS*/
+    /*FILTERS HANDLERS*/
+    /*DB READ AND WRITE*/
+    /*CONTENT GETTERS*/
     getPayementProgress = () => {
         let totalMonths = this.props.vehicle.purchasePrice/this.props.vehicle.monthlyPayement;
         let monthsDone = parseInt(moment().diff(moment(this.props.vehicle.payementBeginDate,"DD/MM/YYYY"),'months', true));
@@ -94,7 +42,6 @@ class VehiclesRow extends Component {
             }
         }
     }
-
     getFinancialInfosCompleteCell = () => {
         if(this.props.vehicle.financialInfosComplete){
             return (
@@ -110,61 +57,60 @@ class VehiclesRow extends Component {
             )
         }
     }
-
     getLastReportCell = () => {
-        if(this.state.reportLateFilter == "all"){return true}else{
-            let days = parseInt(moment().diff(moment(this.props.vehicle.lastKmUpdate, "DD/MM/YYYY"),'days'));
-            if(days < 14){
-                return (
-                    <Table.Cell textAlign="center">
-                        <Label color={"green"}> 
-                            {moment(this.props.vehicle.lastKmUpdate, "DD/MM/YYYY").fromNow()}
-                        </Label>
-                    </Table.Cell>
-                )
-            }
-            if(days >= 28){
-                return (
-                    <Table.Cell textAlign="center">
-                        <Label color={"red"}> 
-                            {moment(this.props.vehicle.lastKmUpdate, "DD/MM/YYYY").fromNow()}
-                        </Label>
-                    </Table.Cell>
-                )
-            }
-            if(days >= 14){
-                return (
-                    <Table.Cell textAlign="center">
-                        <Label color={"orange"}> 
-                            {moment(this.props.vehicle.lastKmUpdate, "DD/MM/YYYY").fromNow()}
-                        </Label>
-                    </Table.Cell>
-                )
-            }
+        let days = parseInt(moment().diff(moment(this.props.vehicle.lastKmUpdate, "DD/MM/YYYY"),'days'));
+        if(days < 14){
+            return (
+                <Table.Cell textAlign="center">
+                    <Label color="green"> 
+                        {moment(this.props.vehicle.lastKmUpdate, "DD/MM/YYYY").fromNow()}
+                    </Label>
+                </Table.Cell>
+            )
+        }
+        if(days >= 28){
+            return (
+                <Table.Cell textAlign="center">
+                    <Label color="red"> 
+                        {moment(this.props.vehicle.lastKmUpdate, "DD/MM/YYYY").fromNow()}
+                    </Label>
+                </Table.Cell>
+            )
+        }
+        if(days >= 14){
+            return (
+                <Table.Cell textAlign="center">
+                    <Label color="orange"> 
+                        {moment(this.props.vehicle.lastKmUpdate, "DD/MM/YYYY").fromNow()}
+                    </Label>
+                </Table.Cell>
+            )
         }
     }
-
     getSocieteCell = () => {
         if(!this.props.hideSociete){
-            if(this.props.vehicle.shared){
-                return(
-                    <Table.Cell textAlign="center">
-                        {this.props.vehicle.societe.name}<br/>
-                        <Label color={"teal"}> 
-                            prêt vers {this.props.vehicle.sharedTo.name}
-                        </Label>
-                    </Table.Cell>
-                )
-            }else{
-                return( 
-                    <Table.Cell textAlign="center">
-                        {this.props.vehicle.societe.name}
-                    </Table.Cell>
-                )
-            }
+            return (
+                <Table.Cell textAlign="center">
+                    {this.props.vehicle.societe.name}
+                </Table.Cell>
+            )
         }
     }
-
+    getSpecialCell = () => {
+        return(
+            <Table.Cell textAlign="center">
+                <Popup content={(this.props.vehicle.shared ? "En prêt vers " + this.props.vehicle.sharedTo.name : "Le véhicule n'est pas en prêt")} trigger={
+                    <Button color={(this.props.vehicle.shared ? "teal":"none")} icon="handshake"/>
+                }/>
+                <Popup content={(this.props.vehicle.selling ? "Le véhicule est en vente" : "Le véhicule n'est pas en vente")} trigger={
+                    <Button color={(this.props.vehicle.selling ? "teal":"none")} icon="external alternate"/>
+                }/>
+                <Popup content={(this.props.vehicle.broken ? "Le véhicule est en panne" : "Le véhicule n'est pas en panne")} trigger={
+                    <Button color={(this.props.vehicle.broken ? "teal":"none")} icon="wrench"/>
+                }/>
+            </Table.Cell>
+        )
+    }
     getDocsStates = () => {
         return (
             <Table.Cell textAlign="center">
@@ -173,47 +119,28 @@ class VehiclesRow extends Component {
             </Table.Cell>
         )
     }
+    /*COMPONENTS LIFECYCLE*/
 
     render() {
         return (
             <Fragment>
                 <Table.Row>
                     {this.getSocieteCell()}
+                    {this.getSpecialCell()}
                     <Table.Cell textAlign="center">{this.props.vehicle.registration}</Table.Cell>
-                    <Table.Cell textAlign="center">{this.props.vehicle.energy.name}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.vehicle.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km</Table.Cell>
                     {this.getLastReportCell()}
-                    <Table.Cell textAlign="center">{this.props.vehicle.brand.name}</Table.Cell>
-                    <Table.Cell textAlign="center">{this.props.vehicle.model.name}</Table.Cell>
+                    <Table.Cell textAlign="center">{this.props.vehicle.brand.name + " - " + this.props.vehicle.model.name + " (" + this.props.vehicle.energy.name + ")"}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.vehicle.volume.meterCube+" m²"}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.vehicle.payload} t.</Table.Cell>
                     {this.getFinancialInfosCompleteCell()}
                     {this.getPayementProgress()}
                     {this.getDocsStates()}
-                    <Table.Cell textAlign="center">
-                        <Button circular style={{color:"#2980b9"}} inverted icon icon='arrow right' onClick={this.navigateToVehicle}/>
-                    </Table.Cell>
+                    <ActionsGridCell actions={this.state.rowActions}/>
                 </Table.Row>
-                <Modal closeOnDimmerClick={false} open={this.state.openDelete} onClose={this.closeDelete} closeIcon>
-                    <Modal.Header>
-                        Confirmation de suppression
-                    </Modal.Header>
-                    <Modal.Content style={{textAlign:"center"}}>
-                        <Message color='red' icon>
-                            <Icon name='warning sign'/>
-                            <Message.Content style={{display:"grid",gridTemplateColumns:"1fr 2fr",gridTemplateRows:"1fr 1fr"}}>
-                                Veuillez confirmer vouloir supprimer le véhicule immatriculé : {this.props.vehicle.registration}
-                            </Message.Content>
-                        </Message>
-                    </Modal.Content>
-                    <Modal.Actions>
-                        <Button color="red" onClick={this.deleteVehicle}>Supprimer</Button>
-                    </Modal.Actions>
-                </Modal>
             </Fragment>
         )
     }
-    
 }
 
 const withUserContext = WrappedComponent => props => (

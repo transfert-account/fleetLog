@@ -70,15 +70,6 @@ const affectVehicleData = vehicle => {
         }else{
             vehicle.payementTime = {_id:""};
         }
-        vehicle.equipements = Equipements.find({vehicle:vehicle._id._str}).fetch() || {};
-        vehicle.equipements.forEach((e,ei) => {
-            e.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)}) || {};
-            if(e.controlTech != null && e.controlTech.length > 0){
-                e.controlTech = Documents.findOne({_id:new Mongo.ObjectID(e.controlTech)});
-            }else{
-                e.controlTech = {_id:""};
-            }
-        });
         if(vehicle.cg != null && vehicle.cg.length > 0){
             vehicle.cg = Documents.findOne({_id:new Mongo.ObjectID(vehicle.cg)});
         }else{
@@ -108,6 +99,24 @@ const affectVehicleData = vehicle => {
     }
 }
 
+const affectVehicleControls = vehicle => {
+    vehicle.equipements = Equipements.find({vehicle:vehicle._id._str}).fetch() || {};
+    vehicle.equipements.forEach(e => {
+        e.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)}) || {};
+        if(e.controlTech != null && e.controlTech.length > 0){
+            e.controlTech = Documents.findOne({_id:new Mongo.ObjectID(e.controlTech)});
+        }else{
+            e.controlTech = {_id:""};
+        }
+        if(e.entretien != null && e.entretien != undefined && e.entretien != ""){
+            let entretienId = e.entretien
+            e.entretien = Entretiens.findOne({_id:new Mongo.ObjectID(entretienId)});
+        }else{
+            e.entretien = {_id:""}
+        }
+    });
+}
+
 export default {
     Query : {
         vehicle(obj, {_id}, { user }){
@@ -122,6 +131,17 @@ export default {
             });
             return vehicles;
         },
+        vehiclesEquipedByControls(obj, args, { user }){
+            let vehicles = Vehicles.find().fetch() || {};
+            vehicles.forEach(v => {
+                affectVehicleControls(v)
+            });
+            vehicles = vehicles.filter(v=>v.equipements.length>0);
+            vehicles.forEach(v => {
+                affectVehicleData(v)
+            });
+            return vehicles;
+        },
         buVehicles(obj, args,{user}){
             let userFull = Meteor.users.findOne({_id:user._id});
             let vehicles = Vehicles.find({$or:[{sharedTo:userFull.settings.visibility},{societe:userFull.settings.visibility}]}).fetch() || {};
@@ -129,6 +149,39 @@ export default {
                 affectVehicleData(v)
             });
             return vehicles;
+        },
+        buVehiclesEquipedByControls(obj, args, { user }){
+            let userFull = Meteor.users.findOne({_id:user._id});
+            let vehicles = Vehicles.find({$or:[{sharedTo:userFull.settings.visibility},{societe:userFull.settings.visibility}]}).fetch() || {};
+            vehicles.forEach(v => {
+                affectVehicleControls(v)
+            });
+            vehicles = vehicles.filter(v=>v.equipements.length>0);
+            vehicles.forEach(v => {
+                affectVehicleData(v)
+            });
+            return vehicles;
+        },
+        massKmUpdateVehiclesValidation(obj, {jsonFromExcelFile}){
+            let requiredVehicles = JSON.parse(jsonFromExcelFile);
+            requiredVehicles.forEach(v=>{
+                v.found = false;
+                v.vehicle = Vehicles.findOne({registration:v.IMMAT});
+                if(v.vehicle){
+                    v.found = true;
+                    affectVehicleData(v.vehicle)
+                }else{
+                    v.vehicle = null;
+                }
+            })
+            let nbTotal = requiredVehicles.length;
+            let nbFound = requiredVehicles.filter(v=>v.found).length;
+            return {
+                nbTotal: nbTotal,
+                nbFound: nbFound,
+                message: (nbFound == nbTotal ? "Tous les véhicules ont été identifiés" : "Certain véhicules n'ont pas été identifiés"),
+                vehicles: requiredVehicles
+            }
         }
     },
     Mutation:{
@@ -159,6 +212,12 @@ export default {
                     sharedTo:"",
                     sharingReason:"",
                     sharedSince:"",
+                    selling:false,
+                    sellingReason:"",
+                    sellingSince:"",
+                    broken:false,
+                    brokenReason:"",
+                    brokenSince:"",
                     insurancePaid:0,
                     payementBeginDate:"",
                     payementEndDate:"",
@@ -229,15 +288,9 @@ export default {
         updateKm(obj, {_id,date,kmValue},{user}){
             if(user._id){
                 let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(_id)});
-                if(!moment(vehicle.kms[vehicle.kms.length-1].reportDate, "DD/MM/YYYY").diff(moment(date, "DD/MM/YYYY"))){
-                    return [{status:false,message:'Dernier relevé plus recent'}];
-                }
                 if(vehicle.kms[vehicle.kms.length-1].kmValue > kmValue){
                     return [{status:false,message:'Kilométrage du dernier relevé plus élevé'}];
                 }
-                /*if(moment(vehicle.lastKmUpdate, "DD/MM/YYYY").diff(moment())){
-                    throw new Error("Date de relevé dans le futur");
-                }*/
                 Vehicles.update(
                     {
                         _id: new Mongo.ObjectID(_id)
@@ -382,7 +435,136 @@ export default {
                         }
                     }   
                 )
-                return [{status:true,message:'Désarchivage réussi'}];
+                return [{status:true,message:'Rappel du véhicule réussi'}];
+            }
+            throw new Error('Unauthorized');
+        },
+        sellVehicle(obj, {_id,sellingReason},{user}){
+            if(sellingReason == ""){
+                sellingReason = "Aucune données"
+            }
+            if(user._id){
+                let vehicle = Vehicles.find({_id:new Mongo.ObjectID(_id)}).fetch()[0];
+                if(vehicle.archived){
+                    return [{status:false,message:'Impossible de mettre en vente un véhicule archivé'}];
+                }
+                Vehicles.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "selling":true,
+                            "sellingReason":sellingReason,
+                            "sellingSince": new Date().getDate().toString().padStart(2,0) + '/' + parseInt(new Date().getMonth()+1).toString().padStart(2,0) + '/' + new Date().getFullYear()
+                        }
+                    }   
+                )
+                return [{status:true,message:'Mise en vente réussi'}];
+            }
+            throw new Error('Unauthorized');
+        },
+        unsellVehicle(obj, {_id},{user}){
+            if(user._id){
+                Vehicles.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "selling":false,
+                            "sellingReason":"",
+                            "sellingSince": ""
+                        }
+                    }   
+                )
+                return [{status:true,message:'Retrait du véhicule de la vente réussi'}];
+            }
+            throw new Error('Unauthorized');
+        },
+        breakVehicle(obj, {_id,brokenReason},{user}){
+            if(brokenReason == ""){
+                brokenReason = "Aucune données"
+            }
+            if(user._id){
+                let vehicle = Vehicles.find({_id:new Mongo.ObjectID(_id)}).fetch()[0];
+                if(vehicle.archived){
+                    return [{status:false,message:'Impossible mettre un véhicule archivé en panne'}];
+                }
+                Vehicles.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "broken":true,
+                            "brokenReason":brokenReason,
+                            "brokenSince": new Date().getDate().toString().padStart(2,0) + '/' + parseInt(new Date().getMonth()+1).toString().padStart(2,0) + '/' + new Date().getFullYear()
+                        }
+                    }   
+                )
+                return [{status:true,message:'Mise en panne réussi'}];
+            }
+            throw new Error('Unauthorized');
+        },
+        unbreakVehicle(obj, {_id},{user}){
+            if(user._id){
+                Vehicles.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "broken":false,
+                            "brokenReason":"",
+                            "brokenSince": ""
+                        }
+                    }   
+                )
+                return [{status:true,message:'Panne du véhicule annulée'}];
+            }
+            throw new Error('Unauthorized');
+        },
+        applyMassKmUpdate(obj, {massKmUpdateMap},{user}){
+            if(user._id){
+                let qrm = [];
+                let date = new Date().getDate().toString().padStart(2,0) + '/' + parseInt(new Date().getMonth()+1).toString().padStart(2,0) + '/' + new Date().getFullYear();
+                let updateSuccess = 0; 
+                massKmUpdateMap = JSON.parse(massKmUpdateMap);
+                let updateTotal = massKmUpdateMap.length;
+                massKmUpdateMap.map(v=>{
+                    let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(v._id)});
+                    if(vehicle.kms[vehicle.kms.length-1].kmValue >= v.km){
+                        qrm.push({status:false, message: vehicle.registration+' : kilométrage du dernier relevé identique ou supérieur'});
+                    }else{
+                        Vehicles.update(
+                            {
+                                _id: new Mongo.ObjectID(v._id)
+                            }, {
+                                $set: {
+                                    "lastKmUpdate":date,
+                                    "km":v.km
+                                }
+                            }   
+                        )
+                        Vehicles.update(
+                            {
+                                _id:new Mongo.ObjectID(v._id)
+                            },{
+                                $push: {
+                                    "kms": {
+                                        _id: new Mongo.ObjectID(),
+                                        reportDate:date,
+                                        kmValue:v.km
+                                    }
+                                }
+                            }
+                        )
+                        updateSuccess++;
+                    }
+                });
+                if(updateSuccess == updateTotal){
+                    qrm.push({status:true,message:"Véhicules mis à jour : " + updateSuccess});
+                }else{
+                    qrm.push({status:true,message:"Véhicules mis à jour : " + updateSuccess});
+                }
+                return qrm;
             }
             throw new Error('Unauthorized');
         },

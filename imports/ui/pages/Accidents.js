@@ -1,11 +1,17 @@
 import React, { Component } from 'react';
-import { Icon, Input, Button, Table, Modal, Form, Message } from 'semantic-ui-react';
+import { Input, Button, Table, Modal, Form } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
-import DropdownFilter from '../atoms/DropdownFilter';
+
 import AccidentRow from '../molecules/AccidentRow';
+import CustomFilterSegment from '../molecules/CustomFilterSegment';
+
+import BigButtonIcon from '../elements/BigIconButton';
+
 import VehiclePicker from '../atoms/VehiclePicker';
 import ModalDatePicker from '../atoms/ModalDatePicker';
-import { gql } from 'apollo-server-express'
+import CustomFilter from '../atoms/CustomFilter';
+
+import { gql } from 'apollo-server-express';
 
 class Accidents extends Component {
 
@@ -18,11 +24,24 @@ class Accidents extends Component {
     archiveFilter:false,
     docsFilter: "all",
     constatSentFilter: "all",
+    filters:[
+      {
+          infos:"archiveFilterInfos",
+          filter:"archiveFilter"
+      },{
+          infos:"constatSentFilterInfos",
+          filter:"constatSentFilter"
+      },{
+          infos:"docsFilterInfos",
+          filter:"docsFilter"
+      }
+  ],
     archiveFilterInfos:{
       icon:"archive",            
       options:[
           {
               key: 'archivefalse',
+              initial: true,
               text: 'Accidents actuels',
               value: false,
               color:"green",
@@ -31,6 +50,7 @@ class Accidents extends Component {
           },
           {
               key: 'archivetrue',
+              initial: false,
               text: 'Accidents archivés',
               value: true,
               color:"orange",
@@ -44,6 +64,7 @@ class Accidents extends Component {
         options:[
             {
                 key: 'constatAll',
+                initial: true,
                 text: 'Tous les accidents',
                 value: "all",
                 color:"green",
@@ -52,6 +73,7 @@ class Accidents extends Component {
             },
             {
                 key: 'constatNotSent',
+                initial: false,
                 text: 'Constat à envoyer',
                 value: "notSent",
                 color:"orange",
@@ -65,6 +87,7 @@ class Accidents extends Component {
         options:[
             {
                 key: 'docsall',
+                initial: true,
                 text: 'Tous les accidents',
                 value: "all",
                 color:"green",
@@ -73,6 +96,7 @@ class Accidents extends Component {
             },
             {
                 key: 'docsmissing',
+                initial: false,
                 text: 'Documents manquants',
                 value: "missingDocs",
                 color:"red",
@@ -126,7 +150,7 @@ class Accidents extends Component {
         )
       }
       return displayed.map(a =>(
-          <AccidentRow loadAccidents={this.loadAccidents} key={a._id} accident={a}/>
+          <AccidentRow hideSociete={this.props.userLimited} loadAccidents={this.loadAccidents} key={a._id} accident={a}/>
       ))
     },
     addAccidentQuery : gql`
@@ -200,84 +224,145 @@ class Accidents extends Component {
           }
         }
       }
+    `,
+    buAccidentsQuery : gql`
+      query buAccidents{
+        buAccidents{
+          _id
+          societe{
+            _id
+            trikey
+            name
+          }
+          vehicle{
+            _id
+            registration
+            model{
+              _id
+              name
+            }
+            brand{
+              _id
+              name
+            }
+          }
+          occurenceDate
+          description
+          dateExpert
+          dateTravaux
+          constatSent
+          cost
+          archived
+          constat{
+            _id
+            name
+            size
+            path
+            originalFilename
+            ext
+            type
+            mimetype
+            storageDate
+          }
+          rapportExp{
+            _id
+            name
+            size
+            path
+            originalFilename
+            ext
+            type
+            mimetype
+            storageDate
+          }
+          facture{
+            _id
+            name
+            size
+            path
+            originalFilename
+            ext
+            type
+            mimetype
+            storageDate
+          }
+        }
+      }
     `
   }
-
-  handleChange = e =>{
-    this.setState({
-      [e.target.name]:e.target.value
-    });
-  }
-
-  handleChangeVehicle = _id => {
-    this.setState({ newVehicle:_id })
-  }
-
-  handleFilter = e =>{
-    this.setState({
-        accidentFilter:e.target.value
-    });
-  }
-
-  showDatePicker = target => {
-    this.setState({openDatePicker:true,datePickerTarget:target})
-  }
-
-  closeDatePicker = () => {
-    this.setState({openDatePicker:false,datePickerTarget:""})
-  }
-
-  onSelectDatePicker = date => {
-    this.setState({
-      [this.state.datePickerTarget]:date.getDate().toString().padStart(2, '0')+"/"+parseInt(date.getMonth()+1).toString().padStart(2, '0')+"/"+date.getFullYear().toString().padStart(4, '0')
-    })
-  }
-
+  /*SHOW AND HIDE MODALS*/
   showAddAccident = () => {
     this.setState({
       openAddAccident:true
     })
   }
-
   closeAddAccident = () => {
     this.setState({
       openAddAccident:false
     })
   }
-
-  //MISSING DOCS FILTER
+  showDatePicker = target => {
+    this.setState({openDatePicker:true,datePickerTarget:target})
+  }
+  closeDatePicker = () => {
+    this.setState({openDatePicker:false,datePickerTarget:""})
+  }
+  /*CHANGE HANDLERS*/
+  handleChange = e =>{
+    this.setState({
+      [e.target.name]:e.target.value
+    });
+  }
+  handleChangeVehicle = _id => {
+    this.setState({ newVehicle:_id })
+  }
+  onSelectDatePicker = date => {
+    this.setState({
+      [this.state.datePickerTarget]:date.getDate().toString().padStart(2, '0')+"/"+parseInt(date.getMonth()+1).toString().padStart(2, '0')+"/"+date.getFullYear().toString().padStart(4, '0')
+    })
+  }
+  /*FILTERS HANDLERS*/
+  handleFilter = e =>{
+    this.setState({
+        accidentFilter:e.target.value
+    });
+  }
   setDocsFilter = value => {
     this.setState({
       docsFilter:value
     })
   }
-
-  //ARCHIVE FILTER
   switchArchiveFilter = v => {
       this.setState({
           archiveFilter:v
       })
       this.loadAccidents();
   }
-
-  //CONSTAT SENT FILTER
   setConstatSentFilter = value => {
     this.setState({
       constatSentFilter:value
     })
   }
-
+  resetAll = () => {
+    let filterNewValues = {};
+    this.state.filters.forEach(f=>{
+        filterNewValues[f.filter] = this.state[f.infos].options.filter(o=>o.initial)[0].value
+    })
+    this.setState(filterNewValues);
+  }
+  /*DB READ AND WRITE*/
   loadAccidents = () => {
+    let accidentsQuery = (this.props.userLimited ? this.state.buAccidentsQuery : this.state.accidentsQuery);
     this.props.client.query({
-        query:this.state.accidentsQuery,
+        query:accidentsQuery,
         fetchPolicy:"network-only"
     }).then(({data})=>{
+        let accidents = (this.props.userLimited ? data.buAccidents : data.accidents);
         this.setState({
-          accidentsRaw:data.accidents
+          accidentsRaw:accidents
         })
     })
   }
-
   addAccident = () => {
     this.closeAddAccident()
     this.props.client.mutate({
@@ -297,36 +382,60 @@ class Accidents extends Component {
       })
     })
   }
-
+  /*CONTENT GETTERS*/
+  getTableHeader = () => {
+    if(this.props.userLimited){
+        return(
+          <Table.Header>
+              <Table.Row textAlign='center'>
+                <Table.HeaderCell>Vehicle</Table.HeaderCell>
+                <Table.HeaderCell>Date</Table.HeaderCell>
+                <Table.HeaderCell>Date de passage Expert</Table.HeaderCell>
+                <Table.HeaderCell>Date de travaux</Table.HeaderCell>
+                <Table.HeaderCell>Constat Envoyé</Table.HeaderCell>
+                <Table.HeaderCell>Coût</Table.HeaderCell>
+                <Table.HeaderCell>Document</Table.HeaderCell>
+                <Table.HeaderCell>Actions</Table.HeaderCell>
+              </Table.Row>
+          </Table.Header>
+        )
+    }else{
+        return(
+          <Table.Header>
+              <Table.Row textAlign='center'>
+                <Table.HeaderCell>Societe</Table.HeaderCell>
+                <Table.HeaderCell>Vehicle</Table.HeaderCell>
+                <Table.HeaderCell>Date</Table.HeaderCell>
+                <Table.HeaderCell>Date de passage Expert</Table.HeaderCell>
+                <Table.HeaderCell>Date de travaux</Table.HeaderCell>
+                <Table.HeaderCell>Constat Envoyé</Table.HeaderCell>
+                <Table.HeaderCell>Coût</Table.HeaderCell>
+                <Table.HeaderCell>Document</Table.HeaderCell>
+                <Table.HeaderCell>Actions</Table.HeaderCell>
+              </Table.Row>
+          </Table.Header>
+        )
+    }
+}
+  /*COMPONENTS LIFECYCLE*/
   componentDidMount = () => {
     this.loadAccidents();
   }
-
   render() {
     return (
-      <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"32px",gridTemplateRows:"auto auto 1fr",gridTemplateColumns:"auto 1fr auto"}}>
+      <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto auto 1fr",gridTemplateColumns:"auto 1fr auto"}}>
         <Input style={{justifySelf:"stretch",gridColumnEnd:"span 2"}} name="accidentFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher un véhicule' />
-        <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddAccident} icon labelPosition='right'>Nouvel accident<Icon name='plus'/></Button>
-        <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"auto auto auto",gridGap:"16px"}}>
-          <DropdownFilter infos={this.state.archiveFilterInfos} active={this.state.archiveFilter} />
-          <DropdownFilter infos={this.state.constatSentFilterInfos} active={this.state.constatSentFilter} />
-          <DropdownFilter infos={this.state.docsFilterInfos} active={this.state.docsFilter} />
+        <div style={{display:"flex",justifyContent:"flex-end"}}>
+            <BigButtonIcon icon="plus" color="blue" onClick={this.showAddAccident} tooltip="Nouvel accident"/>
         </div>
+        <CustomFilterSegment resetAll={this.resetAll} style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3"}}>
+          <CustomFilter infos={this.state.archiveFilterInfos} active={this.state.archiveFilter} />
+          <CustomFilter infos={this.state.constatSentFilterInfos} active={this.state.constatSentFilter} />
+          <CustomFilter infos={this.state.docsFilterInfos} active={this.state.docsFilter} />
+        </CustomFilterSegment>
         <div style={{gridRowStart:"3",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
             <Table style={{marginBottom:"0"}} celled selectable color="blue" compact>
-                <Table.Header>
-                    <Table.Row textAlign='center'>
-                      <Table.HeaderCell>Societe</Table.HeaderCell>
-                      <Table.HeaderCell>Vehicle</Table.HeaderCell>
-                      <Table.HeaderCell>Date</Table.HeaderCell>
-                      <Table.HeaderCell>Date de passage Expert</Table.HeaderCell>
-                      <Table.HeaderCell>Date de travaux</Table.HeaderCell>
-                      <Table.HeaderCell>Constat Envoyé</Table.HeaderCell>
-                      <Table.HeaderCell>Coût</Table.HeaderCell>
-                      <Table.HeaderCell>Document</Table.HeaderCell>
-                      <Table.HeaderCell>Actions</Table.HeaderCell>
-                    </Table.Row>
-                </Table.Header>
+                {this.getTableHeader()}
                 <Table.Body>
                   {this.state.accidents()}
                 </Table.Body>

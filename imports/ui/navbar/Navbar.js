@@ -8,7 +8,6 @@ import { DuoIcon } from '../elements/DuoIcon';
 /*COMPONENTS*/
 import NavbarItemList from './NavbarItemList';
 import NavbarSocietePicker from '../atoms/NavbarSocietePicker';
-import { Icon, Label } from 'semantic-ui-react';
 
 class Menu extends Component {
 
@@ -82,70 +81,6 @@ class Menu extends Component {
     ],
     menuItemsAdmin:[
       {
-        name:"home",
-        active:"home",
-        label:"Accueil",
-        display:true,
-        icon:"home",
-        color:"blue"
-      },
-      {
-        name:"parc/vehicles",
-        active:"parc",
-        label:"Parc",
-        display:true,
-        icon:"truck",
-        color:"blue"
-      },
-      {
-        name:"entretiens",
-        active:"entretiens",
-        label:"Entretiens",
-        display:true,
-        icon:"garage",
-        color:"blue"
-      },
-      {
-        name:"planning/"+new Date().getFullYear()+"/"+parseInt(new Date().getMonth()+1),
-        active:"planning",
-        label:"Planning",
-        display:true,
-        icon:"calendar",
-        color:"blue"
-      },
-      {
-        name:"fournisseurs",
-        active:"fournisseurs",
-        label:"Fournisseurs",
-        display:true,
-        icon:"phone",
-        color:"blue"
-      },
-      {
-        name:"batiments",
-        active:"batiments",
-        label:"Batiments",
-        display:true,
-        icon:"warehouse",
-        color:"blue"
-      },
-      {
-        name:"accidentologie",
-        active:"accidentologie",
-        label:"Accidentologie",
-        display:true,
-        icon:"car-crash",
-        color:"blue"
-      },
-      {
-        name:"compte",
-        active:"compte",
-        label:"Compte",
-        display:true,
-        icon:"idcard",
-        color:"blue"
-      },
-      {
         name:"administration/accounts",
         active:"administration",
         label:"Administration",
@@ -165,11 +100,15 @@ class Menu extends Component {
   }
 
   getMenuItemsList = () =>{
+   return (this.state.menuItems);
+  }
+
+  getAdminMenuItemsList = () =>{
     if(this.props.user.isAdmin){
-        return (this.state.menuItemsAdmin);
+      return (this.state.menuItemsAdmin);
     }else{
-        return (this.state.menuItems);
-      }
+      return ([]);
+    }
   }
 
   showFilter = () => {
@@ -207,13 +146,35 @@ class Menu extends Component {
       }else{
         return(
           <li className="nav-item" name="filter">
-            <a href="#" className="nav-link" onClick={this.showFilter}>
+            <a href="#" className="nav-link">
               <DuoIcon name="folders-tree" color="blue"/>
               <span className="link-text">{this.props.getSocieteName(this.props.societeFilter).toUpperCase()}</span>
             </a>
           </li>
         )
       }
+    }
+  }
+
+  getNavbarItems = () => {
+    return(
+      <Fragment>
+        <hr/>
+        <NavbarItemList menuItems={this.getMenuItemsList()}/>
+      </Fragment>
+    )
+  }
+
+  getAdminNavbarItems = () => {
+    if(this.props.user.isAdmin){
+      return(
+        <Fragment>
+          <hr/>
+          <NavbarItemList menuItems={this.getAdminMenuItemsList()}/>
+        </Fragment>
+      )
+    }else{
+      return("")
     }
   }
 
@@ -229,7 +190,8 @@ class Menu extends Component {
               </a>
             </li>
             {this.getFilterNavbarRow()}
-            <NavbarItemList menuItems={this.getMenuItemsList()}/>
+            {this.getNavbarItems()}
+            {this.getAdminNavbarItems()}
             <li className="nav-item" name={"logout"}>
               <a href="#" className="nav-link" key={"logout"} onClick={this.logout}>
                 <DuoIcon name="poweroff" color="red"/>

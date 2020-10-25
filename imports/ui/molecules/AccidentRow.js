@@ -1,10 +1,14 @@
 import React, { Component, Fragment } from 'react'
 import { Table, Label, Icon, Message, Button, Modal, TextArea, Form, Checkbox, Input } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
+
+import BigButtonIcon from '../elements/BigIconButton';
+
+import ActionsGridCell from '../atoms/ActionsGridCell';
 import ModalDatePicker from '../atoms/ModalDatePicker';
 import FileManagementPanel from '../atoms/FileManagementPanel';
 import DocStateLabel from '../atoms/DocStateLabel';
-import moment from 'moment';
+
 import gql from 'graphql-tag';
 import _ from 'lodash';
 
@@ -76,26 +80,71 @@ class AccidentRow extends Component {
             }
         `,
     }
-
+    /*SHOW AND HIDE MODALS*/
+    showDelete = () => {
+        this.setState({openDelete:true})
+    }
+    closeDelete = () => {
+        this.setState({openDelete:false})
+    }
+    showArchive = () => {
+        this.setState({openArchive:true})
+    }
+    closeArchive = () => {
+        this.setState({openArchive:false})
+    }
+    showUnArchive = () => {
+        this.setState({openUnArchive:true})
+    }
+    closeUnArchive = () => {
+        this.setState({openUnArchive:false})
+    }
+    closeDetails = () => {
+        this.setState({details:false})
+    }
+    showDetails = () => {
+        this.setState({details:true})
+    }
+    closeEdit = () => {
+        this.setState({editing:false})
+    }
+    showEdit = () => {
+        this.setState({editing:true})
+    }
+    showDocs = () => {
+        this.setState({openDocs:true})
+    }
+    closeDocs = () => {
+        this.setState({openDocs:false,newConstat:null,newRapportExp:null})
+    }
+    showDatePicker = target => {
+        this.setState({openDatePicker:true,datePickerTarget:target})
+    }
+    closeDatePicker = () => {
+        this.setState({openDatePicker:false,datePickerTarget:""})
+    }
+    /*CHANGE HANDLERS*/
+    onSelectDatePicker = date => {
+        this.setState({
+            [this.state.datePickerTarget]:date.getDate().toString().padStart(2, '0')+"/"+parseInt(date.getMonth()+1).toString().padStart(2, '0')+"/"+date.getFullYear().toString().padStart(4, '0')
+        })
+    }
     handleChange = e =>{
         this.setState({
           [e.target.name]:e.target.value
         });
     }
-
     handleEditDesc = (e,{value}) => {
         this.setState({
             newDescription:value
         });
         this.editDesc();
     }
-
     handleConstatSentChange = checked => {
         this.setState({
             newConstatSent:checked
         });
     }
-
     handleInputFile = (type,e) => {
         if(e.target.validity.valid ){
             this.setState({
@@ -103,63 +152,87 @@ class AccidentRow extends Component {
             })
         }
     }
-
-    showDelete = () => {
-        this.setState({openDelete:true})
-    }
-    closeDelete = () => {
-        this.setState({openDelete:false})
-    }
-
-    showArchive = () => {
-        this.setState({openArchive:true})
-    }
-    closeArchive = () => {
-        this.setState({openArchive:false})
-    }
-
-    showUnArchive = () => {
-        this.setState({openUnArchive:true})
-    }
-    closeUnArchive = () => {
-        this.setState({openUnArchive:false})
-    }
-    
-    closeDetails = () => {
-        this.setState({details:false})
-    }
-    showDetails = () => {
-        this.setState({details:true})
-    }
-
-    closeEdit = () => {
-        this.setState({editing:false})
-    }
-    showEdit = () => {
-        this.setState({editing:true})
-    }
-
-    showDocs = () => {
-        this.setState({openDocs:true})
-    }
-    closeDocs = () => {
-        this.setState({openDocs:false,newConstat:null,newRapportExp:null})
-    }
-
-    showDatePicker = target => {
-        this.setState({openDatePicker:true,datePickerTarget:target})
-    }
-    
-    closeDatePicker = () => {
-        this.setState({openDatePicker:false,datePickerTarget:""})
-    }
-    
-    onSelectDatePicker = date => {
-        this.setState({
-            [this.state.datePickerTarget]:date.getDate().toString().padStart(2, '0')+"/"+parseInt(date.getMonth()+1).toString().padStart(2, '0')+"/"+date.getFullYear().toString().padStart(4, '0')
+    /*DB READ AND WRITE*/
+    editDesc = _.debounce(()=>{
+        this.props.client.mutate({
+            mutation:this.state.editDescAccidentQuery,
+            variables:{
+                _id:this.state._id,
+                description:this.state.newDescription
+            }
+        }).then(({data})=>{
+            data.editDescAccident.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    },1000);
+    uploadDocConstat = () => {
+        this.props.client.mutate({
+            mutation:this.state.uploadAccidentDocumentQuery,
+            variables:{
+                _id:this.props.accident._id,
+                file:this.state.newConstat,
+                type:"constat",
+                size:this.state.newConstat.size
+            }
+        }).then(({data})=>{
+            data.uploadAccidentDocument.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.loadAccidents();
+                    this.closeDocs();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     }
-
+    uploadDocRapportExp = () => {
+        this.props.client.mutate({
+            mutation:this.state.uploadAccidentDocumentQuery,
+            variables:{
+                _id:this.props.accident._id,
+                file:this.state.newRapportExp,
+                type:"rapportExp",
+                size:this.state.newRapportExp.size
+            }
+        }).then(({data})=>{
+            data.uploadAccidentDocument.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.loadAccidents();
+                    this.closeDocs();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    uploadDocFacture = () => {
+        this.props.client.mutate({
+            mutation:this.state.uploadAccidentDocumentQuery,
+            variables:{
+                _id:this.props.accident._id,
+                file:this.state.newFacture,
+                type:"facture",
+                size:this.state.newFacture.size
+            }
+        }).then(({data})=>{
+            data.uploadAccidentDocument.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.loadAccidents();
+                    this.closeDocs();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
     deleteAccident = () => {
         this.closeDelete();
         this.props.client.mutate({
@@ -178,7 +251,6 @@ class AccidentRow extends Component {
             })
         })
     }
-
     archiveAccident = () => {
         this.closeArchive();
         this.props.client.mutate({
@@ -215,7 +287,6 @@ class AccidentRow extends Component {
             })
         })
     }
-
     editAccident = () => {
         this.closeEdit();
         this.props.client.mutate({
@@ -239,91 +310,10 @@ class AccidentRow extends Component {
             })
         })
     }
-
-    editDesc = _.debounce(()=>{
-        this.props.client.mutate({
-            mutation:this.state.editDescAccidentQuery,
-            variables:{
-                _id:this.state._id,
-                description:this.state.newDescription
-            }
-        }).then(({data})=>{
-            data.editDescAccident.map(qrm=>{
-                if(qrm.status){
-                    this.props.toast({message:qrm.message,type:"success"});
-                }else{
-                    this.props.toast({message:qrm.message,type:"error"});
-                }
-            })
-        })
-    },1000);
-
-    uploadDocConstat = () => {
-        this.props.client.mutate({
-            mutation:this.state.uploadAccidentDocumentQuery,
-            variables:{
-                _id:this.props.accident._id,
-                file:this.state.newConstat,
-                type:"constat",
-                size:this.state.newConstat.size
-            }
-        }).then(({data})=>{
-            data.uploadAccidentDocument.map(qrm=>{
-                if(qrm.status){
-                    this.props.toast({message:qrm.message,type:"success"});
-                    this.props.loadAccidents();
-                    this.closeDocs();
-                }else{
-                    this.props.toast({message:qrm.message,type:"error"});
-                }
-            })
-        })
+    loadAccidents = () => {
+        this.props.loadAccidents();
     }
-    
-    uploadDocRapportExp = () => {
-        this.props.client.mutate({
-            mutation:this.state.uploadAccidentDocumentQuery,
-            variables:{
-                _id:this.props.accident._id,
-                file:this.state.newRapportExp,
-                type:"rapportExp",
-                size:this.state.newRapportExp.size
-            }
-        }).then(({data})=>{
-            data.uploadAccidentDocument.map(qrm=>{
-                if(qrm.status){
-                    this.props.toast({message:qrm.message,type:"success"});
-                    this.props.loadAccidents();
-                    this.closeDocs();
-                }else{
-                    this.props.toast({message:qrm.message,type:"error"});
-                }
-            })
-        })
-    }
-
-    uploadDocFacture = () => {
-        this.props.client.mutate({
-            mutation:this.state.uploadAccidentDocumentQuery,
-            variables:{
-                _id:this.props.accident._id,
-                file:this.state.newFacture,
-                type:"facture",
-                size:this.state.newFacture.size
-            }
-        }).then(({data})=>{
-            data.uploadAccidentDocument.map(qrm=>{
-                if(qrm.status){
-                    this.props.toast({message:qrm.message,type:"success"});
-                    this.props.loadAccidents();
-                    this.closeDocs();
-                }else{
-                    this.props.toast({message:qrm.message,type:"error"});
-                }
-            })
-        })
-    }
-
+    /*CONTENT GETTERS*/
     getConstatSentLabel = () => {
         if(this.props.accident.constatSent){
             return <Label color="green">Constat envoyé</Label>
@@ -331,15 +321,13 @@ class AccidentRow extends Component {
             return <Label color="red">En attente</Label>
         }
     }
-
     getArchiveButton = () => {
         if(this.props.accident.archived){
-            return <Button color="green" style={{justifySelf:"stretch",gridRowStart:"8"}} onClick={this.showUnArchive} icon labelPosition='right'>Désarchiver<Icon name='check'/></Button>
+            return <BigButtonIcon icon="check" color="green" onClick={this.showUnArchive} tooltip="Désarchiver"/>
         }else{
-            return <Button color="orange" style={{justifySelf:"stretch",gridRowStart:"8"}} onClick={this.showArchive} icon labelPosition='right'>Archiver<Icon name='archive'/></Button>
+            return <BigButtonIcon icon="archive" color="orange" onClick={this.showArchive} tooltip="Archiver"/>
         }
     }
-
     getInfosPanel = () => {
         if(this.state.editing){
             return (
@@ -371,7 +359,7 @@ class AccidentRow extends Component {
             )
         }else{
             return(
-                <div style={{gridColumnEnd:"span 2",marginTop:"24px",display:"grid",gridTemplateRows:"auto auto auto auto auto auto 1fr auto",gridTemplateColumns:"1fr 1fr",gridGap:"12px"}}>
+                <div style={{gridColumnEnd:"span 2",marginTop:"24px",display:"grid",gridTemplateRows:"auto auto auto auto auto auto 1fr",gridTemplateColumns:"1fr 1fr",gridGap:"12px"}}>
                     <div className="labelBoard">Societé :</div><div className="valueBoard">{this.props.accident.societe.name}</div>
                     <div className="labelBoard">Date de l'accident :</div><div className="valueBoard">{this.props.accident.occurenceDate}</div>
                     <div className="labelBoard">Date de passage de l'expert :</div><div className="valueBoard">{this.props.accident.dateExpert}</div>
@@ -383,13 +371,10 @@ class AccidentRow extends Component {
                         <DocStateLabel opened color={this.props.accident.rapportExp._id == "" ? "red" : "green"} title="Rapport de l'expert"/>
                         <DocStateLabel opened color={this.props.accident.facture._id == "" ? "red" : "green"} title="Facture"/>
                     </div>
-                    <Button color="blue" style={{justifySelf:"stretch",gridRowStart:"8"}} onClick={this.showEdit} icon labelPosition='right'>Editer<Icon name='edit'/></Button>
-                    {this.getArchiveButton()}
                 </div>
             )
         }
     }
-
     getDocsStates = () => {
         return (
             <Table.Cell textAlign="center">
@@ -399,34 +384,26 @@ class AccidentRow extends Component {
             </Table.Cell>
         )
     }
-
-    getActionsCell = () => {
-        if(this.props.user.isOwner){
-            return (
-                <Table.Cell textAlign="center">
-                    <Button circular style={{color:"#2980b9"}} inverted icon icon='edit' onClick={this.showDetails}/>    
-                    <Button circular style={{color:"#e74c3c"}} inverted icon icon='trash' onClick={this.showDelete}/>
-                </Table.Cell>
-            )
-        }else{
-            return (
-                <Table.Cell textAlign="center">
-                    <Button circular style={{color:"#2980b9"}} inverted icon icon='edit' onClick={this.showDetails}/>    
-                </Table.Cell>
-            )
-        }
-    }
-
     getSocieteCell = () => {
         if(!this.props.hideSociete){
             return (<Table.Cell style={{textAlign:"center"}}>{this.props.accident.societe.name}</Table.Cell>)
         }
     }
-
-    loadAccidents = () => {
-        this.props.loadAccidents();
+    getRowActions = () => {
+        if(this.props.user.isOwner){
+            let actions = [
+                {color:"blue",click:()=>{this.showDetails()},icon:'edit',tooltip:"Détails de l'accident"},
+                {color:"red",click:()=>{this.showDelete()},icon:'trash',tooltip:"Supprimer l'accident"}
+            ];
+            return actions;
+        }else{
+            let actions = [
+                {color:"blue",click:()=>{this.showDetails()},icon:'edit',tooltip:"Détails de l'accident"}
+            ];
+            return actions;
+        }
     }
-
+    /*COMPONENTS LIFECYCLE*/
     render() {
         return (
             <Fragment>
@@ -441,7 +418,7 @@ class AccidentRow extends Component {
                     </Table.Cell>
                     <Table.Cell style={{textAlign:"center"}}>{this.props.accident.cost} €</Table.Cell>
                     {this.getDocsStates()}
-                    {this.getActionsCell()}
+                    <ActionsGridCell actions={this.getRowActions()}/>
                 </Table.Row>
                 <Modal size="tiny" closeOnDimmerClick={false} open={this.state.openDelete} onClose={this.closeDelete} closeIcon>
                     <Modal.Header>
@@ -463,24 +440,14 @@ class AccidentRow extends Component {
                     <Modal.Header>
                         Gestion de l'accident du véhicule : {this.props.accident.vehicle.registration}
                     </Modal.Header>
-                    <Modal.Content style={{textAlign:"center",display:"grid",gridGap:"16px",gridTemplateColumns:"1fr 1fr 1fr 1fr",gridTemplateRows:"auto auto auto"}}>
-                        <Button animated='fade' inverted onClick={this.closeDetails} style={{margin:"0",gridRowEnd:"span 2",gridColumnStart:"1"}} color="grey" size="huge">
-                            <Button.Content hidden>
-                                <Icon color="black" style={{margin:"0"}} name='list ul' />
-                            </Button.Content>
-                            <Button.Content visible>
-                                <Icon color="black" style={{margin:"0"}} name='angle double left' />
-                            </Button.Content>
-                        </Button>
-                        <Message style={{margin:"0",gridRowEnd:"span 2",gridColumnEnd:"span 2"}} icon='truck' header={this.props.accident.vehicle.registration} content={this.props.accident.vehicle.brand.name + " - " + this.props.accident.vehicle.model.name} />
-                        <Button color="purple" animated='fade' inverted onClick={this.showDocs} style={{margin:"0",gridRowEnd:"span 2"}} color="grey" size="huge">
-                            <Button.Content hidden>
-                                <Icon color="black" style={{margin:"0"}} name='search' />
-                            </Button.Content>
-                            <Button.Content visible>
-                                <Icon color="black" style={{margin:"0"}} name='folder open' />
-                            </Button.Content>
-                        </Button>
+                    <Modal.Content style={{textAlign:"center",display:"grid",gridGap:"16px",gridTemplateColumns:"auto 1fr 1fr auto",gridTemplateRows:"auto auto"}}>
+                        <BigButtonIcon icon="angle double left" color="black" onClick={this.closeDetails} tooltip="Retour aux accidents"/>
+                        <Message style={{margin:"0",gridColumnEnd:"span 2"}} icon='truck' header={this.props.accident.vehicle.registration} content={this.props.accident.vehicle.brand.name + " - " + this.props.accident.vehicle.model.name} />
+                        <div style={{display:"flex",justifyContent:"flex-end"}}>
+                            <BigButtonIcon icon="edit" color="blue" onClick={this.showEdit} tooltip="Éditer l'accident"/>
+                            {this.getArchiveButton()}
+                            <BigButtonIcon icon="folder open" color="purple" onClick={this.showDocs} tooltip="Gérer les documents"/>
+                        </div>
                         {this.getInfosPanel()}
                         <Form style={{gridColumnEnd:"span 2"}}>
                             <Form.Field>

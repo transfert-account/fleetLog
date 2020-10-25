@@ -1,11 +1,13 @@
 import React, { Component, Fragment } from 'react'
 import { Table, Input, Button, Label, Modal, Form } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
+
+import ActionsGridCell from '../atoms/ActionsGridCell';
 import ModalDatePicker from '../atoms/ModalDatePicker'
 import DocStateLabel from '../atoms/DocStateLabel';
 import FileManagementPanel from '../atoms/FileManagementPanel';
-import moment from 'moment'
 
+import moment from 'moment'
 import gql from 'graphql-tag';
 
 class BatimentControlRowGroup extends Component {
@@ -53,13 +55,49 @@ class BatimentControlRowGroup extends Component {
             }
         `
     }
-
+    
+    /*SHOW AND HIDE MODALS*/
+    showDocs = () => {
+        this.setState({openDocs:true})
+    }
+    closeDocs = () => {
+        this.setState({openDocs:false})
+    }
+    showDelete = () => {
+        this.setState({openDelete:true})
+    }
+    closeDelete = () => {
+        this.setState({openDelete:false})
+    }
+    closeEdit = () => {
+        this.setState({editing:false})
+    }
+    showEdit = () => {
+        this.setState({editing:true})
+    }
+    closeUpdate = () => {
+        this.setState({openUpdate:false})
+    }
+    showUpdate = () => {
+        this.setState({openUpdate:true})
+    }
+    showDatePicker = target => {
+        this.setState({openDatePicker:true,datePickerTarget:target})
+    }
+    closeDatePicker = () => {
+        this.setState({openDatePicker:false,datePickerTarget:""})
+    }
+    /*CHANGE HANDLERS*/
+    onSelectDatePicker = date => {
+        this.setState({
+            [this.state.datePickerTarget]:date.getDate().toString().padStart(2, '0')+"/"+parseInt(date.getMonth()+1).toString().padStart(2, '0')+"/"+date.getFullYear().toString().padStart(4, '0')
+        })
+    }
     handleChange = e =>{
         this.setState({
           [e.target.name]:e.target.value
         });
     }
-
     handleInputFile = (type,e) => {
         if(e.target.validity.valid ){
             this.setState({
@@ -67,49 +105,31 @@ class BatimentControlRowGroup extends Component {
             })
         }
     }
-
-    showDelete = () => {
-        this.setState({openDelete:true})
-    }
-    closeDelete = () => {
-        this.setState({openDelete:false})
-    }
-    
-    closeEdit = () => {
-        this.setState({editing:false})
-    }
-    showEdit = () => {
-        this.setState({editing:true})
-    }
-
-    closeUpdate = () => {
-        this.setState({openUpdate:false})
-    }
-    showUpdate = () => {
-        this.setState({openUpdate:true})
-    }
-
-    showDatePicker = target => {
-        this.setState({openDatePicker:true,datePickerTarget:target})
-    }
-
-    closeDatePicker = () => {
-        this.setState({openDatePicker:false,datePickerTarget:""})
-    }
-
-    showDocs = () => {
-        this.setState({openDocs:true})
-    }
-    closeDocs = () => {
-        this.setState({openDocs:false})
-    }
-
-    onSelectDatePicker = date => {
-        this.setState({
-            [this.state.datePickerTarget]:date.getDate().toString().padStart(2, '0')+"/"+parseInt(date.getMonth()+1).toString().padStart(2, '0')+"/"+date.getFullYear().toString().padStart(4, '0')
+    /*FILTERS HANDLERS*/
+    /*DB READ AND WRITE*/
+    saveEdit = () => {
+        this.closeEdit();
+        this.props.client.mutate({
+            mutation:this.state.editBatimentControlQuery,
+            variables:{
+                _id:this.state._id,
+                name:this.state.newName,
+                delay:parseInt(this.state.newDelay)
+            }
+        }).then(({data})=>{
+            data.editBatimentControl.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.loadBatiments();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     }
-
+    loadBatiments = () => {
+        this.props.loadBatiments();
+    }
     updateBatimentControl = () => {
         this.closeDelete();
         this.props.client.mutate({
@@ -130,7 +150,6 @@ class BatimentControlRowGroup extends Component {
             })
         })
     }
-
     deleteBatimentControl = () => {
         this.closeDelete();
         this.props.client.mutate({
@@ -149,7 +168,6 @@ class BatimentControlRowGroup extends Component {
             })
         })
     }
-
     uploadDocFicheInter = () => {
         this.props.client.mutate({
             mutation:this.state.uploadBatimentControlDocumentQuery,
@@ -171,28 +189,7 @@ class BatimentControlRowGroup extends Component {
             })
         })
     }
-
-    saveEdit = () => {
-        this.closeEdit();
-        this.props.client.mutate({
-            mutation:this.state.editBatimentControlQuery,
-            variables:{
-                _id:this.state._id,
-                name:this.state.newName,
-                delay:parseInt(this.state.newDelay)
-            }
-        }).then(({data})=>{
-            data.editBatimentControl.map(qrm=>{
-                if(qrm.status){
-                    this.props.toast({message:qrm.message,type:"success"});
-                    this.loadBatiments();
-                }else{
-                    this.props.toast({message:qrm.message,type:"error"});
-                }
-            })
-        })
-    }
-
+    /*CONTENT GETTERS*/
     getNextExecutionLabel = (date,delay) => {
         let nextDate = moment(date,"DD/MM/YYYY").add(delay, 'days');
         let daysLeft = parseInt(nextDate.diff(moment(),'day', true))
@@ -207,7 +204,6 @@ class BatimentControlRowGroup extends Component {
         }
         return <Label color="green"> {moment().to(nextDate)}, le {nextDate.format("DD/MM/YYYY")}</Label>
     }
-
     getDocsStates = () => {
         return (
             <Table.Cell textAlign="center">
@@ -215,38 +211,30 @@ class BatimentControlRowGroup extends Component {
             </Table.Cell>
         )
     }
-
-    getActionsCell = () => {
+    getRowActions = () => {
         if(this.props.user.isOwner){
-            return (
-                <Table.Cell style={{textAlign:"center"}}>
-                    <Button circular style={{color:"#2ecc71"}} inverted icon icon='calendar' onClick={this.showUpdate}/>
-                    <Button circular style={{color:"#2980b9"}} inverted icon icon='edit' onClick={this.showEdit}/>
-                    <Button circular style={{color:"#a29bfe"}} inverted icon icon='folder open' onClick={this.showDocs}/>
-                    <Button circular style={{color:"#e74c3c"}} inverted icon icon='trash' onClick={this.showDelete}/>
-                </Table.Cell>
-            )
+            let actions = [
+                {color:"green",click:()=>{this.showUpdate()},icon:'calendar',tooltip:"Mettre à jour le contrôle de batiment"},
+                {color:"blue",click:()=>{this.showEdit()},icon:'edit',tooltip:"Editer le contrôle de batiment"},
+                {color:"purple",click:()=>{this.showDocs()},icon:'folder open',tooltip:"Gérer les documents"},
+                {color:"red",click:()=>{this.showDelete()},icon:'trash',tooltip:"Supprimer le contrôle de batiment"}
+            ];
+            return actions;
         }else{
-            return (
-                <Table.Cell style={{textAlign:"center"}}>
-                    <Button circular style={{color:"#2ecc71"}} inverted icon icon='calendar' onClick={this.showUpdate}/>
-                    <Button circular style={{color:"#2980b9"}} inverted icon icon='edit' onClick={this.showEdit}/>
-                    <Button circular style={{color:"#a29bfe"}} inverted icon icon='folder open' onClick={this.showDocs}/>
-                </Table.Cell>
-            )
+            let actions = [
+                {color:"green",click:()=>{this.showUpdate()},icon:'calendar',tooltip:"Mettre à jour le contrôle de batiment"},
+                {color:"blue",click:()=>{this.showEdit()},icon:'edit',tooltip:"Editer le contrôle de batiment"},
+                {color:"purple",click:()=>{this.showDocs()},icon:'folder open',tooltip:"Gérer les documents"}
+            ];
+            return actions;
         }
     }
-
-    loadBatiments = () => {
-        this.props.loadBatiments();
-    }
-
+    /*COMPONENTS LIFECYCLE*/
     render() {
         if(this.state.editing){
             return (
                 <Table.Row>
-                    <Table.Cell textAlign="center">{this.props.societe.name}</Table.Cell>
-                    <Table.Cell textAlign="center"><Input defaultValue={this.state.newName} onChange={this.handleChange} placeholder="Nom du crontrôle " name="newName"/></Table.Cell>
+                    <Table.Cell textAlign="center"><Input defaultValue={this.state.newName} onChange={this.handleChange} placeholder="Nom du contrôle " name="newName"/></Table.Cell>
                     <Table.Cell textAlign="center"><Input defaultValue={this.state.newDelay} onChange={this.handleChange} placeholder="Delai entre deux exécution" name="newDelay"/></Table.Cell>
                     <Table.Cell textAlign="center">{this.props.control.lastExecution}</Table.Cell>
                     <Table.Cell textAlign="center">{this.getNextExecutionLabel(this.props.control.lastExecution,this.props.control.delay)}</Table.Cell>
@@ -261,13 +249,12 @@ class BatimentControlRowGroup extends Component {
             return (
                 <Fragment>
                     <Table.Row>
-                        <Table.Cell textAlign="center">{this.props.societe.name}</Table.Cell>
                         <Table.Cell textAlign="center">{this.props.control.name}</Table.Cell>
                         <Table.Cell textAlign="center">{this.props.control.delay} jours</Table.Cell>
                         <Table.Cell textAlign="center">{this.props.control.lastExecution}</Table.Cell>
                         <Table.Cell textAlign="center">{this.getNextExecutionLabel(this.props.control.lastExecution,this.props.control.delay)}</Table.Cell>
                         {this.getDocsStates()}
-                        {this.getActionsCell()}
+                        <ActionsGridCell actions={this.getRowActions()}/>
                     </Table.Row>
                     <Modal closeOnDimmerClick={false} size="small" open={this.state.openUpdate} onClose={this.closeUpdate} closeIcon>
                         <Modal.Header>

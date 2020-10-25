@@ -31,6 +31,12 @@ type Vehicle{
     sharedTo:Societe
     sharingReason:String
     sharedSince:String
+    selling:Boolean
+    sellingReason:String
+    sellingSince:String
+    broken:Boolean
+    brokenReason:String
+    brokenSince:String
     financialInfosComplete:Boolean
 }
 
@@ -40,10 +46,27 @@ type DatedKm{
     kmValue:Int!
 }
 
+type VehicleKmUpdateResponse {
+    IMMAT:String!
+    KMS:Int!
+    found:Boolean!
+    vehicle:Vehicle
+}
+
+type MassKmUpdateVehiclesIdentityReport{
+    nbTotal:Int!
+    nbFound:Int!
+    message:String!
+    vehicles:[VehicleKmUpdateResponse]!
+}
+
 extend type Query{
     vehicle(_id: String!): Vehicle
     vehicles : [Vehicle]
+    vehiclesEquipedByControls : [Vehicle]
     buVehicles : [Vehicle]
+    buVehiclesEquipedByControls : [Vehicle]
+    massKmUpdateVehiclesValidation(jsonFromExcelFile:String!):MassKmUpdateVehiclesIdentityReport
 }
 
 extend type Mutation{
@@ -56,6 +79,11 @@ extend type Mutation{
     unArchiveVehicle(_id:String!):[QueryResultMessage]
     shareVehicle(_id:String!,sharingReason:String!,target:String!):[QueryResultMessage]
     unshareVehicle(_id:String!):[QueryResultMessage]
+    sellVehicle(_id:String!,sellingReason:String!):[QueryResultMessage]
+    unsellVehicle(_id:String!):[QueryResultMessage]
+    breakVehicle(_id:String!,brokenReason:String!):[QueryResultMessage]
+    unbreakVehicle(_id:String!):[QueryResultMessage]
     deleteVehicle(_id:String!):[QueryResultMessage]
+    applyMassKmUpdate(massKmUpdateMap:String!):[QueryResultMessage]
     uploadVehicleDocument(_id:String!,file:Upload!,type:String,size:Int!):[QueryResultMessage]
 }

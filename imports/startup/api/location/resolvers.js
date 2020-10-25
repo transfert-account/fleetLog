@@ -184,15 +184,9 @@ export default {
         updateLocKm(obj, {_id,date,kmValue},{user}){
             if(user._id){
                 let location = Locations.findOne({_id:new Mongo.ObjectID(_id)});
-                if(!moment(location.kms[location.kms.length-1].reportDate, "DD/MM/YYYY").diff(moment(date, "DD/MM/YYYY"))){
-                    throw new Error("Dernier relevé plus recent");
-                }
                 if(location.kms[location.kms.length-1].kmValue > kmValue){
                     throw new Error("Kilométrage incohérent");
                 }
-                /*if(moment(location.lastKmUpdate, "DD/MM/YYYY").diff(moment())){
-                    throw new Error("Date de relevé dans le futur");
-                }*/
                 Locations.update(
                     {
                         _id: new Mongo.ObjectID(_id)

@@ -39,7 +39,8 @@ export default {
             let date = new Date(year, month, 1);
             let days = [];
             let today = null;
-            let entretiens = Entretiens.find({user:user._id}).fetch().filter(e=>moment(e.occurenceDate,"DD/MM/YYYY").isSame(date, 'month'))
+            let userFull = Meteor.users.findOne({_id:user._id});
+            let entretiens = Entretiens.find({societe:userFull.settings.visibility}).fetch().filter(e=>moment(e.occurenceDate,"DD/MM/YYYY").isSame(date, 'month'))
             entretiens.forEach((e,i) => {
                 if(e.user != null && e.user.length > 0){
                     e.user = Meteor.users.findOne({_id:e.user});

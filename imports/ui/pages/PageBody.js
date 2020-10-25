@@ -5,33 +5,25 @@ import { UserContext } from '../../contexts/UserContext';
 import Home from './Home';
 
 import Vehicles from './Vehicles';
-import BUVehicles from './BUVehicles';
 import Vehicle from './Vehicle';
 
 import Locations from './Locations';
-import BULocations from './BULocations';
 import Location from './Location';
 
 import Entretiens from './Entretiens';
-import BUEntretiens from './BUEntretiens';
 import Entretien from './Entretien';
 
 import Controls from './Controls';
-import BUControls from './BUControls';
 
 import Licences from './Licences';
-import BULicences from './BULicences';
 
 import Planning from './Planning';
-import BUPlanning from './BUPlanning';
 
 import Fournisseurs from './Fournisseurs';
 
 import Accidents from './Accidents';
-import BUAccidents from './BUAccidents';
 
 import Batiments from './Batiments';
-import BUBatiments from './BUBatiments';
 
 import Compte from './Compte';
 import Accounts from './Accounts';
@@ -44,9 +36,6 @@ import Documents from './Documents';
 import Logs from './Logs';
 
 import Dashboards from '../pages/Dashboards';
-import BUDashboards from '../pages/BUDashboards';
-
-import WorkInProgress from './WorkInProgress';
 
 class PageBody extends Component {
 
@@ -63,22 +52,22 @@ class PageBody extends Component {
         if(this.props.user.visibility == "noidthisisgroupvisibility"){//Si l'utilisateur a une visibilité groupe
           return(
             <Switch>
-              <Route exact path='/home' component={Dashboards}/>
+              <Route exact path='/home' component={()=><Dashboards userLimited={false}/>}/>
               
-              <Route exact path='/parc/vehicles' component={Vehicles}/>
+              <Route exact path='/parc/vehicles' component={()=><Vehicles userLimited={false}/>}/>
               <Route exact path='/parc/vehicle/:_id' component={Vehicle}/>
-              <Route exact path='/parc/controls' component={Controls}/>
-              <Route exact path='/parc/licences' component={Licences}/>
-              <Route exact path='/parc/locations' component={Locations}/>
+              <Route exact path='/parc/controls' component={()=><Controls userLimited={false}/>}/>
+              <Route exact path='/parc/licences' component={()=><Licences userLimited={false}/>}/>
+              <Route exact path='/parc/locations' component={()=><Locations userLimited={false}/>}/>
               <Route exact path='/parc/location/:_id' component={Location}/>
 
-              <Route exact path='/entretiens' component={Entretiens}/>
+              <Route exact path='/entretiens' component={()=><Entretiens userLimited={false}/>}/>
               <Route exact path='/entretien/:_id' component={Entretien}/>
 
-              <Route exact path='/planning/:y/:m' component={Planning}/>
+              <Route exact path='/planning/:y/:m' component={()=><Planning userLimited={false}/>}/>
 
-              <Route exact path='/accidentologie' component={Accidents}/>
-              <Route exact path='/batiments' component={Batiments}/>
+              <Route exact path='/accidentologie' component={()=><Accidents userLimited={false}/>}/>
+              <Route exact path='/batiments' component={()=><Batiments userLimited={false}/>}/>
 
               <Route exact path='/fournisseurs' component={Fournisseurs}/>
 
@@ -99,23 +88,23 @@ class PageBody extends Component {
         }else{//Si l'utilisateur a une visibilité societé définie
           return(
             <Switch>
-              <Route exact path='/home' component={BUDashboards}/>
+              <Route exact path='/home' component={()=><Dashboards userLimited={true}/>}/>
               
-              <Route exact path='/parc/vehicles' component={BUVehicles}/>
+              <Route exact path='/parc/vehicles' component={()=><Vehicles userLimited={true}/>}/>
               <Route exact path='/parc/vehicle/:_id' component={Vehicle}/>
-              <Route exact path='/parc/controls' component={BUControls}/>
-              <Route exact path='/parc/licences' component={BULicences}/>
-              <Route exact path='/parc/locations' component={BULocations}/>
+              <Route exact path='/parc/controls' component={()=><Controls userLimited={true}/>}/>
+              <Route exact path='/parc/licences' component={()=><Licences userLimited={true}/>}/>
+              <Route exact path='/parc/locations' component={()=><Locations userLimited={true}/>}/>
               <Route exact path='/parc/location/:_id' component={Location}/>
 
-              <Route exact path='/entretiens' component={BUEntretiens}/>
+              <Route exact path='/entretiens' component={()=><Entretiens userLimited={true}/>}/>
               <Route exact path='/entretien/:_id' component={Entretien}/>
 
-              <Route exact path='/planning/:y/:m' component={BUPlanning}/>
+              <Route exact path='/planning/:y/:m' component={()=><Planning userLimited={true}/>}/>
 
-              <Route exact path='/accidentologie' component={BUAccidents}/>
+              <Route exact path='/accidentologie' component={()=><Accidents userLimited={true}/>}/>
               
-              <Route exact path='/batiments' component={BUBatiments}/>
+              <Route exact path='/batiments' component={()=><Batiments userLimited={true}/>}/>
 
               <Route exact path='/fournisseurs' component={Fournisseurs}/>
 
@@ -137,23 +126,23 @@ class PageBody extends Component {
       }else{//Si l'utilisateur est user, et a donc une visibilité societé définie
         return(
           <Switch>
-            <Route exact path='/home' component={BUDashboards}/>
+            <Route exact path='/home' component={()=><Dashboards userLimited={true}/>}/>
 
-            <Route exact path='/parc/vehicles' component={BUVehicles}/>
+            <Route exact path='/parc/vehicles' component={()=><Vehicles userLimited={true}/>}/>
             <Route exact path='/parc/vehicle/:_id' component={Vehicle}/>
-            <Route exact path='/parc/controls' component={BUControls}/>
-            <Route exact path='/parc/licences' component={BULicences}/>
-            <Route exact path='/parc/locations' component={BULocations}/>
+            <Route exact path='/parc/controls' component={()=><Controls userLimited={true}/>}/>
+            <Route exact path='/parc/licences' component={()=><Licences userLimited={true}/>}/>
+            <Route exact path='/parc/locations' component={()=><Locations userLimited={true}/>}/>
             <Route exact path='/parc/location/:_id' component={Location}/>
 
-            <Route exact path='/entretiens' component={BUEntretiens}/>
+            <Route exact path='/entretiens' component={()=><Entretiens userLimited={true}/>}/>
             <Route exact path='/entretien/:_id' component={Entretien}/>
 
-            <Route exact path='/planning/:y/:m' component={BUPlanning}/>
+            <Route exact path='/planning/:y/:m' component={()=><Planning userLimited={true}/>}/>
 
-            <Route exact path='/accidentologie' component={BUAccidents}/>
+            <Route exact path='/accidentologie' component={()=><Accidents userLimited={true}/>}/>
 
-            <Route exact path='/batiments' component={BUBatiments}/>
+            <Route exact path='/batiments' component={()=><Batiments userLimited={true}/>}/>
 
             <Route exact path='/fournisseurs' component={Fournisseurs}/>
 
@@ -168,9 +157,9 @@ class PageBody extends Component {
   render() {
     return (
       <div style={{
-        width:"calc(100vw - 5rem)",
-        margin:"0 0 0 5rem",
-        padding:"32px 48px 32px 48px",
+        width:"calc(100vw - 6rem)",
+        margin:"0 0 0 6rem",
+        padding:"32px 48px",
         display:"inline-block",
         backgroundRepeat:"no-repeat",
         backgroundAttachment:"fixed",

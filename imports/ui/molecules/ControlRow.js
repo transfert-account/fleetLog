@@ -1,16 +1,15 @@
 import React, { Component, Fragment } from 'react'
-import { Table, Dropdown, Button, Modal, Form, Label, Icon } from 'semantic-ui-react';
+import { Table, Dropdown, Button, Modal, Form, Label, Icon, Header } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 import ControlEquipementRow from './ControlEquipementRow';
-import ModalDatePicker from '../atoms/ModalDatePicker'
-import DocStateLabel from '../atoms/DocStateLabel'
+import ModalDatePicker from '../atoms/ModalDatePicker';
+import DocStateLabel from '../atoms/DocStateLabel';
 import gql from 'graphql-tag';
 import 'moment/locale/fr';
 
 class ControlRow extends Component {
 
     state={
-        detailed:false,
         vehicle:this.props.vehicle._id,
         openAttachEquipement:false,
         newEquipement:null,
@@ -36,33 +35,14 @@ class ControlRow extends Component {
                 attachEquipementToVehicle(vehicle:$vehicle,equipementDescription:$equipementDescription,attachementDate:$attachementDate,lastControl:$lastControl)
             }
         `,
-        dissociateEquipementQuery : gql`
-            mutation dissociateEquipement($id:String!){
-                dissociateEquipement(id:$id)
-            }
-        `,
-        updateControlEquipementQuery: gql`
-        mutation updateControlEquipement($id:String!,$updatedControlValue:String!){
-            updateControlEquipement(id:$id,updatedControlValue:$updatedControlValue)
-        }
-    `,
     }
-
+    
+    /*SHOW AND HIDE MODALS*/
     showAttachEquipement = () => {
         this.setState({openAttachEquipement:true})
     }
     showDatePicker = target => {
         this.setState({openDatePicker:true,datePickerTarget:target})
-    }
-    showDissociateEquipement = id => {
-        this.setState({dissociatingTarget:id,openDissociateEquipement:true})
-    }
-    showUpdateControlDate = id => {
-        if(this.props.vehicle.equipements.filter(x=>x._id == id)[0].equipementDescription.controlPeriodUnit=="km"){
-            this.setState({updateControlTarget:id,openUpdateControl:true,updateControlType:this.props.vehicle.equipements.filter(x=>x._id == id)[0].equipementDescription.controlPeriodUnit,hideLastControlKm:"",hideLastControlDate:"hide"})
-        }else{
-            this.setState({updateControlTarget:id,openUpdateControl:true,updateControlType:this.props.vehicle.equipements.filter(x=>x._id == id)[0].equipementDescription.controlPeriodUnit,hideLastControlDate:"",hideLastControlKm:"hide"})
-        }
     }
     closeAttachEquipement = () => {
         this.setState({openAttachEquipement:false})
@@ -70,17 +50,7 @@ class ControlRow extends Component {
     closeDatePicker = target => {
         this.setState({openDatePicker:false,datePickerTarget:""})
     }
-    closeDissociateEquipement = () => {
-        this.setState({openDissociateEquipement:false})
-    }
-    closeUpdateControl = () => {
-        this.setState({openUpdateControl:false})
-    }
-    onSelectDatePicker = date => {
-        this.setState({
-            [this.state.datePickerTarget]:date.getDate().toString().padStart(2, '0')+"/"+parseInt(date.getMonth()+1).toString().padStart(2, '0')+"/"+date.getFullYear().toString().padStart(4, '0')
-        })
-    }
+    /*CHANGE HANDLERS*/
     handleChange = e =>{
         this.setState({
           [e.target.name]:e.target.value
@@ -93,6 +63,13 @@ class ControlRow extends Component {
             this.setState({ newEquipement:value, hideLastControlDate:"",hideLastControlKm:"hide"})
         }
     }
+    onSelectDatePicker = date => {
+        this.setState({
+            [this.state.datePickerTarget]:date.getDate().toString().padStart(2, '0')+"/"+parseInt(date.getMonth()+1).toString().padStart(2, '0')+"/"+date.getFullYear().toString().padStart(4, '0')
+        })
+    }
+    /*FILTERS HANDLERS*/
+    /*DB READ AND WRITE*/
     attachEquipement = () => {
         let newLastControl = "";
         if(this.props.equipementDescriptionsRaw.filter(x=>x._id == this.state.newEquipement)[0].controlPeriodUnit=="km"){
@@ -113,47 +90,8 @@ class ControlRow extends Component {
             this.props.loadVehicles();
         })
     }
-    dissociateEquipement = () => {
-        this.closeDissociateEquipement();
-        this.props.client.mutate({
-            mutation:this.state.dissociateEquipementQuery,
-            variables:{
-                id:this.state.dissociatingTarget,
-            }
-        }).then(({data})=>{
-            this.props.loadVehicles();
-        })
-    }
-    updateControlEquipement = () => {
-        let newUpdatedControlValue;
-        if(this.props.vehicle.equipements.filter(x=>x._id == this.state.updateControlTarget)[0].equipementDescription.controlPeriodUnit=="km"){
-            newUpdatedControlValue = this.state.newUpdatedControlKm
-        }else{
-            newUpdatedControlValue = this.state.newUpdatedControlDate
-        }
-        this.closeUpdateControl();
-        this.props.client.mutate({
-            mutation:this.state.updateControlEquipementQuery,
-            variables:{
-                id:this.state.updateControlTarget,
-                updatedControlValue:newUpdatedControlValue
-            }
-        }).then(({data})=>{
-            this.props.loadVehicles();
-        })
-    }
-    showDetailed = detailed => {
-        this.setState({detailed:detailed})
-    }
-    getDetailShowAndHideButton = () => {
-        if(this.props.vehicle.equipements.length > 0){
-            if(this.state.detailed){
-                return <Button circular style={{color:"#00a8ff"}} inverted icon icon='angle double up' onClick={()=>{this.showDetailed(false)}}/>
-            }else{
-                return <Button circular style={{color:"#00a8ff"}} inverted icon icon='angle double down' onClick={()=>{this.showDetailed(true)}}/>
-            }
-        }
-    }
+    
+    /*CONTENT GETTERS*/
     getRed = () => {
         if(this.props.vehicle.red > 0){
             return (
@@ -223,32 +161,55 @@ class ControlRow extends Component {
             </div>
         )
     }
-    getEquipementRows = () => {
-        if(this.state.detailed){
-            return (
-                <Table.Row>
-                    <Table.Cell style={{padding:"0"}} colSpan={8}>
-                        <Table inverted celled selectable compact='very'>
-                            <Table.Header>
-                                <Table.Row textAlign='center'>
-                                    <Table.HeaderCell>Nom</Table.HeaderCell>
-                                    <Table.HeaderCell>Attaché le</Table.HeaderCell>
-                                    <Table.HeaderCell>Dernier contrôle</Table.HeaderCell>
-                                    <Table.HeaderCell>Prochain contrôle</Table.HeaderCell>
-                                    <Table.HeaderCell>Documents</Table.HeaderCell>
-                                    <Table.HeaderCell>Actions</Table.HeaderCell>
-                                </Table.Row>
-                            </Table.Header>
-                            <Table.Body>
-                                {this.props.vehicle.equipements.map(e=>
-                                    <ControlEquipementRow loadVehicles={this.props.loadVehicles} key={e._id} vehicle={this.props.vehicle} equipement={e}/>
-                                )}
-                            </Table.Body>
-                        </Table>
-                    </Table.Cell>
-                </Table.Row>
+    getTableHeader = () => {
+        if(this.props.hideSociete){
+            return(
+                <Table.Header>
+                    <Table.Row textAlign='center'>
+                        <Table.HeaderCell>Véhicule</Table.HeaderCell>
+                        <Table.HeaderCell>Nom</Table.HeaderCell>
+                        <Table.HeaderCell>Attaché le</Table.HeaderCell>
+                        <Table.HeaderCell>Dernier contrôle</Table.HeaderCell>
+                        <Table.HeaderCell>Prochain contrôle</Table.HeaderCell>
+                        <Table.HeaderCell>Documents</Table.HeaderCell>
+                        <Table.HeaderCell>Entretien</Table.HeaderCell>
+                        <Table.HeaderCell>Actions</Table.HeaderCell>
+                    </Table.Row>
+                </Table.Header>
+            )
+        }else{
+            return(
+                <Table.Header>
+                    <Table.Row textAlign='center'>
+                        <Table.HeaderCell>Société</Table.HeaderCell>
+                        <Table.HeaderCell>Véhicule</Table.HeaderCell>
+                        <Table.HeaderCell>Nom</Table.HeaderCell>
+                        <Table.HeaderCell>Attaché le</Table.HeaderCell>
+                        <Table.HeaderCell>Dernier contrôle</Table.HeaderCell>
+                        <Table.HeaderCell>Prochain contrôle</Table.HeaderCell>
+                        <Table.HeaderCell>Documents</Table.HeaderCell>
+                        <Table.HeaderCell>Entretien</Table.HeaderCell>
+                        <Table.HeaderCell>Actions</Table.HeaderCell>
+                    </Table.Row>
+                </Table.Header>
             )
         }
+    }
+    getEquipementRows = () => {
+        return(
+            <Fragment>
+                <Header as="h2" floated="left">{this.props.vehicle.registration}</Header>
+                <Header as="h2" floated="right">{this.props.vehicle.brand.name + " " + this.props.vehicle.model.name + " ("+this.props.vehicle.energy.name+")"}</Header>
+                <Table celled selectable compact='very'>
+                    {this.getTableHeader()}
+                    <Table.Body>
+                        {this.props.vehicle.equipements.map(e=>
+                            <ControlEquipementRow hideSociete={this.props.hideSociete} loadVehicles={this.props.loadVehicles} key={e._id} vehicle={this.props.vehicle} equipement={e}/>
+                        )}
+                    </Table.Body>
+                </Table>
+            </Fragment>
+        )
     }
     getSocieteCell = () => {
         if(!this.props.hideSociete){
@@ -266,25 +227,12 @@ class ControlRow extends Component {
             </Table.Cell>
         )
     }
+
+    /*COMPONENTS LIFECYCLE*/
     
     render() {
         return (
             <Fragment>
-                <Table.Row>
-                    {this.getSocieteCell()}
-                    <Table.Cell textAlign='center'>{this.props.vehicle.registration}</Table.Cell>
-                    <Table.Cell textAlign='center'>
-                        {this.props.vehicle.brand.name + " - " + this.props.vehicle.model.name}
-                    </Table.Cell>
-                    <Table.Cell textAlign='center'>{this.getGreen()}</Table.Cell>
-                    <Table.Cell textAlign='center'>{this.getOrange()}</Table.Cell>
-                    <Table.Cell textAlign='center'>{this.getRed()}</Table.Cell>
-                    {this.getDocsStates()}
-                    <Table.Cell textAlign='center'>
-                        <Button circular style={{color:"#a29bfe"}} inverted icon icon='plus' onClick={this.showAttachEquipement}/>
-                        {this.getDetailShowAndHideButton()}
-                    </Table.Cell>
-                </Table.Row>
                 {this.getEquipementRows()}
                 <Modal closeOnDimmerClick={false} open={this.state.openAttachEquipement} onClose={this.closeAttachEquipement} closeIcon>
                     <Modal.Header>
@@ -304,7 +252,6 @@ class ControlRow extends Component {
                     </Modal.Actions>
                 </Modal>
                 <ModalDatePicker onSelectDatePicker={this.onSelectDatePicker} closeDatePicker={this.closeDatePicker} open={this.state.openDatePicker}/>
-                <ModalDatePicker onSelectDatePicker={this.onSelectUpdateControlDatePicker} closeDatePicker={this.closeUpdateControlDatePicker} open={this.state.openUpdateControlDatePicker}/>
             </Fragment>
         )
     }

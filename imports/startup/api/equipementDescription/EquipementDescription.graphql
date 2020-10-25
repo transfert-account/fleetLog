@@ -13,7 +13,7 @@ extend type Query{
 }
 
 extend type Mutation{
-    addEquipementDescription(name:String,controlPeriodValue:Int,controlPeriodUnit:String,alertStepValue:Int!,alertStepUnit:String!,unitType:String!): [EquipementDescription]
-    editEquipementDescription(_id:String!,name:String,controlPeriodValue:Int,controlPeriodUnit:String,alertStepValue:Int!,alertStepUnit:String!,unitType:String!): [EquipementDescription]
-    deleteEquipementDescription(_id:String!): [EquipementDescription]
+    addEquipementDescription(name:String,controlPeriodValue:Int,controlPeriodUnit:String,alertStepValue:Int!,alertStepUnit:String!,unitType:String!): [QueryResultMessage]
+    editEquipementDescription(_id:String!,name:String,controlPeriodValue:Int,controlPeriodUnit:String,alertStepValue:Int!,alertStepUnit:String!,unitType:String!): [QueryResultMessage]
+    deleteEquipementDescription(_id:String!): [QueryResultMessage]
 }

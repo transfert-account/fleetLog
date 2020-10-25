@@ -95,6 +95,7 @@ class Provider extends Component {
         }).then(({data})=>{
             if(data.user._id != this.state.user._id){
                 this.setState({
+                    societeFilter : data.user.visibility,
                     user:data.user,
                     users:data.users
                 })
@@ -108,6 +109,7 @@ class Provider extends Component {
             fetchPolicy:'network-only'
         }).then(({data})=>{
             this.setState({
+                societeFilter : data.user.visibility,
                 user:data.user,
                 users:data.users
             })
@@ -141,14 +143,15 @@ class Provider extends Component {
                 user: (this.state.user == null ? {_id:null} : this.state.user),
                 users : this.props.users,
                 client : this.props.client,
-                societes:this.props.societes,
-                getSocieteName:this.getSocieteName,
-                reloadUser:this.reloadUser,
-                forceReloadUser:this.forceReloadUser,
-                setSocieteFilter:this.setSocieteFilter,
-                loadSocietes:this.loadSocietes,
-                societeFilter:this.state.societeFilter,
-                toast:this.toast
+                societes: this.props.societes,
+                history: this.props.history,
+                getSocieteName: this.getSocieteName,
+                reloadUser: this.reloadUser,
+                forceReloadUser: this.forceReloadUser,
+                setSocieteFilter: this.setSocieteFilter,
+                loadSocietes: this.loadSocietes,
+                societeFilter: this.state.societeFilter,
+                toast: this.toast
             }}>
                 {this.props.children}
             </UserContext.Provider>

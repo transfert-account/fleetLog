@@ -34,21 +34,17 @@ class Calendar extends Component {
                 _id
                 name
               }
-              volume{
-                _id
-                meterCube
-              }
-              payload
               km
             }
             description
-            archived
-            occurenceDate
+            fromControl
             user{
               _id
               firstname
               lastname
             }
+            archived
+            occurenceDate
           }
         }
       }
@@ -74,21 +70,17 @@ class Calendar extends Component {
                 _id
                 name
               }
-              volume{
-                _id
-                meterCube
-              }
-              payload
               km
             }
             description
-            archived
-            occurenceDate
+            fromControl
             user{
               _id
               firstname
               lastname
             }
+            archived
+            occurenceDate
           }
         }
       }
@@ -145,7 +137,7 @@ class Calendar extends Component {
   }
 
   loadMonth = ({year,month}) => {
-    if(this.props.byUser){
+    if(this.props.userLimited){
       this.props.client.query({
         query:this.state.entretiensPopulatedMonthByUserQuery,
         variables:{
@@ -193,13 +185,13 @@ class Calendar extends Component {
 
   render() {
     return (
-      <div style={{...this.props.style,display:"grid",gridTemplateColumns:"1fr auto auto auto 1fr",gridTemplateRows:"auto 1fr",gridGap:"32px"}}>
+      <div style={{...this.props.style,display:"grid",gridTemplateColumns:"1fr auto auto auto 1fr",gridTemplateRows:"auto 1fr",gridGap:"32px",placeSelf:"stretch"}}>
         <Button style={{gridRowStart:"1",gridColumnStart:"2",alignSelf:"center"}} size="small" color="blue" onClick={this.navigateToPrevMonth} icon><Icon name="left arrow"/></Button>
         <Header style={{gridRowStart:"1",gridColumnStart:"3"}} as="h2" textAlign='center'>{this.getMonthName(this.state.month)+" "+this.state.year}</Header>
         <Button style={{gridRowStart:"1",gridColumnStart:"4",alignSelf:"center"}} size="small" color="blue" onClick={this.navigateToNextMonth} icon><Icon name="right arrow"/></Button>
-        <div style={{gridRowStart:"2",gridColumnStart:"1",gridColumnEnd:"span 5",display:"grid",gridGap:"6px",gridTemplateColumns:"1fr 1fr 1fr 1fr 1fr 1fr 1fr",gridTemplateRows:"120px 120px 120px 120px 120px 120px"}}>
+        <div className="calendar-tile-container">
           {this.state.daysOfTheMonth.map(day => (
-            <CalendarTile key={day.year+"/"+day.month+"/"+day.day+"/"+day.entretiens.length} selected={this.dateIsSelected({d:day.day,m:day.month,y:day.year})} day={day} selectDate={this.selectDate} />
+            <CalendarTile key={day.year+"/"+day.month+"/"+day.day+"/"+day.entretiens.length} user={this.props.user} selected={this.dateIsSelected({d:day.day,m:day.month,y:day.year})} day={day} selectDate={this.selectDate} />
           ))}
         </div>
       </div>

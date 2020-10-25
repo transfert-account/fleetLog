@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react'
 import { Loader, Table, Button, Icon, TextArea, Form, Message, Modal, Input, Dropdown } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 import CommandeRow from '../molecules/CommandeRow';
+import BigButtonIcon from '../elements/BigIconButton';
 import PiecePicker from '../atoms/PiecePicker';
 import FileManagementPanel from '../atoms/FileManagementPanel';
 import DocStateLabel from '../atoms/DocStateLabel';
@@ -579,11 +580,11 @@ class Entretien extends Component {
     getArchiveButton = () => {
         if(this.state.entretienRaw.archived){
             return (
-                <Button color="green" style={{gridColumnEnd:(this.props.user.isOwner ? "span 2" : "span 3"),placeSelf:"stretch"}} onClick={this.showDisArchive} icon labelPosition='right'>Ré-ouvrir l'entretien<Icon name='folder open outline'/></Button>
+                <BigButtonIcon icon="folder open outline" color="green" onClick={this.showDisArchive} tooltip="Ré-ouvrir l'entretien"/>
             )
         }else{
             return (
-                <Button color="orange" style={{gridColumnEnd:(this.props.user.isOwner ? "span 2" : "span 3"),placeSelf:"stretch"}} onClick={this.showArchive} icon labelPosition='right'>Archiver l'entretien<Icon name='archive'/></Button>
+                <BigButtonIcon icon="archive" color="orange" onClick={this.showArchive} tooltip="Archiver l'entretien"/>
             )
         }
     }
@@ -591,7 +592,7 @@ class Entretien extends Component {
     getDeleteButton = () => {
         if(this.props.user.isOwner){
             return (
-                <Button color="red" style={{gridColumnEnd:"span 2",placeSelf:"stretch"}} onClick={this.showDelete} icon labelPosition='right'>Supprimer l'entretien<Icon name='trash'/></Button>
+                <BigButtonIcon icon="trash" color="red" onClick={this.showDelete} tooltip="Supprimer l'entretien"/>
             )
         }
     }
@@ -606,17 +607,18 @@ class Entretien extends Component {
         }else{
             return (
                 <Fragment>
-                    <div style={{display:"grid",gridGap:"32px",gridTemplateColumns:"1fr 2fr"}}>
-                        <div style={{display:"grid",gridGap:"8px",gridTemplateColumns:"auto 1fr"}}>
-                            <Button animated='fade' inverted onClick={()=>{this.props.history.push("/entretiens");}} style={{margin:"0",gridRowStart:"1",gridColumnStart:"1"}} color="grey" size="huge">
-                                <Button.Content hidden>
-                                    <Icon color="black" style={{margin:"0"}} name='list ul' />
-                                </Button.Content>
-                                <Button.Content visible>
-                                    <Icon color="black" style={{margin:"0"}} name='angle double left' />
-                                </Button.Content>
-                            </Button>
+                    <div style={{display:"grid",gridGap:"32px",gridTemplateColumns:"1fr 2fr",gridTemplateRows:"auto 1fr"}}>
+                        <div style={{display:"grid",gridGap:"32px",gridTemplateColumns:"auto 1fr auto",gridColumnEnd:"span 2"}}>
+                            <BigButtonIcon icon="angle double left" color="black" onClick={()=>{this.props.history.push("/entretiens");}} tooltip="Retour au tableau des entretiens"/>
                             <Message style={{margin:"0",gridRowStart:"1",gridColumnStart:"2"}} icon='truck' header={this.state.entretienRaw.vehicle.registration} content={this.state.entretienRaw.vehicle.brand.name + " - " + this.state.entretienRaw.vehicle.model.name + " - " + this.state.entretienRaw.vehicle.km + " km"}/>
+                            <div style={{display:"flex"}}>
+                                <BigButtonIcon icon="plus" color="blue" onClick={this.showAddCommande} tooltip="Ajouter une piece à la commande" spacedFromNext/>
+                                <BigButtonIcon icon="folder open" color="purple" onClick={this.showDocs} tooltip="Documents"/>
+                                {this.getArchiveButton()}
+                                {this.getDeleteButton()}
+                            </div>
+                        </div>
+                        <div style={{display:"grid",gridGap:"8px",gridTemplateColumns:"auto 1fr"}}>
                             <Form style={{gridRowStart:"2",gridColumnStart:"1",gridColumnEnd:"span 2",display:"grid",gridGap:"8px",gridTemplateColumns:"1fr 1fr"}}>
                                 {this.getEditionPanel()}
                                 <Form.Field style={{gridColumnEnd:"span 2"}}>
@@ -629,12 +631,8 @@ class Entretien extends Component {
                                 </Form.Field>
                             </Form>
                         </div>
-                        <div style={{display:"grid",gridGap:"16px",gridTemplateColumns:"1fr 1fr 1fr 1fr 1fr 1fr 1fr",gridTemplateRows:"auto 1fr"}}>
-                            {this.getDeleteButton()}
-                            {this.getArchiveButton()}
-                            <Button color="blue" style={{gridColumnEnd:(this.props.user.isOwner ? "span 2" : "span 3"),placeSelf:"stretch"}} onClick={this.showAddCommande} icon labelPosition='right'>Ajouter une piece à la commande<Icon name='plus'/></Button>
-                            <Button color="purple" style={{placeSelf:"stretch"}} onClick={this.showDocs} icon labelPosition='right'>Documents<Icon name='folder open'/></Button>
-                            <div style={{gridRowStart:"2",gridColumnEnd:"span 7"}}>
+                        <div style={{display:"grid",gridGap:"16px",gridTemplateColumns:"1fr"}}>
+                            <div>
                                 <Table celled>
                                     <Table.Header>
                                         <Table.Row textAlign='center'>

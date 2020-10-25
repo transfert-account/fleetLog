@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Table,Button,Modal,Form,Input,Menu,Segment } from 'semantic-ui-react';
+import { Table, Button, Modal, Form, Input, Menu, Segment, Label } from 'semantic-ui-react';
 import PlanningRow from '../molecules/PlanningRow';
 import Calendar from '../molecules/Calendar';
 import ModalDatePicker from '../atoms/ModalDatePicker';
@@ -22,7 +22,7 @@ class Planning extends Component {
     openAffectToMe:false,
     openRelease:false,
     myEntretiensRaw:[],
-    sideTableSelected:true,
+    activeItem:"unaffected",
     month:parseInt(this.props.match.params.m),
     year:parseInt(this.props.match.params.y),
     selectedDay:new Date().getDate(),
@@ -45,6 +45,7 @@ class Planning extends Component {
         entretiensOfTheDay(date:$date){
           _id
           description
+          fromControl
           user{
             _id
             firstname
@@ -98,6 +99,7 @@ class Planning extends Component {
         myEntretiens{
           _id
           description
+          fromControl
           title
           societe{
             _id
@@ -136,6 +138,7 @@ class Planning extends Component {
         unaffectedEntretiens{
           _id
           description
+          fromControl
           title
           societe{
             _id
@@ -183,109 +186,174 @@ class Planning extends Component {
           message
         }
       }
+    `,
+    buEntretiensOfTheDayQuery : gql`
+      query buEntretiensOfTheDay($date:String!){
+        buEntretiensOfTheDay(date:$date){
+          _id
+          description
+          fromControl
+          user{
+            _id
+            firstname
+            lastname
+          }
+          title
+          commandes{
+            _id
+            piece{
+              _id
+              name
+              type
+            }
+            entretien
+            status
+            price
+          }
+          vehicle{
+            _id
+            societe{
+              _id
+              trikey
+              name
+            }
+            registration
+            km
+            brand{
+              _id
+              name
+            }
+            model{
+              _id
+              name
+            }
+            volume{
+              _id
+              meterCube
+            }
+            payload
+            color{
+              _id
+              name
+              hex
+            }
+          }
+        }
+      }
+    `,
+    buUnaffectedEntretiensQuery : gql`
+      query buUnaffectedEntretiens{
+        buUnaffectedEntretiens{
+          _id
+          description
+          fromControl
+          title
+          vehicle{
+            _id
+            societe{
+              _id
+              trikey
+              name
+            }
+            registration
+            km
+            brand{
+              _id
+              name
+            }
+            model{
+              _id
+              name
+            }
+            volume{
+              _id
+              meterCube
+            }
+            payload
+            color{
+              _id
+              name
+              hex
+            }
+          }
+        }
+      }
     `
   }
-
-  loadUnaffectedEntretiens = () => {
-    this.props.client.query({
-      query:this.state.unaffectedEntretiensQuery,
-      fetchPolicy:"network-only"
-    }).then(({data})=>{
-      this.setState({
-        unaffectedEntretiensRaw:data.unaffectedEntretiens
-      })
-    })
-  }
-
-  loadMyEntretiens = () => {
-    this.props.client.query({
-      query:this.state.myEntretiensQuery,
-      fetchPolicy:"network-only"
-    }).then(({data})=>{
-      this.setState({
-        myEntretiensRaw:data.myEntretiens
-      })
-    })
-  }
-
-  loadEntretiensOfTheDay = (date) => {
-    let formatedDate = "";
-    if(date != null){
-      formatedDate = date;
-    }else{
-      formatedDate = this.state.selectedDate;
-    }
-    this.props.client.query({
-      query:this.state.entretiensOfTheDayQuery,
-      variables:{
-        date: formatedDate.format('DD/MM/YYYY')
-      },
-      fetchPolicy:"network-only"
-    }).then(({data})=>{
-      this.setState({
-        entretiensOfTheDayRaw:data.entretiensOfTheDay
-      })
-    })
-  }
-
-  showDatePicker = target => {
-    this.setState({openDatePicker:true,datePickerTarget:target})
-  }
-
-  closeDatePicker = target => {
-    this.setState({openDatePicker:false,datePickerTarget:""})
-  }
-
-  onSelectDatePicker = date => {
-    this.setState({
-        [this.state.datePickerTarget]:date.getDate().toString().padStart(2, '0')+"/"+parseInt(date.getMonth()+1).toString().padStart(2, '0')+"/"+date.getFullYear().toString().padStart(4, '0')
-    })
-  }
-
-  showAffectToMe = () => {
-    this.setState({
-      openAffectToMe : true
-    })
-  }
-
-  closeAffectToMe = () => {
-    this.setState({
-      openAffectToMe : false
-    })
-  }
-
   triggerAffectToMe = _id => {
     this.setState({
       entretienToAffect:_id
     })
     this.showAffectToMe();
   }
-
-  showRelease = () => {
-    this.setState({
-      openRelease : true
-    })
-  }
-
-  closeRelease = () => {
-    this.setState({
-      openRelease : false
-    })
-  }
-
   triggerReleaseEntretien = _id => {
     this.setState({
       entretienToRealse:_id
     })
     this.showRelease();
   }
-
   didRefreshMonth = () => {
     this.setState({
       needToRefreshMonth:false
     })
   }
-
+  navigateToEntretien = _id => {
+    this.props.history.push("/entretien/"+_id); 
+  }
+  /*SHOW AND HIDE MODALS*/
+  showRelease = () => {
+    this.setState({
+      openRelease : true
+    })
+  }
+  closeRelease = () => {
+    this.setState({
+      openRelease : false
+    })
+  }
+  showDatePicker = target => {
+    this.setState({openDatePicker:true,datePickerTarget:target})
+  }
+  closeDatePicker = target => {
+    this.setState({openDatePicker:false,datePickerTarget:""})
+  }
+  showAffectToMe = () => {
+    this.setState({
+      openAffectToMe : true
+    })
+  }
+  closeAffectToMe = () => {
+    this.setState({
+      openAffectToMe : false
+    })
+  }
+  /*CHANGE HANDLERS*/
+  selectDate = date => {
+    this.setState({
+      selectedDate:date
+    })
+    this.loadEntretiensOfTheDay(date);
+  }
+  onSelectDatePicker = date => {
+    this.setState({
+        [this.state.datePickerTarget]:date.getDate().toString().padStart(2, '0')+"/"+parseInt(date.getMonth()+1).toString().padStart(2, '0')+"/"+date.getFullYear().toString().padStart(4, '0')
+    })
+  }
+  /*DB READ AND WRITE*/
+  loadMonthByParams = ({year,month}) => {
+    this.props.client.query({
+      query:this.state.entretiensPopulatedMonthQuery,
+      variables:{
+        month:month,
+        year:year
+      },
+      fetchPolicy:"network-only"
+    }).then(({data})=>{
+      this.setState({
+        daysOfTheMonth:data.entretiensPopulatedMonth
+      })
+    })
+  }
   affectToMe = () => {
     this.closeAffectToMe();
     this.props.client.mutate({
@@ -310,7 +378,6 @@ class Planning extends Component {
       })
     })
   }
-
   release = () => {
     this.closeRelease();
     this.props.client.mutate({
@@ -334,122 +401,170 @@ class Planning extends Component {
       })
     })
   }
-
-  navigateToEntretien = _id => {
-    this.props.history.push("/entretien/"+_id); 
-  }
-  
-  loadMonthByParams = ({year,month}) => {
+  loadUnaffectedEntretiens = () => {
+    let unaffectedEntretiensQuery = (this.props.userLimited ? this.state.buUnaffectedEntretiensQuery : this.state.unaffectedEntretiensQuery);
     this.props.client.query({
-      query:this.state.entretiensPopulatedMonthQuery,
-      variables:{
-        month:month,
-        year:year
-      },
+      query:unaffectedEntretiensQuery,
       fetchPolicy:"network-only"
     }).then(({data})=>{
+      let unaffectedEntretiens = (this.props.userLimited ? data.buUnaffectedEntretiens : data.unaffectedEntretiens);
       this.setState({
-        daysOfTheMonth:data.entretiensPopulatedMonth
+        unaffectedEntretiensRaw:unaffectedEntretiens
       })
     })
   }
-
-  selectDate = date => {
-    this.setState({
-      selectedDate:date
+  loadMyEntretiens = () => {
+    this.props.client.query({
+      query:this.state.myEntretiensQuery,
+      fetchPolicy:"network-only"
+    }).then(({data})=>{
+      this.setState({
+        myEntretiensRaw:data.myEntretiens
+      })
     })
-    this.loadEntretiensOfTheDay(date);
   }
-  
+  loadEntretiensOfTheDay = (date) => {
+    let formatedDate = "";
+    if(date != null){
+      formatedDate = date;
+    }else{
+      formatedDate = this.state.selectedDate;
+    }
+    let entretiensOfTheDayQuery = (this.props.userLimited ? this.state.buEntretiensOfTheDayQuery : this.state.entretiensOfTheDayQuery);
+    this.props.client.query({
+      query:entretiensOfTheDayQuery,
+      variables:{
+        date: formatedDate.format('DD/MM/YYYY')
+      },
+      fetchPolicy:"network-only"
+    }).then(({data})=>{
+      let entretiensOfTheDay = (this.props.userLimited ? data.buEntretiensOfTheDay : data.entretiensOfTheDay);
+      this.setState({
+        entretiensOfTheDayRaw:entretiensOfTheDay
+      })
+    })
+  }
+  /*CONTENT GETTERS*/
   getSideTable = () => {
     if(this.state.activeItem=="selectedDay"){
       return (
-        <Segment attached='bottom'>
-          <Table color="blue" style={{gridColumnStart:"2",placeSelf:"start stretch"}} striped celled compact="very">
-            <Table.Header>
-              <Table.Row textAlign='center'>
-                <Table.HeaderCell width={4}>Affecté à</Table.HeaderCell>
-                <Table.HeaderCell width={4}>Véhicule</Table.HeaderCell>
-                <Table.HeaderCell width={6}>Entretien</Table.HeaderCell>
-                <Table.HeaderCell width={2}>Actions</Table.HeaderCell>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              {this.state.entretiensOfTheDay().map(e=>{
-                return (<PlanningRow key={e._id+"unaffected"} active={this.state.activeItem} triggerReleaseEntretien={this.triggerReleaseEntretien} navigateToEntretien={this.navigateToEntretien} entretien={e} />)
-              })}
-            </Table.Body>
-          </Table>
-        </Segment>
+        <Table color="blue" celled selectable compact>
+          <Table.Header>
+            <Table.Row textAlign='center'>
+              <Table.HeaderCell>Affecté à</Table.HeaderCell>
+              <Table.HeaderCell>Véhicule</Table.HeaderCell>
+              <Table.HeaderCell>Type</Table.HeaderCell>
+              <Table.HeaderCell>Entretien</Table.HeaderCell>
+              <Table.HeaderCell>Actions</Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {this.state.entretiensOfTheDay().map(e=>{
+              return (<PlanningRow hideSociete={this.props.userLimited} key={e._id+"unaffected"} active={this.state.activeItem} triggerReleaseEntretien={this.triggerReleaseEntretien} navigateToEntretien={this.navigateToEntretien} entretien={e} />)
+            })}
+          </Table.Body>
+        </Table>
       )
     }
     if(this.state.activeItem=="affectedToMe"){
       return (
-        <Segment attached='bottom'>
-          <Table color="green" style={{gridColumnStart:"2",placeSelf:"start stretch"}} striped celled compact="very">
-            <Table.Header>
-              <Table.Row textAlign='center'>
-                <Table.HeaderCell width={4}>Véhicule</Table.HeaderCell>
-                <Table.HeaderCell width={6}>Entretien</Table.HeaderCell>
-                <Table.HeaderCell width={4}>Date</Table.HeaderCell>
-                <Table.HeaderCell width={2}>Actions</Table.HeaderCell>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              {this.state.myEntretiensRaw.map(e=>{
-                return (<PlanningRow active={this.state.activeItem} triggerReleaseEntretien={this.triggerReleaseEntretien} key={e._id} navigateToEntretien={this.navigateToEntretien} entretien={e} />)
-              })}
-            </Table.Body>
-          </Table>
-        </Segment>
+        <Table color="green" celled selectable compact>
+          <Table.Header>
+            <Table.Row textAlign='center'>
+              <Table.HeaderCell>Véhicule</Table.HeaderCell>
+              <Table.HeaderCell>Type</Table.HeaderCell>
+              <Table.HeaderCell>Entretien</Table.HeaderCell>
+              <Table.HeaderCell>Date</Table.HeaderCell>
+              <Table.HeaderCell>Actions</Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {this.state.myEntretiensRaw.map(e=>{
+              return (<PlanningRow hideSociete={this.props.userLimited} active={this.state.activeItem} triggerReleaseEntretien={this.triggerReleaseEntretien} key={e._id} navigateToEntretien={this.navigateToEntretien} entretien={e} />)
+            })}
+          </Table.Body>
+        </Table>
       )
     }
     if(this.state.activeItem=="unaffected"){
       return (
-        <Segment attached='bottom'>
-          <Table color="orange" style={{gridColumnStart:"2",placeSelf:"start stretch"}} striped celled compact="very">
-            <Table.Header>
-              <Table.Row textAlign='center'>
-                <Table.HeaderCell width={4}>Societe</Table.HeaderCell>
-                <Table.HeaderCell width={4}>Véhicule</Table.HeaderCell>
-                <Table.HeaderCell width={6}>Entretien</Table.HeaderCell>
-                <Table.HeaderCell width={2}>Actions</Table.HeaderCell>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              {this.state.unaffectedEntretiens().map(e=>{
-                return (<PlanningRow active={this.state.activeItem} key={e._id+"unaffected"} triggerAffectToMe={this.triggerAffectToMe} navigateToEntretien={this.navigateToEntretien} entretien={e} />)
-              })}
-            </Table.Body>
-          </Table>
-        </Segment>
+        <Table color="orange" celled selectable compact>
+          <Table.Header>
+            <Table.Row textAlign='center'>
+              {(this.props.userLimited ? "" : <Table.HeaderCell>Societe</Table.HeaderCell>)}
+              <Table.HeaderCell>Véhicule</Table.HeaderCell>
+              <Table.HeaderCell>Type</Table.HeaderCell>
+              <Table.HeaderCell>Entretien</Table.HeaderCell>
+              <Table.HeaderCell>Actions</Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {this.state.unaffectedEntretiens().map(e=>{
+              return (<PlanningRow hideSociete={this.props.userLimited} active={this.state.activeItem} key={e._id+"unaffected"} triggerAffectToMe={this.triggerAffectToMe} navigateToEntretien={this.navigateToEntretien} entretien={e} />)
+            })}
+          </Table.Body>
+        </Table>
       )
     }
   }
-
+  getSelectedDayLabel = () => {
+    let myEntretiensLabel = this.state.entretiensOfTheDay().filter(e=>e.user._id == this.props.user._id).length;
+    let allEntretiensLabel = this.state.entretiensOfTheDay().length;
+    return(
+      <Fragment>
+        {(myEntretiensLabel != 0 ? <Label size="big" color="green" >{myEntretiensLabel}</Label> : "")}
+        {(allEntretiensLabel != 0 ? <Label size="big" color="blue" >{allEntretiensLabel}</Label> : "")}
+      </Fragment>
+    )
+  }
+  getMyLabel = () => {
+    let myEntretiens = this.state.myEntretiensRaw.length;
+    if(myEntretiens != 0){
+      return(<Label size="big" color="green" >{myEntretiens}</Label>)
+    }else{
+      return(<Label size="big" color="grey" >0</Label>)
+    }
+  }
+  getUnaffectedLabel = () => {
+    let unaffectedEntretiens = this.state.unaffectedEntretiens().length;
+    if(unaffectedEntretiens != 0){
+      return(<Label size="big" color="orange" >{unaffectedEntretiens}</Label>)
+    }else{
+      return(<Label size="big" color="grey" >0</Label>)
+    }
+  }
+  /*COMPONENTS LIFECYCLE*/
   componentDidMount = () => {
     this.loadUnaffectedEntretiens();
     this.loadMyEntretiens();
     this.loadEntretiensOfTheDay();
   }
-
   render() {
     return (
       <Fragment>
-        <div style={{display:"grid",gridTemplateColumns:"3fr 2fr",gridTemplateRows:"auto 1fr",gridGap:"32px"}}>
-          <Calendar byUser={false} didRefreshMonth={this.didRefreshMonth} needToRefreshMonth={this.state.needToRefreshMonth} style={{gridRowEnd:"span 2"}} selectDate={this.selectDate} month={this.state.month} year={this.state.year}/>
-          <div style={{gridRowEnd:"span 2"}}>
-          <Menu widths={3} attached='top' tabular>
-            <Menu.Item color="blue" name='selectedDay' active={this.state.activeItem === 'selectedDay'} onClick={()=>this.setState({activeItem:"selectedDay"})}>{this.state.selectedDate.format("DD/MM/YYYY")}</Menu.Item>
-            <Menu.Item color="green" name='affectedToMe' active={this.state.activeItem === 'affectedToMe'} onClick={()=>this.setState({activeItem:"affectedToMe"})}>Mes entretiens</Menu.Item>
-            <Menu.Item color="orange" name='unaffected' active={this.state.activeItem === 'unaffected'} onClick={()=>this.setState({activeItem:"unaffected"})}>Entretiens à affecter</Menu.Item>
-          </Menu>
-          {this.getSideTable()}
-          </div>
+        <div style={{display:"grid",gridTemplateColumns:"auto 1fr",gridTemplateRows:"auto 1fr",gridGap:"32px",height:"100%"}}>
+          <Calendar userLimited={this.props.userLimited} didRefreshMonth={this.didRefreshMonth} needToRefreshMonth={this.state.needToRefreshMonth} selectDate={this.selectDate} month={this.state.month} year={this.state.year}/>
+          <Segment raised style={{gridRowEnd:"span 2",display:"grid",gridGap:"20px",gridTemplateRows:"auto 1fr"}}>
+            <Menu size="massive" widths={3} pointing secondary>
+              <Menu.Item color="blue" name='selectedDay' active={this.state.activeItem === 'selectedDay'} onClick={()=>this.setState({activeItem:"selectedDay"})}>
+                {this.state.selectedDate.format("DD/MM/YYYY")}
+                {this.getSelectedDayLabel()}
+              </Menu.Item>
+              <Menu.Item color="green" name='affectedToMe' active={this.state.activeItem === 'affectedToMe'} onClick={()=>this.setState({activeItem:"affectedToMe"})}>
+                Mes entretiens
+                {this.getMyLabel()}
+              </Menu.Item>
+              <Menu.Item color="orange" name='unaffected' active={this.state.activeItem === 'unaffected'} onClick={()=>this.setState({activeItem:"unaffected"})}>
+                Entretiens à affecter
+                {this.getUnaffectedLabel()}
+              </Menu.Item>
+            </Menu>
+            {this.getSideTable()}
+          </Segment>
         </div>
         <Modal size="mini" closeOnDimmerClick={false} open={this.state.openAffectToMe} onClose={this.closeAffectToMe} closeIcon>
           <Modal.Header>
-            A quelle date voulez vous vous affecter l'entretien ?
+            A quelle date voulez vous affecter l'entretien ?
           </Modal.Header>
           <Modal.Content style={{textAlign:"center"}}>
             <Form style={{display:"grid",gridTemplateColumns:"1fr",gridGap:"16px"}}>
@@ -469,7 +584,7 @@ class Planning extends Component {
             Relacher l'entretien ?
           </Modal.Header>
           <Modal.Content style={{textAlign:"center"}}>
-            L'entretien ne vous sera plus affecté et sera de nouveau en attente de prise en charge
+            L'entretien ne vous sera plus affecté et sera de nouveau en attente d'affectation
           </Modal.Content>
           <Modal.Actions>
             <Button color="black" onClick={this.closeRelease}>Annuler</Button>

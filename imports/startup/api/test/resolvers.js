@@ -1,5 +1,6 @@
 import Vehicles from '../vehicle/vehicles';
 import Licences from '../licence/licences';
+import Equipements from '../equipement/equipements';
 import Entretiens from '../entretien/entretiens';
 import Batiments from '../batiment/batiments';
 import Accidents from '../accident/accidents';
@@ -33,15 +34,38 @@ export default {
                             }
                         }
                     })*/
-                    /*Vehicles.update(
+                    Vehicles.update(
                         {},{
                             $set: {
-                                payementEndDate:"",
-                                monthlyPayement:0
+                                selling:false,
+                                sellingReason:"",
+                                sellingSince:"",
+                                broken:false,
+                                brokenReason:"",
+                                brokenSince:""
                             }
                         },
                         {multi:true}
                     );
+                    Entretiens.update(
+                        {},{
+                            $set: {
+                                fromControl:false,
+                                control:null
+                            }
+                        },
+                        {multi:true}
+                    );
+                    Equipements.update(
+                        {},{
+                            $set: {
+                                entretienCreated:false,
+                                entretien:""
+                            }
+                        },
+                        {multi:true}
+                    );
+                    /*
                     data.map(v=>{
                         console.log(v.registration + " : " + v.monthlyPayement)
                         Vehicles.update(
@@ -54,7 +78,7 @@ export default {
                             }
                         );
                     })*/
-                    return [{status:true,message:'Nuked : nothing, this is empty'}];
+                    return [{status:true,message:'Nuked : initialized breaking and selling vehicles attributes, all entretiens are now fromControl = false, control = null and all controls are now entretienCreated = false'}];
                 }catch(e){
                     throw e;
                     return [{status:false,message:e.message}];

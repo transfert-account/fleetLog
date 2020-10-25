@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { UserContext } from '../../contexts/UserContext';
-import { Header, Dimmer, Loader } from 'semantic-ui-react';
+import { Dimmer, Loader } from 'semantic-ui-react';
 import DashboardUnit from '../molecules/DashboardUnit';
 import { gql } from 'apollo-server-express';
 
@@ -189,14 +189,12 @@ class Dashboards extends Component {
     render() {
         if(this.state.dataLoaded && this.state.societeLoaded){
             return (
-                <div style={{height:"100%",display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"16px 40px",gridTemplateRows:"minmax(0, 1fr)"}}>
-                    {this.state.dashboard()}
-                </div>
+                this.state.dashboard()
             )
         }else{
             return (
                 <Dimmer inverted active>
-                    <Loader size='massive'>Chargement du tableaud de bord ...</Loader>
+                    <Loader size='massive'>Chargement du tableau de bord ...</Loader>
                 </Dimmer>
             )
         }

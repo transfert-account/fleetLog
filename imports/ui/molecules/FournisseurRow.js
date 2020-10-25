@@ -1,6 +1,9 @@
 import React, { Component, Fragment } from 'react'
-import { Table, Dropdown, Icon, Message, Input, Button, Modal } from 'semantic-ui-react';
+import { Table, Button, Modal, Message, Input, Icon } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
+
+import ActionsGridCell from '../atoms/ActionsGridCell';
+
 import gql from 'graphql-tag';
 
 class FournisseurRow extends Component {
@@ -12,6 +15,10 @@ class FournisseurRow extends Component {
         newPhone:this.props.fournisseur.phone,
         newMail:this.props.fournisseur.mail,
         newAddress:this.props.fournisseur.address,
+        rowActions:[
+            {color:"blue",click:()=>{this.showEdit()},icon:"edit",tooltip:"Editer le fournisseur"},
+            {color:"red",click:()=>{this.showDelete()},icon:"trash",tooltip:"Supprimer le fournisseur"}
+        ],
         deleteFournisseurQuery : gql`
             mutation deleteFournisseur($_id:String!){
                 deleteFournisseur(_id:$_id){
@@ -35,21 +42,18 @@ class FournisseurRow extends Component {
           [e.target.name]:e.target.value
         });
     }
-
     showDelete = () => {
         this.setState({openDelete:true})
     }
     closeDelete = () => {
         this.setState({openDelete:false})
     }
-    
     closeEdit = () => {
         this.setState({editing:false})
     }
     showEdit = () => {
         this.setState({editing:true})
     }
-
     deleteFournisseur = () => {
         this.closeDelete();
         this.props.client.mutate({
@@ -68,7 +72,6 @@ class FournisseurRow extends Component {
             })
         })
     }
-
     saveEdit = () => {
         this.closeEdit();
         this.props.client.mutate({
@@ -91,7 +94,6 @@ class FournisseurRow extends Component {
             })
         })
     }
-
     loadFournisseurs = () => {
         this.props.loadFournisseurs();
     }
@@ -118,10 +120,7 @@ class FournisseurRow extends Component {
                         <Table.Cell>{this.props.fournisseur.phone}</Table.Cell>
                         <Table.Cell>{this.props.fournisseur.mail}</Table.Cell>
                         <Table.Cell>{this.props.fournisseur.address}</Table.Cell>
-                        <Table.Cell style={{textAlign:"center"}}>
-                            <Button circular style={{color:"#2980b9"}} inverted icon icon='edit' onClick={this.showEdit}/>    
-                            <Button circular style={{color:"#e74c3c"}} inverted icon icon='trash' onClick={this.showDelete}/>
-                        </Table.Cell>
+                        <ActionsGridCell actions={this.state.rowActions}/>
                     </Table.Row>
                     <Modal closeOnDimmerClick={false} open={this.state.openDelete} onClose={this.closeDelete} closeIcon>
                         <Modal.Header>

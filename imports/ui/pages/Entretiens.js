@@ -1,26 +1,48 @@
 import React, { Component } from 'react';
-import { Icon, Input, Button, Table, Modal, Form, Message } from 'semantic-ui-react';
-import DropdownFilter from '../atoms/DropdownFilter';
+import { Input, Button, Table, Modal, Form } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
+
+import BigButtonIcon from '../elements/BigIconButton';
 import EntretienRow from '../molecules/EntretienRow';
+import CustomFilterSegment from '../molecules/CustomFilterSegment';
+
+import CustomFilter from '../atoms/CustomFilter';
 import VehiclePicker from '../atoms/VehiclePicker';
+
 import { gql } from 'apollo-server-express';
+
 
 class Entretiens extends Component {
 
     state={
         entretienFilter:"",
         newVehicle:"",
-        filterArchive:false,
         openAddEntretien:false,
         archiveFilter:false,
         docsFilter:"all",
         orderStatusFilter:"all",
+        fromControlFilter:"all",
+        filters:[
+            {
+                infos:"archiveFilterInfos",
+                filter:"archiveFilter"
+            },{
+                infos:"ordersFilterInfos",
+                filter:"orderStatusFilter"
+            },{
+                infos:"docsFilterInfos",
+                filter:"docsFilter"
+            },{
+                infos:"fromControlFilterInfos",
+                filter:"fromControlFilter"
+            }
+        ],
         archiveFilterInfos:{
             icon:"archive",            
             options:[
                 {
                     key: 'archivefalse',
+                    initial: true,
                     text: 'Entretiens actuels',
                     value: false,
                     color:"green",
@@ -29,6 +51,7 @@ class Entretiens extends Component {
                 },
                 {
                     key: 'archivetrue',
+                    initial: false,
                     text: 'Entretiens archivés',
                     value: true,
                     color:"orange",
@@ -42,6 +65,7 @@ class Entretiens extends Component {
             options:[
                 {
                     key: 'orderall',
+                    initial: true,
                     text: 'Tous les entretiens',
                     value: "all",
                     color:"green",
@@ -50,6 +74,7 @@ class Entretiens extends Component {
                 },
                 {
                     key: 'orderready',
+                    initial: false,
                     text: 'Entretiens prêts',
                     value: "ready",
                     color:"blue",
@@ -58,6 +83,7 @@ class Entretiens extends Component {
                 },
                 {
                     key: 'orderwaiting',
+                    initial: false,
                     text: 'Commandes en livraison',
                     value: "waiting",
                     color:"orange",
@@ -66,6 +92,7 @@ class Entretiens extends Component {
                 },
                 {
                     key: 'ordertodo',
+                    initial: false,
                     text: 'Commandes à passer',
                     value: "toDo",
                     color:"red",
@@ -79,6 +106,7 @@ class Entretiens extends Component {
             options:[
                 {
                     key: 'docsall',
+                    initial: true,
                     text: 'Tous les entretiens',
                     value: "all",
                     color:"green",
@@ -87,11 +115,42 @@ class Entretiens extends Component {
                 },
                 {
                     key: 'docsmissing',
+                    initial: false,
                     text: 'Documents manquants',
                     value: "missingDocs",
                     color:"red",
                     click:()=>{this.setDocsFilter("missingDocs")},
                     label: { color: 'red', empty: true, circular: true }
+                }
+            ]
+        },
+        fromControlFilterInfos:{
+            icon:"clipboard check",            
+            options:[
+                {
+                    key: 'all',
+                    initial: true,
+                    text: 'Tous les entretiens',
+                    value: "all",
+                    color:"green",
+                    click:()=>{this.setFromControlFilter("all")},
+                    label: { color: 'green', empty: true, circular: true },
+                },{
+                    key: 'preventive',
+                    initial: false,
+                    text: 'Entretiens préventifs',
+                    value: "preventive",
+                    color:"blue",
+                    click:()=>{this.setFromControlFilter("preventive")},
+                    label: { color: 'blue', empty: true, circular: true }
+                },{
+                    key: 'curative',
+                    initial: false,
+                    text: 'Entretiens curatifs',
+                    value: "curative",
+                    color:"orange",
+                    click:()=>{this.setFromControlFilter("curative")},
+                    label: { color: 'orange', empty: true, circular: true }
                 }
             ]
         },
@@ -144,6 +203,24 @@ class Entretiens extends Component {
                     }
                 }}
             )
+            displayed = displayed.filter(e =>{
+                if(this.state.fromControlFilter == "all"){return true}else{
+                    if(this.state.fromControlFilter == "preventive"){
+                        if(e.fromControl){
+                            return true
+                        }else{
+                            return false
+                        }
+                    }
+                    if(this.state.fromControlFilter == "curative"){
+                        if(e.fromControl){
+                            return false
+                        }else{
+                            return true
+                        }
+                    }
+                }}
+            )
             if(this.state.entretienFilter.length>0){
                 displayed = displayed.filter(e =>
                     e.title.toLowerCase().includes(this.state.entretienFilter.toLowerCase()) ||
@@ -162,7 +239,7 @@ class Entretiens extends Component {
             }
             displayed.sort((a, b) => a.vehicle.registration.localeCompare(b.vehicle.registration))
             return displayed.map(e =>(
-                <EntretienRow loadEntretiens={this.loadEntretiens} key={e._id} entretien={e}/>
+                <EntretienRow userLimited={this.props.userLimited} loadEntretiens={this.loadEntretiens} key={e._id} entretien={e}/>
             ))
         },
         addEntretienQuery : gql`
@@ -180,6 +257,82 @@ class Entretiens extends Component {
                     description
                     archived
                     title
+                    fromControl
+                    control{
+                        _id
+                        equipementDescription{
+                            _id
+                            name
+                        }
+                    }
+                    societe{
+                        _id
+                        trikey
+                        name
+                    }
+                    commandes{
+                        _id
+                        piece{
+                            _id
+                            name
+                            type
+                        }
+                        entretien
+                        status
+                        price
+                    }
+                    ficheInter{
+                        _id
+                    }
+                    vehicle{
+                        _id
+                        societe{
+                            _id
+                            trikey
+                            name
+                        }
+                        registration
+                        firstRegistrationDate
+                        km
+                        brand{
+                            _id
+                            name
+                        }
+                        model{
+                            _id
+                            name
+                        }
+                        volume{
+                            _id
+                            meterCube
+                        }
+                        payload
+                        color{
+                            _id
+                            name
+                            hex
+                        }
+                        insurancePaid
+                        property
+                    }
+                }
+            }
+        `,
+        buEntretiensQuery : gql`
+            query buEntretiens{
+                buEntretiens{
+                    _id
+                    description
+                    archived
+                    title
+                    fromControl
+                    control{
+                        _id
+                        equipementDescription{
+                            _id
+                            name
+                        }
+                    }
                     societe{
                         _id
                         trikey
@@ -234,62 +387,68 @@ class Entretiens extends Component {
             }
         `
     }
-
-    handleChange = e =>{
-        this.setState({
-            [e.target.name]:e.target.value
-        });
-    }
-
-    handleChangeVehicle = _id => {
-        this.setState({ newVehicle:_id })
-    }
-
+    /*SHOW AND HIDE MODALS*/
     showAddEntretien = () => {
         this.setState({
             openAddEntretien:true
         })
     }
-    
     closeAddEntretien = () => {
         this.setState({
             openAddEntretien:false
         })
     }
-
-    //ARCHIVE FILTER
+    /*CHANGE HANDLERS*/
+    handleChange = e =>{
+        this.setState({
+            [e.target.name]:e.target.value
+        });
+    }
+    handleChangeVehicle = _id => {
+        this.setState({ newVehicle:_id })
+    }
+    /*FILTERS HANDLERS*/
     switchArchiveFilter = v => {
         this.setState({
             archiveFilter:v
         })
         this.loadEntretiens();
     }
-
-    //ORDER STATUS FILTER
     setOrderStatusFilter = value => {
         this.setState({
             orderStatusFilter:value
         })
     }
-
-    //MISSING DOCS FILTER
     setDocsFilter = value => {
         this.setState({
             docsFilter:value
         })
     }
-
+    setFromControlFilter = value => {
+        this.setState({
+            fromControlFilter:value
+        })
+    }
+    resetAll = () => {
+        let filterNewValues = {};
+        this.state.filters.forEach(f=>{
+            filterNewValues[f.filter] = this.state[f.infos].options.filter(o=>o.initial)[0].value
+        })
+        this.setState(filterNewValues);
+    }
+    /*DB READ AND WRITE*/
     loadEntretiens = () => {
+        let entretiensQuery = (this.props.userLimited ? this.state.buEntretiensQuery : this.state.entretiensQuery);
         this.props.client.query({
-            query:this.state.entretiensQuery,
+            query:entretiensQuery,
             fetchPolicy:"network-only"
         }).then(({data})=>{
+            let entretiens = (this.props.userLimited ? data.buEntretiens : data.entretiens);
             this.setState({
-                entretiensRaw:data.entretiens
+                entretiensRaw:entretiens
             })
         })
     }
-
     addEntretien = () => {
         this.closeAddEntretien()
         this.props.client.mutate({
@@ -308,36 +467,63 @@ class Entretiens extends Component {
             })
         })
     }
-
+    /*CONTENT GETTERS*/
+    getTableHeader = () => {
+        if(this.props.userLimited){
+            return(
+                <Table.Header>
+                    <Table.Row textAlign='center'>
+                        <Table.HeaderCell>Vehicule</Table.HeaderCell>
+                        <Table.HeaderCell>Type</Table.HeaderCell>
+                        <Table.HeaderCell>Titre</Table.HeaderCell>
+                        <Table.HeaderCell>Description de l'entretien</Table.HeaderCell>
+                        <Table.HeaderCell>A commander</Table.HeaderCell>
+                        <Table.HeaderCell>Commandé</Table.HeaderCell>
+                        <Table.HeaderCell>Prêt</Table.HeaderCell>
+                        <Table.HeaderCell>Documents</Table.HeaderCell>
+                        <Table.HeaderCell>Actions</Table.HeaderCell>
+                    </Table.Row>
+                </Table.Header>
+            )
+        }else{
+            return(
+                <Table.Header>
+                    <Table.Row textAlign='center'>
+                        <Table.HeaderCell>Societe</Table.HeaderCell>
+                        <Table.HeaderCell>Vehicule</Table.HeaderCell>
+                        <Table.HeaderCell>Type</Table.HeaderCell>
+                        <Table.HeaderCell>Titre</Table.HeaderCell>
+                        <Table.HeaderCell>Description de l'entretien</Table.HeaderCell>
+                        <Table.HeaderCell>A commander</Table.HeaderCell>
+                        <Table.HeaderCell>Commandé</Table.HeaderCell>
+                        <Table.HeaderCell>Prêt</Table.HeaderCell>
+                        <Table.HeaderCell>Documents</Table.HeaderCell>
+                        <Table.HeaderCell>Actions</Table.HeaderCell>
+                    </Table.Row>
+                </Table.Header>
+            )
+        }
+    }
+    /*COMPONENTS LIFECYCLE*/
     componentDidMount = () => {
         this.loadEntretiens();
     }
-
     render() {
         return (
-            <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"32px",gridTemplateRows:"auto auto 1fr auto",gridTemplateColumns:"1fr auto"}}>
+            <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto auto 1fr auto",gridTemplateColumns:"1fr auto"}}>
                 <Input style={{justifySelf:"stretch"}} name="entretienFilter" onChange={this.handleChange} icon='search' placeholder='Rechercher une immatriculation, un titre ou une description' />
-                <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddEntretien} icon labelPosition='right'>Créer un entretien<Icon name='plus'/></Button>
-                <div style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 2",display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gridGap:"16px"}}>
-                    <DropdownFilter infos={this.state.archiveFilterInfos} active={this.state.archiveFilter} />
-                    <DropdownFilter infos={this.state.ordersFilterInfos} active={this.state.orderStatusFilter} />
-                    <DropdownFilter infos={this.state.docsFilterInfos} active={this.state.docsFilter} />
+                <div style={{display:"flex",justifyContent:"flex-end"}}>
+                    <BigButtonIcon icon="plus" color="blue" onClick={this.showAddEntretien} tooltip="Créer un entretien"/>
                 </div>
+                <CustomFilterSegment resetAll={this.resetAll} style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 2"}}>
+                    <CustomFilter infos={this.state.archiveFilterInfos} active={this.state.archiveFilter} />
+                    <CustomFilter infos={this.state.ordersFilterInfos} active={this.state.orderStatusFilter} />
+                    <CustomFilter infos={this.state.docsFilterInfos} active={this.state.docsFilter} />
+                    <CustomFilter infos={this.state.fromControlFilterInfos} active={this.state.fromControlFilter} />
+                </CustomFilterSegment>
                 <div style={{gridRowStart:"3",gridColumnEnd:"span 2",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                     <Table style={{marginBottom:"0"}} celled selectable compact>
-                        <Table.Header>
-                            <Table.Row textAlign='center'>
-                                <Table.HeaderCell>Societe</Table.HeaderCell>
-                                <Table.HeaderCell>Vehicule</Table.HeaderCell>
-                                <Table.HeaderCell>Titre</Table.HeaderCell>
-                                <Table.HeaderCell>Description de l'entretien</Table.HeaderCell>
-                                <Table.HeaderCell>A commander</Table.HeaderCell>
-                                <Table.HeaderCell>Commandé</Table.HeaderCell>
-                                <Table.HeaderCell>Prêt</Table.HeaderCell>
-                                <Table.HeaderCell>Documents</Table.HeaderCell>
-                                <Table.HeaderCell>Actions</Table.HeaderCell>
-                            </Table.Row>
-                        </Table.Header>
+                        {this.getTableHeader()}
                         <Table.Body>
                             {this.state.entretiens()}
                         </Table.Body>
@@ -351,7 +537,7 @@ class Entretiens extends Component {
                         <Form style={{display:"grid",gridTemplateRows:"1fr",gridTemplateColumns:"1fr",gridGap:"16px"}}>
                             <Form.Field>
                                 <label>Véhicule associé</label>
-                                <VehiclePicker hideLocations={true} onChange={this.handleChangeVehicle}/>
+                                <VehiclePicker userRestricted={this.props.userLimited} hideLocations={true} onChange={this.handleChangeVehicle}/>
                             </Form.Field>
                         </Form>
                     </Modal.Content>

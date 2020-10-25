@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
-import { Icon,Menu,Input,Button,Table,Modal,Form,Dropdown } from 'semantic-ui-react';
+import { Icon, Input, Button, Table, Modal, Form } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
+
 import FournisseurRow from '../molecules/FournisseurRow';
+
+import BigButtonIcon from '../elements/BigIconButton';
+
 import { gql } from 'apollo-server-express'
 
 class Fournisseurs extends Component {
@@ -53,31 +57,30 @@ class Fournisseurs extends Component {
         }
     `
   }
-
-  handleChange = e =>{
-    this.setState({
-      [e.target.name]:e.target.value
-    });
-  }
-
-  handleFilter = e =>{
-    this.setState({
-        fournisseurFilter:e.target.value
-    });
-  }
-
+  /*SHOW AND HIDE MODALS*/
   showAddFournisseur = () => {
     this.setState({
       openAddFournisseur:true
     })
   }
-
   closeAddFournisseur = () => {
     this.setState({
       openAddFournisseur:false
     })
   }
-
+  /*CHANGE HANDLERS*/
+  handleChange = e =>{
+    this.setState({
+      [e.target.name]:e.target.value
+    });
+  }
+  /*FILTERS HANDLERS*/
+  handleFilter = e =>{
+    this.setState({
+        fournisseurFilter:e.target.value
+    });
+  }
+  /*DB READ AND WRITE*/
   loadFournisseurs = () => {
     this.props.client.query({
         query:this.state.fournisseursQuery,
@@ -88,7 +91,6 @@ class Fournisseurs extends Component {
         })
     })
   }
-
   addFournisseur = () => {
     this.closeAddFournisseur()
     this.props.client.mutate({
@@ -107,16 +109,18 @@ class Fournisseurs extends Component {
         })
     })
   }
-
+  /*CONTENT GETTERS*/
+  /*COMPONENTS LIFECYCLE*/
   componentDidMount = () => {
     this.loadFournisseurs();
   }
-
   render() {
     return (
-        <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"32px",gridTemplateRows:"auto 1fr",gridTemplateColumns:"auto 1fr auto"}}>
+        <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"28px",gridTemplateRows:"auto 1fr",gridTemplateColumns:"1fr auto"}}>
             <Input style={{justifySelf:"stretch",gridColumnEnd:"span 2"}} name="storeFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher un nom, une adresse ou un mail' />
-            <Button color="blue" style={{justifySelf:"stretch"}} onClick={this.showAddFournisseur} icon labelPosition='right'>Ajouter un fournisseur<Icon name='plus'/></Button>
+            <div style={{display:"flex",justifyContent:"flex-end"}}>
+                <BigButtonIcon icon="plus" color="blue" onClick={this.showAddFournisseur} tooltip="Ajouter un fournisseur"/>
+            </div>
             <div style={{gridRowStart:"2",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                 <Table style={{marginBottom:"0"}} celled selectable color="blue" compact>
                     <Table.Header>

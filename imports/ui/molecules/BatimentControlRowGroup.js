@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import { Table } from 'semantic-ui-react';
+import { Table, Header } from 'semantic-ui-react';
 import BatimentControlRow from './BatimentControlRow'
 import { UserContext } from '../../contexts/UserContext';
 import moment from 'moment'
@@ -12,7 +12,7 @@ class BatimentControlRowGroup extends Component {
                 return (
                     <Table.Row error>
                         <Table.Cell colSpan={7} textAlign="center">
-                            Aucun contrôle pour le batiment ({this.props.batiment.societe.name})
+                            Aucun contrôle pour la société ({this.props.batiment.societe.name})
                         </Table.Cell>
                     </Table.Row>
                 )
@@ -61,9 +61,25 @@ class BatimentControlRowGroup extends Component {
                 )
                 return(
                     <Fragment>
-                        {displayed.map(c=>
-                            <BatimentControlRow key={c._id} loadBatiments={this.props.loadBatiments} societe={this.props.batiment.societe} control={c}/>
-                        )}
+                        <Header as="h2" floated="left">{this.props.batiment.societe.name}</Header>
+                        <Header as="h2" floated="right">{displayed.length + " contrôles de batiments"}</Header>
+                        <Table style={{marginBottom:"16px"}} celled selectable color="blue" compact>
+                            <Table.Header>
+                                <Table.Row textAlign='center'>
+                                    <Table.HeaderCell>Contrôle</Table.HeaderCell>
+                                    <Table.HeaderCell>Délai</Table.HeaderCell>
+                                    <Table.HeaderCell>Dernière exécution</Table.HeaderCell>
+                                    <Table.HeaderCell>Avant prochaine exécution</Table.HeaderCell>
+                                    <Table.HeaderCell>Documents</Table.HeaderCell>
+                                    <Table.HeaderCell>Actions</Table.HeaderCell>
+                                </Table.Row>
+                            </Table.Header>
+                            <Table.Body>
+                                {displayed.map(c=>
+                                    <BatimentControlRow key={c._id} loadBatiments={this.props.loadBatiments} societe={this.props.batiment.societe} control={c}/>
+                                )}
+                            </Table.Body>
+                        </Table>
                     </Fragment>
                 )
             }

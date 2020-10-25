@@ -1,10 +1,13 @@
 import React, { Component, Fragment } from 'react'
 import { Table, Dropdown, Icon, Message, Input, Button, Modal, Label } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
+
+import ActionsGridCell from '../atoms/ActionsGridCell';
 import VehiclePicker from '../atoms/VehiclePicker';
 import FileManagementPanel from '../atoms/FileManagementPanel';
 import ModalDatePicker from '../atoms/ModalDatePicker';
 import DocStateLabel from '../atoms/DocStateLabel';
+
 import moment from 'moment';
 import gql from 'graphql-tag';
 
@@ -64,13 +67,49 @@ class LicenceRow extends Component {
             }
         `,
     }
-
+    /*SHOW AND HIDE MODALS*/
+    showDelete = () => {
+        this.setState({openDelete:true})
+    }
+    closeDelete = () => {
+        this.setState({openDelete:false})
+    }
+    closeEdit = () => {
+        this.setState({editing:false})
+    }
+    showEdit = () => {
+        this.setState({editing:true})
+    }
+    closeUnlink = () => {
+        this.setState({openUnlink:false})
+    }
+    showUnlink = () => {
+        this.setState({openUnlink:true})
+    }
+    closeLink = () => {
+        this.setState({openLink:false})
+    }
+    showLink = () => {
+        this.setState({openLink:true})
+    }
+    showDocs = () => {
+        this.setState({openDocs:true})
+    }
+    closeDocs = () => {
+        this.setState({openDocs:false})
+    }
+    showDatePicker = target => {
+        this.setState({openDatePicker:true,datePickerTarget:target})
+    }
+    closeDatePicker = () => {
+        this.setState({openDatePicker:false,datePickerTarget:""})
+    }
+    /*CHANGE HANDLERS*/
     handleChange = e =>{
         this.setState({
           [e.target.name]:e.target.value
         });
     }
-
     handleInputFile = (type,e) => {
         if(e.target.validity.valid ){
             this.setState({
@@ -78,54 +117,17 @@ class LicenceRow extends Component {
             })
         }
     }
-
     onSelectDatePicker = date => {
         this.setState({
             [this.state.datePickerTarget]:date.getDate().toString().padStart(2, '0')+"/"+parseInt(date.getMonth()+1).toString().padStart(2, '0')+"/"+date.getFullYear().toString().padStart(4, '0')
         })
     }
-
-    showDatePicker = target => {
-        this.setState({openDatePicker:true,datePickerTarget:target})
-    }
-    closeDatePicker = () => {
-        this.setState({openDatePicker:false,datePickerTarget:""})
-    }
-    
     handleChangeSociete = (e, { value }) => this.setState({ newSociete:value })
-    
     handleChangeVehicle = _id => {
         this.setState({ newVehicle:_id })
     }
-
-    showDelete = () => {
-        this.setState({openDelete:true})
-    }
-    closeDelete = () => {
-        this.setState({openDelete:false})
-    }
-    
-    closeEdit = () => {
-        this.setState({editing:false})
-    }
-    showEdit = () => {
-        this.setState({editing:true})
-    }
-
-    closeUnlink = () => {
-        this.setState({openUnlink:false})
-    }
-    showUnlink = () => {
-        this.setState({openUnlink:true})
-    }
-
-    closeLink = () => {
-        this.setState({openLink:false})
-    }
-    showLink = () => {
-        this.setState({openLink:true})
-    }
-
+    /*FILTERS HANDLERS*/
+    /*DB READ AND WRITE*/
     deleteLicence = () => {
         this.closeDelete();
         this.props.client.mutate({
@@ -144,14 +146,6 @@ class LicenceRow extends Component {
             })
         })
     }
-
-    showDocs = () => {
-        this.setState({openDocs:true})
-    }
-    closeDocs = () => {
-        this.setState({openDocs:false})
-    }
-    
     uploadDocLicence = () => {
         this.props.client.mutate({
             mutation:this.state.uploadLicenceDocumentQuery,
@@ -173,7 +167,6 @@ class LicenceRow extends Component {
             })
         })
     }
-
     saveEdit = () => {
         let newSociete;
         if(this.props.hideSociete){
@@ -202,7 +195,6 @@ class LicenceRow extends Component {
             })
         })
     }
-
     unlinkLicence = () => {
         this.props.client.mutate({
             mutation:this.state.unlinkLicenceQuery,
@@ -221,7 +213,6 @@ class LicenceRow extends Component {
             })
         })
     }
-
     linkLicence = () => {
         this.props.client.mutate({
             mutation:this.state.linkLicenceQuery,
@@ -241,42 +232,42 @@ class LicenceRow extends Component {
             })
         })
     }
-
-    getEndDateLabel = () => {
+    /*CONTENT GETTERS*/
+    getEndDateCell = () => {
         let daysLeft = parseInt(moment(this.props.licence.endDate,"DD/MM/YYYY").diff(moment(),'days', true))
         if(daysLeft <= 0){
-            return <Label color="red"> {moment(this.props.licence.endDate, "DD/MM/YYYY").fromNow()}, le {this.props.licence.endDate}</Label>
+            return (
+                <Table.Cell textAlign="center">
+                    {this.props.licence.endDate}
+                    <Label style={{marginLeft:"16px"}} color="red"> {moment(this.props.licence.endDate, "DD/MM/YYYY").fromNow()}</Label>
+                </Table.Cell>
+            )
         }
         if(daysLeft > 0 && daysLeft <= 28){
-            return <Label color="orange"> {moment(this.props.licence.endDate, "DD/MM/YYYY").fromNow()}, le {this.props.licence.endDate}</Label>
+            return (
+                <Table.Cell textAlign="center">
+                    {this.props.licence.endDate}
+                    <Label style={{marginLeft:"16px"}} color="orange"> {moment(this.props.licence.endDate, "DD/MM/YYYY").fromNow()}</Label>
+                </Table.Cell>
+            )
         }
-        return <Label color="green"> {moment(this.props.licence.endDate, "DD/MM/YYYY").fromNow()}, le {this.props.licence.endDate}</Label>
+        return (
+            <Table.Cell textAlign="center">
+                {this.props.licence.endDate}
+                <Label style={{marginLeft:"16px"}} color="green"> {moment(this.props.licence.endDate, "DD/MM/YYYY").fromNow()}</Label>
+            </Table.Cell>
+        )
     }
-
     getEditSocieteCell = () => {
         if(!this.props.hideSociete){
             return <Table.Cell textAlign="center"><Dropdown value={this.state.newSociete} placeholder='Choisir un société' search selection onChange={this.handleChangeSociete} options={this.props.societesRaw.map(x=>{return{key:x._id,text:x.name,value:x._id}})} name="newSociete" /></Table.Cell>
         }
     }
-
     getSocieteCell = () => {
         if(!this.props.hideSociete){
             return <Table.Cell textAlign="center">{this.props.licence.societe.name}</Table.Cell>
         }
     }
-
-    getLinkButton = () => {
-        if(this.props.licence.vehicle._id != "" && this.props.licence.vehicle._id != null && this.props.licence.vehicle._id != undefined){
-            return(
-                <Button circular style={{color:"#e74c3c"}} inverted icon icon='unlinkify' onClick={this.showUnlink}/>
-            )
-        }else{
-            return(
-                <Button circular style={{color:"#2ecc71"}} inverted icon icon='linkify' onClick={this.showLink}/>
-            )
-        }
-    }
-
     getDocsStates = () => {
         return (
             <Table.Cell textAlign="center">
@@ -284,28 +275,33 @@ class LicenceRow extends Component {
             </Table.Cell>
         )
     }
-
-    getActionsCell = () => {
+    getRowActions = () => {
         if(this.props.user.isOwner){
-            return (
-                <Table.Cell textAlign="center">
-                    {this.getLinkButton()}
-                    <Button circular style={{color:"#a29bfe"}} inverted icon icon='folder open' onClick={this.showDocs}/>
-                    <Button circular style={{color:"#2980b9"}} inverted icon icon='edit' onClick={this.showEdit}/>    
-                    <Button circular style={{color:"#e74c3c"}} inverted icon icon='trash' onClick={this.showDelete}/>
-                </Table.Cell>
-            )
+            let actions = [
+                {color:"blue",click:()=>{this.showEdit()},icon:'edit',tooltip:"Editer la licence"},
+                {color:"purple",click:()=>{this.showDocs()},icon:'folder open',tooltip:"Gérer les documents"},
+                {color:"red",click:()=>{this.showDelete()},icon:'trash',tooltip:"Supprimer la licence"}
+            ];
+            if(this.props.licence.vehicle._id != "" && this.props.licence.vehicle._id != null && this.props.licence.vehicle._id != undefined){
+                actions.unshift({color:"red",click:()=>{this.showUnlink()},icon:'unlinkify',tooltip:"Dissocier le véhicule de la licence"})
+            }else{
+                actions.unshift({color:"green",click:()=>{this.showLink()},icon:'linkify',tooltip:"Associer un véhicule de la licence"})
+            }
+            return actions;
         }else{
-            return (
-                <Table.Cell textAlign="center">
-                    {this.getLinkButton()}
-                    <Button circular style={{color:"#a29bfe"}} inverted icon icon='folder open' onClick={this.showDocs}/>
-                    <Button circular style={{color:"#2980b9"}} inverted icon icon='edit' onClick={this.showEdit}/>
-                </Table.Cell>
-            )
+            let actions = [
+                {color:"blue",click:()=>{this.showEdit()},icon:'edit',tooltip:"Editer la licence"},
+                {color:"purple",click:()=>{this.showDocs()},icon:'folder open',tooltip:"Gérer les documents"}
+            ];
+            if(this.props.licence.vehicle._id != "" && this.props.licence.vehicle._id != null && this.props.licence.vehicle._id != undefined){
+                actions.unshift({color:"red",click:()=>{this.showUnlink()},icon:'unlinkify',tooltip:"Dissocier le véhicule de la licence"})
+            }else{
+                actions.unshift({color:"green",click:()=>{this.showLink()},icon:'linkify',tooltip:"Associer un véhicule de la licence"})
+            }
+            return actions;
         }
     }
-
+    /*COMPONENTS LIFECYCLE*/
     render() {
         if(this.state.editing){
             return (
@@ -341,11 +337,11 @@ class LicenceRow extends Component {
                         <Table.Cell textAlign="center">{this.props.licence.number}</Table.Cell>
                         <Table.Cell textAlign="center">{this.props.licence.vehicle.registration}</Table.Cell>
                         <Table.Cell textAlign="center">{this.props.licence.shiftName}</Table.Cell>
-                        <Table.Cell textAlign="center">{this.getEndDateLabel()}</Table.Cell>
+                        {this.getEndDateCell()}
                         {this.getDocsStates()}
-                        {this.getActionsCell()}
+                        <ActionsGridCell actions={this.getRowActions()}/>
                     </Table.Row>
-                    <Modal closeOnDimmerClick={false} open={this.state.openDelete} onClose={this.closeDelete} closeIcon>
+                    <Modal size="tiny" closeOnDimmerClick={false} open={this.state.openDelete} onClose={this.closeDelete} closeIcon>
                         <Modal.Header>
                             Veuillez confirmer vouloir supprimer la licence : {this.props.licence.number} ?
                         </Modal.Header>
@@ -354,7 +350,7 @@ class LicenceRow extends Component {
                             <Button color="red" onClick={this.deleteLicence}>Supprimer</Button>
                         </Modal.Actions>
                     </Modal>
-                    <Modal closeOnDimmerClick={false} open={this.state.openUnlink} onClose={this.closeUnlink} closeIcon>
+                    <Modal size="tiny" closeOnDimmerClick={false} open={this.state.openUnlink} onClose={this.closeUnlink} closeIcon>
                         <Modal.Header>
                             Dissocier la licence {this.props.licence.number} de son véhicule ?
                         </Modal.Header>
@@ -363,12 +359,12 @@ class LicenceRow extends Component {
                             <Button color="red" onClick={this.unlinkLicence}>Dissocier</Button>
                         </Modal.Actions>
                     </Modal>
-                    <Modal closeOnDimmerClick={false} open={this.state.openLink} onClose={this.closeLink} closeIcon>
+                    <Modal size="tiny" closeOnDimmerClick={false} open={this.state.openLink} onClose={this.closeLink} closeIcon>
                         <Modal.Header>
                             Associer la licence à un véhicule
                         </Modal.Header>
                         <Modal.Content style={{textAlign:"center"}}>
-                            <VehiclePicker societeRestricted={this.props.hideSociete} defaultValue={this.state.newVehicle} onChange={this.handleChangeVehicle}/>
+                            <VehiclePicker societeRestricted={this.props.licence.societe._id} onChange={this.handleChangeVehicle}/>
                         </Modal.Content>
                         <Modal.Actions>
                             <Button color="black" onClick={this.closeLink}>Annuler</Button>

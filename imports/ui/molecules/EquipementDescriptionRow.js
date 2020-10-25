@@ -18,26 +18,16 @@ class EquipementDescriptionRow extends Component {
         editEquipementDescriptionQuery : gql`
             mutation editEquipementDescription($_id:String!,$name:String!,$controlPeriodValue:Int!,$controlPeriodUnit:String!,$alertStepValue:Int!,$alertStepUnit:String!,$unitType:String!){
                 editEquipementDescription(_id:$_id,name:$name,controlPeriodValue:$controlPeriodValue,controlPeriodUnit:$controlPeriodUnit,alertStepValue:$alertStepValue,alertStepUnit:$alertStepUnit,unitType:$unitType){
-                    _id
-                    name
-                    controlPeriodValue
-                    controlPeriodUnit
-                    alertStepValue
-                    alertStepUnit
-                    unitType
+                    status
+                    message
                 }
             }
         `,
         deleteEquipementDescriptionQuery : gql`
             mutation deleteEquipementDescription($_id:String!){
                 deleteEquipementDescription(_id:$_id){
-                    _id
-                    name
-                    controlPeriodValue
-                    controlPeriodUnit
-                    alertStepValue
-                    alertStepUnit
-                    unitType
+                    status
+                    message
                 }
             }
         `,
@@ -82,7 +72,14 @@ class EquipementDescriptionRow extends Component {
                 _id:this.state._id,
             }
         }).then(({data})=>{
-            this.props.loadEquipementDescriptions();
+            data.deleteEquipementDescription.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.loadEquipementDescriptions();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     }
 
@@ -100,7 +97,14 @@ class EquipementDescriptionRow extends Component {
                 unitType:this.state.newUnitType
             }
         }).then(({data})=>{
-            this.props.loadEquipementDescriptions();
+            data.editEquipementDescription.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.loadEquipementDescriptions();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     }
 
@@ -139,19 +143,18 @@ class EquipementDescriptionRow extends Component {
                             <Button circular style={{color:"#e74c3c"}} inverted icon icon='trash' onClick={this.showDelete}/>
                         </Table.Cell>
                     </Table.Row>
-                    <Modal closeOnDimmerClick={false} open={this.state.openDelete} onClose={this.closeDelete} closeIcon>
+                    <Modal size="tiny" closeOnDimmerClick={false} open={this.state.openDelete} onClose={this.closeDelete} closeIcon>
                         <Modal.Header>
                             Confirmation de suppression 
                         </Modal.Header>
                         <Modal.Content style={{textAlign:"center"}}>
                             <Message color='red' icon>
                                 <Icon name='warning sign'/>
-                                <Message.Content style={{display:"grid",gridTemplateColumns:"1fr 2fr",gridTemplateRows:"1fr 1fr"}}>
-                                    Veuillez confirmer vouloir supprimer l'équipement : {this.props.equipementDescription.registration}
-                                </Message.Content>
+                                Veuillez confirmer la suppression du contrôle : {this.props.equipementDescription.name}
                             </Message>
                         </Modal.Content>
                         <Modal.Actions>
+                            <Button color="black" onClick={this.closeDelete}>Annuler</Button>
                             <Button color="red" onClick={this.deleteEquipementDescription}>Supprimer</Button>
                         </Modal.Actions>
                     </Modal>

@@ -151,8 +151,8 @@ const affectDashboardData = d => {
             d.licencesLicence.missing += 1;
         }
     })
-    d.licences = licencesRaw.length;
-    d.licencesEndSoon = licencesRaw.filter(l=>moment(l.endDate,"DD/MM/YYYY").diff(moment(),'days', true)<14).length
+    d.licences = licencesRaw.filter(l=>moment(l.endDate,"DD/MM/YYYY").diff(moment(),'days', true)>=14).length;
+    d.licencesEndSoon = licencesRaw.filter(l=>moment(l.endDate,"DD/MM/YYYY").diff(moment(),'days', true)<14).filter(l=>moment(l.endDate,"DD/MM/YYYY").diff(moment(),'days', true)>0).length
     d.licencesOver = licencesRaw.filter(l=>moment(l.endDate,"DD/MM/YYYY").diff(moment(),'days', true)<0).length
     d.licenceFree = Licences.find({societe:d.societe._id._str,vehicle:""}).fetch().length;
     d.licenceAffected = d.licences - d.licenceFree;
@@ -166,8 +166,8 @@ const affectDashboardData = d => {
             d.batimentsFicheInter.missing += 1;
         }
     })
-    d.batiments = batimentsRaw.length;                
-    d.batimentsEndSoon = batimentsRaw.filter(l=>moment(l.lastExecution,"DD/MM/YYYY").add(l.delay,"days").diff(moment(),'days', true)<14).length
+    d.batiments = batimentsRaw.filter(l=>moment(l.lastExecution,"DD/MM/YYYY").add(l.delay,"days").diff(moment(),'days', true)>=14).length;                
+    d.batimentsEndSoon = batimentsRaw.filter(l=>moment(l.lastExecution,"DD/MM/YYYY").add(l.delay,"days").diff(moment(),'days', true)<14).filter(l=>moment(l.lastExecution,"DD/MM/YYYY").add(l.delay,"days").diff(moment(),'days', true)>0).length
     d.batimentsOver = batimentsRaw.filter(l=>moment(l.lastExecution,"DD/MM/YYYY").add(l.delay,"days").diff(moment(),'days', true)<0).length
     let accidentsRaw = Accidents.find({societe:d.societe._id._str}).fetch();
     accidentsRaw.map(a=>{

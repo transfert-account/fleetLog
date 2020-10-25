@@ -9,6 +9,8 @@ type Entretien{
     user:User!
     time:Float!
     status:Int!
+    fromControl:Boolean!
+    control:Equipement
     societe:Societe!
     ficheInter:Document
     commandes:[Commande]
@@ -21,7 +23,7 @@ extend type Query{
     unaffectedEntretiens : [Entretien]
     buUnaffectedEntretiens : [Entretien]
     entretiensOfTheDay(date:String!) : [Entretien]
-    entretiensOfTheDayByUser(date:String!) : [Entretien]
+    buEntretiensOfTheDay(date:String!) : [Entretien]
     myEntretiens : [Entretien]
 }
 
@@ -29,6 +31,7 @@ extend type Mutation{
     affectToMe(_id:String!,occurenceDate:String!): [QueryResultMessage]
     release(_id:String!): [QueryResultMessage]
     addEntretien(vehicle:String!): [QueryResultMessage]
+    createEntretienFromControl(control:String!): [QueryResultMessage]
     deleteEntretien(_id:String!): [QueryResultMessage]
     archiveEntretien(_id:String!,archived:Boolean!): [QueryResultMessage]
     disArchiveEntretien(_id:String!,archived:Boolean!): [QueryResultMessage]
