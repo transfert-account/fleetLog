@@ -14,6 +14,18 @@ export class Patchnotes extends Component {
                 </div>
                 <div className="patchnote-block" style={{display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                     <Segment>
+                        <Header color='blue' as="h2">13/12/2020 - v1.3.0.1</Header>
+                        <List divided relaxed>
+                            <List.Item>
+                                <List.Icon name='angle double up' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Chargement du tableau des véhicules</List.Header>
+                                    <List.Description>La page des véhicules charge les 16 premiers véhicules avant de charger le reste de manière à ne pas bloquer le client le temps du chargement de la liste complète</List.Description>
+                                </List.Content>
+                            </List.Item>
+                        </List>
+                    </Segment>
+                    <Segment>
                         <Header color='blue' as="h2">25/10/2020 - v1.3.0</Header>
                         <List divided relaxed>
                         <List.Item>

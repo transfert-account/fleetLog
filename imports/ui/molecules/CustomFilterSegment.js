@@ -6,9 +6,19 @@ import { gql } from 'apollo-server-express'
 
 class CustomSegmentFilter extends Component {
 
+    getEntryLoaded = () => {
+        if(this.props.entryLoaded){
+            return(
+                <Button size="big" color="blue" loading={!this.props.fullLoaded}>
+                    {this.props.entryLoaded} {this.props.entryLoadedText}
+                </Button>
+            )
+        }
+    }
+
     render() {
         return (
-            <Segment raised style={Object.assign({display:"grid",gridTemplateColumns:"1fr auto"},this.props.style)}>
+            <Segment raised style={Object.assign({display:"grid",gridTemplateColumns:"1fr auto auto"},this.props.style)}>
                 <div style={{display:"flex",justifyContent:"start",placeSelf:"stretch"}}>
                     {this.props.children}
                 </div>
@@ -17,6 +27,7 @@ class CustomSegmentFilter extends Component {
                 }>
                     Rénitialiser les filtres
                 </Popup>
+                {this.getEntryLoaded()}
             </Segment>
         )
     }

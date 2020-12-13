@@ -124,8 +124,14 @@ export default {
             affectVehicleData(vehicle)
             return vehicle;
         },
-        vehicles(obj, args, { user }){
-            let vehicles = Vehicles.find().fetch() || {};
+        vehicles(obj, { full }, { user }){
+            let vehicles = [];
+            if(full){
+                vehicles = Vehicles.find().fetch() || {};
+            }else{
+                vehicles = Vehicles.find({},{limit: 16}).fetch() || {};
+                console.log(vehicles.length)
+            }
             vehicles.forEach(v => {
                 affectVehicleData(v)
             });
@@ -142,9 +148,14 @@ export default {
             });
             return vehicles;
         },
-        buVehicles(obj, args,{user}){
+        buVehicles(obj, { full },{user}){
             let userFull = Meteor.users.findOne({_id:user._id});
-            let vehicles = Vehicles.find({$or:[{sharedTo:userFull.settings.visibility},{societe:userFull.settings.visibility}]}).fetch() || {};
+            let vehicles = [];
+            if(full){
+                vehicles = Vehicles.find({$or:[{sharedTo:userFull.settings.visibility},{societe:userFull.settings.visibility}]}).fetch() || {};
+            }else{
+                vehicles = Vehicles.find({$or:[{sharedTo:userFull.settings.visibility},{societe:userFull.settings.visibility}]},{limit: 16}).fetch() || {};
+            }
             vehicles.forEach(v => {
                 affectVehicleData(v)
             });

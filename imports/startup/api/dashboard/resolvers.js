@@ -123,10 +123,7 @@ const affectDashboardData = d => {
                 }
             }
             if(e.equipementDescription.unitType == "d"){
-                console.log("==========")
-                console.log((parseInt(e.lastControl) + " + " + parseInt(e.equipementDescription.controlPeriodValue)) + " - " + parseInt(v.km))
                 e.nextControl = (parseInt(e.lastControl) + parseInt(e.equipementDescription.controlPeriodValue)) - parseInt(v.km)
-                console.log(e.nextControl + " < " + e.equipementDescription.alertStepValue)
                 if(e.nextControl<e.equipementDescription.alertStepValue){
                     e.color = "orange";
                 }

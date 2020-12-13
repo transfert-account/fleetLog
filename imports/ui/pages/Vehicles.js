@@ -24,6 +24,7 @@ export class Vehicles extends Component {
 
     state={
         loading:true,
+        fullLoaded:false,
         newSociete:"",
         newRegistration:"",
         newFirstRegistrationDate:"",
@@ -299,8 +300,8 @@ export class Vehicles extends Component {
             }
         `,
         vehiclesQuery : gql`
-            query vehicles{
-                vehicles{
+            query vehicles($full:Boolean!){
+                vehicles(full:$full){
                     _id
                     societe{
                         _id
@@ -354,8 +355,8 @@ export class Vehicles extends Component {
             }
         `,
         buVehiclesQuery : gql`
-            query buVehicles{
-                buVehicles{
+            query buVehicles($full:Boolean!){
+                buVehicles(full:$full){
                     _id
                     societe{
                         _id
@@ -665,13 +666,47 @@ export class Vehicles extends Component {
         this.props.client.query({
             query: vehiculesQuery,
             variables:{
-                archive:this.state.archiveFilter
+                full:false
             },
             fetchPolicy:"network-only"
         }).then(({data})=>{
             let vehicles = (this.props.userLimited ? data.buVehicles : data.vehicles);
             this.setState({
                 loading:false,
+                vehiclesRaw:vehicles,
+                newSociete:"",
+                newRegistration:"",
+                newFirstRegistrationDate:"",
+                newKm:"",
+                newLastKmUpdate:"",
+                newBrand:"",
+                newModel:"",
+                newVolume:"",
+                newPayload:0,
+                newColor:"",
+                newEnergy:"",
+                newInsurancePaid:"",
+                newPayementBeginDate:"",
+                newPurchasePrice:"",
+                newMonthlyPayement:"",
+                newPayementOrg:"",
+                newPayementFormat:""
+            });
+            this.loadVehiclesFull();
+        })
+    }
+    loadVehiclesFull = () => {
+        let vehiculesQuery = (this.props.userLimited ? this.state.buVehiclesQuery : this.state.vehiclesQuery);
+        this.props.client.query({
+            query: vehiculesQuery,
+            variables:{
+                full:true
+            },
+            fetchPolicy:"network-only"
+        }).then(({data})=>{
+            let vehicles = (this.props.userLimited ? data.buVehicles : data.vehicles);
+            this.setState({
+                fullLoaded:true,
                 vehiclesRaw:vehicles,
                 newSociete:"",
                 newRegistration:"",
@@ -819,7 +854,7 @@ export class Vehicles extends Component {
                         <BigButtonIcon icon="dashboard" color="green" onClick={this.showMassKmUpdate} tooltip="Mise à jour de masse des compteurs"/>
                         <BigButtonIcon icon="plus" color="blue" onClick={this.showAddVehicle} tooltip="Ajouter un véhicule"/>
                     </div>
-                    <CustomFilterSegment resetAll={this.resetAll} style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3"}}>
+                    <CustomFilterSegment resetAll={this.resetAll} style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3"}} fullLoaded={this.state.fullLoaded} entryLoaded={this.state.vehiclesRaw.length} entryLoadedText={"véhicules"}>
                         <CustomFilter infos={this.state.archiveFilterInfos} active={this.state.archiveFilter} />
                         <CustomFilter infos={this.state.financeFilterInfos} active={this.state.financeFilter} />
                         <CustomFilter infos={this.state.sharedFilterInfos} active={this.state.sharedFilter} />
