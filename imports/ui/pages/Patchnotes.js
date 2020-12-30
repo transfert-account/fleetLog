@@ -13,6 +13,18 @@ export class Patchnotes extends Component {
                     <AdministrationMenu active="patchnotes"/>
                 </div>
                 <div className="patchnote-block" style={{display:"block",overflowY:"auto",justifySelf:"stretch"}}>
+                <Segment>
+                        <Header color='blue' as="h2">13/12/2020 - v1.3.0.2</Header>
+                        <List divided relaxed>
+                            <List.Item>
+                                <List.Icon name='bug' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Correction Export Excel</List.Header>
+                                    <List.Description>Correction d'un bug empéchant le chargement des véhicules du parc dans la section Export Excel</List.Description>
+                                </List.Content>
+                            </List.Item>
+                        </List>
+                    </Segment>
                     <Segment>
                         <Header color='blue' as="h2">13/12/2020 - v1.3.0.1</Header>
                         <List divided relaxed>

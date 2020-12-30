@@ -17,8 +17,8 @@ export class ExportXL extends Component {
 
     state = {
         vehiclesQuery : gql`
-            query vehicles{
-                vehicles{
+            query vehicles($full:Boolean!){
+                vehicles(full:$full){
                     _id
                     societe{
                         _id
@@ -568,6 +568,9 @@ export class ExportXL extends Component {
     loadVehicles = () => {
         this.props.client.query({
             query:this.state.vehiclesQuery,
+            variables:{
+                full:true
+            },
             fetchPolicy:"network-only"
         }).then(({data})=>{
             this.setState({

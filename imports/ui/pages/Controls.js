@@ -268,7 +268,7 @@ export class Controls extends Component {
         vehicles : () => {
             if(this.state.vehiclesRaw.length == 0){
                 return(
-                    <Header>Aucun véhicule en base</Header>
+                    <Header>Aucun contrôle associé en base</Header>
                 )
             }
             let displayed = JSON.parse(JSON.stringify((this.state.vehiclesRaw)));
@@ -308,10 +308,6 @@ export class Controls extends Component {
                     }      
                 })
             }
-            displayed.forEach(c=>{
-                console.log(c.registration + " : " + c.equipements.length)
-            })
-            console.log(this.state.vehiclesRaw[0].equipements.length)
             if(this.state.entretienCreatedFilter != "all"){
                 if(this.state.entretienCreatedFilter == "created"){
                     displayed.forEach(c=>{
@@ -324,7 +320,6 @@ export class Controls extends Component {
                     })
                 }
             }
-            console.log(this.state.vehiclesRaw[0].equipements.length)
             if(this.state.vehiclesFiler.length>0){
                 displayed = displayed.filter(i =>
                     i.registration.toLowerCase().includes(this.state.vehiclesFiler.toLowerCase()) ||
