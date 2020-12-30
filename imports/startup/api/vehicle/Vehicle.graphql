@@ -62,9 +62,11 @@ type MassKmUpdateVehiclesIdentityReport{
 
 extend type Query{
     vehicle(_id: String!): Vehicle
-    vehicles(full: Boolean!) : [Vehicle]
+    vehicles : [Vehicle]
+    vehiclesEmpty : [Vehicle]
     vehiclesEquipedByControls : [Vehicle]
-    buVehicles(full: Boolean!) : [Vehicle]
+    buVehicles : [Vehicle]
+    buVehiclesEmpty : [Vehicle]
     buVehiclesEquipedByControls : [Vehicle]
     massKmUpdateVehiclesValidation(jsonFromExcelFile:String!):MassKmUpdateVehiclesIdentityReport
 }

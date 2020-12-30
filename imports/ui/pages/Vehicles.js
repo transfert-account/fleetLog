@@ -287,7 +287,7 @@ export class Vehicles extends Component {
                 }
                 displayed.sort((a, b) => a.registration.localeCompare(b.registration))
                 return displayed.map(i =>(
-                    <VehiclesRow loadVehicles={this.loadVehicles} hideSociete={this.props.userLimited} societesRaw={this.state.societesRaw} key={i._id} vehicle={i}/>
+                    <VehiclesRow loadVehicles={this.loadVehicles} hideSociete={this.props.userLimited} societesRaw={this.state.societesRaw} key={i._id} vehicle={i} full={this.state.fullLoaded}/>
                 ))
             }
         },
@@ -299,9 +299,46 @@ export class Vehicles extends Component {
                 }
             }
         `,
+        vehiclesEmptyQuery: gql`
+            query vehiclesEmpty{
+                vehiclesEmpty{
+                    _id
+                    societe{
+                        _id
+                        name
+                    }
+                    brand{
+                        _id
+                        name
+                    }
+                    model{
+                        _id
+                        name
+                    }
+                    volume{
+                        _id
+                        meterCube
+                    }
+                    energy{
+                        _id
+                        name
+                    }
+                    registration
+                    firstRegistrationDate
+                    km
+                    lastKmUpdate
+                    payload
+                    payementFormat
+                    archived
+                    shared
+                    selling
+                    broken
+                }
+            }
+        `,
         vehiclesQuery : gql`
-            query vehicles($full:Boolean!){
-                vehicles(full:$full){
+            query vehicles{
+                vehicles{
                     _id
                     societe{
                         _id
@@ -354,9 +391,46 @@ export class Vehicles extends Component {
                 }
             }
         `,
+        buVehiclesEmptyQuery: gql`
+            query buVehiclesEmpty{
+                buVehiclesEmpty{
+                    _id
+                    societe{
+                        _id
+                        name
+                    }
+                    brand{
+                        _id
+                        name
+                    }
+                    model{
+                        _id
+                        name
+                    }
+                    volume{
+                        _id
+                        meterCube
+                    }
+                    energy{
+                        _id
+                        name
+                    }
+                    registration
+                    firstRegistrationDate
+                    km
+                    lastKmUpdate
+                    payload
+                    payementFormat
+                    archived
+                    shared
+                    selling
+                    broken
+                }
+            }
+        `,
         buVehiclesQuery : gql`
-            query buVehicles($full:Boolean!){
-                buVehicles(full:$full){
+            query buVehicles{
+                buVehicles{
                     _id
                     societe{
                         _id
@@ -662,15 +736,12 @@ export class Vehicles extends Component {
         })
     }
     loadVehicles = () => {
-        let vehiculesQuery = (this.props.userLimited ? this.state.buVehiclesQuery : this.state.vehiclesQuery);
+        let vehiculesQuery = (this.props.userLimited ? this.state.buVehiclesEmptyQuery : this.state.vehiclesEmptyQuery);
         this.props.client.query({
             query: vehiculesQuery,
-            variables:{
-                full:false
-            },
             fetchPolicy:"network-only"
         }).then(({data})=>{
-            let vehicles = (this.props.userLimited ? data.buVehicles : data.vehicles);
+            let vehicles = (this.props.userLimited ? data.buVehiclesEmpty : data.vehiclesEmpty);
             this.setState({
                 loading:false,
                 vehiclesRaw:vehicles,
@@ -699,9 +770,6 @@ export class Vehicles extends Component {
         let vehiculesQuery = (this.props.userLimited ? this.state.buVehiclesQuery : this.state.vehiclesQuery);
         this.props.client.query({
             query: vehiculesQuery,
-            variables:{
-                full:true
-            },
             fetchPolicy:"network-only"
         }).then(({data})=>{
             let vehicles = (this.props.userLimited ? data.buVehicles : data.vehicles);

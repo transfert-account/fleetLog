@@ -99,6 +99,40 @@ const affectVehicleData = vehicle => {
     }
 }
 
+const affectMinimalVehicleData = vehicle => {
+    try{
+        vehicle.lastKmUpdate = vehicle.kms[vehicle.kms.length-1].reportDate
+        vehicle.km = vehicle.kms[vehicle.kms.length-1].kmValue
+        if(vehicle.societe != null && vehicle.societe.length > 0){
+            vehicle.societe = Societes.findOne({_id:new Mongo.ObjectID(vehicle.societe)});
+        }else{
+            vehicle.societe = {_id:""};
+        }
+        if(vehicle.brand != null && vehicle.brand.length > 0){
+            vehicle.brand = Brands.findOne({_id:new Mongo.ObjectID(vehicle.brand)});
+        }else{
+            vehicle.brand = {_id:""};
+        }
+        if(vehicle.model != null && vehicle.model.length > 0){
+            vehicle.model = Models.findOne({_id:new Mongo.ObjectID(vehicle.model)});
+        }else{
+            vehicle.model = {_id:""};
+        }
+        if(vehicle.volume != null && vehicle.volume.length > 0){
+            vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(vehicle.volume)});
+        }else{
+            vehicle.volume = {_id:""};
+        }
+        if(vehicle.energy != null && vehicle.energy.length > 0){
+            vehicle.energy = Energies.findOne({_id:new Mongo.ObjectID(vehicle.energy)});
+        }else{
+            vehicle.energy = {_id:""};
+        }
+    }catch(e){
+        console.error(e)
+    }
+}
+
 const affectVehicleControls = vehicle => {
     vehicle.equipements = Equipements.find({vehicle:vehicle._id._str}).fetch() || {};
     vehicle.equipements.forEach(e => {
@@ -124,19 +158,23 @@ export default {
             affectVehicleData(vehicle)
             return vehicle;
         },
-        vehicles(obj, { full }, { user }){
+        vehicles(obj, args, { user }){
             let vehicles = [];
-            if(full){
-                vehicles = Vehicles.find().fetch() || {};
-            }else{
-                vehicles = Vehicles.find({},{limit: 16}).fetch() || {};
-                console.log(vehicles.length)
-            }
+            vehicles = Vehicles.find().fetch() || {};
             vehicles.forEach(v => {
                 affectVehicleData(v)
             });
             return vehicles;
         },
+        vehiclesEmpty(obj, args, { user }){
+            let vehicles = [];
+            vehicles = Vehicles.find().fetch() || {};
+            vehicles.forEach(v => {
+                affectMinimalVehicleData(v)
+            });
+            return vehicles;
+        },
+        
         vehiclesEquipedByControls(obj, args, { user }){
             let vehicles = Vehicles.find().fetch() || {};
             vehicles.forEach(v => {
@@ -148,16 +186,21 @@ export default {
             });
             return vehicles;
         },
-        buVehicles(obj, { full },{user}){
+        buVehicles(obj, args, { user }){
             let userFull = Meteor.users.findOne({_id:user._id});
             let vehicles = [];
-            if(full){
-                vehicles = Vehicles.find({$or:[{sharedTo:userFull.settings.visibility},{societe:userFull.settings.visibility}]}).fetch() || {};
-            }else{
-                vehicles = Vehicles.find({$or:[{sharedTo:userFull.settings.visibility},{societe:userFull.settings.visibility}]},{limit: 16}).fetch() || {};
-            }
+            vehicles = Vehicles.find({$or:[{sharedTo:userFull.settings.visibility},{societe:userFull.settings.visibility}]}).fetch() || {};
             vehicles.forEach(v => {
                 affectVehicleData(v)
+            });
+            return vehicles;
+        },
+        buVehiclesEmpty(obj, args, { user }){
+            let userFull = Meteor.users.findOne({_id:user._id});
+            let vehicles = [];
+            vehicles = Vehicles.find({$or:[{sharedTo:userFull.settings.visibility},{societe:userFull.settings.visibility}]}).fetch() || {};
+            vehicles.forEach(v => {
+                affectMinimalVehicleData(v)
             });
             return vehicles;
         },

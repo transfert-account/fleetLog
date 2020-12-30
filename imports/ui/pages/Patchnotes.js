@@ -14,8 +14,22 @@ export class Patchnotes extends Component {
                 </div>
                 <div className="patchnote-block" style={{display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                 <Segment>
-                        <Header color='blue' as="h2">13/12/2020 - v1.3.0.2</Header>
+                        <Header color='blue' as="h2">30/12/2020 - v1.3.0.2</Header>
                         <List divided relaxed>
+                            <List.Item>
+                                <List.Icon name='wrench' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Modification du pré-load des véhicules</List.Header>
+                                    <List.Description>Modification du préchargment des véhicules du parc dans l'onglet parc/véhicules : tous les véhicules sont chargés mais sans les informations superflues qui sont chargées dans un second temps</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='bug' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Correction Pret de véhicule</List.Header>
+                                    <List.Description>Correction : il est désormais impossible de préter un véhicule sans indiquer la société cible</List.Description>
+                                </List.Content>
+                            </List.Item>
                             <List.Item>
                                 <List.Icon name='bug' size='large' verticalAlign='middle' />
                                 <List.Content>

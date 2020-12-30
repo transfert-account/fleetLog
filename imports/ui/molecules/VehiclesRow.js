@@ -1,5 +1,5 @@
-import React, { Component, Fragment } from 'react'
-import { Table, Icon, Label, Button, Popup } from 'semantic-ui-react';
+import React, { Component } from 'react'
+import { Table, Icon, Label, Button, Popup, Loader } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 
 import ActionsGridCell from '../atoms/ActionsGridCell';
@@ -25,6 +25,13 @@ class VehiclesRow extends Component {
     /*FILTERS HANDLERS*/
     /*DB READ AND WRITE*/
     /*CONTENT GETTERS*/
+    getLoaderCell = () => {
+        return (
+            <Table.Cell>
+                <Loader inline='centered' active/>
+            </Table.Cell>
+        )
+    }
     getPayementProgress = () => {
         let totalMonths = this.props.vehicle.purchasePrice/this.props.vehicle.monthlyPayement;
         let monthsDone = parseInt(moment().diff(moment(this.props.vehicle.payementBeginDate,"DD/MM/YYYY"),'months', true));
@@ -99,7 +106,7 @@ class VehiclesRow extends Component {
     getSpecialCell = () => {
         return(
             <Table.Cell textAlign="center">
-                <Popup content={(this.props.vehicle.shared ? "En prêt vers " + this.props.vehicle.sharedTo.name : "Le véhicule n'est pas en prêt")} trigger={
+                <Popup content={(this.props.vehicle.shared ? (this.props.full ? "En prêt vers " + this.props.vehicle.sharedTo.name : "Chargement ...") : "Le véhicule n'est pas en prêt")} trigger={
                     <Button color={(this.props.vehicle.shared ? "teal":"none")} icon="handshake"/>
                 }/>
                 <Popup content={(this.props.vehicle.selling ? "Le véhicule est en vente" : "Le véhicule n'est pas en vente")} trigger={
@@ -122,8 +129,8 @@ class VehiclesRow extends Component {
     /*COMPONENTS LIFECYCLE*/
 
     render() {
-        return (
-            <Fragment>
+        if(this.props.full){
+            return (
                 <Table.Row>
                     {this.getSocieteCell()}
                     {this.getSpecialCell()}
@@ -138,8 +145,25 @@ class VehiclesRow extends Component {
                     {this.getDocsStates()}
                     <ActionsGridCell actions={this.state.rowActions}/>
                 </Table.Row>
-            </Fragment>
-        )
+            )
+        }else{
+            return(
+                <Table.Row>
+                    {this.getSocieteCell()}
+                    {this.getSpecialCell()}
+                    <Table.Cell textAlign="center">{this.props.vehicle.registration}</Table.Cell>
+                    <Table.Cell textAlign="center">{this.props.vehicle.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km</Table.Cell>
+                    {this.getLastReportCell()}
+                    <Table.Cell textAlign="center">{this.props.vehicle.brand.name + " - " + this.props.vehicle.model.name + " (" + this.props.vehicle.energy.name + ")"}</Table.Cell>
+                    <Table.Cell textAlign="center">{this.props.vehicle.volume.meterCube+" m²"}</Table.Cell>
+                    <Table.Cell textAlign="center">{this.props.vehicle.payload} t.</Table.Cell>
+                    {this.getLoaderCell()}
+                    {this.getLoaderCell()}
+                    {this.getLoaderCell()}
+                    <ActionsGridCell actions={this.state.rowActions}/>
+                </Table.Row>
+            )
+        }
     }
 }
 

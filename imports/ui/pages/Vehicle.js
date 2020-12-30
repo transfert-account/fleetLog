@@ -673,6 +673,7 @@ class Vehicle extends Component {
     }
     closeShare = () => {
         this.setState({
+            newTargetSociete:"",
             openShare:false
         })
     }
@@ -1262,6 +1263,7 @@ class Vehicle extends Component {
     }
 
     getSharedPanel = () => {
+        console.log(this.state)
         if(this.state.vehicle.shared){
             return (
                 <Message color="teal" style={{margin:"0 16px"}} icon='handshake outline' header={"En prêt chez : " + this.state.vehicle.sharedTo.name + ", depuis le : " + this.state.vehicle.sharedSince} content={"Justificaion : " + this.state.vehicle.sharingReason} />
@@ -1418,7 +1420,7 @@ class Vehicle extends Component {
                         </Modal.Content>
                         <Modal.Actions>
                             <Button color="grey" onClick={this.closeShare}>Annuler</Button>
-                            <Button color="teal" onClick={this.shareVehicle}>Prêter</Button>
+                            <Button color="teal" disabled={this.state.newTargetSociete.length < 1} onClick={this.shareVehicle}>Prêter</Button>
                         </Modal.Actions>
                     </Modal>
                     <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openUnshare} onClose={this.closeUnshare} closeIcon>
