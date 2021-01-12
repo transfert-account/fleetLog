@@ -307,22 +307,6 @@ export class Vehicles extends Component {
                         _id
                         name
                     }
-                    brand{
-                        _id
-                        name
-                    }
-                    model{
-                        _id
-                        name
-                    }
-                    volume{
-                        _id
-                        meterCube
-                    }
-                    energy{
-                        _id
-                        name
-                    }
                     registration
                     firstRegistrationDate
                     km
@@ -331,6 +315,10 @@ export class Vehicles extends Component {
                     payementFormat
                     archived
                     shared
+                    sharedTo{
+                        _id
+                        name
+                    }
                     selling
                     broken
                 }

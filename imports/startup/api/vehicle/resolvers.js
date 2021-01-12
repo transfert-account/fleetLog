@@ -108,25 +108,10 @@ const affectMinimalVehicleData = vehicle => {
         }else{
             vehicle.societe = {_id:""};
         }
-        if(vehicle.brand != null && vehicle.brand.length > 0){
-            vehicle.brand = Brands.findOne({_id:new Mongo.ObjectID(vehicle.brand)});
+        if(vehicle.shared){
+            vehicle.sharedTo = Societes.findOne({_id:new Mongo.ObjectID(vehicle.sharedTo)});
         }else{
-            vehicle.brand = {_id:""};
-        }
-        if(vehicle.model != null && vehicle.model.length > 0){
-            vehicle.model = Models.findOne({_id:new Mongo.ObjectID(vehicle.model)});
-        }else{
-            vehicle.model = {_id:""};
-        }
-        if(vehicle.volume != null && vehicle.volume.length > 0){
-            vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(vehicle.volume)});
-        }else{
-            vehicle.volume = {_id:""};
-        }
-        if(vehicle.energy != null && vehicle.energy.length > 0){
-            vehicle.energy = Energies.findOne({_id:new Mongo.ObjectID(vehicle.energy)});
-        }else{
-            vehicle.energy = {_id:""};
+            vehicle.sharedTo = {_id:""};
         }
     }catch(e){
         console.error(e)

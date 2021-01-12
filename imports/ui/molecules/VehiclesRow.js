@@ -154,8 +154,8 @@ class VehiclesRow extends Component {
                     <Table.Cell textAlign="center">{this.props.vehicle.registration}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.vehicle.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km</Table.Cell>
                     {this.getLastReportCell()}
-                    <Table.Cell textAlign="center">{this.props.vehicle.brand.name + " - " + this.props.vehicle.model.name + " (" + this.props.vehicle.energy.name + ")"}</Table.Cell>
-                    <Table.Cell textAlign="center">{this.props.vehicle.volume.meterCube+" m²"}</Table.Cell>
+                    {this.getLoaderCell()}
+                    {this.getLoaderCell()}
                     <Table.Cell textAlign="center">{this.props.vehicle.payload} t.</Table.Cell>
                     {this.getLoaderCell()}
                     {this.getLoaderCell()}

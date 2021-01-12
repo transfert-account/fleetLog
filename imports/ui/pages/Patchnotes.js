@@ -14,6 +14,18 @@ export class Patchnotes extends Component {
                 </div>
                 <div className="patchnote-block" style={{display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                 <Segment>
+                        <Header color='blue' as="h2">12/01/2021 - v1.3.0.3</Header>
+                        <List divided relaxed>                            
+                            <List.Item>
+                                <List.Icon name='bug' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Correction chargement du parc</List.Header>
+                                    <List.Description>Correction d'un bug lors du filtrage des véhicules à l'affichage du parc, les societes cible de pret n'étaient pas chargées</List.Description>
+                                </List.Content>
+                            </List.Item>
+                        </List>
+                    </Segment>
+                    <Segment>
                         <Header color='blue' as="h2">30/12/2020 - v1.3.0.2</Header>
                         <List divided relaxed>
                             <List.Item>
