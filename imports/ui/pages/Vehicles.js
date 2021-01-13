@@ -387,22 +387,6 @@ export class Vehicles extends Component {
                         _id
                         name
                     }
-                    brand{
-                        _id
-                        name
-                    }
-                    model{
-                        _id
-                        name
-                    }
-                    volume{
-                        _id
-                        meterCube
-                    }
-                    energy{
-                        _id
-                        name
-                    }
                     registration
                     firstRegistrationDate
                     km
