@@ -106,7 +106,7 @@ class VehiclesRow extends Component {
     getSpecialCell = () => {
         return(
             <Table.Cell textAlign="center">
-                <Popup content={(this.props.vehicle.shared ? (this.props.full ? "En prêt vers " + this.props.vehicle.sharedTo.name : "Chargement ...") : "Le véhicule n'est pas en prêt")} trigger={
+                <Popup content={(this.props.vehicle.shared ? (this.props.full && this.props.vehicle.sharedTo ? "En prêt vers " + this.props.vehicle.sharedTo.name : "Chargement ...") : "Le véhicule n'est pas en prêt")} trigger={
                     <Button color={(this.props.vehicle.shared ? "teal":"none")} icon="handshake"/>
                 }/>
                 <Popup content={(this.props.vehicle.selling ? "Le véhicule est en vente" : "Le véhicule n'est pas en vente")} trigger={
@@ -118,13 +118,41 @@ class VehiclesRow extends Component {
             </Table.Cell>
         )
     }
+    getDescCell = () => {
+        if(this.props.full && this.props.vehicle.brand && this.props.vehicle.model && this.props.vehicle.energy){
+            return(
+                <Table.Cell textAlign="center">{this.props.vehicle.brand.name + " - " + this.props.vehicle.model.name + " (" + this.props.vehicle.energy.name + ")"}</Table.Cell>
+            )
+        }else{
+            return(
+                this.getLoaderCell()
+            )
+        }
+    }
+    getVolumeCell = () => {
+        if(this.props.full && this.props.volume){
+            return(
+                <Table.Cell textAlign="center">{this.props.vehicle.volume.meterCube+" m²"}</Table.Cell>
+            )
+        }else{
+            return(
+                this.getLoaderCell()
+            )
+        }
+    }
     getDocsStates = () => {
-        return (
-            <Table.Cell textAlign="center">
-                <DocStateLabel color={this.props.vehicle.cg._id == "" ? "red" : "green"} title="Carte grise"/>
-                <DocStateLabel color={this.props.vehicle.cv._id == "" ? "red" : "green"} title="Carte verte"/>
-            </Table.Cell>
-        )
+        if(this.props.full && this.props.cg && this.props.cg){
+            return (
+                <Table.Cell textAlign="center">
+                    <DocStateLabel color={this.props.vehicle.cg._id == "" ? "red" : "green"} title="Carte grise"/>
+                    <DocStateLabel color={this.props.vehicle.cv._id == "" ? "red" : "green"} title="Carte verte"/>
+                </Table.Cell>
+            )
+        }else{
+            return(
+                this.getLoaderCell()
+            )
+        }
     }
     /*COMPONENTS LIFECYCLE*/
 
@@ -137,8 +165,8 @@ class VehiclesRow extends Component {
                     <Table.Cell textAlign="center">{this.props.vehicle.registration}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.vehicle.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km</Table.Cell>
                     {this.getLastReportCell()}
-                    <Table.Cell textAlign="center">{this.props.vehicle.brand.name + " - " + this.props.vehicle.model.name + " (" + this.props.vehicle.energy.name + ")"}</Table.Cell>
-                    <Table.Cell textAlign="center">{this.props.vehicle.volume.meterCube+" m²"}</Table.Cell>
+                    {this.getDescCell()}
+                    {this.getVolumeCell()}
                     <Table.Cell textAlign="center">{this.props.vehicle.payload} t.</Table.Cell>
                     {this.getFinancialInfosCompleteCell()}
                     {this.getPayementProgress()}
