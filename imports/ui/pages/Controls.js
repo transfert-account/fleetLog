@@ -322,9 +322,7 @@ export class Controls extends Component {
             }
             if(this.state.vehiclesFiler.length>0){
                 displayed = displayed.filter(i =>
-                    i.registration.toLowerCase().includes(this.state.vehiclesFiler.toLowerCase()) ||
-                    i.brand.name.toLowerCase().includes(this.state.vehiclesFiler.toLowerCase()) ||
-                    i.model.name.toLowerCase().includes(this.state.vehiclesFiler.toLowerCase())
+                    i.registration.toLowerCase().includes(this.state.vehiclesFiler.toLowerCase())
                 );
                 if(displayed.length == 0){
                     return(
@@ -528,7 +526,7 @@ export class Controls extends Component {
                         <Menu.Item color="blue" name='licences' onClick={()=>{this.props.history.push("/parc/licences")}}><Icon name='drivers license'/>Licences</Menu.Item>
                         <Menu.Item color="blue" name='locations' onClick={()=>{this.props.history.push("/parc/locations")}} ><Icon name="calendar alternate outline"/> Locations</Menu.Item>
                     </Menu>
-                    <Input style={{justifySelf:"stretch"}} onChange={this.handleFilter} icon='search' placeholder='Rechercher une immatriculation, une marque ou un modèle' />
+                    <Input style={{justifySelf:"stretch"}} onChange={this.handleFilter} icon='search' placeholder='Rechercher une immatriculation' />
                     <div style={{display:"flex",justifyContent:"flex-end"}}>
                         <BigButtonIcon icon="plus" color="blue" onClick={this.showAddControl} tooltip="Ajouter un contrôle obligatoire sur un véhicule"/>
                     </div>

@@ -3,16 +3,14 @@ import { withRouter } from 'react-router-dom';
 import { Menu, Icon } from 'semantic-ui-react';
 import _ from 'lodash';
 
-class AdministrationMenu extends Component {
+class ExportMenu extends Component {
 
     state={
         menuItems : [
-            {color:"blue",name:'comptes',uri:"/administration/accounts",icon:"users",label:"Comptes"},
-            {color:"blue",name:'contenu',uri:"/administration/content",icon:"copy outline",label:"Contenu"},
-            {color:"blue",name:'equipement',uri:"/administration/equipements",icon:"wrench",label:"Contrôles"},
-            {color:"blue",name:'pieces',uri:"/administration/pieces",icon:"cogs",label:"Pièces"},
-            {color:"blue",name:'patchnotes',uri:"/administration/patchnotes",icon:"clipboard list",label:"Notes de version"},
-            {color:"blue",name:'documents',uri:"/administration/documents",icon:"file outline",label:"Documents S3"}
+            {color:"blue",name:'vehicles',uri:"/export/vehicles",icon:"truck",label:"Export Véhicules"},
+            {color:"blue",name:'entretiens',uri:"/export/entretiens",icon:"wrench",label:"Export Entretiens"},
+            {color:"blue",name:'sinistres',uri:"/export/sinistres",icon:"file excel outline",label:"Export Sinistres"},
+            {color:"blue",name:'causes-sinistres',uri:"/export/causes-sinistres",icon:"file excel outline",label:"Export Causes Sinistres"},
         ]
     }
     /*,{color:"blue",name:'logs',uri:"/administration/logs",icon:"terminal",label:"Logs Server"}*/
@@ -33,4 +31,4 @@ class AdministrationMenu extends Component {
     }
 }
   
-export default withRouter(AdministrationMenu);
+export default withRouter(ExportMenu);

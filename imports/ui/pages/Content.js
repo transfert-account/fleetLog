@@ -10,6 +10,7 @@ import ModelPicker from '../atoms/ModelPicker';
 import EnergyPicker from '../atoms/EnergyPicker';
 import OrganismPicker from '../atoms/OrganismPicker';
 import PayementTimePicker from '../atoms/PayementTimePicker';
+import VehicleArchiveJustificationsPicker from '../atoms/VehicleArchiveJustificationsPicker';
 import ColorPicker from '../atoms/ColorPicker';
 import { withRouter } from 'react-router-dom';
 import gql from 'graphql-tag';
@@ -27,6 +28,7 @@ class Content extends Component {
         newColorHex:"000000",
         newOrganism:"",
         newPayementTime:"",
+        newArchiveVehicleJustifications:"",
         selectedSocieteName:"",
         openHexColorPicker:false,
         needToRefreshSocietes:false,
@@ -36,6 +38,7 @@ class Content extends Component {
         needToRefreshOrganisms:false,
         needToRefreshPayementTimes:false,
         needToRefreshColors:false,
+        needToArchiveVehicleJustifications:false,
         editSocieteQuery: gql`
             mutation editSociete($_id:String!,$name:String!){
                 editSociete(_id:$_id,name:$name){
@@ -237,7 +240,31 @@ class Content extends Component {
                     hex
                 }
             }
-        `
+        `,
+        addVehicleArchiveJustificationQuery : gql`
+            mutation addVehicleArchiveJustification($justification:String!){
+                addVehicleArchiveJustification(justification:$justification){
+                    status
+                    message
+                }
+            }
+        `,
+        deleteVehicleArchiveJustificationQuery : gql`
+            mutation deleteVehicleArchiveJustification($_id:String!){
+                deleteVehicleArchiveJustification(_id:$_id){
+                    status
+                    message
+                }
+            }
+        `,
+        vehicleArchiveJustificationsQuery : gql`
+            query vehicleArchiveJustifications{
+                vehicleArchiveJustifications{
+                    _id
+                    justification
+                }
+            }
+        `,
     }
 
     handleChange = e =>{
@@ -247,9 +274,6 @@ class Content extends Component {
     }
 
     handleDigitOnlyChange = e =>{
-        console.log("==============")
-        console.log(e.target.value)
-        console.log(e.target.value.replace(/\D/g,''))
         this.setState({
             [e.target.name]:e.target.value.replace(/\D/g,'')
         });
@@ -850,6 +874,74 @@ class Content extends Component {
         })
     }
 
+    //Justification Archivage Vehicles
+    handleChangeVehicleArchiveJustification = (e, { value }) => this.setState({ selectedVehicleArchiveJustification:value })
+    showAddVehicleArchiveJustification = () => {
+        this.setState({
+            openAddVehicleArchiveJustification:true
+        })
+    }
+    showDelVehicleArchiveJustification = () => {
+        this.setState({
+            openDelVehicleArchiveJustification:true
+        })
+    }
+    closeAddVehicleArchiveJustification = () => {
+        this.setState({
+            openAddVehicleArchiveJustification:false
+        })
+    }
+    closeDelVehicleArchiveJustification = () => {
+        this.setState({
+            openDelVehicleArchiveJustification:false
+        })
+    }
+    addVehicleArchiveJustification = () => {
+        this.closeAddVehicleArchiveJustification()
+        this.props.client.mutate({
+            mutation:this.state.addVehicleArchiveJustificationQuery,
+            variables:{
+                justification:this.state.newVehicleArchiveJustification
+            }
+        }).then(({data})=>{
+            data.addVehicleArchiveJustification.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.setState({
+                        needToRefreshVehicleArchiveJustifications:true
+                    })
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    deleteVehicleArchiveJustification = () => {
+        this.closeDelVehicleArchiveJustification()
+        this.props.client.mutate({
+            mutation:this.state.deleteVehicleArchiveJustificationQuery,
+            variables:{
+                _id:this.state.selectedVehicleArchiveJustification
+            }
+        }).then(({data})=>{
+            data.deleteVehicleArchiveJustification.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.setState({
+                        needToRefreshVehicleArchiveJustifications:true
+                    })
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    didRefreshVehicleArchiveJustifications = () => {
+        this.setState({
+            needToRefreshVehicleArchiveJustifications:false
+        })
+    }
+
     render() {
         return (
             <Fragment>
@@ -915,7 +1007,7 @@ class Content extends Component {
                             <Table.Row>
                                 <Table.Cell>
                                     <Header style={{gridColumnStart:"2",placeSelf:"center"}} as='h2'>
-                                        <Icon name='barcode' />
+                                        <Icon name='truck' />
                                         <Header.Content>Modèle des véhicules</Header.Content>
                                     </Header>
                                 </Table.Cell>
@@ -985,6 +1077,21 @@ class Content extends Component {
                                 <Table.Cell textAlign="center">
                                     <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddColor} icon labelPosition='right'>Ajouter<Icon name='plus'/></Button>
                                     <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelColor} icon labelPosition='right'>Supprimer<Icon name='trash'/></Button>
+                                </Table.Cell>
+                            </Table.Row>
+                            <Table.Row>
+                                <Table.Cell>
+                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as='h2'>
+                                        <Icon name='archive'/>
+                                        <Header.Content>Justifications d'archivage de véhicules</Header.Content>
+                                    </Header>
+                                </Table.Cell>
+                                <Table.Cell textAlign="center">
+                                    <VehicleArchiveJustificationsPicker didRefresh={this.didRefreshVehicleArchiveJustifications} needToRefresh={this.state.needToRefreshVehicleArchiveJustifications} onChange={this.handleChangeVehicleArchiveJustification} value={this.state.selectedVehicleArchiveJustification} />
+                                </Table.Cell>
+                                <Table.Cell textAlign="center">
+                                    <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddVehicleArchiveJustification} icon labelPosition='right'>Ajouter<Icon name='plus'/></Button>
+                                    <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelVehicleArchiveJustification} icon labelPosition='right'>Supprimer<Icon name='trash'/></Button>
                                 </Table.Cell>
                             </Table.Row>
                         </Table.Body>
@@ -1229,6 +1336,34 @@ class Content extends Component {
                     </Modal.Actions>
                 </Modal>
                 <HexColorPicker hex={"#"+this.state.newColorHex} open={this.state.openHexColorPicker} close={this.closeHexColorPicker} onSelect={this.selectHexColor}/>
+
+                {/* JUSTIFICATION ARCHIVAGE */}
+                <Modal size="mini" closeOnDimmerClick={false} open={this.state.openAddVehicleArchiveJustification} onClose={this.closeAddVehicleArchiveJustification} closeIcon>
+                    <Modal.Header>
+                        Ajout de la justification
+                    </Modal.Header>
+                    <Modal.Content style={{textAlign:"center"}}>
+                        <Form style={{display:"grid",gridTemplateColumns:"1fr",gridGap:"16px"}}>
+                            <Form.Field style={{placeSelf:"stretch"}}>
+                                <label>Justification</label>
+                                <input onChange={this.handleChange} name="newVehicleArchiveJustification"/>
+                            </Form.Field>
+                        </Form>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <Button color="black" onClick={this.closeAddVehicleArchiveJustification}>Annuler</Button>
+                        <Button color="green" onClick={this.addVehicleArchiveJustification}>Créer</Button>
+                    </Modal.Actions>
+                </Modal>
+                <Modal closeOnDimmerClick={false} open={this.state.openDelVehicleArchiveJustification} onClose={this.closeDelVehicleArchiveJustification} closeIcon>
+                    <Modal.Header>
+                        Suppression de la justification
+                    </Modal.Header>
+                    <Modal.Actions>
+                        <Button color="black" onClick={this.closeAddVehicleArchiveJustification}>Annuler</Button>
+                        <Button color="red" onClick={this.deleteVehicleArchiveJustification}>Supprimer</Button>
+                    </Modal.Actions>
+                </Modal>
             </Fragment>
         )
     }

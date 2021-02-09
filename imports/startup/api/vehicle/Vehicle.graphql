@@ -14,6 +14,9 @@ type Vehicle{
     insurancePaid:Float
     cg:Document
     cv:Document
+    crf:Document
+    ida:Document
+    scg:Document
     energy:Energy
     payementBeginDate:String
     payementEndDate:String
@@ -26,6 +29,7 @@ type Vehicle{
     payementTime:PayementTime
     archived:Boolean
     archiveReason:String
+    archiveJustification:VehicleArchiveJustification
     archiveDate:String
     shared:Boolean
     sharedTo:Societe
@@ -34,10 +38,19 @@ type Vehicle{
     selling:Boolean
     sellingReason:String
     sellingSince:String
+    sold:Boolean
+    brokenHistory:[BrokenHistoryEntry]
     broken:Boolean
     brokenReason:String
     brokenSince:String
     financialInfosComplete:Boolean
+}
+
+type BrokenHistoryEntry{
+    _id:String!
+    date:String!
+    content:String!
+    statut:Boolean!
 }
 
 type DatedKm{
@@ -73,17 +86,20 @@ extend type Query{
 
 extend type Mutation{
     addVehicle(societe:String!,registration:String!,firstRegistrationDate:String!,km:Int!,lastKmUpdate:String!,brand:String!,model:String!,volume:String!,payload:Float!,color:String!,energy:String!): [QueryResultMessage]
-    editVehicleTech(_id:String!,societe:String!,registration:String!,firstRegistrationDate:String!,brand:String!,model:String!,volume:String!,payload:Float!,color:String!,energy:String!): [QueryResultMessage]
+    editVehicleIdent(_id:String!,societe:String!,registration:String!,firstRegistrationDate:String!,brand:String!,model:String!,volume:String!,payload:Float!,color:String!,energy:String!): [QueryResultMessage]
     editVehicleFinances(_id:String!,insurancePaid:Float!,payementOrg:String!,payementBeginDate:String!,payementEndDate:String!,purchasePrice:Float,payementFormat:String!,payementTime:String!,monthlyPayement:Float!): [QueryResultMessage]
     updateKm(_id:String!,date:String!,kmValue:Int!):[QueryResultMessage]
     deleteKm(vehicle:String!,_id:String!):[QueryResultMessage]
-    archiveVehicle(_id:String!,archiveReason:String!):[QueryResultMessage]
+    archiveVehicle(_id:String!,archiveJustification:String!):[QueryResultMessage]
     unArchiveVehicle(_id:String!):[QueryResultMessage]
     shareVehicle(_id:String!,sharingReason:String!,target:String!):[QueryResultMessage]
     unshareVehicle(_id:String!):[QueryResultMessage]
     sellVehicle(_id:String!,sellingReason:String!):[QueryResultMessage]
     unsellVehicle(_id:String!):[QueryResultMessage]
-    breakVehicle(_id:String!,brokenReason:String!):[QueryResultMessage]
+    finishSellVehicle(_id:String!):[QueryResultMessage]
+    addHistoryEntry(_id:String!,content:String!):[QueryResultMessage]
+    deleteHistoryEntry(vehicle:String!,_id:String!):[QueryResultMessage]
+    breakVehicle(_id:String!):[QueryResultMessage]
     unbreakVehicle(_id:String!):[QueryResultMessage]
     deleteVehicle(_id:String!):[QueryResultMessage]
     applyMassKmUpdate(massKmUpdateMap:String!):[QueryResultMessage]

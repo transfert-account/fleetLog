@@ -5,6 +5,7 @@ import { withRouter } from 'react-router-dom';
 import { UserContext } from '../../contexts/UserContext';
 /*ELEMENTS*/
 import { DuoIcon } from '../elements/DuoIcon';
+import { FAFree } from '../elements/FAFree';
 /*COMPONENTS*/
 import NavbarItemList from './NavbarItemList';
 import NavbarSocietePicker from '../atoms/NavbarSocietePicker';
@@ -19,7 +20,7 @@ class Menu extends Component {
         active:"home",
         label:"Accueil",
         display:true,
-        icon:"home",
+        icon:"fas fa-home",
         color:"blue"
       },
       {
@@ -27,7 +28,7 @@ class Menu extends Component {
         active:"parc",
         label:"Parc",
         display:true,
-        icon:"truck",
+        icon:"fas fa-truck",
         color:"blue"
       },
       {
@@ -35,7 +36,7 @@ class Menu extends Component {
         active:"entretiens",
         label:"Entretiens",
         display:true,
-        icon:"garage",
+        icon:"fas fa-tools",
         color:"blue"
       },
       {
@@ -43,23 +44,7 @@ class Menu extends Component {
         active:"planning",
         label:"Planning",
         display:true,
-        icon:"calendar",
-        color:"blue"
-      },
-      {
-        name:"fournisseurs",
-        active:"fournisseurs",
-        label:"Fournisseurs",
-        display:true,
-        icon:"phone",
-        color:"blue"
-      },
-      {
-        name:"batiments",
-        active:"batiments",
-        label:"Batiments",
-        display:true,
-        icon:"warehouse",
+        icon:"fas fa-calendar-alt",
         color:"blue"
       },
       {
@@ -67,7 +52,31 @@ class Menu extends Component {
         active:"accidentologie",
         label:"Accidentologie",
         display:true,
-        icon:"car-crash",
+        icon:"fas fa-car-crash",
+        color:"blue"
+      },
+      {
+        name:"export/vehicles",
+        active:"export",
+        label:"Exports",
+        display:true,
+        icon:"far fa-file-excel",
+        color:"blue"
+      },
+      {
+        name:"batiments",
+        active:"batiments",
+        label:"Batiments",
+        display:true,
+        icon:"fas fa-warehouse",
+        color:"blue"
+      },
+      {
+        name:"fournisseurs",
+        active:"fournisseurs",
+        label:"Fournisseurs",
+        display:true,
+        icon:"far fa-address-book",
         color:"blue"
       },
       {
@@ -75,7 +84,7 @@ class Menu extends Component {
         active:"compte",
         label:"Compte",
         display:true,
-        icon:"idcard",
+        icon:"fas fa-id-card",
         color:"blue"
       }
     ],
@@ -85,7 +94,7 @@ class Menu extends Component {
         active:"administration",
         label:"Administration",
         display:true,
-        icon:"shieldcheck",
+        icon:"fas fa-shield-alt",
         color:"gold"
       }
     ]
@@ -128,7 +137,7 @@ class Menu extends Component {
       return(
         <li className="nav-item" name="filter">
           <a href="#" className="nav-link" onClick={this.showFilter}>
-            <DuoIcon name="folders-tree" color="gold"/>
+            <FAFree code="fas fa-layer-group" color="gold"/>
             <span className="link-text">{this.props.getSocieteName(this.props.societeFilter).toUpperCase()}</span>
           </a>
         </li>
@@ -138,7 +147,7 @@ class Menu extends Component {
         return(
           <li className="nav-item" name="filter">
             <a href="#" className="nav-link" onClick={this.showFilter}>
-              <DuoIcon name="folders-tree" color="blue"/>
+              <FAFree code="fas fa-layer-group" color="blue"/>
               <span className="link-text">{this.props.getSocieteName(this.props.societeFilter).toUpperCase()}</span>
             </a>
           </li>
@@ -147,7 +156,7 @@ class Menu extends Component {
         return(
           <li className="nav-item" name="filter">
             <a href="#" className="nav-link">
-              <DuoIcon name="folders-tree" color="blue"/>
+              <FAFree code="fas fa-layer-group" color="blue"/>
               <span className="link-text">{this.props.getSocieteName(this.props.societeFilter).toUpperCase()}</span>
             </a>
           </li>
@@ -194,7 +203,7 @@ class Menu extends Component {
             {this.getAdminNavbarItems()}
             <li className="nav-item" name={"logout"}>
               <a href="#" className="nav-link" key={"logout"} onClick={this.logout}>
-                <DuoIcon name="poweroff" color="red"/>
+                <FAFree code="fas fa-power-off" color="red"/>
                 <span className="link-text">SE DÉCONNECTER</span>
               </a>
             </li>

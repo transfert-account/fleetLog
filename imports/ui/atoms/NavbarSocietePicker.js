@@ -3,6 +3,8 @@ import React, { Component, Fragment } from 'react'
 import { Dropdown, Input, Icon } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 import { DuoIcon } from '../elements/DuoIcon';
+import { FAFree } from '../elements/FAFree';
+
 import { gql } from 'apollo-server-express';
 
 class NavbarSocietePicker extends Component {
@@ -79,7 +81,7 @@ class NavbarSocietePicker extends Component {
                     <ul className="navbar-nav">
                         <li className="nav-item">
                             <a href="#" className="nav-link" onClick={this.props.close} style={{textDecoration: 'none'}}>
-                                <DuoIcon name="double-chevron-left" color="red"/>
+                                <FAFree code="fas fa-times" color="red"/>
                                 <span className="link-text">ANNULER</span>
                             </a>
                         </li>
@@ -87,7 +89,7 @@ class NavbarSocietePicker extends Component {
                             return(
                                 <li className="nav-item" name={s.name} key={s.name}>
                                     <a href="#" className="nav-link" key={s.name} onClick={()=>{this.handleSocieteFilterChange(s._id)}} style={{textDecoration: 'none'}}>
-                                        <DuoIcon name="chevron-right" color="gold"/>
+                                        <FAFree code="fas fa-chevron-right" color="gold"/>
                                         <span className="link-text">{s.name.toUpperCase()}</span>
                                     </a>
                                 </li>

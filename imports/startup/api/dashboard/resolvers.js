@@ -28,8 +28,8 @@ const affectDashboardData = d => {
     d.accidentsExpert = {total:0,affected:0,missing:0};
     d.accidentsFacture = {total:0,affected:0,missing:0};
     d.vehicles = Vehicles.find({societe:d.societe._id._str,archived:false}).fetch().length
-    d.vehiclesLate = Vehicles.find({societe:d.societe._id._str,archived:false}).fetch().filter(v=>moment().diff(moment(v.kms[v.kms.length-1].reportDate,"DD/MM/YYYY"),'days', true)>14).length
-    d.vehiclesVeryLate = Vehicles.find({societe:d.societe._id._str,archived:false}).fetch().filter(v=>moment().diff(moment(v.kms[v.kms.length-1].reportDate,"DD/MM/YYYY"),'days', true)>28).length
+    d.vehiclesLate = Vehicles.find({societe:d.societe._id._str,archived:false}).fetch().filter(v=>moment().diff(moment(v.kms[v.kms.length-1].reportDate,"DD/MM/YYYY"),'days', true)>9).length
+    d.vehiclesVeryLate = Vehicles.find({societe:d.societe._id._str,archived:false}).fetch().filter(v=>moment().diff(moment(v.kms[v.kms.length-1].reportDate,"DD/MM/YYYY"),'days', true)>14).length
     d.vehiclesLate = d.vehiclesLate - d.vehiclesVeryLate
     d.vehicles = d.vehicles - d.vehiclesLate - d.vehiclesVeryLate
     let locationsRaw = Locations.find({societe:d.societe._id._str,archived:false}).fetch();
@@ -64,8 +64,8 @@ const affectDashboardData = d => {
         }
     })
     d.locations = locationsRaw.length
-    d.locationsLate = locationsRaw.filter(l=>moment().diff(moment(l.kms[l.kms.length-1].reportDate,"DD/MM/YYYY"),'days', true)>14).length
-    d.locationsVeryLate = locationsRaw.filter(l=>moment().diff(moment(l.kms[l.kms.length-1].reportDate,"DD/MM/YYYY"),'days', true)>28).length
+    d.locationsLate = locationsRaw.filter(l=>moment().diff(moment(l.kms[l.kms.length-1].reportDate,"DD/MM/YYYY"),'days', true)>9).length
+    d.locationsVeryLate = locationsRaw.filter(l=>moment().diff(moment(l.kms[l.kms.length-1].reportDate,"DD/MM/YYYY"),'days', true)>14).length
     d.locationsLate = d.locationsLate - d.locationsVeryLate
     d.locations = d.locations - d.locationsLate - d.locationsVeryLate
     d.controlsTotal = 0;

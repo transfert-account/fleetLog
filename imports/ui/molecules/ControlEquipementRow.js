@@ -180,7 +180,6 @@ class ControlEquipementRow extends Component {
     }
     updateControlEquipement = () => {
         this.closeUpdateControl();
-        console.log(this.state.newUpdatedControlValue)
         this.props.client.mutate({
             mutation:this.state.updateControlEquipementQuery,
             variables:{

@@ -10,6 +10,7 @@ import PayementTimes from '../payementTime/payementTimes';
 import Colors from '../color/colors.js';
 import Equipements from '../equipement/equipements';
 import EquipementDescriptions from '../equipementDescription/equipementDescriptions';
+import VehicleArchiveJustifications from '../vehicleArchiveJustification/vehicleArchiveJustifications';
 import Documents from '../document/documents';
 import Energies from '../energy/energies'
 import Functions from '../common/functions';
@@ -20,6 +21,9 @@ const affectVehicleData = vehicle => {
     try{
         vehicle.lastKmUpdate = vehicle.kms[vehicle.kms.length-1].reportDate
         vehicle.km = vehicle.kms[vehicle.kms.length-1].kmValue
+        if(vehicle.brokenHistory == null || vehicle.brokenHistory.length == 0){
+            vehicle.brokenHistory = [{content:"Aucun commentaire",date:"-",statut:true,_id:"noid"}];
+        }
         if(vehicle.payementFormat == "CRB"){
             vehicle.property = false
         }else{
@@ -70,6 +74,11 @@ const affectVehicleData = vehicle => {
         }else{
             vehicle.payementTime = {_id:""};
         }
+        if(vehicle.archived && vehicle.archiveJustification.length > 0){
+            vehicle.archiveJustification = VehicleArchiveJustifications.findOne({_id:new Mongo.ObjectID(vehicle.archiveJustification)});
+        }else{
+            vehicle.archiveJustification = {_id:""};
+        }
         if(vehicle.cg != null && vehicle.cg.length > 0){
             vehicle.cg = Documents.findOne({_id:new Mongo.ObjectID(vehicle.cg)});
         }else{
@@ -79,6 +88,21 @@ const affectVehicleData = vehicle => {
             vehicle.cv = Documents.findOne({_id:new Mongo.ObjectID(vehicle.cv)});
         }else{
             vehicle.cv = {_id:""};
+        }
+        if(vehicle.crf != null && vehicle.crf.length > 0){
+            vehicle.crf = Documents.findOne({_id:new Mongo.ObjectID(vehicle.crf)});
+        }else{
+            vehicle.crf = {_id:""};
+        }
+        if(vehicle.ida != null && vehicle.ida.length > 0){
+            vehicle.ida = Documents.findOne({_id:new Mongo.ObjectID(vehicle.ida)});
+        }else{
+            vehicle.ida = {_id:""};
+        }
+        if(vehicle.scg != null && vehicle.scg.length > 0){
+            vehicle.scg = Documents.findOne({_id:new Mongo.ObjectID(vehicle.scg)});
+        }else{
+            vehicle.scg = {_id:""};
         }
         if(
             parseInt(vehicle.purchasePrice) > 0 &&
@@ -159,7 +183,6 @@ export default {
             });
             return vehicles;
         },
-        
         vehiclesEquipedByControls(obj, args, { user }){
             let vehicles = Vehicles.find().fetch() || {};
             vehicles.forEach(v => {
@@ -247,6 +270,9 @@ export default {
                     archiveDate:"",
                     cg:"",
                     cv:"",
+                    crf:"",
+                    ida:"",
+                    scg:"",
                     shared:false,
                     sharedTo:"",
                     sharingReason:"",
@@ -254,6 +280,7 @@ export default {
                     selling:false,
                     sellingReason:"",
                     sellingSince:"",
+                    sold:false,
                     broken:false,
                     brokenReason:"",
                     brokenSince:"",
@@ -270,7 +297,7 @@ export default {
             }
             throw new Error('Unauthorized');
         },
-        editVehicleTech(obj, {_id,societe,registration,firstRegistrationDate,brand,model,volume,payload,color,energy},{user}){
+        editVehicleIdent(obj, {_id,societe,registration,firstRegistrationDate,brand,model,volume,payload,color,energy},{user}){
             if(user._id){
                 let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(_id)});
                 if(vehicle.societe != societe){
@@ -394,9 +421,9 @@ export default {
             }
             throw new Error('Unauthorized');
         },
-        archiveVehicle(obj, {_id,archiveReason},{user}){
-            if(archiveReason == ""){
-                archiveReason = "Aucune données"
+        archiveVehicle(obj, {_id,archiveJustification},{user}){
+            if(archiveJustification == ""){
+                archiveJustification = "Aucune données"
             }
             if(user._id){
                 let vehicle = Vehicles.find({_id:new Mongo.ObjectID(_id)}).fetch()[0];
@@ -409,7 +436,7 @@ export default {
                     }, {
                         $set: {
                             "archived":true,
-                            "archiveReason":archiveReason,
+                            "archiveJustification":archiveJustification,
                             "archiveDate": new Date().getDate().toString().padStart(2,0) + '/' + parseInt(new Date().getMonth()+1).toString().padStart(2,0) + '/' + new Date().getFullYear()
                         }
                     }   
@@ -426,7 +453,7 @@ export default {
                     }, {
                         $set: {
                             "archived":false,
-                            "archiveReason":"",
+                            "archiveJustification":"",
                             "archiveDate":""
                         }
                     }   
@@ -519,10 +546,60 @@ export default {
             }
             throw new Error('Unauthorized');
         },
-        breakVehicle(obj, {_id,brokenReason},{user}){
-            if(brokenReason == ""){
-                brokenReason = "Aucune données"
+        finishSellVehicle(obj, {_id},{user}){
+            if(user._id){
+                Vehicles.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "selling":false,
+                            "sold":true,
+                        }
+                    }   
+                )
+                return [{status:true,message:'Conclusion de la vente du véhicule réussie'}];
             }
+            throw new Error('Unauthorized');
+        },
+        addHistoryEntry(obj, {_id,content},{user}){
+            if(user._id){
+                Vehicles.update(
+                    {
+                        _id:new Mongo.ObjectID(_id)
+                    },{
+                        $push: {
+                            "brokenHistory": {
+                                _id: new Mongo.ObjectID(),
+                                date:new Date().getDate().toString().padStart(2,0) + '/' + parseInt(new Date().getMonth()+1).toString().padStart(2,0) + '/' + new Date().getFullYear() + " " + parseInt(new Date().getUTCHours()+1).toString().padStart(2,0) + ":" + parseInt(new Date().getUTCMinutes()).toString().padStart(2,0) + ":" + parseInt(new Date().getUTCSeconds()).toString().padStart(2,0),
+                                content:content,
+                                statut:true
+                            }
+                        }
+                    }
+                )
+                return [{status:true,message:"Nouvelle entrée dans l'historique enregsitrée"}];
+            }
+            throw new Error('Unauthorized');
+        },
+        deleteHistoryEntry(obj, {vehicle,_id},{user}){
+            if(user._id){
+                Vehicles.update(
+                    {
+                        _id:new Mongo.ObjectID(vehicle)
+                    },{
+                        $pull: {
+                            "brokenHistory": {
+                                _id: new Mongo.ObjectID(_id)
+                            }
+                        }
+                    }
+                )
+                return [{status:true,message:"Entrée dans l'historique supprimée"}];
+            }
+            throw new Error('Unauthorized');
+        },
+        breakVehicle(obj, {_id},{user}){
             if(user._id){
                 let vehicle = Vehicles.find({_id:new Mongo.ObjectID(_id)}).fetch()[0];
                 if(vehicle.archived){
@@ -534,10 +611,23 @@ export default {
                     }, {
                         $set: {
                             "broken":true,
-                            "brokenReason":brokenReason,
                             "brokenSince": new Date().getDate().toString().padStart(2,0) + '/' + parseInt(new Date().getMonth()+1).toString().padStart(2,0) + '/' + new Date().getFullYear()
                         }
                     }   
+                )
+                Vehicles.update(
+                    {
+                        _id:new Mongo.ObjectID(_id)
+                    },{
+                        $push: {
+                            "brokenHistory": {
+                                _id: new Mongo.ObjectID(),
+                                date:new Date().getDate().toString().padStart(2,0) + '/' + parseInt(new Date().getMonth()+1).toString().padStart(2,0) + '/' + new Date().getFullYear() + " " + parseInt(new Date().getUTCHours()+1).toString().padStart(2,0) + ":" + parseInt(new Date().getUTCMinutes()).toString().padStart(2,0) + ":" + parseInt(new Date().getUTCSeconds()).toString().padStart(2,0),
+                                content:"Mise en panne",
+                                statut:true
+                            }
+                        }
+                    }
                 )
                 return [{status:true,message:'Mise en panne réussi'}];
             }
@@ -547,14 +637,27 @@ export default {
             if(user._id){
                 Vehicles.update(
                     {
+                        _id:new Mongo.ObjectID(_id)
+                    },{
+                        $push: {
+                            "brokenHistory": {
+                                _id: new Mongo.ObjectID(),
+                                date:new Date().getDate().toString().padStart(2,0) + '/' + parseInt(new Date().getMonth()+1).toString().padStart(2,0) + '/' + new Date().getFullYear() + " " + parseInt(new Date().getUTCHours()+1).toString().padStart(2,0) + ":" + parseInt(new Date().getUTCMinutes()).toString().padStart(2,0) + ":" + parseInt(new Date().getUTCSeconds()).toString().padStart(2,0),
+                                content:"Fin de la panne",
+                                statut:true
+                            }
+                        }
+                    }
+                )
+                Vehicles.update(
+                    {
                         _id: new Mongo.ObjectID(_id)
                     }, {
                         $set: {
                             "broken":false,
-                            "brokenReason":"",
                             "brokenSince": ""
                         }
-                    }   
+                    }
                 )
                 return [{status:true,message:'Panne du véhicule annulée'}];
             }
@@ -609,8 +712,8 @@ export default {
         },
         async uploadVehicleDocument(obj, {_id,type,file,size},{user}){
             if(user._id){
-                if(type != "cv" && type != "cg"){
-                    return [{status:false,message:'Type de fichier innatendu (cv/cg)'}];
+                if(type != "cv" && type != "cg" && type != "crf" && type != "ida" && type != "scg"){
+                    return [{status:false,message:'Type de fichier innatendu (cv/cg/crf/ida/scg)'}];
                 }
                 let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(_id)});
                 let societe = Societes.findOne({_id:new Mongo.ObjectID(vehicle.societe)});
@@ -627,6 +730,24 @@ export default {
                     if(vehicle.cv != null && vehicle.cv != undefined && vehicle.cv != ""){
                         deleteOld = true;
                         oldFile = Documents.findOne({_id:new Mongo.ObjectID(vehicle.cv)})
+                    }
+                }
+                if(type == "crf"){
+                    if(vehicle.crf != null && vehicle.crf != undefined && vehicle.crf != ""){
+                        deleteOld = true;
+                        oldFile = Documents.findOne({_id:new Mongo.ObjectID(vehicle.crf)})
+                    }
+                }
+                if(type == "ida"){
+                    if(vehicle.ida != null && vehicle.ida != undefined && vehicle.ida != ""){
+                        deleteOld = true;
+                        oldFile = Documents.findOne({_id:new Mongo.ObjectID(vehicle.ida)})
+                    }
+                }
+                if(type == "scg"){
+                    if(vehicle.scg != null && vehicle.scg != undefined && vehicle.scg != ""){
+                        deleteOld = true;
+                        oldFile = Documents.findOne({_id:new Mongo.ObjectID(vehicle.scg)})
                     }
                 }
                 return await new Promise(async (resolve,reject)=>{

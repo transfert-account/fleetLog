@@ -48,6 +48,8 @@ export class Vehicles extends Component {
         docsFilter:"all",
         financeFilter:"all",
         sharedFilter:false,
+        sellingFilter:false,
+        brokenFilter:false,
         openAddVehicle:false,
         openReadMassKmUpdate:false,
         openDatePicker:false,
@@ -62,14 +64,20 @@ export class Vehicles extends Component {
                 infos:"archiveFilterInfos",
                 filter:"archiveFilter"
             },{
-                infos:"sharedFilterInfos",
-                filter:"sharedFilter"
-            },{
                 infos:"reportLateFilterInfos",
                 filter:"reportLateFilter"
             },{
                 infos:"docsFilterInfos",
                 filter:"docsFilter"
+            },{
+                infos:"sharedFilterInfos",
+                filter:"sharedFilter"
+            },{
+                infos:"sellingFilterInfos",
+                filter:"sellingFilter"
+            },{
+                infos:"brokenFilterInfos",
+                filter:"brokenFilter"
             }
         ],
         financeFilterInfos:{
@@ -127,29 +135,6 @@ export class Vehicles extends Component {
                 }
             ]
         },
-        sharedFilterInfos:{
-            icon:"handshake",            
-            options:[
-                {
-                    key: 'sharedfalse',
-                    initial: true,
-                    text: 'Tous les véhicules',
-                    value: false,
-                    color:"green",
-                    click:()=>{this.setSharedFilter(false)},
-                    label: { color: 'green', empty: true, circular: true },
-                },
-                {
-                    key: 'sharedtrue',
-                    initial: false,
-                    text: 'Véhicules en prêt',
-                    value: true,
-                    color:"teal",
-                    click:()=>{this.setSharedFilter(true)},
-                    label: { color: 'teal', empty: true, circular: true }
-                }
-            ]
-        },
         reportLateFilterInfos:{
             icon:"dashboard",            
             options:[
@@ -165,7 +150,7 @@ export class Vehicles extends Component {
                 {
                     key: 'report2w',
                     initial: false,
-                    text: 'Relevé > 2 sem.',
+                    text: 'Relevé > 9 jours.',
                     value: "2w",
                     color:"orange",
                     click:()=>{this.setReportLateFilter("2w")},
@@ -174,7 +159,7 @@ export class Vehicles extends Component {
                 {
                     key: 'report4w',
                     initial: false,
-                    text: 'Relevé > 4 sem.',
+                    text: 'Relevé > 14 jours',
                     value: "4w",
                     color:"red",
                     click:()=>{this.setReportLateFilter("4w")},
@@ -205,6 +190,76 @@ export class Vehicles extends Component {
                 }
             ]
         },
+        sharedFilterInfos:{
+            icon:"handshake",            
+            options:[
+                {
+                    key: 'sharedfalse',
+                    initial: true,
+                    text: 'Tous les véhicules',
+                    value: false,
+                    color:"green",
+                    click:()=>{this.setSharedFilter(false)},
+                    label: { color: 'green', empty: true, circular: true },
+                },
+                {
+                    key: 'sharedtrue',
+                    initial: false,
+                    text: 'Véhicules en prêt',
+                    value: true,
+                    color:"teal",
+                    click:()=>{this.setSharedFilter(true)},
+                    label: { color: 'teal', empty: true, circular: true }
+                }
+            ]
+        },
+        sellingFilterInfos:{
+            icon:"cart",            
+            options:[
+                {
+                    key: 'sellingfalse',
+                    initial: true,
+                    text: 'Tous les véhicules',
+                    value: false,
+                    color:"green",
+                    click:()=>{this.setSellingFilter(false)},
+                    label: { color: 'green', empty: true, circular: true },
+                },
+                {
+                    key: 'sellingtrue',
+                    initial: false,
+                    text: 'Véhicules en vente',
+                    value: true,
+                    color:"teal",
+                    click:()=>{this.setSellingFilter(true)},
+                    label: { color: 'teal', empty: true, circular: true }
+                }
+            ]
+        },
+        brokenFilterInfos:{
+            icon:"wrench",            
+            options:[
+                {
+                    key: 'brokenfalse',
+                    initial: true,
+                    text: 'Tous les véhicules',
+                    value: false,
+                    color:"green",
+                    click:()=>{this.setBrokenFilter(false)},
+                    label: { color: 'green', empty: true, circular: true },
+                },
+                {
+                    key: 'brokentrue',
+                    initial: false,
+                    text: 'Véhicules en panne',
+                    value: true,
+                    color:"teal",
+                    click:()=>{this.setBrokenFilter(true)},
+                    label: { color: 'teal', empty: true, circular: true }
+                }
+            ]
+        },
+        filteredEntry:0,
         vehiclesFilter:"",
         vehiclesRaw:[],
         vehicles : () => {
@@ -224,6 +279,12 @@ export class Vehicles extends Component {
                 );
                 if(this.state.sharedFilter){
                     displayed = displayed.filter(v => v.shared);
+                }
+                if(this.state.sellingFilter){
+                    displayed = displayed.filter(v => v.selling);
+                }
+                if(this.state.brokenFilter){
+                    displayed = displayed.filter(v => v.broken);
                 }
                 displayed = displayed.filter(v =>{
                     if(this.state.financeFilter != "all"){
@@ -250,13 +311,13 @@ export class Vehicles extends Component {
                     if(this.state.reportLateFilter == "all"){return true}else{
                         let days = parseInt(moment().diff(moment(v.lastKmUpdate, "DD/MM/YYYY"),'days'));
                         if(this.state.reportLateFilter == "2w"){
-                            if(days >= 14){
+                            if(days >= 9){
                                 return true
                             }else{
                                 return false
                             }
                         }else{
-                            if(days >= 28){
+                            if(days >= 14){
                                 return true
                             }else{
                                 return false
@@ -266,9 +327,7 @@ export class Vehicles extends Component {
                 });
                 if(this.state.vehiclesFilter.length>0){
                     displayed = displayed.filter(i =>
-                        i.registration.toLowerCase().includes(this.state.vehiclesFilter.toLowerCase()) ||
-                        i.brand.name.toLowerCase().includes(this.state.vehiclesFilter.toLowerCase()) ||
-                        i.model.name.toLowerCase().includes(this.state.vehiclesFilter.toLowerCase())
+                        i.registration.toLowerCase().includes(this.state.vehiclesFilter.toLowerCase())
                     );
                     if(displayed.length == 0){
                         return(
@@ -286,6 +345,7 @@ export class Vehicles extends Component {
                     );
                 }
                 displayed.sort((a, b) => a.registration.localeCompare(b.registration))
+                if(this.state.filteredEntry != displayed.length){this.setState({filteredEntry:displayed.length})}
                 return displayed.map(i =>(
                     <VehiclesRow loadVehicles={this.loadVehicles} hideSociete={this.props.userLimited} societesRaw={this.state.societesRaw} key={i._id} vehicle={i} full={this.state.fullLoaded}/>
                 ))
@@ -320,6 +380,7 @@ export class Vehicles extends Component {
                         name
                     }
                     selling
+                    sold
                     broken
                 }
             }
@@ -375,6 +436,7 @@ export class Vehicles extends Component {
                         name
                     }
                     selling
+                    sold
                     broken
                 }
             }
@@ -599,7 +661,7 @@ export class Vehicles extends Component {
         this.setState({
             financeFilter:v
         })
-        this.loadVehicles();
+        this.loadVehiclesFull();
     }
     setReportLateFilter = value => {
         this.setState({
@@ -614,6 +676,16 @@ export class Vehicles extends Component {
     setSharedFilter = value => {
         this.setState({
             sharedFilter:value
+        })
+    }
+    setSellingFilter = value => {
+        this.setState({
+            sellingFilter:value
+        })
+    }
+    setBrokenFilter = value => {
+        this.setState({
+            brokenFilter:value
         })
     }
     resetAll = () => {
@@ -649,7 +721,7 @@ export class Vehicles extends Component {
                 data.addVehicle.map(qrm=>{
                     if(qrm.status){
                         this.props.toast({message:qrm.message,type:"success"});
-                        this.loadVehicles();
+                        this.loadVehiclesFull();
                     }else{
                         this.props.toast({message:qrm.message,type:"error"});
                     }
@@ -700,7 +772,7 @@ export class Vehicles extends Component {
                 if(qrm.status){
                     this.closeMassKmUpdateIdentityReport();
                     this.props.toast({message:qrm.message,type:"success"});
-                    this.loadVehicles();
+                    this.loadVehiclesFull();
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
                 }
@@ -811,21 +883,21 @@ export class Vehicles extends Component {
     }
     getLastReportCell = vehicle => {
         let days = parseInt(moment().diff(moment(vehicle.lastKmUpdate, "DD/MM/YYYY"),'days'));
-        if(days < 14){
+        if(days < 9){
             return (
                 <Label color={"green"}> 
                     {moment(vehicle.lastKmUpdate, "DD/MM/YYYY").fromNow()}
                 </Label>
             )
         }
-        if(days >= 28){
+        if(days >= 14){
             return (
                 <Label color={"red"}> 
                     {moment(vehicle.lastKmUpdate, "DD/MM/YYYY").fromNow()}
                 </Label>
             )
         }
-        if(days >= 14){
+        if(days >= 9){
             return (
                 <Label color={"orange"}> 
                     {moment(vehicle.lastKmUpdate, "DD/MM/YYYY").fromNow()}
@@ -889,17 +961,19 @@ export class Vehicles extends Component {
                         <Menu.Item color="blue" name='licences' onClick={()=>{this.props.history.push("/parc/licences")}}><Icon name='drivers license'/>Licences</Menu.Item>
                         <Menu.Item color="blue" name='locations' onClick={()=>{this.props.history.push("/parc/locations")}} ><Icon name="calendar alternate outline"/> Locations</Menu.Item>
                     </Menu>
-                    <Input style={{justifySelf:"stretch"}} name="vehiclesFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher une immatriculation, une marque ou un modèle' />
+                    <Input style={{justifySelf:"stretch"}} name="vehiclesFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher une immatriculation'/>
                     <div style={{display:"flex",justifyContent:"flex-end"}}>
                         <BigButtonIcon icon="dashboard" color="green" onClick={this.showMassKmUpdate} tooltip="Mise à jour de masse des compteurs"/>
                         <BigButtonIcon icon="plus" color="blue" onClick={this.showAddVehicle} tooltip="Ajouter un véhicule"/>
                     </div>
-                    <CustomFilterSegment resetAll={this.resetAll} style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3"}} fullLoaded={this.state.fullLoaded} entryLoaded={this.state.vehiclesRaw.length} entryLoadedText={"véhicules"}>
+                    <CustomFilterSegment resetAll={this.resetAll} style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3"}} fullLoaded={this.state.fullLoaded} entryLoaded={this.state.filteredEntry} entryLoadedText={"véhicules"}>
                         <CustomFilter infos={this.state.archiveFilterInfos} active={this.state.archiveFilter} />
                         <CustomFilter infos={this.state.financeFilterInfos} active={this.state.financeFilter} />
-                        <CustomFilter infos={this.state.sharedFilterInfos} active={this.state.sharedFilter} />
                         <CustomFilter infos={this.state.reportLateFilterInfos} active={this.state.reportLateFilter} />
                         <CustomFilter infos={this.state.docsFilterInfos} active={this.state.docsFilter} />
+                        <CustomFilter infos={this.state.sharedFilterInfos} active={this.state.sharedFilter} spaced/>
+                        <CustomFilter infos={this.state.sellingFilterInfos} active={this.state.sellingFilter}/>
+                        <CustomFilter infos={this.state.brokenFilterInfos} active={this.state.brokenFilter}/>
                     </CustomFilterSegment>
                     <div style={{gridRowStart:"3",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                         <Table style={{marginBottom:"0"}} celled selectable compact>

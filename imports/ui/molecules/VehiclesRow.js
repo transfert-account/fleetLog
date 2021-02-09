@@ -66,7 +66,7 @@ class VehiclesRow extends Component {
     }
     getLastReportCell = () => {
         let days = parseInt(moment().diff(moment(this.props.vehicle.lastKmUpdate, "DD/MM/YYYY"),'days'));
-        if(days < 14){
+        if(days < 9){
             return (
                 <Table.Cell textAlign="center">
                     <Label color="green"> 
@@ -75,7 +75,7 @@ class VehiclesRow extends Component {
                 </Table.Cell>
             )
         }
-        if(days >= 28){
+        if(days >= 14){
             return (
                 <Table.Cell textAlign="center">
                     <Label color="red"> 
@@ -84,7 +84,7 @@ class VehiclesRow extends Component {
                 </Table.Cell>
             )
         }
-        if(days >= 14){
+        if(days >= 9){
             return (
                 <Table.Cell textAlign="center">
                     <Label color="orange"> 
@@ -107,16 +107,37 @@ class VehiclesRow extends Component {
         return(
             <Table.Cell textAlign="center">
                 <Popup content={(this.props.vehicle.shared ? (this.props.full && this.props.vehicle.sharedTo ? "En prêt vers " + this.props.vehicle.sharedTo.name : "Chargement ...") : "Le véhicule n'est pas en prêt")} trigger={
-                    <Button color={(this.props.vehicle.shared ? "teal":"none")} icon="handshake"/>
+                    <Button color={(this.props.vehicle.shared ? "teal":"")} icon="handshake"/>
                 }/>
-                <Popup content={(this.props.vehicle.selling ? "Le véhicule est en vente" : "Le véhicule n'est pas en vente")} trigger={
-                    <Button color={(this.props.vehicle.selling ? "teal":"none")} icon="external alternate"/>
-                }/>
+                {this.getSellingButton()}
                 <Popup content={(this.props.vehicle.broken ? "Le véhicule est en panne" : "Le véhicule n'est pas en panne")} trigger={
-                    <Button color={(this.props.vehicle.broken ? "teal":"none")} icon="wrench"/>
+                    <Button color={(this.props.vehicle.broken ? "teal":"")} icon="wrench"/>
                 }/>
             </Table.Cell>
         )
+    }
+    getSellingButton = () => {
+        if(this.props.vehicle.selling){
+            return (
+                <Popup content={"Le véhicule est en vente"} trigger={
+                    <Button color={"teal"} icon="cart"/>
+                }/>
+            )
+        }else{
+            if(this.props.vehicle.sold){
+                return(
+                    <Popup content={"Le véhicule est vendu"} trigger={
+                        <Button color={"orange"} icon="cart"/>
+                    }/>
+                )
+            }else{
+                return(
+                    <Popup content={"Le véhicule n'est pas en vente"} trigger={
+                        <Button icon="cart"/>
+                    }/>
+                )
+            }
+        }
     }
     getDescCell = () => {
         if(this.props.full && this.props.vehicle.brand && this.props.vehicle.model && this.props.vehicle.energy){
@@ -130,7 +151,7 @@ class VehiclesRow extends Component {
         }
     }
     getVolumeCell = () => {
-        if(this.props.full && this.props.volume){
+        if(this.props.full && this.props.vehicle.volume){
             return(
                 <Table.Cell textAlign="center">{this.props.vehicle.volume.meterCube+" m²"}</Table.Cell>
             )
@@ -141,7 +162,7 @@ class VehiclesRow extends Component {
         }
     }
     getDocsStates = () => {
-        if(this.props.full && this.props.cg && this.props.cg){
+        if(this.props.full && this.props.vehicle.cg && this.props.vehicle.cg){
             return (
                 <Table.Cell textAlign="center">
                     <DocStateLabel color={this.props.vehicle.cg._id == "" ? "red" : "green"} title="Carte grise"/>

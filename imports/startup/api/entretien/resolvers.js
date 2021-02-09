@@ -59,6 +59,11 @@ const affectEntretienData = (e,i,entretiens) => {
         }else{
             e.vehicle.volume = {_id:""};
         }
+        if(e.vehicle.shared){
+            e.vehicle.sharedTo = Societes.findOne({_id:new Mongo.ObjectID(e.vehicle.sharedTo)});
+        }else{
+            e.vehicle.sharedTo = {_id:""};
+        }
         if(e.societe != null && e.societe.length > 0){
             e.societe = Societes.findOne({_id:new Mongo.ObjectID(e.societe)});
         }else{
@@ -103,9 +108,12 @@ export default {
         },
         buEntretiens(obj, args,{user}){
             let userFull = Meteor.users.findOne({_id:user._id});
-            let entretiens = Entretiens.find({societe:userFull.settings.visibility}).fetch() || {};
+            let entretiens = Entretiens.find().fetch() || {};
             entretiens.forEach((e,i) => {
                 affectEntretienData(e,i,entretiens);
+            });
+            entretiens = entretiens.filter(e=>{
+                return e.vehicle.societe._id == userFull.settings.visibility || e.vehicle.sharedTo._id == userFull.settings.visibility
             });
             return entretiens;
         },

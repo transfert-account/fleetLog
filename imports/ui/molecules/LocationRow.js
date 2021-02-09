@@ -42,7 +42,7 @@ class LocationRow extends Component {
     }
     getLastReportCell = () => {
             let days = parseInt(moment().diff(moment(this.props.rental.lastKmUpdate, "DD/MM/YYYY"),'days'));
-            if(days < 14){
+            if(days < 9){
                 return (
                     <Table.Cell textAlign="center">
                         <Label color={"green"}> 
@@ -51,7 +51,7 @@ class LocationRow extends Component {
                     </Table.Cell>
                 )
             }
-            if(days >= 28){
+            if(days >= 14){
                 return (
                     <Table.Cell textAlign="center">
                         <Label color={"red"}> 
@@ -60,7 +60,7 @@ class LocationRow extends Component {
                     </Table.Cell>
                 )
             }
-            if(days >= 14){
+            if(days >= 9){
                 return (
                     <Table.Cell textAlign="center">
                         <Label color={"orange"}> 

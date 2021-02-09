@@ -19,9 +19,14 @@ import Licences from './Licences';
 
 import Planning from './Planning';
 
-import Fournisseurs from './Fournisseurs';
+import ExportVehicles from './ExportVehicles';
+import ExportEntretiens from './ExportEntretiens';
+import ExportSinistres from './ExportSinistres';
+import ExportCausesSinistres from './ExportCausesSinistres';
 
 import Accidents from './Accidents';
+
+import Fournisseurs from './Fournisseurs';
 
 import Batiments from './Batiments';
 
@@ -30,7 +35,6 @@ import Accounts from './Accounts';
 import Content from './Content';
 import Pieces from './Pieces';
 import Equipements from './Equipements';
-import ExportXL from './ExportXL';
 import Patchnotes from './Patchnotes';
 import Documents from './Documents';
 import Logs from './Logs';
@@ -67,6 +71,12 @@ class PageBody extends Component {
               <Route exact path='/planning/:y/:m' component={()=><Planning userLimited={false}/>}/>
 
               <Route exact path='/accidentologie' component={()=><Accidents userLimited={false}/>}/>
+
+              <Route exact path='/export/vehicles' component={ExportVehicles}/>
+              <Route exact path='/export/entretiens' component={ExportEntretiens}/>
+              <Route exact path='/export/sinistres' component={ExportSinistres}/>
+              <Route exact path='/export/causes-sinistres' component={ExportCausesSinistres}/>
+
               <Route exact path='/batiments' component={()=><Batiments userLimited={false}/>}/>
 
               <Route exact path='/fournisseurs' component={Fournisseurs}/>
@@ -77,7 +87,6 @@ class PageBody extends Component {
               <Route exact path='/administration/content' component={Content}/>
               <Route exact path='/administration/equipements' component={Equipements}/>
               <Route exact path='/administration/pieces' component={Pieces}/>
-              <Route exact path='/administration/exports' component={ExportXL}/>
               <Route exact path='/administration/patchnotes' component={Patchnotes}/>
               <Route exact path='/administration/documents' component={Documents}/>
               <Route exact path='/administration/logs' component={Logs}/>
@@ -103,7 +112,12 @@ class PageBody extends Component {
               <Route exact path='/planning/:y/:m' component={()=><Planning userLimited={true}/>}/>
 
               <Route exact path='/accidentologie' component={()=><Accidents userLimited={true}/>}/>
-              
+
+              <Route exact path='/export/vehicles' component={ExportVehicles}/>
+              <Route exact path='/export/entretiens' component={ExportEntretiens}/>
+              <Route exact path='/export/sinistres' component={ExportSinistres}/>
+              <Route exact path='/export/causes-sinistres' component={ExportCausesSinistres}/>
+
               <Route exact path='/batiments' component={()=><Batiments userLimited={true}/>}/>
 
               <Route exact path='/fournisseurs' component={Fournisseurs}/>
@@ -114,7 +128,6 @@ class PageBody extends Component {
               <Route exact path='/administration/content' component={Content}/>
               <Route exact path='/administration/equipements' component={Equipements}/>
               <Route exact path='/administration/pieces' component={Pieces}/>
-              <Route exact path='/administration/exports' component={ExportXL}/>
               <Route exact path='/administration/patchnotes' component={Patchnotes}/>
               <Route exact path='/administration/documents' component={Documents}/>
               <Route exact path='/administration/logs' component={Logs}/>
@@ -141,6 +154,11 @@ class PageBody extends Component {
             <Route exact path='/planning/:y/:m' component={()=><Planning userLimited={true}/>}/>
 
             <Route exact path='/accidentologie' component={()=><Accidents userLimited={true}/>}/>
+
+            <Route exact path='/export/vehicles' component={ExportVehicles}/>
+            <Route exact path='/export/entretiens' component={ExportEntretiens}/>
+            <Route exact path='/export/sinistres' component={ExportSinistres}/>
+            <Route exact path='/export/causes-sinistres' component={ExportCausesSinistres}/>
 
             <Route exact path='/batiments' component={()=><Batiments userLimited={true}/>}/>
 

@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import { Table, Label, Icon } from 'semantic-ui-react';
+import { Table, Label, Icon, Popup, Button } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 
 import ActionsGridCell from '../atoms/ActionsGridCell';
@@ -46,7 +46,12 @@ class EntretienRow extends Component {
     }
     getSocieteCell = () => {
         if(!this.props.userLimited){
-            return <Table.Cell textAlign="center">{this.props.entretien.societe.name}</Table.Cell>
+            return <Table.Cell textAlign="center">
+                {this.props.entretien.societe.name}
+                <Popup content={(this.props.entretien.vehicle.shared ? (this.props.entretien.vehicle.sharedTo ? "En prêt vers " + this.props.entretien.vehicle.sharedTo.name : "Chargement ...") : "Le véhicule n'est pas en prêt")} trigger={
+                    <Button style={{marginLeft:"12px"}} color={(this.props.entretien.vehicle.shared ? "teal":"none")} icon="handshake"/>
+                }/>
+            </Table.Cell>
         }
     }
     getOrderState = state => {

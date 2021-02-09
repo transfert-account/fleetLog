@@ -102,13 +102,13 @@ export class DashboardUnit extends Component {
                             data:this.props.dashboard.vehiclesLate,
                             color:this.getColorIfAny(this.props.dashboard.vehiclesLate,"orange"),
                             icon:'dashboard',
-                            tooltip:" véhicules avec relevé de compteur remontant à plus de 2 semaines",
+                            tooltip:" véhicules avec relevé de compteur remontant à plus de 9 jours",
                             click:this.navigateToVehicles
                         },{
                             data:this.props.dashboard.vehiclesVeryLate,
                             color:this.getColorIfAny(this.props.dashboard.vehiclesVeryLate,"red"),
                             icon:'warning sign',
-                            tooltip:" véhicules avec relevé de compteur remontant à plus de 4 semaines",
+                            tooltip:" véhicules avec relevé de compteur remontant à plus de 14 jours",
                             click:this.navigateToVehicles
                         }]}
                     />
@@ -123,13 +123,13 @@ export class DashboardUnit extends Component {
                             data:this.props.dashboard.locationsLate,
                             color:this.getColorIfAny(this.props.dashboard.locationsLate,"orange"),
                             icon:'dashboard',
-                            tooltip:" véhicules avec relevé de compteur remontant à plus de 2 semaines",
+                            tooltip:" véhicules avec relevé de compteur remontant à plus de 9 jours",
                             click:this.navigateToLocations
                         },{
                             data:this.props.dashboard.locationsVeryLate,
                             color:this.getColorIfAny(this.props.dashboard.locationsVeryLate,"red"),
                             icon:'warning sign',
-                            tooltip:" véhicules avec relevé de compteur remontant à plus de 4 semaines",
+                            tooltip:" véhicules avec relevé de compteur remontant à plus de 14 jours",
                             click:this.navigateToLocations
                         }]}
                     />

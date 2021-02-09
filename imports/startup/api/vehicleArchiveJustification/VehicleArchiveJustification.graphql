@@ -1,0 +1,13 @@
+type VehicleArchiveJustification{
+    _id:String!
+    justification:String
+}
+
+extend type Query{
+    vehicleArchiveJustifications : [VehicleArchiveJustification]
+}
+
+extend type Mutation{
+    addVehicleArchiveJustification(justification:String!): [QueryResultMessage]
+    deleteVehicleArchiveJustification(_id:String!): [QueryResultMessage]
+}

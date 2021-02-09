@@ -162,7 +162,8 @@ class Entretiens extends Component {
             );
             if(this.props.user.isAdmin && this.props.user.visibility == "noidthisisgroupvisibility" && this.props.societeFilter != "noidthisisgroupvisibility"){
                 displayed = displayed.filter(e =>
-                    e.societe._id == this.props.societeFilter
+                    e.societe._id == this.props.societeFilter ||
+                    e.vehicle.sharedTo._id == this.props.societeFilter
                 );
             }
             if(this.state.orderStatusFilter != "all"){
@@ -312,6 +313,11 @@ class Entretiens extends Component {
                             name
                             hex
                         }
+                        shared
+                        sharedTo{
+                            _id
+                            name
+                        }
                         insurancePaid
                         property
                     }
@@ -379,6 +385,11 @@ class Entretiens extends Component {
                             _id
                             name
                             hex
+                        }
+                        shared
+                        sharedTo{
+                            _id
+                            name
                         }
                         insurancePaid
                         property
@@ -473,7 +484,7 @@ class Entretiens extends Component {
             return(
                 <Table.Header>
                     <Table.Row textAlign='center'>
-                        <Table.HeaderCell>Vehicule</Table.HeaderCell>
+                        <Table.HeaderCell>Véhicule</Table.HeaderCell>
                         <Table.HeaderCell>Type</Table.HeaderCell>
                         <Table.HeaderCell>Titre</Table.HeaderCell>
                         <Table.HeaderCell>Description de l'entretien</Table.HeaderCell>
@@ -490,7 +501,7 @@ class Entretiens extends Component {
                 <Table.Header>
                     <Table.Row textAlign='center'>
                         <Table.HeaderCell>Societe</Table.HeaderCell>
-                        <Table.HeaderCell>Vehicule</Table.HeaderCell>
+                        <Table.HeaderCell>Véhicule</Table.HeaderCell>
                         <Table.HeaderCell>Type</Table.HeaderCell>
                         <Table.HeaderCell>Titre</Table.HeaderCell>
                         <Table.HeaderCell>Description de l'entretien</Table.HeaderCell>
@@ -511,7 +522,7 @@ class Entretiens extends Component {
     render() {
         return (
             <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto auto 1fr auto",gridTemplateColumns:"1fr auto"}}>
-                <Input style={{justifySelf:"stretch"}} name="entretienFilter" onChange={this.handleChange} icon='search' placeholder='Rechercher une immatriculation, un titre ou une description' />
+                <Input style={{justifySelf:"stretch"}} name="entretienFilter" onChange={this.handleChange} icon='search' placeholder='Rechercher une immatriculation'/>
                 <div style={{display:"flex",justifyContent:"flex-end"}}>
                     <BigButtonIcon icon="plus" color="blue" onClick={this.showAddEntretien} tooltip="Créer un entretien"/>
                 </div>

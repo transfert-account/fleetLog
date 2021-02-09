@@ -12,6 +12,18 @@ export default {
         testThis(obj, args,{user}){
             if(user._id){
                 try{
+                    Vehicles.update({},{$unset: {archiveReason:"",brokenReason:""}},{multi:true});
+                    Vehicles.update(
+                        {},{
+                            $set: {
+                                crf:"",
+                                ida:"",
+                                scg:"",
+                                sold:false,
+                            }
+                        },
+                        {multi:true}
+                    );
                     /*
                     let licences = Licences.find({}).fetch();
                     let nuked = 0;
@@ -33,8 +45,8 @@ export default {
                                 );
                             }
                         }
-                    })*/
-                    /*Vehicles.update(
+                    })
+                    Vehicles.update(
                         {},{
                             $set: {
                                 selling:false,
@@ -78,7 +90,7 @@ export default {
                             }
                         );
                     })*/
-                    return [{status:true,message:'Nuked : initialized breaking and selling vehicles attributes, all entretiens are now fromControl = false, control = null and all controls are now entretienCreated = false'}];
+                    return [{status:true,message:'Nuked : archiveReason & brokenReason unset 1, new sold docs mass initiated to blank + sold:false'}];
                 }catch(e){
                     throw e;
                     return [{status:false,message:e.message}];
