@@ -73,9 +73,9 @@
 ////////////// GENERAL /////////////
 //////////////////////////////////*/
 
-h1,h2,h3,h4,h5,h6,#avatarWrapper>p{
+/*h1,h2,h3,h4,h5,h6,#avatarWrapper>p{
   font-family: 'Montserrat', sans-serif !important;
-}
+}*/
 body{
   font-weight: 400;
   /*font-family: 'Open Sans', !important;*/
@@ -178,11 +178,34 @@ body {
   justify-self:start;
 }
 
+.formBoard{
+  display:grid;
+  font-size: 1.2rem;
+  grid-column-start:1;
+  grid-gap:6px 24px;
+}
+.formBoard.editing{
+  grid-template-columns: 1fr 1fr;
+}
+.formBoard.displaying{
+  grid-template-columns: auto 1fr;
+}
+
 .labelBoard{
-  color:#505050;text-align: end
+  color:#505050;
+  text-align: end;
+  white-space: wrap;
+  margin-top: 10px;
 }
 .valueBoard{
-  font-weight: bold;text-align: start
+  border-radius: 4px;
+  font-weight: bold;
+  text-align: start;
+  white-space: wrap;
+  background-color: #d9d9d9;
+  margin-top: 8px;
+  min-height: 24px;
+  padding: 5px 10px;
 }
 
 .patchnote-block .ui.list{

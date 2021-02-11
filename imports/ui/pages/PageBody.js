@@ -25,6 +25,7 @@ import ExportSinistres from './ExportSinistres';
 import ExportCausesSinistres from './ExportCausesSinistres';
 
 import Accidents from './Accidents';
+import Accident from './Accident';
 
 import Fournisseurs from './Fournisseurs';
 
@@ -71,6 +72,7 @@ class PageBody extends Component {
               <Route exact path='/planning/:y/:m' component={()=><Planning userLimited={false}/>}/>
 
               <Route exact path='/accidentologie' component={()=><Accidents userLimited={false}/>}/>
+              <Route exact path='/accident/:_id' component={Accident}/>
 
               <Route exact path='/export/vehicles' component={ExportVehicles}/>
               <Route exact path='/export/entretiens' component={ExportEntretiens}/>
@@ -112,6 +114,7 @@ class PageBody extends Component {
               <Route exact path='/planning/:y/:m' component={()=><Planning userLimited={true}/>}/>
 
               <Route exact path='/accidentologie' component={()=><Accidents userLimited={true}/>}/>
+              <Route exact path='/accident/:_id' component={Accident}/>
 
               <Route exact path='/export/vehicles' component={ExportVehicles}/>
               <Route exact path='/export/entretiens' component={ExportEntretiens}/>
@@ -154,6 +157,7 @@ class PageBody extends Component {
             <Route exact path='/planning/:y/:m' component={()=><Planning userLimited={true}/>}/>
 
             <Route exact path='/accidentologie' component={()=><Accidents userLimited={true}/>}/>
+            <Route exact path='/accident/:_id' component={Accident}/>
 
             <Route exact path='/export/vehicles' component={ExportVehicles}/>
             <Route exact path='/export/entretiens' component={ExportEntretiens}/>

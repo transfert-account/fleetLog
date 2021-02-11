@@ -15,6 +15,7 @@ type Accident{
 }
 
 extend type Query{
+    accident(_id:String!) : Accident
     accidents : [Accident]
     buAccidents : [Accident]
 }

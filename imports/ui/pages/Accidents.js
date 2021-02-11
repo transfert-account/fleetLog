@@ -35,7 +35,7 @@ class Accidents extends Component {
           infos:"docsFilterInfos",
           filter:"docsFilter"
       }
-  ],
+    ],
     archiveFilterInfos:{
       icon:"archive",            
       options:[

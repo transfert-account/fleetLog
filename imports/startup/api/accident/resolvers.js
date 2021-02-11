@@ -26,6 +26,11 @@ const affectData = a => {
         }else{
             a.vehicle.model = {_id:""};
         }
+        if(a.vehicle.energy != null && a.vehicle.energy.length > 0){
+            a.vehicle.energy = Models.findOne({_id:new Mongo.ObjectID(a.vehicle.energy)});
+        }else{
+            a.vehicle.energy = {_id:""};
+        }
     }else{
         a.vehicle = {_id:""};
     }
@@ -48,6 +53,11 @@ const affectData = a => {
 
 export default {
     Query : {
+        accident(obj, { _id }, {user}){
+            let a = Accidents.findOne({_id:new Mongo.ObjectID(_id)});
+            affectData(a);
+            return a;
+        },
         accidents(obj, args, {user}){
             let accidents = Accidents.find({}).fetch();
             accidents.map(a=>affectData(a))

@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Menu, Input, Header, Modal, Form, Button, Dropdown } from 'semantic-ui-react';
+import { Icon, Menu, Input, Header, Modal, Form, Button, Dropdown, Dimmer, Table, Loader } from 'semantic-ui-react';
 import BigButtonIcon from '../elements/BigIconButton';
 import CustomFilterSegment from '../molecules/CustomFilterSegment';
 import CustomFilter from '../atoms/CustomFilter';
@@ -17,6 +17,7 @@ export class Controls extends Component {
         vehiclesFiler:"",
         controlFilter:"all",
         docsFilter:"all",
+        loading:true,
         entretienCreatedFilter:"all",
         newControlVehicle:"",
         newEquipement:null,
@@ -492,6 +493,7 @@ export class Controls extends Component {
                 })
             })
             this.setState({
+                loading:false,
                 vehiclesRaw:vehiclesEquipedByControls
             })
         })
@@ -519,7 +521,7 @@ export class Controls extends Component {
     render() {
         return (
             <Fragment>
-                <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto auto 1fr auto",gridTemplateColumns:"auto 1fr auto"}}>
+                <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto auto minmax(0,1fr)",gridTemplateColumns:"auto 1fr auto"}}>
                     <Menu style={{cursor:"pointer",marginBottom:"auto"}} icon='labeled'>
                         <Menu.Item color="blue" name='vehicules' onClick={()=>{this.props.history.push("/parc/vehicles")}}><Icon name='truck'/>Vehicules</Menu.Item>
                         <Menu.Item color="blue" name='controls' active onClick={()=>{this.props.history.push("/parc/controls")}}><Icon name='clipboard check'/>Contrôles</Menu.Item>
@@ -538,6 +540,9 @@ export class Controls extends Component {
                     <div style={{gridRowStart:"3",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                         {this.state.vehicles()}
                     </div>
+                    <Dimmer inverted active={this.state.loading}>
+                        <Loader size='massive'>Chargement des contrôles ...</Loader>
+                    </Dimmer>
                 </div>
                 <Modal closeOnDimmerClick={false} open={this.state.openAddControl} onClose={this.closeAddControl} closeIcon>
                     <Modal.Header>

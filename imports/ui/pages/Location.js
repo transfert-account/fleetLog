@@ -874,7 +874,7 @@ class Location extends Component {
         if(this.state.editingTech){
             return (
                 <Segment attached='bottom'>
-                    <Form className="formBoard" style={{placeSelf:"start auto",display:"grid",gridTemplateRows:"auto",gridTemplateColumns:"1fr 1fr",gridColumnStart:"1",gridRowEnd:"span 2",gridColumnEnd:"span 2",gridGap:"6px 24px"}}>
+                    <Form className="formBoard editing">
                         <Form.Field>
                             <label>Societé</label>
                             <SocietePicker restrictToVisibility defaultValue={this.state.location.societe._id} groupAppears={false} onChange={this.handleChangeSociete}/>
@@ -912,7 +912,7 @@ class Location extends Component {
         }else{
             return (
                 <Segment attached='bottom'>
-                    <div className="formBoard" style={{display:"grid",gridTemplateColumns:"auto 1fr",gridColumnEnd:"span 2",gridColumnStart:"1",gridGap:"6px 24px"}}>
+                    <div className="formBoard displaying">
                         <div className="labelBoard">Societé :</div><div className="valueBoard">{this.state.location.societe.name}</div>
                         <div className="labelBoard">Immatriculation :</div><div className="valueBoard">{this.state.location.registration}</div>
                         <div className="labelBoard">Date de première immatriculation :</div><div className="valueBoard">{this.state.location.firstRegistrationDate}</div>
@@ -931,7 +931,7 @@ class Location extends Component {
         if(this.state.editingFinances){
             return (
                 <Segment attached='bottom'>
-                    <Form className="formBoard" style={{placeSelf:"start auto",display:"grid",gridTemplateRows:"auto",gridTemplateColumns:"1fr 1fr",gridColumnStart:"1",gridRowEnd:"span 2",gridColumnEnd:"span 2",gridGap:"6px 24px"}}>
+                    <Form className="formBoard editing">
                         <Form.Field>
                             <label>Fournisseur</label>
                             <FournisseurPicker defaultValue={this.state.location.fournisseur._id} onChange={this.handleChangeFournisseur}/>
@@ -964,7 +964,7 @@ class Location extends Component {
         }else{
             return (
                 <Segment attached='bottom'>
-                    <div className="formBoard" style={{display:"grid",gridTemplateColumns:"auto 1fr",gridColumnEnd:"span 2",gridColumnStart:"1",gridGap:"6px 24px"}}>
+                    <div className="formBoard displaying">
                         <div className="labelBoard">Fournisseur :</div><div className="valueBoard">{this.state.location.fournisseur.name}</div>
                         <div className="labelBoard">Début de la location :</div><div className="valueBoard">{this.getStartDateLabel()}</div>
                         <div className="labelBoard">Fin de la location :</div><div className="valueBoard">{this.getEndDateLabel()}</div>

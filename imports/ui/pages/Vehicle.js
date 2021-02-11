@@ -1372,7 +1372,7 @@ class Vehicle extends Component {
         if(this.state.editingIdent){
             return (
                 <Segment attached='bottom' style={{padding:"24px"}}>
-                    <Form className="formBoard" style={{placeSelf:"start auto",display:"grid",gridTemplateRows:"auto auto auto auto auto 1fr auto",gridTemplateColumns:"1fr 1fr",gridColumnStart:"1",gridRowEnd:"span 2",gridColumnEnd:"span 2",gridGap:"0 24px",height:"100%"}}>
+                    <Form className="formBoard editing">
                         <Form.Field style={{gridColumnEnd:"span 2"}}><label>Societé</label>
                             <SocietePicker restrictToVisibility defaultValue={this.state.vehicle.societe._id} groupAppears={false} onChange={this.handleChangeSociete}/>
                         </Form.Field>
@@ -1408,10 +1408,10 @@ class Vehicle extends Component {
         }else{
             return (
                 <Segment attached='bottom' style={{padding:"24px"}}>
-                    <div className="formBoard" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gridColumnEnd:"span 2",gridColumnStart:"1",gridGap:"6px 24px"}}>
+                    <div className="formBoard displaying">
                         <div className="labelBoard">Societé :</div><div className="valueBoard">{this.state.vehicle.societe.name}</div>
                         <div className="labelBoard">Immatriculation :</div><div className="valueBoard">{this.state.vehicle.registration}</div>
-                        <div className="labelBoard">Date de première immatriculation :</div><div className="valueBoard">{this.state.vehicle.firstRegistrationDate}</div>
+                        <div className="labelBoard">1ère immatriculation :</div><div className="valueBoard">{this.state.vehicle.firstRegistrationDate}</div>
                         <div className="labelBoard">Énergie :</div><div className="valueBoard">{this.state.vehicle.energy.name}</div>
                         <div className="labelBoard">Marque :</div><div className="valueBoard">{this.state.vehicle.brand.name}</div>
                         <div className="labelBoard">Modèle :</div><div className="valueBoard">{this.state.vehicle.model.name}</div>
@@ -1428,7 +1428,7 @@ class Vehicle extends Component {
         if(this.state.editingFinances){
             return (
                 <Segment attached='bottom' style={{padding:"24px"}}>
-                    <Form className="formBoard" style={{placeSelf:"start auto",display:"grid",gridTemplateRows:"auto auto auto auto 1fr auto",gridTemplateColumns:"1fr 1fr",gridColumnStart:"1",gridRowEnd:"span 2",gridColumnEnd:"span 2",gridGap:"0 24px",height:"100%"}}>
+                    <Form className="formBoard displaying">
                         <Form.Field><label>Montant de l'assurance</label>
                             <Input defaultValue={this.state.vehicle.insurancePaid} onChange={this.handleChange} name="newInsurancePaid"/>
                         </Form.Field>
@@ -1463,8 +1463,8 @@ class Vehicle extends Component {
         }else{
             if(this.state.vehicle.financialInfosComplete){
                 return (
-                    <Segment attached='bottom' style={{padding:"24px"}}>                         
-                        <div className="formBoard" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gridTemplateRows:"auto auto auto auto auto auto auto auto 1fr auto",gridColumnEnd:"span 2",gridColumnStart:"1",gridGap:"6px 24px",height:"100%"}}>
+                    <Segment attached='bottom' style={{padding:"24px",display:"grid",gridTemplateRows:"1fr"}}>
+                        <div className="formBoard displaying" style={{gridTemplateRows:"auto auto auto auto auto auto auto auto 1fr"}}>
                             <div className="labelBoard">Montant de l'assurance :</div>
                             <div className="valueBoard">{parseFloat(this.state.vehicle.insurancePaid).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ")} €</div>
                             <div className="labelBoard">Prix d'achat :</div>
@@ -1481,14 +1481,14 @@ class Vehicle extends Component {
                             <div className="valueBoard">{this.state.formats.filter(f=>f.triKey == this.state.vehicle.payementFormat)[0].label}</div>
                             <div className="labelBoard">Organisme de payement :</div>
                             <div className="valueBoard">{this.state.vehicle.payementOrg.name}</div>
-                            <div style={{gridColumnEnd:"span 2",gridRowStart:"10"}}>{this.getPayementProgress()}</div>
                         </div>
+                        <div>{this.getPayementProgress()}</div>
                     </Segment>
                 )
             }else{
                 return (
                     <Segment attached='bottom'>
-                        <div className="formBoard" style={{display:"grid",gridTemplateColumns:"1fr 4fr 1fr",gridTemplateRows:"2fr 1fr",gridColumnEnd:"span 2",gridColumnStart:"1"}}>
+                        <div className="formBoard displaying">
                             <Icon style={{gridColumnStart:"2",placeSelf:"center"}} name='warning sign' color="red" size='huge' />
                             <p style={{gridColumnStart:"2"}}>Les données de financement sont incomplètes, veuillez les compléter pour afficher cette section</p>
                             <Button basic color="blue" style={{gridColumnStart:"2",placeSelf:"stretch"}} onClick={this.showEditFinances} icon labelPosition='right'>Renseigner les informations manquantes<Icon name='edit'/></Button>
@@ -1590,7 +1590,6 @@ class Vehicle extends Component {
     }
 
     render() {
-        console.log(this.state.vehicle)
         if(this.state.loading){
             return (
                 <div>
