@@ -12,6 +12,12 @@ type Accident{
     facture:Document
     archived:Boolean
     cost:Float
+    answers:[Answer]
+}
+
+type Answer{
+    status:String
+    body:String
 }
 
 extend type Query{
@@ -28,4 +34,5 @@ extend type Mutation{
     archiveAccident(_id:String!): [QueryResultMessage]
     unArchiveAccident(_id:String!): [QueryResultMessage]
     uploadAccidentDocument(_id:String!,file:Upload!,type:String,size:Int!):[QueryResultMessage]
+    saveAnswers(_id:String!,answers:String):[QueryResultMessage]
 }

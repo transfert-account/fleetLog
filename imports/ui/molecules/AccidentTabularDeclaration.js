@@ -183,12 +183,7 @@ export class AccidentTabularDeclaration extends Component {
                     <DocStateLabel opened color={this.props.accident.rapportExp._id == "" ? "red" : "green"} title="Rapport de l'expert"/>
                     <DocStateLabel opened color={this.props.accident.facture._id == "" ? "red" : "green"} title="Facture"/>
                 </div>
-                <Form style={{gridColumnEnd:"span 2",placeSelf:"stretch"}}>
-                    <Form.Field style={{margin:"32px 64px"}}>
-                        <label>Notes concernant l'accident </label>
-                        <TextArea style={{border:"2px solid #d9d9d9",height:"100%",width:"100%"}} defaultValue={this.state.newDescription} onChange={this.handleEditDesc} placeholder="Notes concernant l'accident"/>
-                    </Form.Field>
-                </Form>
+                <TextArea className="textarea" name="newDescription" style={{border:"2px solid #d9d9d9",margin:"16px",gridColumnEnd:"span 2",placeSelf:"stretch"}} defaultValue={this.state.newDescription} onChange={this.handleEditDesc}/>
             </Segment>
             <ModalDatePicker onSelectDatePicker={this.onSelectDatePicker} closeDatePicker={this.closeDatePicker} open={this.state.openDatePicker}/>
         </Fragment>

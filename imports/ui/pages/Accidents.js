@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { Input, Button, Table, Modal, Form } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 
-import AccidentRow from '../molecules/AccidentRow';
 import CustomFilterSegment from '../molecules/CustomFilterSegment';
+import VehicleAgglomeratedAccidentsRow from '../molecules/VehicleAgglomeratedAccidentsRow';
 
 import BigButtonIcon from '../elements/BigIconButton';
 
@@ -107,39 +107,42 @@ class Accidents extends Component {
     },
     openAddAccident:false,
     accidentsRaw:[],
-    accidents : () => {
-      let displayed = Array.from(this.state.accidentsRaw);
+    vehicleAgglomeratedAccidents : () => {
+      let displayed = Array.from(JSON.parse(JSON.stringify(this.state.accidentsRaw)));
       if(this.props.user.isAdmin && this.props.user.visibility == "noidthisisgroupvisibility" && this.props.societeFilter != "noidthisisgroupvisibility"){
         displayed = displayed.filter(a =>
             a.societe._id == this.props.societeFilter
         );
       }
-      displayed = displayed.filter(a =>
-          a.archived == this.state.archiveFilter
-      );
+      displayed.forEach(vehicle => {
+        let accs = vehicle.accidents;
+        accs = accs.filter(a=>a.archived == this.state.archiveFilter)
+        accs = accs.filter(a =>{
+          if(this.state.docsFilter == "all"){return true}else{
+              if(a.rapportExp._id == "" || a.constat._id == "" || a.facture._id == ""){
+                return true
+              }else{
+                return false
+              }
+          }}
+        )
+        accs = accs.filter(a =>{
+          if(this.state.constatSentFilter == "all"){return true}else{
+              if(a.constatSent){
+                return false
+              }else{
+                return true
+              }
+          }
+        });
+        vehicle.accidents = accs;
+      });
       if(this.state.accidentFilter.length>0){
-          displayed = displayed.filter(a =>
-              a.vehicle.registration.toLowerCase().includes(this.state.accidentFilter.toLowerCase())
-          );
+        displayed = displayed.filter(v =>
+          v.registration.toLowerCase().includes(this.state.accidentFilter.toLowerCase())
+        );
       }
-      displayed = displayed.filter(a =>{
-        if(this.state.docsFilter == "all"){return true}else{
-            if(a.rapportExp._id == "" || a.constat._id == "" || a.facture._id == ""){
-                return true
-            }else{
-                return false
-            }
-        }}
-      )
-      displayed = displayed.filter(a =>{
-        if(this.state.constatSentFilter == "all"){return true}else{
-            if(a.constatSent){
-                return false
-            }else{
-                return true
-            }
-        }}
-      )
+      displayed = displayed.filter(v => v.accidents.length > 0);
       if(displayed.length == 0){
         return(
           <Table.Row key={"none"}>
@@ -149,9 +152,11 @@ class Accidents extends Component {
           </Table.Row>
         )
       }
-      return displayed.map(a =>(
-          <AccidentRow hideSociete={this.props.userLimited} loadAccidents={this.loadAccidents} key={a._id} accident={a}/>
-      ))
+      return displayed.map(v =>{
+        return(
+          <VehicleAgglomeratedAccidentsRow archiveFilter={this.state.archiveFilter} docsFilter={this.state.docsFilter} constatSentFilter={this.state.constatSentFilter} archiveFilter={this.state.archiveFilter} hideSociete={this.props.userLimited} loadAccidents={this.loadAccidents} key={v._id} vehicle={v}/>
+        )
+      })
     },
     addAccidentQuery : gql`
         mutation addAccident($vehicle:String!,$occurenceDate:String!){
@@ -161,134 +166,170 @@ class Accidents extends Component {
           }
         }
     `,
-    accidentsQuery : gql`
-      query accidents{
-        accidents{
+    vehiclesByAccidentsQuery: gql`
+      query vehiclesByAccidents{
+        vehiclesByAccidents{
           _id
           societe{
             _id
             trikey
             name
           }
-          vehicle{
-            _id
-            registration
-            model{
-              _id
-              name
-            }
-            brand{
-              _id
-              name
-            }
-          }
-          occurenceDate
-          description
-          dateExpert
-          dateTravaux
-          constatSent
-          cost
+          km
+          lastKmUpdate
+          registration
           archived
-          constat{
+          brand{
             _id
             name
-            size
-            path
-            originalFilename
-            ext
-            type
-            mimetype
-            storageDate
           }
-          rapportExp{
+          model{
             _id
             name
-            size
-            path
-            originalFilename
-            ext
-            type
-            mimetype
-            storageDate
           }
-          facture{
+          energy{
             _id
             name
-            size
-            path
-            originalFilename
-            ext
-            type
-            mimetype
-            storageDate
+          }
+          accidents{
+            _id
+            societe{
+              _id
+              trikey
+              name
+            }
+            occurenceDate
+            description
+            dateExpert
+            dateTravaux
+            constatSent
+            cost
+            archived
+            constat{
+              _id
+              name
+              size
+              path
+              originalFilename
+              ext
+              type
+              mimetype
+              storageDate
+            }
+            rapportExp{
+              _id
+              name
+              size
+              path
+              originalFilename
+              ext
+              type
+              mimetype
+              storageDate
+            }
+            facture{
+              _id
+              name
+              size
+              path
+              originalFilename
+              ext
+              type
+              mimetype
+              storageDate
+            }
           }
         }
       }
     `,
-    buAccidentsQuery : gql`
-      query buAccidents{
-        buAccidents{
+    buVehiclesByAccidentsQuery: gql`
+      query buVehiclesByAccidents{
+        buVehiclesByAccidents{
           _id
           societe{
             _id
             trikey
             name
           }
-          vehicle{
-            _id
-            registration
-            model{
-              _id
-              name
-            }
-            brand{
-              _id
-              name
-            }
-          }
-          occurenceDate
-          description
-          dateExpert
-          dateTravaux
-          constatSent
-          cost
+          km
+          lastKmUpdate
+          registration
           archived
-          constat{
+          brand{
             _id
             name
-            size
-            path
-            originalFilename
-            ext
-            type
-            mimetype
-            storageDate
           }
-          rapportExp{
+          model{
             _id
             name
-            size
-            path
-            originalFilename
-            ext
-            type
-            mimetype
-            storageDate
           }
-          facture{
+          energy{
             _id
             name
-            size
-            path
-            originalFilename
-            ext
-            type
-            mimetype
-            storageDate
+          }
+          accidents{
+            _id
+            societe{
+              _id
+              trikey
+              name
+            }
+            vehicle{
+              _id
+              registration
+              model{
+                _id
+                name
+              }
+              brand{
+                _id
+                name
+              }
+            }
+            occurenceDate
+            description
+            dateExpert
+            dateTravaux
+            constatSent
+            cost
+            archived
+            constat{
+              _id
+              name
+              size
+              path
+              originalFilename
+              ext
+              type
+              mimetype
+              storageDate
+            }
+            rapportExp{
+              _id
+              name
+              size
+              path
+              originalFilename
+              ext
+              type
+              mimetype
+              storageDate
+            }
+            facture{
+              _id
+              name
+              size
+              path
+              originalFilename
+              ext
+              type
+              mimetype
+              storageDate
+            }
           }
         }
       }
-    `
+    `,
   }
   /*SHOW AND HIDE MODALS*/
   showAddAccident = () => {
@@ -352,12 +393,12 @@ class Accidents extends Component {
   }
   /*DB READ AND WRITE*/
   loadAccidents = () => {
-    let accidentsQuery = (this.props.userLimited ? this.state.buAccidentsQuery : this.state.accidentsQuery);
+    let accidentsQuery = (this.props.userLimited ? this.state.buVehiclesByAccidentsQuery : this.state.vehiclesByAccidentsQuery);
     this.props.client.query({
         query:accidentsQuery,
         fetchPolicy:"network-only"
     }).then(({data})=>{
-        let accidents = (this.props.userLimited ? data.buAccidents : data.accidents);
+        let accidents = (this.props.userLimited ? data.buVehiclesByAccidents : data.vehiclesByAccidents);
         this.setState({
           accidentsRaw:accidents
         })
@@ -383,40 +424,6 @@ class Accidents extends Component {
     })
   }
   /*CONTENT GETTERS*/
-  getTableHeader = () => {
-    if(this.props.userLimited){
-        return(
-          <Table.Header>
-              <Table.Row textAlign='center'>
-                <Table.HeaderCell>Vehicle</Table.HeaderCell>
-                <Table.HeaderCell>Date</Table.HeaderCell>
-                <Table.HeaderCell>Date de passage Expert</Table.HeaderCell>
-                <Table.HeaderCell>Date de travaux</Table.HeaderCell>
-                <Table.HeaderCell>Constat Envoyé</Table.HeaderCell>
-                <Table.HeaderCell>Coût</Table.HeaderCell>
-                <Table.HeaderCell>Document</Table.HeaderCell>
-                <Table.HeaderCell>Actions</Table.HeaderCell>
-              </Table.Row>
-          </Table.Header>
-        )
-    }else{
-        return(
-          <Table.Header>
-              <Table.Row textAlign='center'>
-                <Table.HeaderCell>Societe</Table.HeaderCell>
-                <Table.HeaderCell>Vehicle</Table.HeaderCell>
-                <Table.HeaderCell>Date</Table.HeaderCell>
-                <Table.HeaderCell>Date de passage Expert</Table.HeaderCell>
-                <Table.HeaderCell>Date de travaux</Table.HeaderCell>
-                <Table.HeaderCell>Constat Envoyé</Table.HeaderCell>
-                <Table.HeaderCell>Coût</Table.HeaderCell>
-                <Table.HeaderCell>Document</Table.HeaderCell>
-                <Table.HeaderCell>Actions</Table.HeaderCell>
-              </Table.Row>
-          </Table.Header>
-        )
-    }
-}
   /*COMPONENTS LIFECYCLE*/
   componentDidMount = () => {
     this.loadAccidents();
@@ -434,12 +441,7 @@ class Accidents extends Component {
           <CustomFilter infos={this.state.docsFilterInfos} active={this.state.docsFilter} />
         </CustomFilterSegment>
         <div style={{gridRowStart:"3",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
-            <Table style={{marginBottom:"0"}} celled selectable color="blue" compact>
-                {this.getTableHeader()}
-                <Table.Body>
-                  {this.state.accidents()}
-                </Table.Body>
-            </Table>
+          {this.state.vehicleAgglomeratedAccidents()}
         </div>
         <Modal closeOnDimmerClick={false} open={this.state.openAddAccident} onClose={this.closeAddAccident} closeIcon>
             <Modal.Header>

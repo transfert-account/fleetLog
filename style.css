@@ -212,6 +212,12 @@ body {
   font-size: 1.2em !important;
 }
 
+.textarea{
+  font-size: 1.30rem;
+  line-height: 1.55rem;
+  padding: 12px 16px;
+}
+
 /*//////////////////////////////////
 ////////////////////////////////////
 //////////// DATEPICKER ////////////

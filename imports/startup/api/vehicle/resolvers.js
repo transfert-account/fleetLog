@@ -5,6 +5,7 @@ import Licences from '../licence/licences';
 import Volumes from '../volume/volumes.js';
 import Brands from '../brand/brands.js';
 import Models from '../model/models.js';
+import Accidents from '../accident/accidents.js';
 import Organisms from '../organism/organisms.js';
 import PayementTimes from '../payementTime/payementTimes';
 import Colors from '../color/colors.js';
@@ -160,6 +161,27 @@ const affectVehicleControls = vehicle => {
     });
 }
 
+const affectVehicleAccidents = vehicle => {
+    vehicle.accidents = Accidents.find({vehicle:vehicle._id._str}).fetch() || {};
+    vehicle.accidents.forEach(e => {
+        if(e.rapportExp != null && e.rapportExp.length > 0){
+            e.rapportExp = Documents.findOne({_id:new Mongo.ObjectID(e.rapportExp)});
+        }else{
+            e.rapportExp = {_id:""};
+        }
+        if(e.constat != null && e.constat.length > 0){
+            e.constat = Documents.findOne({_id:new Mongo.ObjectID(e.constat)});
+        }else{
+            e.constat = {_id:""};
+        }
+        if(e.facture != null && e.facture.length > 0){
+            e.facture = Documents.findOne({_id:new Mongo.ObjectID(e.facture)});
+        }else{
+            e.facture = {_id:""};
+        }
+    });
+}
+
 export default {
     Query : {
         vehicle(obj, {_id}, { user }){
@@ -189,6 +211,17 @@ export default {
                 affectVehicleControls(v)
             });
             vehicles = vehicles.filter(v=>v.equipements.length>0);
+            vehicles.forEach(v => {
+                affectVehicleData(v)
+            });
+            return vehicles;
+        },
+        vehiclesByAccidents(obj, args, { user }){
+            let vehicles = Vehicles.find().fetch() || {};
+            vehicles.forEach(v => {
+                affectVehicleAccidents(v)
+            });
+            vehicles = vehicles.filter(v=>v.accidents.length>0);
             vehicles.forEach(v => {
                 affectVehicleData(v)
             });

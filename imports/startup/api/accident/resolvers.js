@@ -165,6 +165,21 @@ export default {
             }
             throw new Error('Unauthorized');
         },
+        saveAnswers(obj,{_id,answers},{user}){
+            if(user._id){
+                Accidents.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "answers":JSON.parse(answers)
+                        }
+                    }   
+                )
+                return [{status:true,message:'Réponses sauvegardées'}];
+            }
+            throw new Error('Unauthorized');
+        },
         async uploadAccidentDocument(obj, {_id,type,file,size},{user}){
             if(user._id){
                 if(type != "constat" && type != "rapportExp" && type != "facture"){

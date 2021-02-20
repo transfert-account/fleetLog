@@ -90,6 +90,10 @@ export class Accident extends Component {
                     constatSent
                     cost
                     archived
+                    answers{
+                        status
+                        body
+                    }
                     constat{
                         _id
                         name
@@ -163,7 +167,9 @@ export class Accident extends Component {
         this.setState({editing:false})
     }
     showEdit = () => {
-        this.setState({editing:true})
+        if(this.state.activeItem == "declaration"){
+            this.setState({editing:true})
+        }
     }
     showDocs = () => {
         this.setState({openDocs:true})
@@ -172,7 +178,10 @@ export class Accident extends Component {
         this.setState({openDocs:false,newConstat:null,newRapportExp:null})
     }
     /*CHANGE HANDLERS*/
-    handleItemClick = (item) => this.setState({ activeItem: item })
+    handleItemClick = (item) =>{
+        this.loadAccident();
+        this.setState({ activeItem: item })
+    }
     /*FILTERS HANDLERS*/
     /*DB READ AND WRITE*/
     loadAccident = () => {
@@ -189,6 +198,123 @@ export class Accident extends Component {
             })
         })
     }
+    archiveAccident = () => {
+        this.closeArchive();
+        this.props.client.mutate({
+            mutation:this.state.archiveAccidentQuery,
+            variables:{
+                _id:this.state._id,
+            }
+        }).then(({data})=>{
+            data.archiveAccident.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.history.push("/accidentologie");
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    uploadDocConstat = () => {
+        this.props.client.mutate({
+            mutation:this.state.uploadAccidentDocumentQuery,
+            variables:{
+                _id:this.props.accident._id,
+                file:this.state.newConstat,
+                type:"constat",
+                size:this.state.newConstat.size
+            }
+        }).then(({data})=>{
+            data.uploadAccidentDocument.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.loadAccidents();
+                    this.closeDocs();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    uploadDocRapportExp = () => {
+        this.props.client.mutate({
+            mutation:this.state.uploadAccidentDocumentQuery,
+            variables:{
+                _id:this.props.accident._id,
+                file:this.state.newRapportExp,
+                type:"rapportExp",
+                size:this.state.newRapportExp.size
+            }
+        }).then(({data})=>{
+            data.uploadAccidentDocument.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.loadAccidents();
+                    this.closeDocs();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    uploadDocFacture = () => {
+        this.props.client.mutate({
+            mutation:this.state.uploadAccidentDocumentQuery,
+            variables:{
+                _id:this.props.accident._id,
+                file:this.state.newFacture,
+                type:"facture",
+                size:this.state.newFacture.size
+            }
+        }).then(({data})=>{
+            data.uploadAccidentDocument.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.loadAccidents();
+                    this.closeDocs();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    deleteAccident = () => {
+        this.closeDelete();
+        this.props.client.mutate({
+            mutation:this.state.deleteAccidentQuery,
+            variables:{
+                _id:this.state._id,
+            }
+        }).then(({data})=>{
+            data.deleteAccident.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.history.push("/accidentologie");
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    unArchiveAccident = () => {
+        this.closeUnArchive();
+        this.props.client.mutate({
+            mutation:this.state.unArchiveAccidentQuery,
+            variables:{
+                _id:this.state._id,
+            }
+        }).then(({data})=>{
+            data.unArchiveAccident.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.history.push("/accidentologie");
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
     /*CONTENT GETTERS*/
     getArchiveButton = () => {
         if(this.state.accident.archived){
@@ -197,7 +323,11 @@ export class Accident extends Component {
             return <BigButtonIcon icon="archive" color="orange" onClick={this.showArchive} tooltip="Archiver"/>
         }
     }
-    
+    getDeleteButton = () => {
+        if(this.props.user.isOwner){
+            return <BigButtonIcon icon="trash" color="red" onClick={this.showDelete} tooltip="Supprimer l'accident"/>
+        }
+    }
     getActiveTab = () => {
         if(this.state.activeItem == "declaration"){
             return(
@@ -206,7 +336,7 @@ export class Accident extends Component {
         }
         if(this.state.activeItem == "questions"){
             return(
-                <AccidentTabularCirconstances/>
+                <AccidentTabularCirconstances loading={this.state.loading} accident={this.state.accident} answers={this.state.accident.answers}/>
             )
         }
         if(this.state.activeItem == "priseencharge"){
@@ -215,6 +345,7 @@ export class Accident extends Component {
             )
         }
     }
+
     /*COMPONENTS LIFECYCLE*/
     componentDidMount = () => {
         this.loadAccident();
@@ -232,13 +363,14 @@ export class Accident extends Component {
                 <Fragment>
                     <div style={{display:"grid",gridTemplateRows:"auto auto minmax(0,1fr)",gridTemplateColumns:"2fr 3fr",height:"100%"}}>
                         <div style={{display:"grid",gridColumnEnd:"span 2",gridGap:"32px",gridTemplateColumns:"auto 1fr 1fr auto",marginBottom:"24px"}}>
-                            <BigButtonIcon icon="angle double left" color="black" onClick={()=>{this.props.history.push("/parc/vehicles");}} tooltip="Retour au tableau des véhicules"/>
+                            <BigButtonIcon icon="angle double left" color="black" onClick={()=>{this.props.history.push("/accidentologie");}} tooltip="Retour au tableau des véhicules"/>
                             <Message style={{margin:"0"}} icon='truck' header={this.state.accident.vehicle.registration} content={this.state.accident.vehicle.brand.name + " - " + this.state.accident.vehicle.model.name} />
                             <Message style={{margin:"0"}} icon='fire' header={this.state.accident.occurenceDate} />
                             <div style={{display:"flex",justifyContent:"flex-end"}}>
                                 <BigButtonIcon icon="edit" color="blue" onClick={this.showEdit} tooltip="Éditer l'accident"/>
                                 {this.getArchiveButton()}
                                 <BigButtonIcon icon="folder open" color="purple" onClick={this.showDocs} tooltip="Gérer les documents"/>
+                                {this.getDeleteButton()}
                             </div>
                         </div>
                         <Menu size='massive' tabular attached="top" widths={3} style={{gridColumnEnd:"span 2"}}>

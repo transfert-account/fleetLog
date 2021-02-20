@@ -22,6 +22,7 @@ type Vehicle{
     payementEndDate:String
     property:Boolean
     equipements:[Equipement]
+    accidents:[Accident]
     purchasePrice:Float
     monthlyPayement:Float
     payementOrg:Organism
@@ -78,6 +79,7 @@ extend type Query{
     vehicles : [Vehicle]
     vehiclesEmpty : [Vehicle]
     vehiclesEquipedByControls : [Vehicle]
+    vehiclesByAccidents : [Vehicle]
     buVehicles : [Vehicle]
     buVehiclesEmpty : [Vehicle]
     buVehiclesEquipedByControls : [Vehicle]
