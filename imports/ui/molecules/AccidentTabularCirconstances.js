@@ -59,12 +59,11 @@ export class AccidentTabularCirconstances extends Component {
   cancel = () => {
     let as = this.state.answers;
     as[this.state.currentQIndex].status = "virgin"
-    this.setState({answers:as,currentAnswer:value});
+    this.setState({answers:as});
   }
   validate = i => {
     let as = this.state.answers;
     as[this.state.currentQIndex].status = "validated"
-    this.next();
     this.saveAnswers();
   }
   handleEditAnswer = value => {
@@ -156,17 +155,25 @@ export class AccidentTabularCirconstances extends Component {
       </Label>
     )
   }
+  getQuestionLabel = () => {
+    if(this.state.answers[this.state.currentQIndex].status == "validated"){
+      return <Label style={{placeSelf:"center",minWidth:"240px"}} color="green">Cette question est validée</Label>
+    }else{
+      return <Label style={{placeSelf:"center",minWidth:"240px"}} color="grey">Cette question n'est pas validée</Label>
+    }
+  }
   getQuestionnaryBody = () => {
     if(!this.state.end){
       return (
         <Fragment>
           <h1>Question {this.state.currentQIndex+1 + ") " + this.state.questions[this.state.currentQIndex].q}</h1>
           <TextareaControlled defaultValue={this.state.answers[this.state.currentQIndex].body} needToReset={this.state.needToReset} name="currentAnswer" className="textarea" style={{border:"2px solid #d9d9d9",margin:"0"}} onChange={this.handleEditAnswer}/>
-          <div style={{display:"grid",gridTemplateColumns:"auto 1fr auto auto 1fr auto",gridRowStart:"4",gridGap:""}}>
+          {this.getQuestionLabel()}
+          <div style={{display:"grid",gridTemplateColumns:"auto 1fr auto auto 1fr auto",gridRowStart:"5",gridGap:""}}>
             <Button color="blue" icon="arrow left" labelPosition="left" size="large" onClick={this.prev} style={{gridColumnStart:"1"}} content="Question précedente" />
             <Popup trigger={<Button color="red" icon="cancel" size="large" onClick={this.cancel} style={{gridColumnStart:"3"}}/>}>Annuler la validation de cette réponse</Popup>
             <Popup trigger={<Button color="green" icon="check" size="large" onClick={this.validate} style={{gridColumnStart:"4"}}/>}>Valider cette réponse</Popup>
-            <Button color="blue" icon="arrow right" labelPosition="right" size="large" onClick={this.next} style={{gridColumnStart:"7"}} content="Question suivante" />
+            <Button color="blue" icon="arrow right" labelPosition="right" size="large" onClick={this.next} style={{gridColumnStart:"6"}} content="Question suivante" />
           </div>
         </Fragment>
       )
@@ -176,8 +183,8 @@ export class AccidentTabularCirconstances extends Component {
           <h1>Fin du questionnaire</h1>
           <div style={{display:"grid",gridTemplateColumns:"auto 1fr auto auto",gridRowStart:"4",gridGap:""}}>
             <Button icon="arrow left" color="blue" labelPosition="left" size="large" onClick={()=>this.setCurrent(0)} style={{gridColumnStart:"1"}} content="Relire le questionnaire"/>
-            <Button icon="download" color="blue" labelPosition="right" size="large" onClick={this.download} style={{gridColumnStart:"3"}} content="Télécharger pour signature"/>
-            <Button icon="upload" color="blue" labelPosition="right" size="large" onClick={this.updload} style={{gridColumnStart:"4"}} content="Stockage document signé"/>
+            <Button icon="download" color="blue" labelPosition="right" size="large" disabled={this.state.answers.some(a => a.status != "validated")} onClick={this.download} style={{gridColumnStart:"3"}} content="Télécharger pour signature"/>
+            <Button icon="upload" color="blue" labelPosition="right" size="large" disabled={this.state.answers.some(a => a.status != "validated")} onClick={this.updload} style={{gridColumnStart:"4"}} content="Stockage document signé"/>
           </div>
         </Fragment>
       )
@@ -198,7 +205,7 @@ export class AccidentTabularCirconstances extends Component {
       )
     }else{
       return (
-        <Segment attached="bottom" style={{textAlign:"center",display:"grid",gridGap:"16px",gridTemplateColumns:"1fr",gridTemplateRows:"auto auto 1fr auto",placeSelf:"stretch",gridColumnEnd:"span 2",gridGap:"24px",padding:"32px"}}>
+        <Segment attached="bottom" style={{textAlign:"center",display:"grid",gridGap:"16px",gridTemplateColumns:"1fr",gridTemplateRows:"auto auto 1fr auto auto",placeSelf:"stretch",gridColumnEnd:"span 2",gridGap:"24px",padding:"32px"}}>
           {this.getProgressSegment()}
           {this.getQuestionnaryBody()}
         </Segment>
