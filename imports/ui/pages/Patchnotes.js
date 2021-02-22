@@ -13,7 +13,68 @@ export class Patchnotes extends Component {
                     <AdministrationMenu active="patchnotes"/>
                 </div>
                 <div className="patchnote-block" style={{display:"block",overflowY:"auto",justifySelf:"stretch"}}>
-                <Segment>
+                    <Segment>
+                        <Header color='blue' as="h2">22/02/2021 - v1.3.1.0</Header>
+                        <List divided relaxed>                            
+                            <List.Item>
+                                <List.Icon name='cog' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Remplacement du commentaire à l'archivage par un menu déroulant</List.Header>
+                                    <List.Description>Les valeurs disponibles en tant que justification d'archivage sont paramétrable dans l'administration</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='cog' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Ajout de documents de vente sur les véhicules</List.Header>
+                                    <List.Description>Lorsqu'un véhicule est vendu, il est désormais possible de de stocker 3 documents supplémentaire : le cerfa de vente, la pièce d'identité de l'acheteur et la carte grise barrée du véhicule</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='cog' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Les justifications de mise en panne remplacée par un historique</List.Header>
+                                    <List.Description>Il est maintenant possible de tenir un historique de commentaire sur chaque véhicule, cela vien en remplacemenet de la justification de nmise en panne, le dernier commentaire en date apparait en lieu de justification de panne</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='cog' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Sortie de l'onglet "Extraction" de l'administration</List.Header>
+                                    <List.Description>Désormais disponible dans le menu classique</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='cog' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Modification du code couleur des délais de relevé kilométriques</List.Header>
+                                    <List.Description>9 jours et moins : vert, entre 10 et 14 jours : orange, plus de 14 jours : rouge</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='cog' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Recherche de véhicule</List.Header>
+                                    <List.Description>Les champs de recherches sur des tableaux de véhicules ne permettent plus que la recherche par plaques d'immatriculation</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='cog' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Détails d'un accident</List.Header>
+                                    <List.Description>Les détails d'un accident ne sont plus dans la ligne du tableau correspondant mais dans une page dédiée.</List.Description>
+                                </List.Content>
+                            </List.Item>
+                            <List.Item>
+                                <List.Icon name='cog' size='large' verticalAlign='middle' />
+                                <List.Content>
+                                    <List.Header>Ajout d'une section "Circonstances" dans la page d'accident</List.Header>
+                                    <List.Description>Cette page est un questionnaire visant à receuillir les détails d'un accident</List.Description>
+                                </List.Content>
+                            </List.Item>
+                        </List>
+                    </Segment>
+                    <Segment>
                         <Header color='blue' as="h2">12/01/2021 - v1.3.0.3</Header>
                         <List divided relaxed>                            
                             <List.Item>

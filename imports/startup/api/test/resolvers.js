@@ -13,6 +13,15 @@ export default {
         testThis(obj, args,{user}){
             if(user._id){
                 try{
+                    Accidents.update(
+                        {},{
+                            $set: {
+                                answers:[]
+                            }
+                        },
+                        {multi:true}
+                    );
+                    /*
                     let vs = Vehicles.find({}).fetch();
                     vs.forEach(v=>{
                         Vehicles.update(
@@ -59,8 +68,6 @@ export default {
                         },
                         {multi:true}
                     );
-                    
-                    /*
                     let licences = Licences.find({}).fetch();
                     let nuked = 0;
                     licences.map(l=>{
@@ -126,7 +133,7 @@ export default {
                             }
                         );
                     })*/
-                    return [{status:true,message:'Nuked : archiveReason & brokenReason unset 1, new sold docs mass initiated to blank + sold:false'}];
+                    return [{status:true,message:'>Empty answers for all accidents'}];
                 }catch(e){
                     throw e;
                     return [{status:false,message:e.message}];
