@@ -13,6 +13,11 @@ type Accident{
     archived:Boolean
     cost:Float
     answers:[Answer]
+    responsabilite:Int
+    reglementAssureur:Float
+    chargeSinistre:Float
+    montantInterne:Float
+    status:Boolean
 }
 
 type Answer{
@@ -29,6 +34,7 @@ extend type Query{
 extend type Mutation{
     addAccident(vehicle:String!,occurenceDate:String!): [QueryResultMessage]
     editAccident(_id:String!,occurenceDate:String!,dateExpert:String!,dateTravaux:String!,constatSent:Boolean!,cost:Float!): [QueryResultMessage]
+    editPECAccident(_id:String!,responsabilite:Int!,reglementAssureur:Float!,chargeSinistre:Float!,montantInterne:Float!,status:Boolean!): [QueryResultMessage]
     editDescAccident(_id:String!,description:String!): [QueryResultMessage]
     deleteAccident(_id:String!): [QueryResultMessage]
     archiveAccident(_id:String!): [QueryResultMessage]

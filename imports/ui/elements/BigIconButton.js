@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Popup, Button } from 'semantic-ui-react';
 import _ from 'lodash';
 
-class BigIconButton extends Component {
+class BigIconButton extends Component {    
 
     onClick = () => {
         this.props.onClick()

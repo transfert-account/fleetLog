@@ -127,6 +127,11 @@ export class Accident extends Component {
                         mimetype
                         storageDate
                     }
+                    responsabilite
+                    reglementAssureur
+                    chargeSinistre
+                    montantInterne
+                    status
                 }
             }
         `
@@ -166,10 +171,14 @@ export class Accident extends Component {
     closeEdit = () => {
         this.setState({editing:false})
     }
+    closeEditPEC = () => {
+        this.setState({editingPEC:false})
+    }
     showEdit = () => {
-        if(this.state.activeItem == "declaration"){
-            this.setState({editing:true})
-        }
+        this.setState({editing:true,editingPEC:false,activeItem:"declaration"})
+    }
+    showEditPEC = () => {
+        this.setState({editing:false,editingPEC:true,activeItem:"priseencharge"})
     }
     showDocs = () => {
         this.setState({openDocs:true})
@@ -341,7 +350,7 @@ export class Accident extends Component {
         }
         if(this.state.activeItem == "priseencharge"){
             return(
-                <AccidentTabularPriseencharge/>
+                <AccidentTabularPriseencharge loadAccident={this.loadAccident} closeEdit={this.closeEditPEC} showEdit={this.showEditPEC} editing={this.state.editingPEC} accident={this.state.accident}/>
             )
         }
     }
@@ -368,6 +377,7 @@ export class Accident extends Component {
                             <Message style={{margin:"0"}} icon='fire' header={this.state.accident.occurenceDate} />
                             <div style={{display:"flex",justifyContent:"flex-end"}}>
                                 <BigButtonIcon icon="edit" color="blue" onClick={this.showEdit} tooltip="Éditer l'accident"/>
+                                <BigButtonIcon icon="edit" color="blue" onClick={this.showEditPEC} spacedFromNext tooltip="Éditer la prise en charge de l'accident"/>
                                 {this.getArchiveButton()}
                                 <BigButtonIcon icon="folder open" color="purple" onClick={this.showDocs} tooltip="Gérer les documents"/>
                                 {this.getDeleteButton()}

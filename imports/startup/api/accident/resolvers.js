@@ -112,6 +112,25 @@ export default {
             }
             throw new Error('Unauthorized');
         },
+        editPECAccident(obj, {_id,responsabilite,reglementAssureur,chargeSinistre,montantInterne,status},{user}){
+            if(user._id){
+                Accidents.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "responsabilite":responsabilite,
+                            "reglementAssureur":reglementAssureur,
+                            "chargeSinistre":chargeSinistre,
+                            "montantInterne":montantInterne,
+                            "status":status
+                        }
+                    }
+                );                
+                return [{status:true,message:'Modifications sauvegardées'}];
+            }
+            throw new Error('Unauthorized');
+        },
         editDescAccident(obj, {_id,description},{user}){
             if(user._id){
                 Accidents.update(

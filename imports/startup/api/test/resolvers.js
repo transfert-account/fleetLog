@@ -16,10 +16,13 @@ export default {
                     Accidents.update(
                         {},{
                             $set: {
-                                answers:[]
+                                responsabilite:50,
+                                reglementAssureur:0,
+                                chargeSinistre:0,
+                                montantInterne:0,
+                                status:true
                             }
-                        },
-                        {multi:true}
+                        },{multi:true}
                     );
                     /*
                     let vs = Vehicles.find({}).fetch();
@@ -133,7 +136,7 @@ export default {
                             }
                         );
                     })*/
-                    return [{status:true,message:'>Empty answers for all accidents'}];
+                    return [{status:true,message:'Empty answers for all accidents'}];
                 }catch(e){
                     throw e;
                     return [{status:false,message:e.message}];
