@@ -64,6 +64,7 @@ export class AccidentTabularCirconstances extends Component {
   validate = i => {
     let as = this.state.answers;
     as[this.state.currentQIndex].status = "validated"
+    this.setState({answers:as})
     this.saveAnswers();
   }
   handleEditAnswer = value => {
@@ -108,7 +109,7 @@ export class AccidentTabularCirconstances extends Component {
             }
         })
     })
-  },3000);
+  },1500);
   /*CONTENT GETTERS*/
   getProgressSegment = () => {
     if(this.state.checking){
@@ -157,9 +158,9 @@ export class AccidentTabularCirconstances extends Component {
   }
   getQuestionLabel = () => {
     if(this.state.answers[this.state.currentQIndex].status == "validated"){
-      return <Label style={{placeSelf:"center",minWidth:"240px"}} color="green">Cette question est validée</Label>
+      return <Label style={{placeSelf:"center",minWidth:"240px"}} color="green">Cette réponse est validée</Label>
     }else{
-      return <Label style={{placeSelf:"center",minWidth:"240px"}} color="grey">Cette question n'est pas validée</Label>
+      return <Label style={{placeSelf:"center",minWidth:"240px"}} color="grey">Cette réponse n'est pas validée</Label>
     }
   }
   getQuestionnaryBody = () => {

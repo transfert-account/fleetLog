@@ -38,7 +38,7 @@ class AppBody extends Component{
                 return(
                     <div style={{width:"100vw",minWidth:"780px",minHeight:"100vh"}}>
                         <Navbar/>
-                        <ToastContainer position="bottom-right" autoClose={5000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl pauseOnVisibilityChange draggable pauseOnHover/>
+                        <ToastContainer position="bottom-right" autoClose={3500} hideProgressBar={false} newestOnTop={false} closeOnClick rtl pauseOnVisibilityChange draggable pauseOnHover/>
                         <PageBody collapsed={this.state.menuCollapsed} site={this.props.site}/>
                     </div>
                 );

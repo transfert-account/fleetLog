@@ -86,7 +86,8 @@ export default {
                     facture:"",
                     constatSent:false,
                     archived:false,
-                    cost:0
+                    cost:0,
+                    answers:[]
                 });
                 return [{status:true,message:'Création réussie'}];
             }

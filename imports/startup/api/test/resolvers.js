@@ -47,8 +47,6 @@ export default {
                         }
                         Vehicles.update({_id:v._id},{$unset: {archiveReason:"",brokenReason:""}});
                     })
-
-                    /*
                     Vehicles.update(
                         {},{
                             $set: {
@@ -61,8 +59,7 @@ export default {
                         },
                         {multi:true}
                     );
-                    */
-
+                    
                     /*
                     let licences = Licences.find({}).fetch();
                     let nuked = 0;
