@@ -299,7 +299,6 @@ export default {
                     }],
                     energy:energy,
                     archived:false,
-                    archiveReason:"",
                     archiveDate:"",
                     cg:"",
                     cv:"",
@@ -314,8 +313,8 @@ export default {
                     sellingReason:"",
                     sellingSince:"",
                     sold:false,
+                    soldOnDate:"",
                     broken:false,
-                    brokenReason:"",
                     brokenSince:"",
                     insurancePaid:0,
                     payementBeginDate:"",
@@ -588,6 +587,7 @@ export default {
                         $set: {
                             "selling":false,
                             "sold":true,
+                            "soldOnDate":new Date().getDate().toString().padStart(2,0) + '/' + parseInt(new Date().getMonth()+1).toString().padStart(2,0) + '/' + new Date().getFullYear()
                         }
                     }   
                 )

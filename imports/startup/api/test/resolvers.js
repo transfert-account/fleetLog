@@ -1,4 +1,5 @@
 import Vehicles from '../vehicle/vehicles';
+import VehicleArchiveJustifications from '../vehicleArchiveJustification/vehicleArchiveJustifications';
 import Licences from '../licence/licences';
 import Equipements from '../equipement/equipements';
 import Entretiens from '../entretien/entretiens';
@@ -12,7 +13,42 @@ export default {
         testThis(obj, args,{user}){
             if(user._id){
                 try{
-                    Vehicles.update({},{$unset: {archiveReason:"",brokenReason:""}},{multi:true});
+                    let vs = Vehicles.find({}).fetch();
+                    vs.forEach(v=>{
+                        Vehicles.update(
+                            {
+                                _id:v._id
+                            },{
+                                $push: {
+                                    "brokenHistory": {
+                                        _id: new Mongo.ObjectID(),
+                                        date:new Date().getDate().toString().padStart(2,0) + '/' + parseInt(new Date().getMonth()+1).toString().padStart(2,0) + '/' + new Date().getFullYear() + " " + parseInt(new Date().getUTCHours()+1).toString().padStart(2,0) + ":" + parseInt(new Date().getUTCMinutes()).toString().padStart(2,0) + ":" + parseInt(new Date().getUTCSeconds()).toString().padStart(2,0),
+                                        content:v.brokenReason,
+                                        statut:v.broken
+                                    }
+                                }
+                            }
+                        )
+                        if(v.archived && v.archiveReason != ""){
+                            VehicleArchiveJustifications.insert({
+                                _id:new Mongo.ObjectID(),
+                                justification:v.archiveReason
+                            },(err,archJust)=>{
+                                Vehicles.update(
+                                    {
+                                        _id:v._id
+                                    },{
+                                        $set: {
+                                            archiveJustification:archJust._str,
+                                        }
+                                    }
+                                );
+                            });
+                        }
+                        Vehicles.update({_id:v._id},{$unset: {archiveReason:"",brokenReason:""}});
+                    })
+
+                    /*
                     Vehicles.update(
                         {},{
                             $set: {
@@ -20,10 +56,13 @@ export default {
                                 ida:"",
                                 scg:"",
                                 sold:false,
+                                soldOnDate:"",
                             }
                         },
                         {multi:true}
                     );
+                    */
+
                     /*
                     let licences = Licences.find({}).fetch();
                     let nuked = 0;

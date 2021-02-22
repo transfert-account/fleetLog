@@ -29,7 +29,6 @@ type Vehicle{
     payementFormat:String
     payementTime:PayementTime
     archived:Boolean
-    archiveReason:String
     archiveJustification:VehicleArchiveJustification
     archiveDate:String
     shared:Boolean
@@ -40,9 +39,9 @@ type Vehicle{
     sellingReason:String
     sellingSince:String
     sold:Boolean
+    soldOnDate:String
     brokenHistory:[BrokenHistoryEntry]
     broken:Boolean
-    brokenReason:String
     brokenSince:String
     financialInfosComplete:Boolean
 }

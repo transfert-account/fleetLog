@@ -509,7 +509,6 @@ export class Vehicles extends Component {
                     }
                     payementFormat
                     archived
-                    archiveReason
                     archiveDate
                     cg{
                         _id

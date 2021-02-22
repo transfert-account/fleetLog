@@ -210,8 +210,8 @@ class Vehicle extends Component {
                     sellingReason
                     sellingSince
                     sold
+                    soldOnDate
                     broken
-                    brokenReason
                     brokenSince
                     brokenHistory{
                         _id
@@ -597,7 +597,6 @@ class Vehicle extends Component {
         })
     }
 
-
     addHistoryEntry = () => {
         this.closeAddHistoryEntry();
         this.props.client.mutate({
@@ -611,6 +610,7 @@ class Vehicle extends Component {
                 if(qrm.status){
                     this.closeAddHistoryEntry();
                     this.loadVehicule();
+                    this.setState({activePanel:"pannes"})
                     this.props.toast({message:qrm.message,type:"success"});
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
@@ -1322,11 +1322,13 @@ class Vehicle extends Component {
 
     getSellOptions = () => {
         if(this.state.vehicle.selling){
-            return(
-                <Fragment>
-                    <BigButtonIcon icon="cart" color="teal" onClick={this.showUnsell} tooltip="Fin la vente"/>
-                </Fragment>
-            )
+            if(!this.state.vehicle.sold){
+                return(
+                    <Fragment>
+                        <BigButtonIcon icon="cart" color="teal" onClick={this.showUnsell} tooltip="Fin la vente"/>
+                    </Fragment>
+                )
+            }
         }else{
             return(
                 <Fragment>
@@ -1428,7 +1430,7 @@ class Vehicle extends Component {
         if(this.state.editingFinances){
             return (
                 <Segment attached='bottom' style={{padding:"24px"}}>
-                    <Form className="formBoard displaying">
+                    <Form className="formBoard" style={{display:"grid",gridTemplateColumn:"1fr 1fr"}}>
                         <Form.Field><label>Montant de l'assurance</label>
                             <Input defaultValue={this.state.vehicle.insurancePaid} onChange={this.handleChange} name="newInsurancePaid"/>
                         </Form.Field>
@@ -1508,41 +1510,45 @@ class Vehicle extends Component {
     }
 
     getBrokenHistoryTable = () => {
-        return(
-            <div style={{display:"block",placeSelf:"stretch"}}>
-                <List divided relaxed>
-                    {
-                        (this.state.vehicle.brokenHistory.length == 0 || this.state.vehicle.brokenHistory.length == 1 && this.state.vehicle.brokenHistory[0]._id == "noid" ?
-                            <List.Item key={b._id}>
-                                <List.Content>
-                                    <List.Header>C'est vide !</List.Header>
-                                    Il n'y a aucune données dans l'historique
-                                </List.Content>
-                            </List.Item>
-                        : 
-                            this.state.vehicle.brokenHistory.map(b=>{
-                                return (
-                                    <List.Item key={b._id}>
-                                        {((this.props.user.isOwner ? 
-                                                <List.Content floated='right'>
-                                                    <Button color="red" inverted icon icon='trash' onClick={()=>{this.showDeleteHistoryEntry(b._id)}}/>
-                                                </List.Content>
-                                            :
-                                                ""
-                                            )
-                                        )}
-                                        <List.Content>
-                                            <List.Header>{b.date}</List.Header>
-                                            {b.content}
-                                        </List.Content>
-                                    </List.Item>
-                                )
-                            })
-                        )
-                    }
-                </List>
-            </div>
-        )
+        if(this.state.vehicle.brokenHistory.length != 0 && this.state.vehicle.brokenHistory[0]._id == "noid"){
+            return(
+                <div style={{display:"block",placeSelf:"stretch"}}>
+                    <List divided relaxed>
+                        <List.Item>
+                            <List.Content>
+                                <List.Header>C'est vide !</List.Header>
+                                Il n'y a aucune données dans l'historique
+                            </List.Content>
+                        </List.Item>
+                    </List>
+                </div>
+            )
+        }else{
+            return(
+                this.state.vehicle.brokenHistory.map(b=>{
+                    return (
+                        <div style={{display:"block",placeSelf:"stretch"}}>
+                            <List divided relaxed>
+                                <List.Item key={b._id}>
+                                    {((this.props.user.isOwner ? 
+                                            <List.Content floated='right'>
+                                                <Button color="red" inverted icon icon='trash' onClick={()=>{this.showDeleteHistoryEntry(b._id)}}/>
+                                            </List.Content>
+                                        :
+                                            ""
+                                        )
+                                    )}
+                                    <List.Content>
+                                        <List.Header>{b.date}</List.Header>
+                                        {b.content}
+                                    </List.Content>
+                                </List.Item>
+                            </List>
+                        </div>
+                    )
+                })
+            )
+        }
     }
 
     getUncompleteFinancialPanel = () => {
@@ -1570,6 +1576,11 @@ class Vehicle extends Component {
     }
 
     getSellingPanel = () => {
+        if(this.state.vehicle.sold){
+            return (
+                <Message color="teal" style={{margin:"0 16px"}} icon='cart' header={"Véhicule vendu le : " + this.state.vehicle.soldOnDate} content={"Justificaion : " + this.state.vehicle.sellingReason} />
+            )
+        }
         if(this.state.vehicle.selling){
             return (
                 <Message color="teal" style={{margin:"0 16px"}} icon='cart' header={"En vente depuis le : " + this.state.vehicle.sellingSince} content={"Justificaion : " + this.state.vehicle.sellingReason} />
