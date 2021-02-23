@@ -178,7 +178,7 @@ export class Accident extends Component {
         this.setState({editing:true,editingPEC:false,activeItem:"declaration"})
     }
     showEditPEC = () => {
-        this.setState({editing:false,editingPEC:true,activeItem:"priseencharge"})
+        this.setState({editing:false,editingPEC:true,activeItem:"declaration"})
     }
     showDocs = () => {
         this.setState({openDocs:true})
@@ -340,17 +340,12 @@ export class Accident extends Component {
     getActiveTab = () => {
         if(this.state.activeItem == "declaration"){
             return(
-                <AccidentTabularDeclaration loadAccident={this.loadAccident} closeEdit={this.closeEdit} showEdit={this.showEdit} editing={this.state.editing} accident={this.state.accident}/>
+                <AccidentTabularDeclaration loadAccident={this.loadAccident} closeEdit={this.closeEdit} showEdit={this.showEdit} editing={this.state.editing} closeEditPEC={this.closeEditPEC} showEditPEC={this.showEditPEC} editingPEC={this.state.editingPEC} accident={this.state.accident}/>
             )
         }
         if(this.state.activeItem == "questions"){
             return(
                 <AccidentTabularCirconstances loading={this.state.loading} accident={this.state.accident} answers={this.state.accident.answers}/>
-            )
-        }
-        if(this.state.activeItem == "priseencharge"){
-            return(
-                <AccidentTabularPriseencharge loadAccident={this.loadAccident} closeEdit={this.closeEditPEC} showEdit={this.showEditPEC} editing={this.state.editingPEC} accident={this.state.accident}/>
             )
         }
     }
@@ -371,10 +366,10 @@ export class Accident extends Component {
             return (
                 <Fragment>
                     <div style={{display:"grid",gridTemplateRows:"auto auto minmax(0,1fr)",gridTemplateColumns:"2fr 3fr",height:"100%"}}>
-                        <div style={{display:"grid",gridColumnEnd:"span 2",gridGap:"32px",gridTemplateColumns:"auto 1fr 1fr auto",marginBottom:"24px"}}>
+                        <div style={{display:"grid",gridColumnEnd:"span 2",gridGap:"32px",gridTemplateColumns:"auto 1fr 1fr auto"}}>
                             <BigButtonIcon icon="angle double left" color="black" onClick={()=>{this.props.history.push("/accidentologie");}} tooltip="Retour au tableau des véhicules"/>
                             <Message style={{margin:"0"}} icon='truck' header={this.state.accident.vehicle.registration} content={this.state.accident.vehicle.brand.name + " - " + this.state.accident.vehicle.model.name} />
-                            <Message style={{margin:"0"}} icon='fire' header={this.state.accident.occurenceDate} />
+                            <Message style={{margin:"0"}} icon='calendar' header={this.state.accident.occurenceDate} />
                             <div style={{display:"flex",justifyContent:"flex-end"}}>
                                 <BigButtonIcon icon="edit" color="blue" onClick={this.showEdit} tooltip="Éditer l'accident"/>
                                 <BigButtonIcon icon="edit" color="blue" onClick={this.showEditPEC} spacedFromNext tooltip="Éditer la prise en charge de l'accident"/>
@@ -383,10 +378,9 @@ export class Accident extends Component {
                                 {this.getDeleteButton()}
                             </div>
                         </div>
-                        <Menu size='massive' tabular attached="top" widths={3} style={{gridColumnEnd:"span 2"}}>
-                            <Menu.Item name="Déclaration" active={this.state.activeItem === 'declaration'} onClick={()=>{this.handleItemClick("declaration")}}/>
-                            <Menu.Item name="Circonstances" active={this.state.activeItem === 'questions'} onClick={()=>{this.handleItemClick("questions")}}/>
-                            <Menu.Item name="Prise en charge" active={this.state.activeItem === 'priseencharge'} onClick={()=>{this.handleItemClick("priseencharge")}}/>
+                        <Menu size='massive' pointing secondary widths={2} style={{gridColumnEnd:"span 2",marginBottom:"40px"}}>
+                            <Menu.Item color="blue" name="Déclaration et Prise en charge" active={this.state.activeItem === 'declaration'} onClick={()=>{this.handleItemClick("declaration")}}/>
+                            <Menu.Item color="blue" name="Circonstances" active={this.state.activeItem === 'questions'} onClick={()=>{this.handleItemClick("questions")}}/>
                         </Menu>
                         {this.getActiveTab()}
                     </div>

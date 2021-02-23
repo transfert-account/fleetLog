@@ -79,6 +79,7 @@ extend type Query{
     vehiclesEmpty : [Vehicle]
     vehiclesEquipedByControls : [Vehicle]
     vehiclesByAccidents : [Vehicle]
+    buVehiclesByAccidents : [Vehicle]
     buVehicles : [Vehicle]
     buVehiclesEmpty : [Vehicle]
     buVehiclesEquipedByControls : [Vehicle]

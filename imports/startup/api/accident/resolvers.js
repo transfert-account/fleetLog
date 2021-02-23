@@ -142,7 +142,7 @@ export default {
                         }
                     }
                 );                
-                return [{status:true,message:"Description de l'accident sauvegardée"}];
+                return [{status:true,message:"Notes concernant l'accident sauvegardées"}];
             }
             throw new Error('Unauthorized');
         },

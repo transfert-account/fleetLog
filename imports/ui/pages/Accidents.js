@@ -110,10 +110,12 @@ class Accidents extends Component {
     vehicleAgglomeratedAccidents : () => {
       let displayed = Array.from(JSON.parse(JSON.stringify(this.state.accidentsRaw)));
       if(this.props.user.isAdmin && this.props.user.visibility == "noidthisisgroupvisibility" && this.props.societeFilter != "noidthisisgroupvisibility"){
+        console.log(displayed)
         displayed = displayed.filter(a =>
             a.societe._id == this.props.societeFilter
         );
       }
+      console.log(displayed)
       displayed.forEach(vehicle => {
         let accs = vehicle.accidents;
         accs = accs.filter(a=>a.archived == this.state.archiveFilter)
@@ -152,6 +154,7 @@ class Accidents extends Component {
           </Table.Row>
         )
       }
+      console.log(displayed)
       return displayed.map(v =>{
         return(
           <VehicleAgglomeratedAccidentsRow archiveFilter={this.state.archiveFilter} docsFilter={this.state.docsFilter} constatSentFilter={this.state.constatSentFilter} archiveFilter={this.state.archiveFilter} hideSociete={this.props.userLimited} loadAccidents={this.loadAccidents} key={v._id} vehicle={v}/>

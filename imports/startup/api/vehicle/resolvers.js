@@ -227,6 +227,19 @@ export default {
             });
             return vehicles;
         },
+        buVehiclesByAccidents(obj, args, { user }){
+            let userFull = Meteor.users.findOne({_id:user._id});
+            let vehicles = [];
+            vehicles = Vehicles.find({$or:[{sharedTo:userFull.settings.visibility},{societe:userFull.settings.visibility}]}).fetch() || {};
+            vehicles.forEach(v => {
+                affectVehicleAccidents(v)
+            });
+            vehicles = vehicles.filter(v=>v.accidents.length>0);
+            vehicles.forEach(v => {
+                affectVehicleData(v)
+            });
+            return vehicles;
+        },
         buVehicles(obj, args, { user }){
             let userFull = Meteor.users.findOne({_id:user._id});
             let vehicles = [];

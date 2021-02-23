@@ -150,7 +150,7 @@ export class AccidentTabularPriseencharge extends Component {
 
     render() {return (
         <Fragment>
-            <Segment attached="bottom" style={{textAlign:"center",display:"grid",gridGap:"16px",gridTemplateColumns:"1fr 1fr",gridTemplateRows:"auto 1fr",placeSelf:"stretch",gridColumnEnd:"span 2"}}>
+            <Segment style={{textAlign:"center",display:"grid",gridGap:"16px",gridTemplateColumns:"1fr 1fr",gridTemplateRows:"auto 1fr",placeSelf:"stretch"}}>
                 {this.getInfosPanel()}
             </Segment>
             <ModalDatePicker onSelectDatePicker={this.onSelectDatePicker} closeDatePicker={this.closeDatePicker} open={this.state.openDatePicker}/>
