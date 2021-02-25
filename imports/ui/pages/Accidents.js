@@ -22,18 +22,34 @@ class Accidents extends Component {
     datePickerTarget:"",
     newOccurenceDate:"",
     archiveFilter:false,
-    docsFilter: "all",
+    missingInfosFilter:"all",
+    answersFilter:"all",
     constatSentFilter: "all",
+    responsabiliteFilter:"all",
+    statusFilter:"all",
+    docsFilter: "all",
     filters:[
       {
-          infos:"archiveFilterInfos",
-          filter:"archiveFilter"
+        infos:"archiveFilterInfos",
+        filter:"archiveFilter"
       },{
-          infos:"constatSentFilterInfos",
-          filter:"constatSentFilter"
+        infos:"missingInfosFilterInfos",
+        filter:"missingInfosFilter"
       },{
-          infos:"docsFilterInfos",
-          filter:"docsFilter"
+        infos:"answersFilterInfos",
+        filter:"answersFilter"
+      },{
+        infos:"constatSentFilterInfos",
+        filter:"constatSentFilter"
+      },{
+        infos:"responsabiliteFilterInfos",
+        filter:"responsabiliteFilter"
+      },{
+        infos:"statusFilterInfos",
+        filter:"statusFilter"
+      },{
+        infos:"docsFilterInfos",
+        filter:"docsFilter"
       }
     ],
     archiveFilterInfos:{
@@ -59,6 +75,70 @@ class Accidents extends Component {
           }
       ]
     },
+    missingInfosFilterInfos:{
+      icon:"info",            
+      options:[
+          {
+              key: 'missinginfosall',
+              initial: true,
+              text: 'Touts les véhicules',
+              value: "all",
+              color:"green",
+              click:()=>{this.switchMissingInfosFilter("all")},
+              label: { color: 'green', empty: true, circular: true },
+          },
+          {
+              key: 'missinginfosfull',
+              initial: true,
+              text: 'Toutes informations renseignées',
+              value: "full",
+              color:"blue",
+              click:()=>{this.switchMissingInfosFilter("full")},
+              label: { color: 'blue', empty: true, circular: true },
+          },
+          {
+              key: 'missinginfossome',
+              initial: false,
+              text: 'Informations manquantes',
+              value: "some",
+              color:"red",
+              click:()=>{this.switchMissingInfosFilter("some")},
+              label: { color: 'red', empty: true, circular: true },
+          }
+      ]
+    },
+    answersFilterInfos:{
+      icon:"tasks",
+      options:[
+        {
+          key: 'answersall',
+          initial: true,
+          text: 'Touts les véhicules',
+          value: "all",
+          color:"green",
+          click:()=>{this.switchAnswersFilter("all")},
+          label: { color: 'green', empty: true, circular: true },
+        },
+        {
+          key: 'answersfull',
+          initial: true,
+          text: 'Questionnaire de circonstances renseigné',
+          value: "full",
+          color:"blue",
+          click:()=>{this.switchAnswersFilter("full")},
+          label: { color: 'blue', empty: true, circular: true },
+        },
+        {
+          key: 'answerssome',
+          initial: false,
+          text: 'Questionnaire de circonstances à faire',
+          value: "some",
+          color:"red",
+          click:()=>{this.switchAnswersFilter("some")},
+          label: { color: 'red', empty: true, circular: true },
+        }
+      ]
+    },
     constatSentFilterInfos:{
         icon:"mail",            
         options:[
@@ -81,6 +161,88 @@ class Accidents extends Component {
                 label: { color: 'orange', empty: true, circular: true },
             }
         ]
+    },
+    responsabiliteFilterInfos:{
+      icon:"percent",
+      options:[
+        {
+          key: 'responsabiliteall',
+          initial: true,
+          text: 'Touts les véhicules',
+          value: "all",
+          color:"green",
+          click:()=>{this.switchResponsabiliteInfosFilter("all")},
+          label: { color: 'green', empty: true, circular: true },
+        },
+        {
+          key: 'responsabilitefull',
+          initial: true,
+          text: '100 %',
+          value: "full",
+          color:"orange",
+          click:()=>{this.switchResponsabiliteInfosFilter("full")},
+          label: { color: 'orange', empty: true, circular: true },
+        },
+        {
+          key: 'responsabilitehalf',
+          initial: true,
+          text: '50 %',
+          value: "half",
+          color:"yellow",
+          click:()=>{this.switchResponsabiliteInfosFilter("half")},
+          label: { color: 'yellow', empty: true, circular: true },
+        },
+        {
+          key: 'responsabilitezero',
+          initial: true,
+          text: '0 %',
+          value: "zero",
+          color:"green",
+          click:()=>{this.switchResponsabiliteInfosFilter("zero")},
+          label: { color: 'green', empty: true, circular: true },
+        },
+        {
+          key: 'responsabilitetodo',
+          initial: true,
+          text: 'A définir',
+          value: "todo",
+          color:"grey",
+          click:()=>{this.switchResponsabiliteInfosFilter("todo")},
+          label: { color: 'grey', empty: true, circular: true },
+        }
+      ]
+    },
+    statusFilterInfos:{
+      icon:"toggle off",
+      options:[
+        {
+          key: 'statusall',
+          initial: true,
+          text: 'Touts les véhicules',
+          value: "all",
+          color:"green",
+          click:()=>{this.switchStatusInfosFilter("all")},
+          label: { color: 'green', empty: true, circular: true },
+        },
+        {
+          key: 'statustrue',
+          initial: true,
+          text: 'Ouvert',
+          value: "true",
+          color:"green",
+          click:()=>{this.switchStatusInfosFilter("true")},
+          label: { color: 'green', empty: true, circular: true },
+        },
+        {
+          key: 'statusfalse',
+          initial: true,
+          text: 'Clos',
+          value: "false",
+          color:"grey",
+          click:()=>{this.switchStatusInfosFilter("false")},
+          label: { color: 'grey', empty: true, circular: true },
+        }
+      ]
     },
     docsFilterInfos:{
         icon:"folder open outline",            
@@ -110,33 +272,114 @@ class Accidents extends Component {
     vehicleAgglomeratedAccidents : () => {
       let displayed = Array.from(JSON.parse(JSON.stringify(this.state.accidentsRaw)));
       if(this.props.user.isAdmin && this.props.user.visibility == "noidthisisgroupvisibility" && this.props.societeFilter != "noidthisisgroupvisibility"){
-        console.log(displayed)
         displayed = displayed.filter(a =>
             a.societe._id == this.props.societeFilter
         );
       }
-      console.log(displayed)
+      //ARCHIVE FILTER
       displayed.forEach(vehicle => {
         let accs = vehicle.accidents;
         accs = accs.filter(a=>a.archived == this.state.archiveFilter)
-        accs = accs.filter(a =>{
-          if(this.state.docsFilter == "all"){return true}else{
-              if(a.rapportExp._id == "" || a.constat._id == "" || a.facture._id == ""){
-                return true
-              }else{
-                return false
-              }
-          }}
-        )
-        accs = accs.filter(a =>{
-          if(this.state.constatSentFilter == "all"){return true}else{
-              if(a.constatSent){
-                return false
-              }else{
-                return true
-              }
-          }
-        });
+      });
+      //DOCS FILTER
+      displayed.forEach(vehicle => {
+        let accs = vehicle.accidents;
+        if(this.state.docsFilter == "all"){return true}else{
+          accs = accs.filter(a =>{
+            if(a.rapportExp._id == "" || a.constat._id == "" || a.facture._id == ""){
+              return true
+            }else{
+              return false
+            }
+          })
+        }
+        vehicle.accidents = accs;
+      });
+      //MISSING INFOS FILTER
+      displayed.forEach(vehicle => {
+        let accs = vehicle.accidents;
+        if(this.state.missingInfosFilter == "all"){return true}else{
+          accs = accs.filter(a=>{
+            let totUndef = 0;
+            if(a.reglementAssureur == "" || a.reglementAssureur == -1){totUndef++}
+            if(a.chargeSinistre == "" || a.chargeSinistre == -1){totUndef++}
+            if(a.montantInterne == "" || a.montantInterne == -1){totUndef++}
+            if(a.dateExpert == ""){totUndef++}
+            if(a.dateTravaux == ""){totUndef++}
+            if(this.state.missingInfosFilter == "full"){
+              return totUndef == 0;
+            }
+            if(this.state.missingInfosFilter == "some"){
+              return totUndef != 0
+            }
+          })
+        }
+        vehicle.accidents = accs;
+      });
+      //ANSWERS FILTER
+      displayed.forEach(vehicle => {
+        let accs = vehicle.accidents;
+        if(this.state.answersFilter == "all"){return true}else{
+          accs = accs.filter(a=>{
+            if(this.state.answersFilter == "full"){
+              return a.answers.filter(a=>a.status == "validated").length == 8;
+            }
+            if(this.state.answersFilter == "some"){
+              return a.answers.filter(a=>a.status == "validated").length != 8;
+            }
+          })
+        }
+        vehicle.accidents = accs;
+      });
+      //CONSTAT SENT
+      displayed.forEach(vehicle => {
+        let accs = vehicle.accidents;
+        if(this.state.constatSentFilter == "all"){return true}else{
+          accs = accs.filter(a =>{
+            if(a.constatSent){
+              return false
+            }else{
+              return true
+            }
+          });
+        }
+        vehicle.accidents = accs;
+      });
+      //RESPONSABILITE SENT
+      displayed.forEach(vehicle => {
+        let accs = vehicle.accidents;
+        if(this.state.responsabiliteFilter == "all"){return true}else{
+          accs = accs.filter(a =>{
+            if(this.state.responsabiliteFilter == "full"){
+              return a.responsabilite == 100;
+            }
+            if(this.state.responsabiliteFilter == "half"){
+              return a.responsabilite == 50;
+            }
+            if(this.state.responsabiliteFilter == "zero"){
+              return a.responsabilite == 0;
+            }
+            if(this.state.responsabiliteFilter == "todo"){
+              return a.responsabilite == -1;
+            }
+            return true;
+          });
+        }
+        vehicle.accidents = accs;
+      });
+      //STATUS SENT
+      displayed.forEach(vehicle => {
+        let accs = vehicle.accidents;
+        if(this.state.statusFilter == "all"){return true}else{
+          accs = accs.filter(a =>{
+            if(this.state.statusFilter == "true"){
+              return a.status == true;
+            }
+            if(this.state.statusFilter == "false"){
+              return a.status == false;
+            }
+          });
+        }
         vehicle.accidents = accs;
       });
       if(this.state.accidentFilter.length>0){
@@ -147,14 +390,17 @@ class Accidents extends Component {
       displayed = displayed.filter(v => v.accidents.length > 0);
       if(displayed.length == 0){
         return(
-          <Table.Row key={"none"}>
-            <Table.Cell colSpan='10' textAlign="center">
-              <p>Aucun accident ne correspond à ce filtre</p>
-            </Table.Cell>
-          </Table.Row>
+          <Table>
+            <Table.Body>
+              <Table.Row key={"none"}>
+                <Table.Cell colSpan='10' textAlign="center">
+                  <p>Aucun accident ne correspond à ce filtre</p>
+                </Table.Cell>
+              </Table.Row>
+            </Table.Body>
+          </Table>
         )
       }
-      console.log(displayed)
       return displayed.map(v =>{
         return(
           <VehicleAgglomeratedAccidentsRow archiveFilter={this.state.archiveFilter} docsFilter={this.state.docsFilter} constatSentFilter={this.state.constatSentFilter} archiveFilter={this.state.archiveFilter} hideSociete={this.props.userLimited} loadAccidents={this.loadAccidents} key={v._id} vehicle={v}/>
@@ -208,6 +454,9 @@ class Accidents extends Component {
             constatSent
             cost
             archived
+            answers{
+              status
+            }
             constat{
               _id
               name
@@ -241,6 +490,11 @@ class Accidents extends Component {
               mimetype
               storageDate
             }
+            responsabilite
+            reglementAssureur
+            chargeSinistre
+            montantInterne
+            status
           }
         }
       }
@@ -296,6 +550,9 @@ class Accidents extends Component {
             constatSent
             cost
             archived
+            answers{
+                status
+            }
             constat{
               _id
               name
@@ -329,10 +586,15 @@ class Accidents extends Component {
               mimetype
               storageDate
             }
+            responsabilite
+            reglementAssureur
+            chargeSinistre
+            montantInterne
+            status
           }
         }
       }
-    `,
+    `
   }
   /*SHOW AND HIDE MODALS*/
   showAddAccident = () => {
@@ -381,6 +643,30 @@ class Accidents extends Component {
           archiveFilter:v
       })
       this.loadAccidents();
+  }
+  switchMissingInfosFilter = v => {
+    this.setState({
+        missingInfosFilter:v
+    })
+    this.loadAccidents();
+  }
+  switchResponsabiliteInfosFilter = v => {
+    this.setState({
+        responsabiliteFilter:v
+    })
+    this.loadAccidents();
+  }
+  switchStatusInfosFilter = v => {
+    this.setState({
+        statusFilter:v
+    })
+    this.loadAccidents();
+  }
+  switchAnswersFilter = v => {
+    this.setState({
+        answersFilter:v
+    })
+    this.loadAccidents();
   }
   setConstatSentFilter = value => {
     this.setState({
@@ -440,7 +726,11 @@ class Accidents extends Component {
         </div>
         <CustomFilterSegment resetAll={this.resetAll} style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3"}}>
           <CustomFilter infos={this.state.archiveFilterInfos} active={this.state.archiveFilter} />
+          <CustomFilter infos={this.state.missingInfosFilterInfos} active={this.state.missingInfosFilter} />
+          <CustomFilter infos={this.state.answersFilterInfos} active={this.state.answersFilter} />
           <CustomFilter infos={this.state.constatSentFilterInfos} active={this.state.constatSentFilter} />
+          <CustomFilter infos={this.state.responsabiliteFilterInfos} active={this.state.responsabiliteFilter} />
+          <CustomFilter infos={this.state.statusFilterInfos} active={this.state.statusFilter} />
           <CustomFilter infos={this.state.docsFilterInfos} active={this.state.docsFilter} />
         </CustomFilterSegment>
         <div style={{gridRowStart:"3",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>

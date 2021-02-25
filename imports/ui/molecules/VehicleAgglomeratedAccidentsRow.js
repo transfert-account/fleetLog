@@ -19,10 +19,11 @@ export class VehicleAgglomeratedAccidentsRow extends Component {
                   <Table.Row textAlign='center'>
                     <Table.HeaderCell>Vehicle</Table.HeaderCell>
                     <Table.HeaderCell>Date</Table.HeaderCell>
-                    <Table.HeaderCell>Date de passage Expert</Table.HeaderCell>
-                    <Table.HeaderCell>Date de travaux</Table.HeaderCell>
+                    <Table.HeaderCell>Informations</Table.HeaderCell>
+                    <Table.HeaderCell>Circonstances renseignées</Table.HeaderCell>
                     <Table.HeaderCell>Constat Envoyé</Table.HeaderCell>
-                    <Table.HeaderCell>Coût</Table.HeaderCell>
+                    <Table.HeaderCell>Responsabilité</Table.HeaderCell>
+                    <Table.HeaderCell>Statut</Table.HeaderCell>
                     <Table.HeaderCell>Document</Table.HeaderCell>
                     <Table.HeaderCell>Actions</Table.HeaderCell>
                   </Table.Row>
@@ -35,10 +36,11 @@ export class VehicleAgglomeratedAccidentsRow extends Component {
                     <Table.HeaderCell>Societe</Table.HeaderCell>
                     <Table.HeaderCell>Vehicle</Table.HeaderCell>
                     <Table.HeaderCell>Date</Table.HeaderCell>
-                    <Table.HeaderCell>Date de passage Expert</Table.HeaderCell>
-                    <Table.HeaderCell>Date de travaux</Table.HeaderCell>
+                    <Table.HeaderCell>Informations</Table.HeaderCell>
+                    <Table.HeaderCell>Circonstances renseignées</Table.HeaderCell>
                     <Table.HeaderCell>Constat Envoyé</Table.HeaderCell>
-                    <Table.HeaderCell>Coût</Table.HeaderCell>
+                    <Table.HeaderCell>Responsabilité</Table.HeaderCell>
+                    <Table.HeaderCell>Statut</Table.HeaderCell>
                     <Table.HeaderCell>Document</Table.HeaderCell>
                     <Table.HeaderCell>Actions</Table.HeaderCell>
                   </Table.Row>

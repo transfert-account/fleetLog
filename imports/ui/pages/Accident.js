@@ -8,11 +8,8 @@ import FileManagementPanel from '../atoms/FileManagementPanel';
 
 import AccidentTabularDeclaration from '../molecules/AccidentTabularDeclaration';
 import AccidentTabularCirconstances from '../molecules/AccidentTabularCirconstances';
-import AccidentTabularPriseencharge from '../molecules/AccidentTabularPriseencharge';
 
 import BigButtonIcon from '../elements/BigIconButton';
-
-import moment from 'moment';
 
 export class Accident extends Component {
 

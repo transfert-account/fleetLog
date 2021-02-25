@@ -13,7 +13,7 @@ export default {
         testThis(obj, args,{user}){
             if(user._id){
                 try{
-                    Accidents.update(
+                    /*Accidents.update(
                         {},{
                             $set: {
                                 responsabilite:50,
@@ -23,7 +23,7 @@ export default {
                                 status:true
                             }
                         },{multi:true}
-                    );
+                    );*/
                     /*
                     let vs = Vehicles.find({}).fetch();
                     vs.forEach(v=>{

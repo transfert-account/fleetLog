@@ -232,7 +232,7 @@ export class AccidentTabularDeclaration extends Component {
                             <div className="labelBoard">Date de passage de l'expert :</div><div className="valueBoard">{this.props.accident.dateExpert}</div>
                             <div className="labelBoard">Date des travaux :</div><div className="valueBoard">{this.props.accident.dateTravaux}</div>
                             <div className="labelBoard">Constat envoyé à l'assurance :</div><div className="valueBoard">{this.getConstatSentLabel()}</div>
-                            <div className="labelBoard">Coût total de l'accident:</div><div className="valueBoard">{this.props.accident.cost} €</div>
+                            <div className="labelBoard">Coût total de l'accident :</div><div className="valueBoard">{this.props.accident.cost} €</div>
                         </div>
                     </Segment>
                 </Segment.Group>
@@ -244,6 +244,13 @@ export class AccidentTabularDeclaration extends Component {
             return <Label color="green">Constat envoyé</Label>
         }else{
             return <Label color="red">En attente</Label>
+        }
+    }
+    getNullableValue = v => {
+        if(v == -1){
+            return "n/a"
+        }else{
+            return v + " €"
         }
     }
 
@@ -264,6 +271,8 @@ export class AccidentTabularDeclaration extends Component {
                                 <Button color="yellow" basic={this.state.newResponsabilite != 50} onClick={()=>{this.setResponsabilite(50)}}>50%</Button>
                                 <Button.Or/>
                                 <Button color="green" basic={this.state.newResponsabilite != 0} onClick={()=>{this.setResponsabilite(0)}}>0%</Button>
+                                <Button.Or/>
+                                <Button color="grey" basic={this.state.newResponsabilite != -1} onClick={()=>{this.setResponsabilite(-1)}}>n/a</Button>
                                 </Button.Group>
                             </Form.Field>
                             <Form.Field>
@@ -296,11 +305,11 @@ export class AccidentTabularDeclaration extends Component {
                     </Segment>
                     <Segment raised style={{placeSelf:"stretch",margin:"0"}}>
                         <div className="formBoard displaying" style={{gridTemplateRows:"auto auto auto auto auto 1fr",height:"100%"}}>
-                            <div className="labelBoard">Responsabilité</div><div className="valueBoard">{this.getPECLabel()}</div>
-                            <div className="labelBoard">Reglement Assureur</div><div className="valueBoard">{this.props.accident.reglementAssureur} €</div>
-                            <div className="labelBoard">Charge Sinistre</div><div className="valueBoard">{this.props.accident.chargeSinistre} €</div>
-                            <div className="labelBoard">Montant Interne</div><div className="valueBoard">{this.props.accident.montantInterne} €</div>
-                            <div className="labelBoard">Status</div><div className="valueBoard">{this.getStatusLabel()}</div>
+                            <div className="labelBoard">Responsabilité :</div><div className="valueBoard">{this.getPECLabel()}</div>
+                            <div className="labelBoard">Reglement Assureur :</div><div className="valueBoard">{this.getNullableValue(this.props.accident.reglementAssureur)}</div>
+                            <div className="labelBoard">Charge Sinistre :</div><div className="valueBoard">{this.getNullableValue(this.props.accident.chargeSinistre)}</div>
+                            <div className="labelBoard">Montant Interne :</div><div className="valueBoard">{this.getNullableValue(this.props.accident.montantInterne)}</div>
+                            <div className="labelBoard">Status :</div><div className="valueBoard">{this.getStatusLabel()}</div>
                         </div>
                     </Segment>
                 </Segment.Group>  
@@ -309,9 +318,9 @@ export class AccidentTabularDeclaration extends Component {
     }
     getStatusLabel = () => {
         if(this.props.accident.status){
-            return <Label color="blue">Ouvert</Label>
+            return <Label color="orange">Ouvert</Label>
         }else{
-            return <Label color="grey">Clos</Label>
+            return <Label color="green">Clos</Label>
         }
     }
     getPECLabel = () => {
@@ -323,6 +332,9 @@ export class AccidentTabularDeclaration extends Component {
         }
         if(this.props.accident.responsabilite == 0){
             return <Label color="green">0 %</Label>
+        }
+        if(this.props.accident.responsabilite == -1){
+            return <Label color="grey">A définir</Label>
         }
         return <Label color="red">err</Label>
     }

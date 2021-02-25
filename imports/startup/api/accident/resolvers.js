@@ -73,6 +73,10 @@ export default {
         addAccident(obj, {vehicle,occurenceDate},{user}){
             if(user._id){
                 let v = Vehicles.findOne({_id:new Mongo.ObjectID(vehicle)});
+                let answers = [];
+                for (let i = 0; i != 8 ; i++) {
+                    answers.push({body:"",status:"virgin"})
+                }
                 Accidents.insert({
                     _id:new Mongo.ObjectID(),
                     societe:v.societe,
@@ -87,7 +91,12 @@ export default {
                     constatSent:false,
                     archived:false,
                     cost:0,
-                    answers:[]
+                    answers:answers,
+                    responsabilite:-1,
+                    reglementAssureur:-1,
+                    chargeSinistre:-1,
+                    montantInterne:-1,
+                    status:false
                 });
                 return [{status:true,message:'Création réussie'}];
             }
