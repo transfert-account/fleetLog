@@ -591,6 +591,22 @@ export default {
             }
             throw new Error('Unauthorized');
         },
+        cancelSellVehicle(obj, {_id},{user}){
+            if(user._id){
+                Vehicles.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "sold":false,
+                            "soldOnDate":""
+                        }
+                    }   
+                )
+                return [{status:true,message:'Annulation de la vente du véhicule réussie'}];
+            }
+            throw new Error('Unauthorized');
+        },
         finishSellVehicle(obj, {_id},{user}){
             if(user._id){
                 Vehicles.update(

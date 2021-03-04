@@ -98,6 +98,7 @@ extend type Mutation{
     unshareVehicle(_id:String!):[QueryResultMessage]
     sellVehicle(_id:String!,sellingReason:String!):[QueryResultMessage]
     unsellVehicle(_id:String!):[QueryResultMessage]
+    cancelSellVehicle(_id:String!):[QueryResultMessage]
     finishSellVehicle(_id:String!):[QueryResultMessage]
     addHistoryEntry(_id:String!,content:String!):[QueryResultMessage]
     deleteHistoryEntry(vehicle:String!,_id:String!):[QueryResultMessage]

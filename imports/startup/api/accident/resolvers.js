@@ -3,6 +3,7 @@ import Vehicles from '../vehicle/vehicles.js';
 import Societes from '../societe/societes';
 import Models from '../model/models';
 import Brands from '../brand/brands';
+import Energies from '../energy/energies';
 import Documents from '../document/documents';
 import Functions from '../common/functions';
 import moment from 'moment';
@@ -27,7 +28,7 @@ const affectData = a => {
             a.vehicle.model = {_id:""};
         }
         if(a.vehicle.energy != null && a.vehicle.energy.length > 0){
-            a.vehicle.energy = Models.findOne({_id:new Mongo.ObjectID(a.vehicle.energy)});
+            a.vehicle.energy = Energies.findOne({_id:new Mongo.ObjectID(a.vehicle.energy)});
         }else{
             a.vehicle.energy = {_id:""};
         }
@@ -48,6 +49,11 @@ const affectData = a => {
         a.facture = Documents.findOne({_id:new Mongo.ObjectID(a.facture)});
     }else{
         a.facture = {_id:""};
+    }
+    if(a.questions != null && a.questions.length > 0){
+        a.questions = Documents.findOne({_id:new Mongo.ObjectID(a.questions)});
+    }else{
+        a.questions = {_id:""};
     }
 }
 

@@ -124,6 +124,17 @@ export class Accident extends Component {
                         mimetype
                         storageDate
                     }
+                    questions{
+                        _id
+                        name
+                        size
+                        path
+                        originalFilename
+                        ext
+                        type
+                        mimetype
+                        storageDate
+                    }
                     responsabilite
                     reglementAssureur
                     chargeSinistre

@@ -68,6 +68,7 @@ class Vehicle extends Component {
         openUnshare:false,
         openSell:false,
         openUnsell:false,
+        openCancelSell:false,
         openAddHistoryEntry:false,
         openDeleteHistoryEntry:false,
         openBreak:false,
@@ -303,12 +304,20 @@ class Vehicle extends Component {
             }
         `,
         unsellVehicleQuery : gql`
-        mutation unsellVehicle($_id:String!){
-            unsellVehicle(_id:$_id){
-                status
-                message
+            mutation unsellVehicle($_id:String!){
+                unsellVehicle(_id:$_id){
+                    status
+                    message
+                }
             }
-        }
+        `,
+        cancelSellVehicleQuery : gql`
+            mutation cancelSellVehicle($_id:String!){
+                cancelSellVehicle(_id:$_id){
+                    status
+                    message
+                }
+            }
         `,
         finishSellVehicleQuery : gql`
             mutation finishSellVehicle($_id:String!){
@@ -578,6 +587,25 @@ class Vehicle extends Component {
         })
     }
 
+    cancelSellVehicle = () => {
+        this.props.client.mutate({
+            mutation:this.state.cancelSellVehicleQuery,
+            variables:{
+                _id:this.state._id
+            }
+        }).then(({data})=>{
+            data.cancelSellVehicle.map(qrm=>{
+                if(qrm.status){
+                    this.closeCancelSell();
+                    this.loadVehicule();
+                    this.props.toast({message:qrm.message,type:"success"});
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+
     finishSellVehicle = () => {
         this.props.client.mutate({
             mutation:this.state.finishSellVehicleQuery,
@@ -832,6 +860,17 @@ class Vehicle extends Component {
     closeUnsell = () => {
         this.setState({
             openUnsell:false
+        })
+    }
+
+    showCancelSell = () => {
+        this.setState({
+            openCancelSell:true
+        })
+    }
+    closeCancelSell = () => {
+        this.setState({
+            openCancelSell:false
         })
     }
 
@@ -1321,20 +1360,26 @@ class Vehicle extends Component {
     }
 
     getSellOptions = () => {
-        if(this.state.vehicle.selling){
-            if(!this.state.vehicle.sold){
+        if(this.state.vehicle.selling){//CONCLUSION OU RETRAIT
+            return(
+                <Fragment>
+                    <BigButtonIcon icon="cart" color="teal" onClick={this.showUnsell} tooltip="Fin la vente"/>
+                </Fragment>
+            )
+        }else{
+            if(!this.state.vehicle.sold){//MISE EN VENTE
                 return(
                     <Fragment>
-                        <BigButtonIcon icon="cart" color="teal" onClick={this.showUnsell} tooltip="Fin la vente"/>
+                        <BigButtonIcon icon="cart" color="teal" onClick={this.showSell} tooltip="Mettre en vente"/>
+                    </Fragment>
+                )
+            }else{//ANNULATION
+                return(
+                    <Fragment>
+                        <BigButtonIcon icon="cart" color="orange" onClick={this.showCancelSell} tooltip="Annuler la vente"/>
                     </Fragment>
                 )
             }
-        }else{
-            return(
-                <Fragment>
-                    <BigButtonIcon icon="cart" color="teal" onClick={this.showSell} tooltip="Mettre en vente"/>
-                </Fragment>
-            )
         }
     }
 
@@ -1561,8 +1606,12 @@ class Vehicle extends Component {
 
     getArchivePanel = () => {
         if(this.state.vehicle.archived){
+            let justification = this.state.vehicle.archiveJustification.justification
+            if(justification == null){
+                justification = "Aucune justification"
+            }
             return (
-                <Message color="orange" style={{margin:"0 16px"}} icon='archive' header={"Archivé depuis le : " + this.state.vehicle.archiveDate} content={"Justificaion : " + this.state.vehicle.archiveJustification.justification} />
+                <Message color="orange" style={{margin:"0 16px"}} icon='archive' header={"Archivé depuis le : " + this.state.vehicle.archiveDate} content={"Justificaion : " + justification} />
             )
         }
     }
@@ -1578,7 +1627,7 @@ class Vehicle extends Component {
     getSellingPanel = () => {
         if(this.state.vehicle.sold){
             return (
-                <Message color="teal" style={{margin:"0 16px"}} icon='cart' header={"Véhicule vendu le : " + this.state.vehicle.soldOnDate} content={"Justificaion : " + this.state.vehicle.sellingReason} />
+                <Message color="orange" style={{margin:"0 16px"}} icon='cart' header={"Véhicule vendu le : " + this.state.vehicle.soldOnDate} content={"Justificaion : " + this.state.vehicle.sellingReason} />
             )
         }
         if(this.state.vehicle.selling){
@@ -1777,7 +1826,7 @@ class Vehicle extends Component {
                     </Modal>
                     <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openUnsell} onClose={this.closeUnsell} closeIcon>
                         <Modal.Header>
-                        Annuler la mise en vente du vehicule {this.state.vehicle.registration} ?
+                            Annuler la vente du vehicule {this.state.vehicle.registration} ?
                         </Modal.Header>
                         <Modal.Actions>
                             <Button color="grey" onClick={this.closeUnsell}>Annuler</Button>
@@ -1785,7 +1834,16 @@ class Vehicle extends Component {
                             <Button color="orange" onClick={this.finishSellVehicle}>Conclure la vente</Button>
                         </Modal.Actions>
                     </Modal>
-                    
+                    <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openCancelSell} onClose={this.closeCancelSell} closeIcon>
+                        <Modal.Header>
+                        Annuler la mise en vente du vehicule {this.state.vehicle.registration} ?
+                        </Modal.Header>
+                        <Modal.Actions>
+                            <Button color="grey" onClick={this.closeCancelSell}>Annuler</Button>
+                            <Button color="orange" onClick={this.cancelSellVehicle}>Annuler la vente</Button>
+                        </Modal.Actions>
+                    </Modal>
+
                     <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openAddHistoryEntry} onClose={this.closeAddHistoryEntry} closeIcon>
                         <Modal.Header>
                             Ajouter un commentaire dans l'historique du véhicule : {this.state.vehicle.registration} ?

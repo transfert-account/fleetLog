@@ -8,6 +8,9 @@ import _ from 'lodash';
 export class AccidentTabularCirconstances extends Component {
 
   state={
+    pdfGenerated:false,
+    pdf:null,
+    end:(this.props.answers.some(a => a.status != "validated") ? false : true),
     checking:true,
     needToReset:false,
     currentQIndex:0,
@@ -75,6 +78,78 @@ export class AccidentTabularCirconstances extends Component {
     this.saveAnswers();
   };
   /*FILTERS HANDLERS*/
+  /*PDF HANDLING*/
+  getHeader = () => {
+    return {
+      text: [
+        "Immatriculation : " + this.props.accident.vehicle.registration + '\n',
+        "Véhicule : " + this.props.accident.vehicle.model.name + " - " + this.props.accident.vehicle.brand.name + " - " + this.props.accident.vehicle.energy.name + '\n',
+        "Date de l'accident : " + this.props.accident.occurenceDate + '\n'
+        ],
+      style: 'header',
+      margin: [0,0,16,32],
+      bold: false
+    }
+  }
+  getBody = () => {
+    let questions = [];
+    this.state.answers.forEach((a,i) => {
+      questions.push({
+        text: i + ") " + this.state.questions[i].q,
+        style: 'question'
+      })
+      questions.push({
+        text: a.body,
+        style: 'answer'
+      })
+    });
+    return questions
+  }
+  getFooter = () => {
+    return {
+      text: [
+        'This is a footer.\n'
+        ],
+      style: 'footer',
+      bold: false
+    }
+  }
+  generate = () => {
+    let docDef = {
+      content: [
+        this.getHeader(),
+        this.getBody(),
+        this.getFooter()
+      ],
+      styles: {
+        header: {
+          fontSize: 13,
+          bold: true,
+          alignment: 'justify'
+        },
+        question: {
+          fontSize: 11,
+          bold: true,
+          marginLeft:20,
+          marginBottom:8,
+          alignment: 'justify'
+        },
+        answer: {
+          fontSize: 11,
+          bold: false,
+          marginLeft:40,
+          marginBottom:16,
+          alignment: 'justify'
+        },
+        footer: {
+          fontSize: 11,
+          bold: false,
+          alignment: 'justify'
+        }
+      }
+    }
+    pdfMake.createPdf(docDef).open()
+  }
   /*DB READ AND WRITE*/
   checkAnswers = () => {
     if(this.state.answers.length != this.state.questions.length){
@@ -128,9 +203,23 @@ export class AccidentTabularCirconstances extends Component {
           {this.state.questions.map((q,i)=>{
             return this.getLabel(q,i)
           })}
-          <Label style={{margin:"8px",cursor:"pointer"}} onClick={()=>{this.setCurrent(this.state.questions.length)}} color={(this.state.end ? "green" : "grey")}>Fin</Label>
+          <Label style={{margin:"8px",cursor:"pointer"}} onClick={()=>{this.setCurrent(this.state.questions.length)}} color={(this.state.end ? "green" : "grey")}>{this.getEndLabel()}</Label>
         </div>
       )
+    }
+  }
+  getEndLabel = () => {
+    if(this.state.answers.some(a => a.status != "validated")){
+      return "Fin";
+    }else{
+      if(this.props.accident.questions._id != ""){
+        return "PDF en ligne"
+      }
+      if(this.state.pdfGenerated){
+        return "PDF prêt pour impression"
+      }else{
+        return "Génération PDF possible"
+      }
     }
   }
   getLabel = (q,i) => {
@@ -182,10 +271,11 @@ export class AccidentTabularCirconstances extends Component {
       return (
         <Fragment>
           <h1>Fin du questionnaire</h1>
-          <div style={{display:"grid",gridTemplateColumns:"auto 1fr auto auto",gridRowStart:"4",gridGap:""}}>
+          <div style={{display:"grid",gridTemplateColumns:"auto 1fr auto auto auto",gridRowStart:"4",gridGap:""}}>
             <Button icon="arrow left" color="blue" labelPosition="left" size="large" onClick={()=>this.setCurrent(0)} style={{gridColumnStart:"1"}} content="Relire le questionnaire"/>
-            <Button icon="download" color="blue" labelPosition="right" size="large" disabled={this.state.answers.some(a => a.status != "validated")} onClick={this.download} style={{gridColumnStart:"3"}} content="Télécharger pour signature"/>
-            <Button icon="upload" color="blue" labelPosition="right" size="large" disabled={this.state.answers.some(a => a.status != "validated")} onClick={this.updload} style={{gridColumnStart:"4"}} content="Stockage document signé"/>
+            <Button icon="file pdf outline" color="blue" labelPosition="right" size="large" disabled={this.state.answers.some(a => a.status != "validated")} onClick={this.generate} style={{gridColumnStart:"3"}} content="Générer le pdf"/>
+            <Button icon="download" color="blue" labelPosition="right" size="large" disabled={!this.state.pdfGenerated} onClick={this.download} style={{gridColumnStart:"4"}} content="Télécharger pour signature"/>
+            <Button icon="upload" color="blue" labelPosition="right" size="large" disabled={this.props.accident.questions._id == ""} onClick={this.updload} style={{gridColumnStart:"5"}} content="Stocker le document signé"/>
           </div>
         </Fragment>
       )

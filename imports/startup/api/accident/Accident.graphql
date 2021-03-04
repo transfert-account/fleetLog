@@ -10,6 +10,7 @@ type Accident{
     rapportExp:Document
     constat:Document
     facture:Document
+    questions:Document
     archived:Boolean
     cost:Float
     answers:[Answer]

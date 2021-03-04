@@ -6,13 +6,19 @@ import Entretiens from '../entretien/entretiens';
 import Batiments from '../batiment/batiments';
 import Accidents from '../accident/accidents';
 import { Mongo } from 'meteor/mongo';
-import Vehicle from '../../../ui/pages/Vehicle';
 
 export default {
     Query : {
         testThis(obj, args,{user}){
             if(user._id){
                 try{
+                    Vehicles.update(
+                        {},{
+                            $set: {
+                                archiveJustification:"",
+                            }
+                        },{multi:true}
+                    );
                     /*Accidents.update(
                         {},{
                             $set: {
@@ -136,7 +142,7 @@ export default {
                             }
                         );
                     })*/
-                    return [{status:true,message:'Empty answers for all accidents'}];
+                    return [{status:true,message:'Empty archiveJustification for all vehicles'}];
                 }catch(e){
                     throw e;
                     return [{status:false,message:e.message}];
