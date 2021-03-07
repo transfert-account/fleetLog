@@ -1,0 +1,13 @@
+type AccCharacteristic{
+    _id: String
+    name: String
+}
+
+extend type Query{
+    accCharacteristics : [AccCharacteristic]
+}
+
+extend type Mutation{
+    addAccCharacteristic(name:String!): [QueryResultMessage]
+    deleteAccCharacteristic(_id:String!): [QueryResultMessage]
+}

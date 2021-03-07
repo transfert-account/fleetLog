@@ -75,13 +75,28 @@ import BatimentResolvers from '../api/batiment/resolvers';
 import AccidentSchema from '../api/accident/Accident.graphql';
 import AccidentResolvers from '../api/accident/resolvers';
 
+import AccCharacteristicSchema from '../api/accCharacteristic/AccCharacteristic.graphql';
+import AccCharacteristicResolvers from '../api/accCharacteristic/resolvers';
+
+import AccRoadProfileSchema from '../api/accRoadProfile/AccRoadProfile.graphql';
+import AccRoadProfileResolvers from '../api/accRoadProfile/resolvers';
+
+import AccTrackStateSchema from '../api/accTrackState/AccTrackState.graphql';
+import AccTrackStateResolvers from '../api/accTrackState/resolvers';
+
+import AccWeatherSchema from '../api/accWeather/AccWeather.graphql';
+import AccWeatherResolvers from '../api/accWeather/resolvers';
+
+import AccPlaceSchema from '../api/accPlace/AccPlace.graphql';
+import AccPlaceResolvers from '../api/accPlace/resolvers';
+
 import TestSchema from '../api/test/Test.graphql';
 import TestResolvers from '../api/test/resolvers.js';
 
 import LogSchema from '../api/log/Log.graphql';
 import LogResolvers from '../api/log/resolvers.js';
 
-// #0422
+// #0429
 
 const typeDefs = [
     UserSchema,
@@ -108,6 +123,11 @@ const typeDefs = [
     EnergySchema,
     BatimentSchema,
     AccidentSchema,
+    AccCharacteristicSchema,
+    AccPlaceSchema,
+    AccRoadProfileSchema,
+    AccWeatherSchema,
+    AccTrackStateSchema,
     TestSchema
 ];
 
@@ -136,6 +156,11 @@ const resolvers = merge(
     EnergyResolvers,
     BatimentResolvers,
     AccidentResolvers,
+    AccCharacteristicResolvers,
+    AccPlaceResolvers,
+    AccRoadProfileResolvers,
+    AccWeatherResolvers,
+    AccTrackStateResolvers,
     TestResolvers
 );
 

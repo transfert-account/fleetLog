@@ -19,8 +19,6 @@ class VolumePicker extends Component {
         `,
     }
 
-
-    
     loadVolumes = () => {
         this.props.client.query({
             query:this.state.volumesQuery,

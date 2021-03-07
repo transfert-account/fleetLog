@@ -51,14 +51,23 @@ class AccidentRow extends Component {
         }
     }
     getQuestionsProgress = () => {
-        let val = this.props.accident.answers.filter(a=>a.status == "validated").length;
+        let val = this.props.accident.answers.reduce((a,b)=>{
+            let tot = a + b.fields.reduce((c,d) => {
+                if(d.status == "validated"){
+                    return c + 1
+                }else{
+                    return c
+                }
+            },0);
+            return tot
+        },0);
         let color = "orange";
         if(val == this.props.accident.answers.length){
             color="green"
         }else{
             if(val == 0){color="red"}
         }
-        return <Progress style={{margin:"0"}} color={color} value={val} total={this.props.accident.answers.length} progress="ratio"/>
+        return <Progress style={{margin:"0"}} color={color} value={val} total={24} progress="ratio"/>
     }
     getStatusLabel = () => {
         if(this.props.accident.status){

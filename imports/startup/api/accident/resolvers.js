@@ -79,10 +79,6 @@ export default {
         addAccident(obj, {vehicle,occurenceDate},{user}){
             if(user._id){
                 let v = Vehicles.findOne({_id:new Mongo.ObjectID(vehicle)});
-                let answers = [];
-                for (let i = 0; i != 8 ; i++) {
-                    answers.push({body:"",status:"virgin"})
-                }
                 Accidents.insert({
                     _id:new Mongo.ObjectID(),
                     societe:v.societe,
@@ -97,12 +93,70 @@ export default {
                     constatSent:false,
                     archived:false,
                     cost:0,
-                    answers:answers,
                     responsabilite:-1,
                     reglementAssureur:-1,
                     chargeSinistre:-1,
                     montantInterne:-1,
-                    status:false
+                    status:false,
+                    answers:[
+                        {
+                          page:1,
+                          fields:[
+                            {index:1,status:"virgin",answer:""},
+                            {index:2,status:"virgin",answer:""}
+                          ]
+                        },{
+                          page:2,
+                          fields:[
+                            {index:1,status:"virgin",answer:""},
+                            {index:2,status:"virgin",answer:""},
+                            {index:3,status:"virgin",answer:""},
+                            {index:4,status:"virgin",answer:""}
+                          ]
+                        },{
+                          page:3,
+                          fields:[
+                            {index:1,status:"virgin",answer:""},
+                            {index:2,status:"virgin",answer:""},
+                            {index:3,status:"virgin",answer:""}
+                          ]
+                        },{
+                          page:4,
+                          fields:[
+                            {index:1,status:"virgin",answer:""},
+                            {index:2,status:"virgin",answer:""},
+                            {index:3,status:"virgin",answer:""},
+                            {index:4,status:"virgin",answer:""}
+                          ]
+                        },{
+                          page:5,
+                          fields:[
+                            {index:1,status:"virgin",answer:""},
+                            {index:2,status:"virgin",answer:""},
+                            {index:3,status:"virgin",answer:""},
+                            {index:4,status:"virgin",answer:""}
+                          ]
+                        },{
+                          page:6,
+                          fields:[
+                            {index:1,status:"virgin",answer:""},
+                            {index:2,status:"virgin",answer:""}
+                          ]
+                        },{
+                          page:7,
+                          fields:[
+                            {index:1,status:"virgin",answer:""},
+                            {index:2,status:"virgin",answer:""},
+                            {index:3,status:"virgin",answer:""}
+                          ]
+                        },{
+                          page:8,
+                          fields:[
+                            {index:1,status:"virgin",answer:""},
+                            {index:2,status:"virgin",answer:""}
+                          ]
+                        }
+                    ]
                 });
                 return [{status:true,message:'Création réussie'}];
             }

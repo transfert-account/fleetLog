@@ -12,10 +12,68 @@ export default {
         testThis(obj, args,{user}){
             if(user._id){
                 try{
-                    Vehicles.update(
+                    Accidents.update(
                         {},{
                             $set: {
-                                archiveJustification:"",
+                                answers:[
+                                    {
+                                      page:1,
+                                      fields:[
+                                        {index:1,status:"virgin",answer:""},
+                                        {index:2,status:"virgin",answer:""}
+                                      ]
+                                    },{
+                                      page:2,
+                                      fields:[
+                                        {index:1,status:"virgin",answer:""},
+                                        {index:2,status:"virgin",answer:""},
+                                        {index:3,status:"virgin",answer:""},
+                                        {index:4,status:"virgin",answer:""}
+                                      ]
+                                    },{
+                                      page:3,
+                                      fields:[
+                                        {index:1,status:"virgin",answer:""},
+                                        {index:2,status:"virgin",answer:""},
+                                        {index:3,status:"virgin",answer:""}
+                                      ]
+                                    },{
+                                      page:4,
+                                      fields:[
+                                        {index:1,status:"virgin",answer:""},
+                                        {index:2,status:"virgin",answer:""},
+                                        {index:3,status:"virgin",answer:""},
+                                        {index:4,status:"virgin",answer:""}
+                                      ]
+                                    },{
+                                      page:5,
+                                      fields:[
+                                        {index:1,status:"virgin",answer:""},
+                                        {index:2,status:"virgin",answer:""},
+                                        {index:3,status:"virgin",answer:""},
+                                        {index:4,status:"virgin",answer:""}
+                                      ]
+                                    },{
+                                      page:6,
+                                      fields:[
+                                        {index:1,status:"virgin",answer:""},
+                                        {index:2,status:"virgin",answer:""}
+                                      ]
+                                    },{
+                                      page:7,
+                                      fields:[
+                                        {index:1,status:"virgin",answer:""},
+                                        {index:2,status:"virgin",answer:""},
+                                        {index:3,status:"virgin",answer:""}
+                                      ]
+                                    },{
+                                      page:8,
+                                      fields:[
+                                        {index:1,status:"virgin",answer:""},
+                                        {index:2,status:"virgin",answer:""}
+                                      ]
+                                    }
+                                ]
                             }
                         },{multi:true}
                     );

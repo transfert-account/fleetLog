@@ -455,7 +455,12 @@ class Accidents extends Component {
             cost
             archived
             answers{
-              status
+              page
+              fields{
+                index
+                status
+                answer
+              }
             }
             constat{
               _id
@@ -550,9 +555,14 @@ class Accidents extends Component {
             constatSent
             cost
             archived
-            answers{
-                status
-            }
+              answers{
+                page
+                fields{
+                  index
+                  status
+                  answer
+                }
+              }
             constat{
               _id
               name

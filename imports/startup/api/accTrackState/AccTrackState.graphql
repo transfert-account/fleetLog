@@ -1,0 +1,13 @@
+type AccTrackState{
+    _id: String
+    name: String
+}
+
+extend type Query{
+    accTrackStates : [AccTrackState]
+}
+
+extend type Mutation{
+    addAccTrackState(name:String!): [QueryResultMessage]
+    deleteAccTrackState(_id:String!): [QueryResultMessage]
+}

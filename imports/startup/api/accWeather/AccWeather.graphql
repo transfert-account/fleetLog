@@ -1,0 +1,13 @@
+type AccWeather{
+    _id: String
+    name: String
+}
+
+extend type Query{
+    accWeathers : [AccWeather]
+}
+
+extend type Mutation{
+    addAccWeather(name:String!): [QueryResultMessage]
+    deleteAccWeather(_id:String!): [QueryResultMessage]
+}

@@ -22,8 +22,14 @@ type Accident{
 }
 
 type Answer{
+    page:Int!
+    fields:[Field]
+}
+
+type Field{
+    index:Int!
     status:String
-    body:String
+    answer:String
 }
 
 extend type Query{

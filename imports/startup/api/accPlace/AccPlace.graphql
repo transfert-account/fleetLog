@@ -1,0 +1,13 @@
+type AccPlace{
+    _id: String
+    name: String
+}
+
+extend type Query{
+    accPlaces : [AccPlace]
+}
+
+extend type Mutation{
+    addAccPlace(name:String!): [QueryResultMessage]
+    deleteAccPlace(_id:String!): [QueryResultMessage]
+}

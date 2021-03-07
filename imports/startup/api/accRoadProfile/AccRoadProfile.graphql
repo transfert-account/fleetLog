@@ -1,0 +1,13 @@
+type AccRoadProfile{
+    _id: String
+    name: String
+}
+
+extend type Query{
+    accRoadProfiles : [AccRoadProfile]
+}
+
+extend type Mutation{
+    addAccRoadProfile(name:String!): [QueryResultMessage]
+    deleteAccRoadProfile(_id:String!): [QueryResultMessage]
+}

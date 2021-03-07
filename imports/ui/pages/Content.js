@@ -11,6 +11,13 @@ import EnergyPicker from '../atoms/EnergyPicker';
 import OrganismPicker from '../atoms/OrganismPicker';
 import PayementTimePicker from '../atoms/PayementTimePicker';
 import VehicleArchiveJustificationsPicker from '../atoms/VehicleArchiveJustificationsPicker';
+
+import AccCharacteristicPicker from '../atoms/AccCharacteristicPicker';
+import AccPlacePicker from '../atoms/AccPlacePicker';
+import AccRoadProfilePicker from '../atoms/AccRoadProfilePicker';
+import AccTrackStatePicker from '../atoms/AccTrackStatePicker';
+import AccWeatherPicker from '../atoms/AccWeatherPicker';
+
 import ColorPicker from '../atoms/ColorPicker';
 import { withRouter } from 'react-router-dom';
 import gql from 'graphql-tag';
@@ -38,7 +45,12 @@ class Content extends Component {
         needToRefreshOrganisms:false,
         needToRefreshPayementTimes:false,
         needToRefreshColors:false,
-        needToArchiveVehicleJustifications:false,
+        needToRefreshVehicleArchiveJustifications:false,
+        needToRefreshAccCharacteristics:false,
+        needToRefreshAccWeathers:false,
+        needToRefreshAccTrackStates:false,
+        needToRefreshAccRoadProfiles:false,
+        needToRefreshAccPlaces:false,
         editSocieteQuery: gql`
             mutation editSociete($_id:String!,$name:String!){
                 editSociete(_id:$_id,name:$name){
@@ -63,15 +75,6 @@ class Content extends Component {
                 }
             }
         `,
-        societesQuery : gql`
-            query societes{
-                societes{
-                    _id
-                    trikey
-                    name
-                }
-            }
-        `,
         addVolumeQuery : gql`
             mutation addVolume($meterCube:Float!){
                 addVolume(meterCube:$meterCube){
@@ -85,14 +88,6 @@ class Content extends Component {
                 deleteVolume(_id:$_id){
                     status
                     message
-                }
-            }
-        `,
-        volumesQuery : gql`
-            query volumes{
-                volumes{
-                    _id
-                    meterCube
                 }
             }
         `,
@@ -112,14 +107,6 @@ class Content extends Component {
                 }
             }
         `,
-        brandsQuery : gql`
-            query brands{
-                brands{
-                    _id
-                    name
-                }
-            }
-        `,
         addModelQuery : gql`
             mutation addModel($name:String!){
                 addModel(name:$name){
@@ -133,14 +120,6 @@ class Content extends Component {
                 deleteModel(_id:$_id){
                     status
                     message
-                }
-            }
-        `,
-        modelQuery : gql`
-            query model{
-                model{
-                    _id
-                    name
                 }
             }
         `,
@@ -160,14 +139,6 @@ class Content extends Component {
                 }
             }
         `,
-        energiesQuery : gql`
-            query energies{
-                energies{
-                    _id
-                    name
-                }
-            }
-        `,
         addOrganismQuery : gql`
             mutation addOrganism($name:String!){
                 addOrganism(name:$name){
@@ -181,14 +152,6 @@ class Content extends Component {
                 deleteOrganism(_id:$_id){
                     status
                     message
-                }
-            }
-        `,
-        organismsQuery : gql`
-            query organisms{
-                organisms{
-                    _id
-                    name
                 }
             }
         `,
@@ -208,14 +171,6 @@ class Content extends Component {
                 }
             }
         `,
-        payementTimesQuery : gql`
-            query payementTimes{
-                payementTimes{
-                    _id
-                    months
-                }
-            }
-        `,
         addColorQuery : gql`
             mutation addColor($name:String!,$hex:String!){
                 addColor(name:$name,hex:$hex){
@@ -229,15 +184,6 @@ class Content extends Component {
                 deleteColor(_id:$_id){
                     status
                     message
-                }
-            }
-        `,
-        colorsQuery : gql`
-            query colors{
-                colors{
-                    _id
-                    name
-                    hex
                 }
             }
         `,
@@ -257,11 +203,83 @@ class Content extends Component {
                 }
             }
         `,
-        vehicleArchiveJustificationsQuery : gql`
-            query vehicleArchiveJustifications{
-                vehicleArchiveJustifications{
-                    _id
-                    justification
+        addAccCharacteristicQuery : gql`
+            mutation addAccCharacteristic($name:String!){
+                addAccCharacteristic(name:$name){
+                    status
+                    message
+                }
+            }
+        `,
+        deleteAccCharacteristicQuery : gql`
+            mutation deleteAccCharacteristic($_id:String!){
+                deleteAccCharacteristic(_id:$_id){
+                    status
+                    message
+                }
+            }
+        `,
+        addAccWeatherQuery : gql`
+            mutation addAccWeather($name:String!){
+                addAccWeather(name:$name){
+                    status
+                    message
+                }
+            }
+        `,
+        deleteAccWeatherQuery : gql`
+            mutation deleteAccWeather($_id:String!){
+                deleteAccWeather(_id:$_id){
+                    status
+                    message
+                }
+            }
+        `,
+        addAccTrackStateQuery : gql`
+            mutation addAccTrackState($name:String!){
+                addAccTrackState(name:$name){
+                    status
+                    message
+                }
+            }
+        `,
+        deleteAccTrackStateQuery : gql`
+            mutation deleteAccTrackState($_id:String!){
+                deleteAccTrackState(_id:$_id){
+                    status
+                    message
+                }
+            }
+        `,
+        addAccRoadProfileQuery : gql`
+            mutation addAccRoadProfile($name:String!){
+                addAccRoadProfile(name:$name){
+                    status
+                    message
+                }
+            }
+        `,
+        deleteAccRoadProfileQuery : gql`
+            mutation deleteAccRoadProfile($_id:String!){
+                deleteAccRoadProfile(_id:$_id){
+                    status
+                    message
+                }
+            }
+        `,
+        addAccPlaceQuery : gql`
+            mutation addAccPlace($name:String!){
+                addAccPlace(name:$name){
+                    status
+                    message
+                }
+            }
+        `,
+        deleteAccPlaceQuery : gql`
+            mutation deleteAccPlace($_id:String!){
+                deleteAccPlace(_id:$_id){
+                    status
+                    message
                 }
             }
         `,
@@ -942,6 +960,346 @@ class Content extends Component {
         })
     }
 
+    //Characteristiques d'accident
+    handleChangeAccCharacteristic = (e, { value }) => this.setState({ selectedAccCharacteristic:value })
+    showAddAccCharacteristic = () => {
+        this.setState({
+            openAddAccCharacteristic:true
+        })
+    }
+    showDelAccCharacteristic = () => {
+        this.setState({
+            openDelAccCharacteristic:true
+        })
+    }
+    closeAddAccCharacteristic = () => {
+        this.setState({
+            openAddAccCharacteristic:false
+        })
+    }
+    closeDelAccCharacteristic = () => {
+        this.setState({
+            openDelAccCharacteristic:false
+        })
+    }
+    addAccCharacteristic = () => {
+        this.closeAddAccCharacteristic()
+        this.props.client.mutate({
+            mutation:this.state.addAccCharacteristicQuery,
+            variables:{
+                name:this.state.newAccCharacteristic
+            }
+        }).then(({data})=>{
+            data.addAccCharacteristic.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.setState({
+                        needToRefreshAccCharacteristics:true
+                    })
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    deleteAccCharacteristic = () => {
+        this.closeDelAccCharacteristic()
+        this.props.client.mutate({
+            mutation:this.state.deleteAccCharacteristicQuery,
+            variables:{
+                _id:this.state.selectedAccCharacteristic
+            }
+        }).then(({data})=>{
+            data.deleteAccCharacteristic.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.setState({
+                        needToRefreshAccCharacteristics:true
+                    })
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    didRefreshAccCharacteristics = () => {
+        this.setState({
+            needToRefreshAccCharacteristics:false
+        })
+    }
+
+    //Conditions météo d'accident
+    handleChangeAccWeather = (e, { value }) => this.setState({ selectedAccWeather:value })
+    showAddAccWeather = () => {
+        this.setState({
+            openAddAccWeather:true
+        })
+    }
+    showDelAccWeather = () => {
+        this.setState({
+            openDelAccWeather:true
+        })
+    }
+    closeAddAccWeather = () => {
+        this.setState({
+            openAddAccWeather:false
+        })
+    }
+    closeDelAccWeather = () => {
+        this.setState({
+            openDelAccWeather:false
+        })
+    }
+    addAccWeather = () => {
+        this.closeAddAccWeather()
+        this.props.client.mutate({
+            mutation:this.state.addAccWeatherQuery,
+            variables:{
+                name:this.state.newAccWeather
+            }
+        }).then(({data})=>{
+            data.addAccWeather.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.setState({
+                        needToRefreshAccWeathers:true
+                    })
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    deleteAccWeather = () => {
+        this.closeDelAccWeather()
+        this.props.client.mutate({
+            mutation:this.state.deleteAccWeatherQuery,
+            variables:{
+                _id:this.state.selectedAccWeather
+            }
+        }).then(({data})=>{
+            data.deleteAccWeather.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.setState({
+                        needToRefreshAccWeathers:true
+                    })
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    didRefreshAccWeathers = () => {
+        this.setState({
+            needToRefreshAccWeathers:false
+        })
+    }
+
+    //Etat de la chaussée lors d'accident
+    handleChangeAccTrackState = (e, { value }) => this.setState({ selectedAccTrackState:value })
+    showAddAccTrackState = () => {
+        this.setState({
+            openAddAccTrackState:true
+        })
+    }
+    showDelAccTrackState = () => {
+        this.setState({
+            openDelAccTrackState:true
+        })
+    }
+    closeAddAccTrackState = () => {
+        this.setState({
+            openAddAccTrackState:false
+        })
+    }
+    closeDelAccTrackState = () => {
+        this.setState({
+            openDelAccTrackState:false
+        })
+    }
+    addAccTrackState = () => {
+        this.closeAddAccTrackState()
+        this.props.client.mutate({
+            mutation:this.state.addAccTrackStateQuery,
+            variables:{
+                name:this.state.newAccTrackState
+            }
+        }).then(({data})=>{
+            data.addAccTrackState.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.setState({
+                        needToRefreshAccTrackStates:true
+                    })
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    deleteAccTrackState = () => {
+        this.closeDelAccTrackState()
+        this.props.client.mutate({
+            mutation:this.state.deleteAccTrackStateQuery,
+            variables:{
+                _id:this.state.selectedAccTrackState
+            }
+        }).then(({data})=>{
+            data.deleteAccTrackState.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.setState({
+                        needToRefreshAccTrackStates:true
+                    })
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    didRefreshAccTrackStates = () => {
+        this.setState({
+            needToRefreshAccTrackStates:false
+        })
+    }
+
+    //Profil de la route lors accident
+    handleChangeAccRoadProfile = (e, { value }) => this.setState({ selectedAccRoadProfile:value })
+    showAddAccRoadProfile = () => {
+        this.setState({
+            openAddAccRoadProfile:true
+        })
+    }
+    showDelAccRoadProfile = () => {
+        this.setState({
+            openDelAccRoadProfile:true
+        })
+    }
+    closeAddAccRoadProfile = () => {
+        this.setState({
+            openAddAccRoadProfile:false
+        })
+    }
+    closeDelAccRoadProfile = () => {
+        this.setState({
+            openDelAccRoadProfile:false
+        })
+    }
+    addAccRoadProfile = () => {
+        this.closeAddAccRoadProfile()
+        this.props.client.mutate({
+            mutation:this.state.addAccRoadProfileQuery,
+            variables:{
+                name:this.state.newAccRoadProfile
+            }
+        }).then(({data})=>{
+            data.addAccRoadProfile.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.setState({
+                        needToRefreshAccRoadProfiles:true
+                    })
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    deleteAccRoadProfile = () => {
+        this.closeDelAccRoadProfile()
+        this.props.client.mutate({
+            mutation:this.state.deleteAccRoadProfileQuery,
+            variables:{
+                _id:this.state.selectedAccRoadProfile
+            }
+        }).then(({data})=>{
+            data.deleteAccRoadProfile.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.setState({
+                        needToRefreshAccRoadProfiles:true
+                    })
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    didRefreshAccRoadProfiles = () => {
+        this.setState({
+            needToRefreshAccRoadProfiles:false
+        })
+    }
+
+    //Lieu d'accident
+    handleChangeAccPlace = (e, { value }) => this.setState({ selectedAccPlace:value })
+    showAddAccPlace = () => {
+        this.setState({
+            openAddAccPlace:true
+        })
+    }
+    showDelAccPlace = () => {
+        this.setState({
+            openDelAccPlace:true
+        })
+    }
+    closeAddAccPlace = () => {
+        this.setState({
+            openAddAccPlace:false
+        })
+    }
+    closeDelAccPlace = () => {
+        this.setState({
+            openDelAccPlace:false
+        })
+    }
+    addAccPlace = () => {
+        this.closeAddAccPlace()
+        this.props.client.mutate({
+            mutation:this.state.addAccPlaceQuery,
+            variables:{
+                name:this.state.newAccPlace
+            }
+        }).then(({data})=>{
+            data.addAccPlace.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.setState({
+                        needToRefreshAccPlaces:true
+                    })
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    deleteAccPlace = () => {
+        this.closeDelAccPlace()
+        this.props.client.mutate({
+            mutation:this.state.deleteAccPlaceQuery,
+            variables:{
+                _id:this.state.selectedAccPlace
+            }
+        }).then(({data})=>{
+            data.deleteAccPlace.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.setState({
+                        needToRefreshAccPlaces:true
+                    })
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    didRefreshAccPlaces = () => {
+        this.setState({
+            needToRefreshAccPlaces:false
+        })
+    }
+
     render() {
         return (
             <Fragment>
@@ -949,7 +1307,7 @@ class Content extends Component {
                     <div style={{display:"flex",marginBottom:"32px",justifyContent:"space-between"}}>
                         <AdministrationMenu active="contenu"/>
                     </div>
-                    <Table basic="very" celled>
+                    <Table celled compact="very">
                         <Table.Header>
                             <Table.Row>
                                 <Table.HeaderCell textAlign="center">Contenu</Table.HeaderCell>
@@ -960,7 +1318,7 @@ class Content extends Component {
                         <Table.Body>
                             <Table.Row>
                                 <Table.Cell>
-                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as='h2'>
+                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
                                         <Icon name='sitemap' />
                                         <Header.Content>Sociétés du groupe</Header.Content>
                                     </Header>
@@ -976,7 +1334,7 @@ class Content extends Component {
                             </Table.Row>
                             <Table.Row>
                                 <Table.Cell>
-                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as='h2'>
+                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
                                         <Icon name='expand arrows alternate' />
                                         <Header.Content>Volumes des véhicules</Header.Content>
                                     </Header>
@@ -991,7 +1349,7 @@ class Content extends Component {
                             </Table.Row>
                             <Table.Row>
                                 <Table.Cell>
-                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as='h2'>
+                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
                                         <Icon name='tag' />
                                         <Header.Content>Marque des véhicules</Header.Content>
                                     </Header>
@@ -1006,7 +1364,7 @@ class Content extends Component {
                             </Table.Row>
                             <Table.Row>
                                 <Table.Cell>
-                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as='h2'>
+                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
                                         <Icon name='truck' />
                                         <Header.Content>Modèle des véhicules</Header.Content>
                                     </Header>
@@ -1021,7 +1379,7 @@ class Content extends Component {
                             </Table.Row>
                             <Table.Row>
                                 <Table.Cell>
-                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as='h2'>
+                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
                                         <Icon name='bolt' />
                                         <Header.Content>Type d'énergies des véhicules</Header.Content>
                                     </Header>
@@ -1036,7 +1394,7 @@ class Content extends Component {
                             </Table.Row>
                             <Table.Row>
                                 <Table.Cell>
-                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as='h2'>
+                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
                                         <Icon name='credit card' />
                                         <Header.Content>Organisme de financement</Header.Content>
                                     </Header>
@@ -1051,7 +1409,7 @@ class Content extends Component {
                             </Table.Row>
                             <Table.Row>
                                 <Table.Cell>
-                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as='h2'>
+                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
                                         <Icon name='calendar alternate outline'/>
                                         <Header.Content>Durée de financement</Header.Content>
                                     </Header>
@@ -1066,7 +1424,7 @@ class Content extends Component {
                             </Table.Row>
                             <Table.Row>
                                 <Table.Cell>
-                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as='h2'>
+                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
                                         <Icon name='paint brush' />
                                         <Header.Content>Couleurs des véhicules</Header.Content>
                                     </Header>
@@ -1081,7 +1439,7 @@ class Content extends Component {
                             </Table.Row>
                             <Table.Row>
                                 <Table.Cell>
-                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as='h2'>
+                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
                                         <Icon name='archive'/>
                                         <Header.Content>Justifications d'archivage de véhicules</Header.Content>
                                     </Header>
@@ -1092,6 +1450,81 @@ class Content extends Component {
                                 <Table.Cell textAlign="center">
                                     <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddVehicleArchiveJustification} icon labelPosition='right'>Ajouter<Icon name='plus'/></Button>
                                     <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelVehicleArchiveJustification} icon labelPosition='right'>Supprimer<Icon name='trash'/></Button>
+                                </Table.Cell>
+                            </Table.Row>
+                            <Table.Row>
+                                <Table.Cell>
+                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
+                                        <Icon name='fire'/>
+                                        <Header.Content>Characteristiques d'accident</Header.Content>
+                                    </Header>
+                                </Table.Cell>
+                                <Table.Cell textAlign="center">
+                                    <AccCharacteristicPicker didRefresh={this.didRefreshAccCharacteristics} needToRefresh={this.state.needToRefreshAccCharacteristics} onChange={this.handleChangeAccCharacteristic} value={this.state.selectedAccCharacteristic} />
+                                </Table.Cell>
+                                <Table.Cell textAlign="center">
+                                    <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddAccCharacteristic} icon labelPosition='right'>Ajouter<Icon name='plus'/></Button>
+                                    <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelAccCharacteristic} icon labelPosition='right'>Supprimer<Icon name='trash'/></Button>
+                                </Table.Cell>
+                            </Table.Row>
+                            <Table.Row>
+                                <Table.Cell>
+                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
+                                        <Icon name='fire'/>
+                                        <Header.Content>Conditions météorologique d'accident</Header.Content>
+                                    </Header>
+                                </Table.Cell>
+                                <Table.Cell textAlign="center">
+                                    <AccWeatherPicker didRefresh={this.didRefreshAccWeathers} needToRefresh={this.state.needToRefreshAccWeathers} onChange={this.handleChangeAccWeather} value={this.state.selectedAccWeather} />
+                                </Table.Cell>
+                                <Table.Cell textAlign="center">
+                                    <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddAccWeather} icon labelPosition='right'>Ajouter<Icon name='plus'/></Button>
+                                    <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelAccWeather} icon labelPosition='right'>Supprimer<Icon name='trash'/></Button>
+                                </Table.Cell>
+                            </Table.Row>
+                            <Table.Row>
+                                <Table.Cell>
+                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
+                                        <Icon name='fire'/>
+                                        <Header.Content>Lieu d'accident</Header.Content>
+                                    </Header>
+                                </Table.Cell>
+                                <Table.Cell textAlign="center">
+                                    <AccPlacePicker didRefresh={this.didRefreshAccPlaces} needToRefresh={this.state.needToRefreshAccPlaces} onChange={this.handleChangeAccPlace} value={this.state.selectedAccPlace} />
+                                </Table.Cell>
+                                <Table.Cell textAlign="center">
+                                    <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddAccPlace} icon labelPosition='right'>Ajouter<Icon name='plus'/></Button>
+                                    <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelAccPlace} icon labelPosition='right'>Supprimer<Icon name='trash'/></Button>
+                                </Table.Cell>
+                            </Table.Row>
+                            <Table.Row>
+                                <Table.Cell>
+                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
+                                        <Icon name='fire'/>
+                                        <Header.Content>État de la chaussée lors d'accident</Header.Content>
+                                    </Header>
+                                </Table.Cell>
+                                <Table.Cell textAlign="center">
+                                    <AccTrackStatePicker didRefresh={this.didRefreshAccTrackStates} needToRefresh={this.state.needToRefreshAccTrackStates} onChange={this.handleChangeAccTrackState} value={this.state.selectedAccTrackState} />
+                                </Table.Cell>
+                                <Table.Cell textAlign="center">
+                                    <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddAccTrackState} icon labelPosition='right'>Ajouter<Icon name='plus'/></Button>
+                                    <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelAccTrackState} icon labelPosition='right'>Supprimer<Icon name='trash'/></Button>
+                                </Table.Cell>
+                            </Table.Row>
+                            <Table.Row>
+                                <Table.Cell>
+                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
+                                        <Icon name='fire'/>
+                                        <Header.Content>Profil de la route lors d'accident</Header.Content>
+                                    </Header>
+                                </Table.Cell>
+                                <Table.Cell textAlign="center">
+                                    <AccRoadProfilePicker didRefresh={this.didRefreshAccRoadProfiles} needToRefresh={this.state.needToRefreshAccRoadProfiles} onChange={this.handleChangeAccRoadProfile} value={this.state.selectedAccRoadProfile} />
+                                </Table.Cell>
+                                <Table.Cell textAlign="center">
+                                    <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddAccRoadProfile} icon labelPosition='right'>Ajouter<Icon name='plus'/></Button>
+                                    <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelAccRoadProfile} icon labelPosition='right'>Supprimer<Icon name='trash'/></Button>
                                 </Table.Cell>
                             </Table.Row>
                         </Table.Body>
@@ -1362,6 +1795,146 @@ class Content extends Component {
                     <Modal.Actions>
                         <Button color="black" onClick={this.closeAddVehicleArchiveJustification}>Annuler</Button>
                         <Button color="red" onClick={this.deleteVehicleArchiveJustification}>Supprimer</Button>
+                    </Modal.Actions>
+                </Modal>
+            
+                {/* ACCIDENT CHARACTERISTICS */}
+                <Modal size="mini" closeOnDimmerClick={false} open={this.state.openAddAccCharacteristic} onClose={this.closeAddAccCharacteristic} closeIcon>
+                    <Modal.Header>
+                        Ajout de la caractéristique
+                    </Modal.Header>
+                    <Modal.Content style={{textAlign:"center"}}>
+                        <Form style={{display:"grid",gridTemplateColumns:"1fr",gridGap:"16px"}}>
+                            <Form.Field style={{placeSelf:"stretch"}}>
+                                <label>Dénomination</label>
+                                <input onChange={this.handleChange} name="newAccCharacteristic"/>
+                            </Form.Field>
+                        </Form>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <Button color="black" onClick={this.closeAddAccCharacteristic}>Annuler</Button>
+                        <Button color="green" onClick={this.addAccCharacteristic}>Créer</Button>
+                    </Modal.Actions>
+                </Modal>
+                <Modal closeOnDimmerClick={false} open={this.state.openDelAccCharacteristic} onClose={this.closeDelAccCharacteristic} closeIcon>
+                    <Modal.Header>
+                        Suppression de la caractéristique
+                    </Modal.Header>
+                    <Modal.Actions>
+                        <Button color="black" onClick={this.closeAddAccCharacteristic}>Annuler</Button>
+                        <Button color="red" onClick={this.deleteAccCharacteristic}>Supprimer</Button>
+                    </Modal.Actions>
+                </Modal>
+            
+                {/* ACCIDENT PLACES */}
+                <Modal size="mini" closeOnDimmerClick={false} open={this.state.openAddAccPlace} onClose={this.closeAddAccPlace} closeIcon>
+                    <Modal.Header>
+                        Ajout du lieu d'accident
+                    </Modal.Header>
+                    <Modal.Content style={{textAlign:"center"}}>
+                        <Form style={{display:"grid",gridTemplateColumns:"1fr",gridGap:"16px"}}>
+                            <Form.Field style={{placeSelf:"stretch"}}>
+                                <label>Lieu</label>
+                                <input onChange={this.handleChange} name="newAccPlace"/>
+                            </Form.Field>
+                        </Form>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <Button color="black" onClick={this.closeAddAccPlace}>Annuler</Button>
+                        <Button color="green" onClick={this.addAccPlace}>Créer</Button>
+                    </Modal.Actions>
+                </Modal>
+                <Modal closeOnDimmerClick={false} open={this.state.openDelAccPlace} onClose={this.closeDelAccPlace} closeIcon>
+                    <Modal.Header>
+                        Suppression du lieu d'accident
+                    </Modal.Header>
+                    <Modal.Actions>
+                        <Button color="black" onClick={this.closeAddAccPlace}>Annuler</Button>
+                        <Button color="red" onClick={this.deleteAccPlace}>Supprimer</Button>
+                    </Modal.Actions>
+                </Modal>
+
+                {/* ACCIDENT STATES OF TRACK */}
+                <Modal size="mini" closeOnDimmerClick={false} open={this.state.openAddAccTrackState} onClose={this.closeAddAccTrackState} closeIcon>
+                    <Modal.Header>
+                        Ajout d'un état de la chaussé
+                    </Modal.Header>
+                    <Modal.Content style={{textAlign:"center"}}>
+                        <Form style={{display:"grid",gridTemplateColumns:"1fr",gridGap:"16px"}}>
+                            <Form.Field style={{placeSelf:"stretch"}}>
+                                <label>État</label>
+                                <input onChange={this.handleChange} name="newAccTrackState"/>
+                            </Form.Field>
+                        </Form>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <Button color="black" onClick={this.closeAddAccTrackState}>Annuler</Button>
+                        <Button color="green" onClick={this.addAccTrackState}>Créer</Button>
+                    </Modal.Actions>
+                </Modal>
+                <Modal closeOnDimmerClick={false} open={this.state.openDelAccTrackState} onClose={this.closeDelAccTrackState} closeIcon>
+                    <Modal.Header>
+                        Suppression d'un état de la chaussé
+                    </Modal.Header>
+                    <Modal.Actions>
+                        <Button color="black" onClick={this.closeAddAccTrackState}>Annuler</Button>
+                        <Button color="red" onClick={this.deleteAccTrackState}>Supprimer</Button>
+                    </Modal.Actions>
+                </Modal>
+
+                {/* ACCIDENT WEATHERS */}
+                <Modal size="mini" closeOnDimmerClick={false} open={this.state.openAddAccWeather} onClose={this.closeAddAccWeather} closeIcon>
+                    <Modal.Header>
+                        Ajout d'une condition météorologique
+                    </Modal.Header>
+                    <Modal.Content style={{textAlign:"center"}}>
+                        <Form style={{display:"grid",gridTemplateColumns:"1fr",gridGap:"16px"}}>
+                            <Form.Field style={{placeSelf:"stretch"}}>
+                                <label>Météo</label>
+                                <input onChange={this.handleChange} name="newAccWeather"/>
+                            </Form.Field>
+                        </Form>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <Button color="black" onClick={this.closeAddAccWeather}>Annuler</Button>
+                        <Button color="green" onClick={this.addAccWeather}>Créer</Button>
+                    </Modal.Actions>
+                </Modal>
+                <Modal closeOnDimmerClick={false} open={this.state.openDelAccWeather} onClose={this.closeDelAccWeather} closeIcon>
+                    <Modal.Header>
+                        Suppression d'une condition météorologique
+                    </Modal.Header>
+                    <Modal.Actions>
+                        <Button color="black" onClick={this.closeAddAccWeather}>Annuler</Button>
+                        <Button color="red" onClick={this.deleteAccWeather}>Supprimer</Button>
+                    </Modal.Actions>
+                </Modal>
+
+                {/* ACCIDENT ROAD PROFILES */}
+                <Modal size="mini" closeOnDimmerClick={false} open={this.state.openAddAccRoadProfile} onClose={this.closeAddAccRoadProfile} closeIcon>
+                    <Modal.Header>
+                        Ajout d'un profil de route lors d'accident
+                    </Modal.Header>
+                    <Modal.Content style={{textAlign:"center"}}>
+                        <Form style={{display:"grid",gridTemplateColumns:"1fr",gridGap:"16px"}}>
+                            <Form.Field style={{placeSelf:"stretch"}}>
+                                <label>Dénomination</label>
+                                <input onChange={this.handleChange} name="newAccRoadProfile"/>
+                            </Form.Field>
+                        </Form>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <Button color="black" onClick={this.closeAddAccRoadProfile}>Annuler</Button>
+                        <Button color="green" onClick={this.addAccRoadProfile}>Créer</Button>
+                    </Modal.Actions>
+                </Modal>
+                <Modal closeOnDimmerClick={false} open={this.state.openDelAccRoadProfile} onClose={this.closeDelAccRoadProfile} closeIcon>
+                    <Modal.Header>
+                        Suppression d'un profil de route lors d'accident
+                    </Modal.Header>
+                    <Modal.Actions>
+                        <Button color="black" onClick={this.closeAddAccRoadProfile}>Annuler</Button>
+                        <Button color="red" onClick={this.deleteAccRoadProfile}>Supprimer</Button>
                     </Modal.Actions>
                 </Modal>
             </Fragment>

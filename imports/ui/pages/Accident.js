@@ -88,8 +88,12 @@ export class Accident extends Component {
                     cost
                     archived
                     answers{
-                        status
-                        body
+                        page
+                        fields{
+                            index
+                            status
+                            answer
+                        }
                     }
                     constat{
                         _id
