@@ -62,7 +62,7 @@ class AccidentRow extends Component {
             return tot
         },0);
         let color = "orange";
-        if(val == this.props.accident.answers.length){
+        if(val == 24){
             color="green"
         }else{
             if(val == 0){color="red"}
