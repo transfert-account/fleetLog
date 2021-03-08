@@ -12,7 +12,7 @@ export default {
         testThis(obj, args,{user}){
             if(user._id){
                 try{
-                    Accidents.update(
+                    /*Accidents.update(
                         {},{
                             $set: {
                                 answers:[
@@ -76,7 +76,7 @@ export default {
                                 ]
                             }
                         },{multi:true}
-                    );
+                    );*/
                     /*Accidents.update(
                         {},{
                             $set: {

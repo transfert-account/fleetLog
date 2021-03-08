@@ -247,7 +247,7 @@ export class QuestionField extends Component {
                 <div style={{display:"grid",gridTemplateColumns:"1fr auto auto",marginRight:"28%"}}>
                     <Form.Field style={{margin:"0 16px 16px 30%",textAlign:"left "}}>
                         <label>{this.props.page + "." + this.props.field.index + ") " + this.props.field.label}</label>
-                        <Input disabled={this.props.field.status == "validated"} defaultValue={this.props.field.answer} type="text" onChange={this.handleChange} placeholder={this.props.field.expected} />
+                        <Input disabled={this.props.field.status == "validated"} defaultValue={this.props.field.answer} type="text" onChange={this.handleChange}/>
                     </Form.Field>
                     {this.getValidateAction()}
                 </div>

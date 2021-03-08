@@ -409,7 +409,7 @@ export class AccidentTabularCirconstances extends Component {
       })
     }
   }
-  saveAnswersDebounced = _.debounce(()=>this.saveAnswers,3000);
+  saveAnswersDebounced = _.debounce(()=>this.saveAnswers(),3000);
   saveAnswers = () => {
     let answers = [];
     this.state.questions.forEach(q=>{
