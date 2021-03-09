@@ -219,6 +219,95 @@ body {
 }
 
 /*//////////////////////////////////
+/////////////// TITLE //////////////
+//////////////////////////////////*/
+
+.title{
+  display:grid;
+  grid-template-rows:auto 1fr;
+  grid-template-columns:auto 1fr;
+  padding:32px;
+  height:100%;
+}
+
+.title .text{
+  margin: 16px;
+  font-family: 'Prompt', sans-serif;
+  font-weight: 900;
+  font-size: 8vh;
+  background-color: #045de9;
+  background-image: linear-gradient(315deg, #045de9 0%, #09c6f9 74%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  letter-spacing: .25ch;
+}
+
+.title .tiles{
+  place-self:stretch;
+  grid-column-end:span 2;
+  background-color:#dadada;
+  padding:32px;
+  display:grid;
+  grid-template-rows: 1fr 1fr;
+  grid-template-columns:1fr 1fr 1fr;
+  border-radius:8px;
+}
+
+.title .tiles .tile{
+  border-radius: 4px;
+  background-color: #eee;
+  margin: 3vh;
+  transition: 400ms ease;
+  cursor: pointer;
+  display:grid;
+  grid-template-rows: 1fr;
+  grid-template-columns: 1fr;
+  overflow: hidden;
+}
+
+.title .tiles .tile h2{
+  grid-row-start: 1;
+  grid-column-start: 1;
+  margin: 24px;
+  z-index: 1;
+  font-family: 'Prompt', sans-serif;
+  font-weight: 700;
+  font-size: 3.5vh;
+  color: #666;
+  place-self: end;
+  letter-spacing: .25ch;
+}
+
+.title .tiles .tile .fafree{
+  grid-row-start: 1;
+  grid-column-start: 1;
+  z-index: 0;
+  position:relative;
+  left:3vw;
+  top:0.5vh;
+  font-size: 18vh;
+  color: #e5e5e5;
+  transform:rotate(-15deg);
+  -webkit-transform:rotate(-15deg);
+  transition: 400ms ease;
+}
+
+.title .tiles .tile:hover .fafree{
+  color: #ddd;
+  transform:rotate(-5deg);
+  -webkit-transform:rotate(-5deg);
+}
+
+.title .tiles .tile.blue:hover h2{
+  color: var(--classic-blue);
+}
+
+.title .tiles .tile:hover{
+  transform: translateY(-1rem);
+}
+
+/*//////////////////////////////////
 ////////////////////////////////////
 //////////// DATEPICKER ////////////
 ////////////////////////////////////

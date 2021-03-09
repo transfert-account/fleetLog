@@ -40,6 +40,8 @@ import Patchnotes from './Patchnotes';
 import Documents from './Documents';
 import Logs from './Logs';
 
+import Title from '../pages/Title';
+
 import Dashboards from '../pages/Dashboards';
 
 class PageBody extends Component {
@@ -57,7 +59,9 @@ class PageBody extends Component {
         if(this.props.user.visibility == "noidthisisgroupvisibility"){//Si l'utilisateur a une visibilité groupe
           return(
             <Switch>
-              <Route exact path='/home' component={()=><Dashboards userLimited={false}/>}/>
+              <Route exact path='/home' component={()=><Title userLimited={false}/>}/>
+
+              <Route exact path='/kpi' component={()=><Dashboards userLimited={false}/>}/>
               
               <Route exact path='/parc/vehicles' component={()=><Vehicles userLimited={false}/>}/>
               <Route exact path='/parc/vehicle/:_id' component={Vehicle}/>
@@ -99,7 +103,9 @@ class PageBody extends Component {
         }else{//Si l'utilisateur a une visibilité societé définie
           return(
             <Switch>
-              <Route exact path='/home' component={()=><Dashboards userLimited={true}/>}/>
+              <Route exact path='/home' component={()=><Title userLimited={true}/>}/>
+
+              <Route exact path='/kpi' component={()=><Dashboards userLimited={true}/>}/>
               
               <Route exact path='/parc/vehicles' component={()=><Vehicles userLimited={true}/>}/>
               <Route exact path='/parc/vehicle/:_id' component={Vehicle}/>
@@ -142,7 +148,9 @@ class PageBody extends Component {
       }else{//Si l'utilisateur est user, et a donc une visibilité societé définie
         return(
           <Switch>
-            <Route exact path='/home' component={()=><Dashboards userLimited={true}/>}/>
+            <Route exact path='/home' component={()=><Title userLimited={true}/>}/>
+
+            <Route exact path='/kpi' component={()=><Dashboards userLimited={true}/>}/>
 
             <Route exact path='/parc/vehicles' component={()=><Vehicles userLimited={true}/>}/>
             <Route exact path='/parc/vehicle/:_id' component={Vehicle}/>

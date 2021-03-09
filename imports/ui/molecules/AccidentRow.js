@@ -5,8 +5,6 @@ import { UserContext } from '../../contexts/UserContext';
 import ActionsGridCell from '../atoms/ActionsGridCell';
 import DocStateLabel from '../atoms/DocStateLabel';
 
-import gql from 'graphql-tag';
-
 class AccidentRow extends Component {
 
     state={
