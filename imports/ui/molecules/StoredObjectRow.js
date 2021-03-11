@@ -83,7 +83,7 @@ export class StoredObjectRow extends Component {
                 <Fragment>
                     <Table.Row>
                         <Table.Cell>{this.props.so.name}</Table.Cell>
-                        <Table.Cell colSpan="5">NO DOC RELATED IN DB</Table.Cell>
+                        <Table.Cell textAlign="center" colSpan="5">NO DOC RELATED IN DB</Table.Cell>
                         <Table.Cell textAlign="center">
                             <Button circular style={{color:"#00a8ff"}} inverted icon icon='search' onClick={()=>{this.setState({displayStoredFileName:true})}}/>
                         </Table.Cell>

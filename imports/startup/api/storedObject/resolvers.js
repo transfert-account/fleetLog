@@ -17,19 +17,9 @@ export default {
                     }
                 }).then(list=>{
                     storedObjects = list.map(x=>{return{name:x.Key}})
-                    storedObjects.map((so,i)=>{
+                    storedObjects.map(so=>{
                         so.doc = Documents.find({_id:new Mongo.ObjectID(so.name.split(".")[0].split("_")[9])}).fetch()[0]
-                        console.log("===="+i+"====")
-                        docbyid = Documents.find({_id:new Mongo.ObjectID(so.name.split(".")[0].split("_")[9])}).fetch()[0]
-                        docbyname = Documents.find({name:so.name}).fetch()[0]
-                        console.log("byid : ");
-                        console.log(docbyid);
-                        console.log("byname : ");
-                        console.log(docbyname);
-                        console.log("============")
-                        if(so.doc != null && so.doc.length > 0){
-                            so.doc = Documents.findOne({_id:new Mongo.ObjectID(so.doc)});
-                        }else{
+                        if(so.doc == null || so.doc == undefined){
                             so.doc = {_id:""};
                         }
                     })
