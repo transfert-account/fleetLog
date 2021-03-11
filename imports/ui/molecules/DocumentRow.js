@@ -6,7 +6,7 @@ import gql from 'graphql-tag';
 import moment from 'moment';
 import 'moment/locale/fr';
 
-export class AccountRow extends Component {
+export class DocumentRow extends Component {
 
     state={
         openDelete:false,
@@ -151,4 +151,4 @@ const withUserContext = WrappedComponent => props => (
     </UserContext.Consumer>
   )
   
-export default wrappedInUserContext = withUserContext(AccountRow);
+export default wrappedInUserContext = withUserContext(DocumentRow);

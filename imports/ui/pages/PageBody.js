@@ -38,6 +38,7 @@ import Pieces from './Pieces';
 import Equipements from './Equipements';
 import Patchnotes from './Patchnotes';
 import Documents from './Documents';
+import Storage from './Storage';
 import Logs from './Logs';
 
 import Title from '../pages/Title';
@@ -95,6 +96,7 @@ class PageBody extends Component {
               <Route exact path='/administration/pieces' component={Pieces}/>
               <Route exact path='/administration/patchnotes' component={Patchnotes}/>
               <Route exact path='/administration/documents' component={Documents}/>
+              <Route exact path='/administration/storage' component={Storage}/>
               <Route exact path='/administration/logs' component={Logs}/>
               
               <Redirect from='*' to={'/home'}/>

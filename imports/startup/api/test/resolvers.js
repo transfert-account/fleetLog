@@ -12,6 +12,22 @@ export default {
         testThis(obj, args,{user}){
             if(user._id){
                 try{
+                    Accidents.update(
+                        {},{
+                            $set: {
+                                constatSent:"no",
+                                questionary:""
+                            }
+                        },{multi:true}
+                    );
+                    Accidents.update(
+                        {},{
+                            $unset: {
+                                cost:"",
+                                questions:""
+                            }
+                        },{multi:true}
+                    );
                     /*Accidents.update(
                         {},{
                             $set: {
@@ -74,17 +90,6 @@ export default {
                                       ]
                                     }
                                 ]
-                            }
-                        },{multi:true}
-                    );*/
-                    /*Accidents.update(
-                        {},{
-                            $set: {
-                                responsabilite:50,
-                                reglementAssureur:0,
-                                chargeSinistre:0,
-                                montantInterne:0,
-                                status:true
                             }
                         },{multi:true}
                     );*/
@@ -189,7 +194,6 @@ export default {
                     );*/
                     /*
                     data.map(v=>{
-                        console.log(v.registration + " : " + v.monthlyPayement)
                         Vehicles.update(
                             {
                                 _id: new Mongo.ObjectID(v._id)
@@ -200,7 +204,7 @@ export default {
                             }
                         );
                     })*/
-                    return [{status:true,message:'Empty archiveJustification for all vehicles'}];
+                    return [{status:true,message:'constatSent = "no" and no cost, unset question which is now questionary (doc) for all accident'}];
                 }catch(e){
                     throw e;
                     return [{status:false,message:e.message}];

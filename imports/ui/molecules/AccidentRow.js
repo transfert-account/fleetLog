@@ -9,16 +9,6 @@ class AccidentRow extends Component {
 
     state={
         _id:this.props.accident._id,
-        newVehicle:this.props.vehicle._id,
-        newOccurenceDate:this.props.accident.occurenceDate,
-        newDescription:this.props.accident.description,
-        newConstatSent:this.props.accident.constatSent,
-        newDateExpert:this.props.accident.dateExpert,
-        newDateTravaux:this.props.accident.dateTravaux,
-        newConstat:null,
-        newRapportExp:null,
-        newFacture:null,
-        newCost:this.props.accident.cost
     }
 
     navigateToAccident = () => {
@@ -42,10 +32,14 @@ class AccidentRow extends Component {
     }
     /*CONTENT GETTERS*/
     getConstatSentLabel = () => {
-        if(this.props.accident.constatSent){
+        if(this.props.accident.constatSent == "yes"){
             return <Label color="green">Oui</Label>
         }else{
-            return <Label color="red">Non</Label>
+            if(this.props.accident.constatSent == "internal"){
+                return <Label color="grey">Non déclaré</Label>
+            }else{
+                return <Label color="red">Non</Label>
+            }
         }
     }
     getQuestionsProgress = () => {
@@ -112,6 +106,7 @@ class AccidentRow extends Component {
                 <DocStateLabel color={this.props.accident.constat._id == "" ? "red" : "green"} title="Constat"/>
                 <DocStateLabel color={this.props.accident.rapportExp._id == "" ? "red" : "green"} title="Rapport de l'expert"/>
                 <DocStateLabel color={this.props.accident.facture._id == "" ? "red" : "green"} title="Facture"/>
+                <DocStateLabel color={this.props.accident.questionary._id == "" ? "red" : "green"} title="Questionnaire"/>
             </Table.Cell>
         )
     }

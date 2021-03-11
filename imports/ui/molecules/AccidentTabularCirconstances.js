@@ -498,11 +498,11 @@ export class AccidentTabularCirconstances extends Component {
       }
     }
   }
-  getEndLabel = () => {
+  getEndLabel = () => { 
     if(this.state.answers.some(a => a.status != "validated")){
       return "Fin";
     }else{
-      if(this.props.accident.questions._id != ""){
+      if(this.props.accident.questionary._id != ""){
         return "PDF en ligne"
       }
       if(this.state.pdfGenerated){
@@ -578,10 +578,9 @@ export class AccidentTabularCirconstances extends Component {
             <h1 style={{gridColumnEnd:"span 3",placeSelf:"center"}}>Fin du questionnaire</h1>
             {this.getAnswersOverview()}
           </div>
-          <div style={{display:"grid",gridTemplateColumns:"auto 1fr auto auto auto",gridRowStart:"3",gridGap:""}}>
+          <div style={{display:"grid",gridTemplateColumns:"auto 1fr auto",gridRowStart:"3",gridGap:""}}>
             <Button icon="arrow left" color="blue" labelPosition="left" size="large" onClick={()=>this.setCurrent(0)} style={{gridColumnStart:"1"}} content="Relire le questionnaire"/>
             <Button icon="file pdf outline" color="blue" labelPosition="right" size="large" disabled={this.state.questions.some(q=>q.fields.some(f => f.status != "validated"))} onClick={this.generate} style={{gridColumnStart:"3"}} content="Générer le pdf"/>
-            <Button icon="upload" color="blue" labelPosition="right" size="large" disabled={this.props.accident.questions._id == ""} onClick={this.updload} style={{gridColumnStart:"5"}} content="Stocker le document signé"/>
           </div>
         </Fragment>
       )
@@ -603,7 +602,7 @@ export class AccidentTabularCirconstances extends Component {
       )
     }else{
       return (
-        <Segment style={{textAlign:"center",display:"grid",gridGap:"16px",gridTemplateColumns:"1fr",gridTemplateRows:"auto 1fr auto auto",placeSelf:"stretch",gridColumnEnd:"span 2",gridGap:"24px",padding:"32px"}}>
+        <Segment className="circonstances-form" style={{textAlign:"center",display:"grid",gridGap:"16px",gridTemplateColumns:"1fr",gridTemplateRows:"auto 1fr auto auto",placeSelf:"stretch",gridColumnEnd:"span 2",gridGap:"24px",padding:"32px"}}>
           {this.getProgressSegment()}
           {this.getQuestionnaryBody()}
         </Segment>

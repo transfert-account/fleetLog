@@ -85,7 +85,6 @@ export class Accident extends Component {
                     dateExpert
                     dateTravaux
                     constatSent
-                    cost
                     archived
                     answers{
                         page
@@ -128,7 +127,7 @@ export class Accident extends Component {
                         mimetype
                         storageDate
                     }
-                    questions{
+                    questionary{
                         _id
                         name
                         size
@@ -300,6 +299,27 @@ export class Accident extends Component {
             })
         })
     }
+    uploadDocQuestionary = () => {
+        this.props.client.mutate({
+            mutation:this.state.uploadAccidentDocumentQuery,
+            variables:{
+                _id:this.props.accident._id,
+                file:this.state.newQuestionary,
+                type:"questionary",
+                size:this.state.newQuestionary.size
+            }
+        }).then(({data})=>{
+            data.uploadAccidentDocument.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.loadAccidents();
+                    this.closeDocs();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
     deleteAccident = () => {
         this.closeDelete();
         this.props.client.mutate({
@@ -421,6 +441,7 @@ export class Accident extends Component {
                                 <FileManagementPanel importLocked={this.state.newConstat == null} handleInputFile={this.handleInputFile} fileTarget="newConstat" uploadDoc={this.uploadDocConstat} downloadDoc={this.downloadDocConstat} fileInfos={this.state.accident.constat} title="Constat" type="constat"/>
                                 <FileManagementPanel importLocked={this.state.newRapportExp == null} handleInputFile={this.handleInputFile} fileTarget="newRapportExp" uploadDoc={this.uploadDocRapportExp} downloadDoc={this.downloadDocRapportExp} fileInfos={this.state.accident.rapportExp} title="Rapport de l'expert" type="rapportExp"/>
                                 <FileManagementPanel importLocked={this.state.newFacture == null} handleInputFile={this.handleInputFile} fileTarget="newFacture" uploadDoc={this.uploadDocFacture} downloadDoc={this.downloadDocFacture} fileInfos={this.state.accident.facture} title="Facture" type="facture"/>
+                                <FileManagementPanel importLocked={this.state.newQuestionary == null} handleInputFile={this.handleInputFile} fileTarget="newQuestionary" uploadDoc={this.uploadDocQuestionary} downloadDoc={this.downloadDocQuestionary} fileInfos={this.state.accident.questionary} title="Questionnaire" type="questionary"/>
                             </div>
                         </Modal.Content>
                         <Modal.Actions>

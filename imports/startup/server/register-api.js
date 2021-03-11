@@ -93,10 +93,13 @@ import AccPlaceResolvers from '../api/accPlace/resolvers';
 import TestSchema from '../api/test/Test.graphql';
 import TestResolvers from '../api/test/resolvers.js';
 
+import StoredObjectSchema from '../api/storedObject/StoredObject.graphql';
+import StoredObjectResolvers from '../api/storedObject/resolvers.js';
+
 import LogSchema from '../api/log/Log.graphql';
 import LogResolvers from '../api/log/resolvers.js';
 
-// #0429
+// #0438
 
 const typeDefs = [
     UserSchema,
@@ -128,6 +131,7 @@ const typeDefs = [
     AccRoadProfileSchema,
     AccWeatherSchema,
     AccTrackStateSchema,
+    StoredObjectSchema,
     TestSchema
 ];
 
@@ -161,6 +165,7 @@ const resolvers = merge(
     AccRoadProfileResolvers,
     AccWeatherResolvers,
     AccTrackStateResolvers,
+    StoredObjectResolvers,
     TestResolvers
 );
 

@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.1",
   "scripts": {
-    "start": "meteor run"
+    "start": "set NODE_ENV=development && meteor run"
   },
   "dependencies": {
     "@babel/runtime": "^7.0.0",

@@ -50,10 +50,10 @@ const affectData = a => {
     }else{
         a.facture = {_id:""};
     }
-    if(a.questions != null && a.questions.length > 0){
-        a.questions = Documents.findOne({_id:new Mongo.ObjectID(a.questions)});
+    if(a.questionary != null && a.questionary.length > 0){
+        a.questionary = Documents.findOne({_id:new Mongo.ObjectID(a.questionary)});
     }else{
-        a.questions = {_id:""};
+        a.questionary = {_id:""};
     }
 }
 
@@ -90,9 +90,9 @@ export default {
                     rapportExp:"",
                     constat:"",
                     facture:"",
-                    constatSent:false,
+                    questionary:"",
+                    constatSent:"no",
                     archived:false,
-                    cost:0,
                     responsabilite:-1,
                     reglementAssureur:-1,
                     chargeSinistre:-1,
@@ -162,7 +162,7 @@ export default {
             }
             throw new Error('Unauthorized');
         },
-        editAccident(obj, {_id,occurenceDate,dateExpert,dateTravaux,constatSent,cost},{user}){
+        editAccident(obj, {_id,occurenceDate,dateExpert,dateTravaux,constatSent},{user}){
             if(user._id){
                 Accidents.update(
                     {
@@ -172,8 +172,7 @@ export default {
                             "occurenceDate":occurenceDate,
                             "dateExpert":dateExpert,
                             "dateTravaux":dateTravaux,
-                            "constatSent":constatSent,
-                            "cost":cost
+                            "constatSent":constatSent
                         }
                     }
                 );                
@@ -271,8 +270,8 @@ export default {
         },
         async uploadAccidentDocument(obj, {_id,type,file,size},{user}){
             if(user._id){
-                if(type != "constat" && type != "rapportExp" && type != "facture"){
-                    return [{status:false,message:'Type de fichier innatendu (constat/rapportExp/facture)'}];
+                if(type != "constat" && type != "rapportExp" && type != "facture" && type != "questionary"){
+                    return [{status:false,message:'Type de fichier innatendu (constat/rapportExp/facture/questionary)'}];
                 }
                 let accident = Accidents.findOne({_id:new Mongo.ObjectID(_id)});
                 let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(accident.vehicle)});
@@ -296,6 +295,12 @@ export default {
                     if(accident.facture != null && accident.facture != undefined && accident.facture != ""){
                         deleteOld = true;
                         oldFile = Documents.findOne({_id:new Mongo.ObjectID(accident.facture)})
+                    }
+                }
+                if(type == "questionary"){
+                    if(accident.questionary != null && accident.questionary != undefined && accident.questionary != ""){
+                        deleteOld = true;
+                        oldFile = Documents.findOne({_id:new Mongo.ObjectID(accident.questionary)})
                     }
                 }
                 return await new Promise(async (resolve,reject)=>{

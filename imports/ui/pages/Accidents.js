@@ -452,7 +452,6 @@ class Accidents extends Component {
             dateExpert
             dateTravaux
             constatSent
-            cost
             archived
             answers{
               page
@@ -485,6 +484,17 @@ class Accidents extends Component {
               storageDate
             }
             facture{
+              _id
+              name
+              size
+              path
+              originalFilename
+              ext
+              type
+              mimetype
+              storageDate
+            }
+            questionary{
               _id
               name
               size
@@ -553,7 +563,6 @@ class Accidents extends Component {
             dateExpert
             dateTravaux
             constatSent
-            cost
             archived
               answers{
                 page
@@ -586,6 +595,17 @@ class Accidents extends Component {
               storageDate
             }
             facture{
+              _id
+              name
+              size
+              path
+              originalFilename
+              ext
+              type
+              mimetype
+              storageDate
+            }
+            questionary{
               _id
               name
               size

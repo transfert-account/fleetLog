@@ -3,6 +3,7 @@ import { Button, Form, TextArea, Icon, Checkbox, Input, Segment, Label, Header }
 import { UserContext } from '../../contexts/UserContext';
 import DocStateLabel from '../atoms/DocStateLabel';
 import ModalDatePicker from '../atoms/ModalDatePicker';
+import MultiDropdown from '../atoms/MultiDropdown';
 import { gql } from 'apollo-server-express';
 import _ from 'lodash';
 import moment from 'moment';
@@ -17,15 +18,14 @@ export class AccidentTabularDeclaration extends Component {
         newConstatSent:this.props.accident.constatSent,
         newDateExpert:this.props.accident.dateExpert,
         newDateTravaux:this.props.accident.dateTravaux,
-        newCost:this.props.accident.cost,
         newConstat:null,
         newRapportExp:null,
         newFacture:null,
         openDatePicker:false,
         newDescription:this.props.accident.description,
         editAccidentQuery : gql`
-            mutation editAccident($_id:String!,$occurenceDate:String!,$dateExpert:String!,$dateTravaux:String!,$constatSent:Boolean!,$cost:Float!){
-                editAccident(_id:$_id,occurenceDate:$occurenceDate,dateExpert:$dateExpert,dateTravaux:$dateTravaux,constatSent:$constatSent,cost:$cost){
+            mutation editAccident($_id:String!,$occurenceDate:String!,$dateExpert:String!,$dateTravaux:String!,$constatSent:String!){
+                editAccident(_id:$_id,occurenceDate:$occurenceDate,dateExpert:$dateExpert,dateTravaux:$dateTravaux,constatSent:$constatSent){
                     status
                     message
                 }
@@ -74,9 +74,9 @@ export class AccidentTabularDeclaration extends Component {
         });
         this.editDesc();
     }
-    handleConstatSentChange = checked => {
+    handleConstatSentChange = value => {
         this.setState({
-            newConstatSent:checked
+            newConstatSent:value
         });
     }
     handleInputFile = (type,e) => {
@@ -127,8 +127,7 @@ export class AccidentTabularDeclaration extends Component {
                 occurenceDate:this.state.newOccurenceDate,
                 dateExpert:this.state.newDateExpert,
                 dateTravaux:this.state.newDateTravaux,
-                constatSent:this.state.newConstatSent,
-                cost:parseFloat(this.state.newCost),
+                constatSent:this.state.newConstatSent
             }
         }).then(({data})=>{
             data.editAccident.map(qrm=>{
@@ -184,6 +183,27 @@ export class AccidentTabularDeclaration extends Component {
     }
 
     /*CONTENT GETTERS*/
+    getTotalCost = () => {
+        if(this.props.accident.constatSent == "internal"){
+            return this.getNullableValue(this.props.accident.chargeSinistre + this.props.accident.montantInterne)
+        }else{
+            return this.getNullableValue(this.props.accident.chargeSinistre + this.props.accident.reglementAssureur)
+        }
+    }
+    getReglementAssureur = () => {
+        if(this.props.accident.constatSent == "internal"){
+            return this.getNullableValue(-1)
+        }else{
+            return this.getNullableValue(this.props.accident.reglementAssureur)
+        }
+    }
+    getMontantInterne = () => {
+        if(this.props.accident.constatSent != "internal"){
+            return this.getNullableValue(-1)
+        }else{
+            return this.getNullableValue(this.props.accident.montantInterne)
+        }
+    }    
     getDeclarationPanel = () => {
         if(this.props.editing){
             return (
@@ -192,7 +212,7 @@ export class AccidentTabularDeclaration extends Component {
                         <Header as="h3">Déclaration</Header>
                     </Segment>
                     <Segment raised style={{placeSelf:"stretch"}}>
-                        <Form className="formBoard editing" style={{gridTemplateRows:"auto auto auto 1fr auto",height:"100%"}}>
+                        <Form className="formBoard editing" style={{gridTemplateRows:"auto auto 1fr auto",height:"100%"}}>
                             <Form.Field>
                                 <label>Date de l'accident</label>
                                 <Input value={this.state.newOccurenceDate} onFocus={()=>{this.showDatePicker("newOccurenceDate")}} name="newOccurenceDate"/>
@@ -206,12 +226,14 @@ export class AccidentTabularDeclaration extends Component {
                                 <Input value={this.state.newDateTravaux} onFocus={()=>{this.showDatePicker("newDateTravaux")}} name="newDateTravaux"/>
                             </Form.Field>
                             <Form.Field>
-                                <label>Cout total de l'accident</label>
-                                <Input defaultValue={this.state.newCost} onChange={this.handleChange} name="newCost"/>
-                            </Form.Field>
-                            <Form.Field style={{gridColumnEnd:"span 2",placeSelf:"center"}}>
                                 <label>Constat envoyé à l'assurance</label>
-                                <Checkbox defaultChecked={this.state.newConstatSent} onChange={(e,{checked})=>{this.handleConstatSentChange(checked)}} toggle />
+                                <MultiDropdown defaultValue={this.state.newConstatSent} onChange={this.handleConstatSentChange}
+                                    options={[
+                                        { key: 'Oui', text: 'Oui', value: "yes", label: { color: 'green', empty: true, circular: true }},
+                                        { key: "Non déclaré à l'assureur", text: "Non déclaré à l'assureur", value: "internal", label: { color: 'black', empty: true, circular: true }},
+                                        { key: 'Non', text: 'Non', value: "no", label: { color: 'red', empty: true, circular: true }}
+                                    ]}
+                                />
                             </Form.Field>
                             <Button style={{placeSelf:"center stretch",gridRowStart:"5",gridColumnStart:"1"}} color="red" icon labelPosition='right' onClick={this.props.closeEdit}>Annuler<Icon name='cancel'/></Button>
                             <Button style={{placeSelf:"center stretch",gridRowStart:"5",gridColumnStart:"2"}} color="green" icon labelPosition='right' onClick={this.editAccident}>Sauvegarder<Icon name='check'/></Button>
@@ -232,7 +254,7 @@ export class AccidentTabularDeclaration extends Component {
                             <div className="labelBoard">Date de passage de l'expert :</div><div className="valueBoard">{this.props.accident.dateExpert}</div>
                             <div className="labelBoard">Date des travaux :</div><div className="valueBoard">{this.props.accident.dateTravaux}</div>
                             <div className="labelBoard">Constat envoyé à l'assurance :</div><div className="valueBoard">{this.getConstatSentLabel()}</div>
-                            <div className="labelBoard">Coût total de l'accident :</div><div className="valueBoard">{this.props.accident.cost} €</div>
+                            <div className="labelBoard">Coût total de l'accident :</div><div className="valueBoard">{this.getTotalCost()}</div>
                         </div>
                     </Segment>
                 </Segment.Group>
@@ -240,10 +262,14 @@ export class AccidentTabularDeclaration extends Component {
         }
     }
     getConstatSentLabel = () => {
-        if(this.props.accident.constatSent){
-            return <Label color="green">Constat envoyé</Label>
+        if(this.props.accident.constatSent == "yes"){
+            return <Label color="green">Oui</Label>
         }else{
-            return <Label color="red">En attente</Label>
+            if(this.props.accident.constatSent == "internal"){
+                return <Label color="grey">Non déclaré</Label>
+            }else{
+                return <Label color="red">Non</Label>
+            }
         }
     }
     getNullableValue = v => {
@@ -276,16 +302,16 @@ export class AccidentTabularDeclaration extends Component {
                                 </Button.Group>
                             </Form.Field>
                             <Form.Field>
-                                <label>Montant du réglement assureur</label>
-                                <Input defaultValue={this.state.newReglementAssureur} onChange={this.handleChange} name="newReglementAssureur"/>
-                            </Form.Field>
-                            <Form.Field>
                                 <label>Charge sinistre</label>
                                 <Input defaultValue={this.state.newChargeSinistre} onChange={this.handleChange} name="newChargeSinistre"/>
                             </Form.Field>
                             <Form.Field>
+                                <label>Montant du réglement assureur</label>
+                                <Input disabled={this.props.accident.constatSent == "internal"} defaultValue={this.state.newReglementAssureur} onChange={this.handleChange} name="newReglementAssureur"/>
+                            </Form.Field>
+                            <Form.Field>
                                 <label>Montant interne</label>
-                                <Input defaultValue={this.state.newMontantInterne} onChange={this.handleChange} name="newMontantInterne"/>
+                                <Input disabled={this.props.accident.constatSent == "yes" || this.props.accident.constatSent == "no"} defaultValue={this.state.newMontantInterne} onChange={this.handleChange} name="newMontantInterne"/>
                             </Form.Field>
                             <Form.Field style={{gridColumnEnd:"span 2",placeSelf:"center"}}>
                                 <label>Statut</label>
@@ -306,9 +332,9 @@ export class AccidentTabularDeclaration extends Component {
                     <Segment raised style={{placeSelf:"stretch",margin:"0"}}>
                         <div className="formBoard displaying" style={{gridTemplateRows:"auto auto auto auto auto 1fr",height:"100%"}}>
                             <div className="labelBoard">Responsabilité :</div><div className="valueBoard">{this.getPECLabel()}</div>
-                            <div className="labelBoard">Reglement Assureur :</div><div className="valueBoard">{this.getNullableValue(this.props.accident.reglementAssureur)}</div>
                             <div className="labelBoard">Charge Sinistre :</div><div className="valueBoard">{this.getNullableValue(this.props.accident.chargeSinistre)}</div>
-                            <div className="labelBoard">Montant Interne :</div><div className="valueBoard">{this.getNullableValue(this.props.accident.montantInterne)}</div>
+                            <div className="labelBoard">Reglement Assureur :</div><div className="valueBoard">{this.getReglementAssureur()}</div>
+                            <div className="labelBoard">Montant Interne :</div><div className="valueBoard">{this.getMontantInterne()}</div>
                             <div className="labelBoard">Status :</div><div className="valueBoard">{this.getStatusLabel()}</div>
                         </div>
                     </Segment>
@@ -356,6 +382,7 @@ export class AccidentTabularDeclaration extends Component {
                         <DocStateLabel opened color={this.props.accident.constat._id == "" ? "red" : "green"} title="Constat"/>
                         <DocStateLabel opened color={this.props.accident.rapportExp._id == "" ? "red" : "green"} title="Rapport de l'expert"/>
                         <DocStateLabel opened color={this.props.accident.facture._id == "" ? "red" : "green"} title="Facture"/>
+                        <DocStateLabel opened color={this.props.accident.questionary._id == "" ? "red" : "green"} title="Questionnaire"/>
                     </Segment>
                 </Segment.Group>
                 <Segment.Group style={{gridColumnEnd:"span 2",margin:"0"}}>

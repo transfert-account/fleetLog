@@ -1,0 +1,10 @@
+type StoredObject{
+    name: String
+    doc: Document
+}
+
+extend type Query{
+    storedObject(name: String!): StoredObject
+    storedObjects : [StoredObject]
+    getSignedStoredObjectDownloadLink(name:String!):String!
+}

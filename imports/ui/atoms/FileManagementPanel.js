@@ -55,7 +55,6 @@ class FileManagementPanel extends Component {
     }
 
     render() {
-        console.log(this.props)
         if(this.props.fileInfos._id != "" && this.props.fileInfos._id != undefined){
             return (
                 <Fragment>

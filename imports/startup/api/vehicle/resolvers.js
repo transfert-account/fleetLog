@@ -163,21 +163,26 @@ const affectVehicleControls = vehicle => {
 
 const affectVehicleAccidents = vehicle => {
     vehicle.accidents = Accidents.find({vehicle:vehicle._id._str}).fetch() || {};
-    vehicle.accidents.forEach(e => {
-        if(e.rapportExp != null && e.rapportExp.length > 0){
-            e.rapportExp = Documents.findOne({_id:new Mongo.ObjectID(e.rapportExp)});
+    vehicle.accidents.forEach(a => {
+        if(a.rapportExp != null && a.rapportExp.length > 0){
+            a.rapportExp = Documents.findOne({_id:new Mongo.ObjectID(a.rapportExp)});
         }else{
-            e.rapportExp = {_id:""};
+            a.rapportExp = {_id:""};
         }
-        if(e.constat != null && e.constat.length > 0){
-            e.constat = Documents.findOne({_id:new Mongo.ObjectID(e.constat)});
+        if(a.constat != null && a.constat.length > 0){
+            a.constat = Documents.findOne({_id:new Mongo.ObjectID(a.constat)});
         }else{
-            e.constat = {_id:""};
+            a.constat = {_id:""};
         }
-        if(e.facture != null && e.facture.length > 0){
-            e.facture = Documents.findOne({_id:new Mongo.ObjectID(e.facture)});
+        if(a.facture != null && a.facture.length > 0){
+            a.facture = Documents.findOne({_id:new Mongo.ObjectID(a.facture)});
         }else{
-            e.facture = {_id:""};
+            a.facture = {_id:""};
+        }
+        if(a.questionary != null && a.questionary.length > 0){
+            a.questionary = Documents.findOne({_id:new Mongo.ObjectID(a.questionary)});
+        }else{
+            a.questionary = {_id:""};
         }
     });
 }
@@ -187,6 +192,7 @@ export default {
         vehicle(obj, {_id}, { user }){
             let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(_id)});
             affectVehicleData(vehicle)
+            affectVehicleAccidents(vehicle)
             return vehicle;
         },
         vehicles(obj, args, { user }){

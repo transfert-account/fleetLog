@@ -220,6 +220,14 @@ class Vehicle extends Component {
                         content
                         statut
                     }
+                    accidents{
+                        _id
+                        occurenceDate
+                        description
+                        constatSent
+                        archived
+                        status
+                    }
                 }
             }
         `,
@@ -1413,6 +1421,9 @@ class Vehicle extends Component {
         if(this.state.activePanel == "pannes"){
             return this.getHistoriquePanel()
         }
+        if(this.state.activePanel == "accidents"){
+            return this.getAccidentsPanel()
+        }
     }
 
     getIdentPanel = () => {
@@ -1470,7 +1481,6 @@ class Vehicle extends Component {
             )
         }
     }
-
     getFinancesPanel = () => {
         if(this.state.editingFinances){
             return (
@@ -1545,7 +1555,6 @@ class Vehicle extends Component {
             }
         }
     }
-
     getHistoriquePanel = () => {
         return(
             <Segment attached='bottom' style={{padding:"24px",justifySelf:"stretch",overflowY:"scroll"}}>
@@ -1553,7 +1562,6 @@ class Vehicle extends Component {
             </Segment>
         )
     }
-
     getBrokenHistoryTable = () => {
         if(this.state.vehicle.brokenHistory.length != 0 && this.state.vehicle.brokenHistory[0]._id == "noid"){
             return(
@@ -1570,10 +1578,10 @@ class Vehicle extends Component {
             )
         }else{
             return(
-                this.state.vehicle.brokenHistory.map(b=>{
-                    return (
-                        <div style={{display:"block",placeSelf:"stretch"}}>
-                            <List divided relaxed>
+                <div style={{display:"block",placeSelf:"stretch"}}>
+                    <List divided relaxed>
+                        {this.state.vehicle.brokenHistory.map(b=>{
+                            return (
                                 <List.Item key={b._id}>
                                     {((this.props.user.isOwner ? 
                                             <List.Content floated='right'>
@@ -1588,10 +1596,52 @@ class Vehicle extends Component {
                                         {b.content}
                                     </List.Content>
                                 </List.Item>
-                            </List>
-                        </div>
-                    )
-                })
+                            )
+                        })}
+                    </List>
+                </div>
+            )
+        }
+    }
+    getAccidentsPanel = () => {
+        return(
+            <Segment attached='bottom' style={{padding:"24px",justifySelf:"stretch",overflowY:"scroll"}}>
+                {this.getAccidentsTable()}
+            </Segment>
+        )
+    }
+    getAccidentsTable = () => {
+        if(this.state.vehicle.accidents.length == 0){
+            return(
+                <div style={{display:"block",placeSelf:"stretch"}}>
+                    <List divided relaxed>
+                        <List.Item>
+                            <List.Content>
+                                <List.Header>C'est vide !</List.Header>
+                                Il n'y a aucun accident lié au véhicule
+                            </List.Content>
+                        </List.Item>
+                    </List>
+                </div>
+            )
+        }else{
+            return(
+                <div style={{display:"block",placeSelf:"stretch"}}>
+                    <List divided relaxed>
+                        {this.state.vehicle.accidents.map(a=>{
+                            return (
+                                <List.Item key={a._id}>
+                                    <List.Content floated='right'>
+                                        <Button color="blue" inverted icon icon='right arrow' onClick={()=>{this.props.history.push("/accident/"+a._id);}}/>
+                                    </List.Content>
+                                    <List.Content>
+                                        <List.Header>{a.occurenceDate}</List.Header>
+                                    </List.Content>
+                                </List.Item>
+                            )
+                        })}
+                    </List>
+                </div>
             )
         }
     }
@@ -1696,6 +1746,7 @@ class Vehicle extends Component {
                                 <Menu.Item color="blue" icon='id card outline' name='Identification' active={this.state.activePanel == 'ident'} onClick={()=>{this.setState({activePanel:"ident"})}} />
                                 <Menu.Item color={(this.state.vehicle.financialInfosComplete ? "green" : "red")} icon='euro' name='Finances' active={this.state.activePanel == 'finances'} onClick={()=>{this.setState({activePanel:"finances"})}} />
                                 <Menu.Item color="teal" icon='clipboard list' name='Historique des pannes' active={this.state.activePanel == 'pannes'} onClick={()=>{this.setState({activePanel:"pannes"})}} />
+                                <Menu.Item color="orange" icon='fire' name='Accidents' active={this.state.activePanel == 'accidents'} onClick={()=>{this.setState({activePanel:"accidents"})}} />
                             </Menu>
                             {this.getActivePanel()}
                         </div>
