@@ -12,6 +12,7 @@ export default {
         testThis(obj, args,{user}){
             if(user._id){
                 try{
+                    /*
                     Accidents.update(
                         {},{
                             $set: {
@@ -27,7 +28,7 @@ export default {
                                 questions:""
                             }
                         },{multi:true}
-                    );
+                    );*/
                     /*Accidents.update(
                         {},{
                             $set: {
@@ -204,7 +205,7 @@ export default {
                             }
                         );
                     })*/
-                    return [{status:true,message:'constatSent = "no" and no cost, unset question which is now questionary (doc) for all accident'}];
+                    return [{status:true,message:'Empty'}];
                 }catch(e){
                     throw e;
                     return [{status:false,message:e.message}];
