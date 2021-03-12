@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react'
-import { Loader, Label, Button, Icon, Message, Modal, Input, Form, Menu, Table, Divider, Header, TextArea, Segment } from 'semantic-ui-react';
+import { Loader, Label, Button, Icon, Message, Modal, Input, Form, Menu, Table, List, TextArea, Segment } from 'semantic-ui-react';
 import { Bar } from 'react-chartjs-2';
-import ModalDatePicker from '../atoms/ModalDatePicker';
+
 import BigButtonIcon from '../elements/BigIconButton';
 import { UserContext } from '../../contexts/UserContext';
 import RegistrationInput from '../atoms/RegistrationInput';
@@ -11,7 +11,10 @@ import BrandPicker from '../atoms/BrandPicker';
 import FournisseurPicker from '../atoms/FournisseurPicker';
 import SocietePicker from '../atoms/SocietePicker';
 import VolumePicker from '../atoms/VolumePicker';
+import EnergyPicker from '../atoms/EnergyPicker';
 import FileManagementPanel from '../atoms/FileManagementPanel';
+import ModalDatePicker from '../atoms/ModalDatePicker';
+
 import { withRouter } from 'react-router-dom';
 import moment from 'moment';
 import { gql } from 'apollo-server-express';
@@ -25,7 +28,7 @@ class Location extends Component {
     }
 
     state={
-        activePanel:"tech",
+        activePanel:"ident",
         newCg:null,
         newCv:null,
         newContrat:null,
@@ -49,7 +52,7 @@ class Location extends Component {
         newPrice:"",
         newArchiveReason:"",
         loading:true,
-        editingTech:false,
+        editingIdent:false,
         editingFinances:false,
         openDatePicker:false,
         openEndOfLocation:false,
@@ -95,6 +98,10 @@ class Location extends Component {
                         name
                     }
                     model{
+                        _id
+                        name
+                    }
+                    energy{
                         _id
                         name
                     }
@@ -164,6 +171,14 @@ class Location extends Component {
                         mimetype
                         storageDate
                     }
+                    accidents{
+                        _id
+                        occurenceDate
+                        description
+                        constatSent
+                        archived
+                        status
+                    }
                 }
             }
         `,
@@ -183,9 +198,9 @@ class Location extends Component {
                 }
             }
         `,
-        editLocationTechQuery : gql`
-            mutation editLocationTech($_id:String!,$societe:String!,$registration:String!,$firstRegistrationDate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!){
-                editLocationTech(_id:$_id,societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color){
+        editLocationIdentQuery : gql`
+            mutation editLocationIdent($_id:String!,$societe:String!,$registration:String!,$firstRegistrationDate:String!,$brand:String!,$model:String!,$energy:String!,$volume:String!,$payload:Float!,$color:String!){
+                editLocationIdent(_id:$_id,societe:$societe,registration:$registration,firstRegistrationDate:$firstRegistrationDate,brand:$brand,model:$model,energy:$energy,volume:$volume,payload:$payload,color:$color){
                     status
                     message
                 }
@@ -273,30 +288,150 @@ class Location extends Component {
         }
     }
 
+    /*SHOW AND HIDE MODALS*/
+    closeEditIdent = () => {
+        this.setState({
+            editingIdent:false
+        })
+    }
+    closeEditFinances = () => {
+        this.setState({
+            editingFinances:false
+        })
+    }
+    editIdent = () => {
+        this.setState({
+            editingIdent:true,
+            editingFinances:false,
+            activePanel:"ident"
+        })
+    }
+    editFinances = () => {
+        this.setState({
+            editingFinances:true,
+            editIdent:false,
+            activePanel:"finances"
+        })
+    }
+
+    showDatePicker = target => {
+        this.setState({openDatePicker:true,datePickerTarget:target})
+    }
+    closeDatePicker = () => {
+        this.setState({openDatePicker:false,datePickerTarget:""})
+    }
+    showDelete = () => {
+        this.setState({
+            openDelete:true
+        })
+    }
+    closeDelete = () => {
+        this.setState({
+            openDelete:false
+        })
+    }
+    showArchive = () => {
+        this.setState({
+            openArchive:true
+        })
+    }
+    closeArchive = () => {
+        this.setState({
+            openArchive:false
+        })
+    }
+    showUnArchive = () => {
+        this.setState({
+            openUnArchive:true
+        })
+    }
+    closeUnArchive = () => {
+        this.setState({
+            openUnArchive:false
+        })
+    }
+    showDeleteLocKm = selectedKm => {
+        this.setState({
+            openDeleteLocKm:true,
+            selectedKm:selectedKm
+        })
+    }
+    closeDeleteLocKm = () => {
+        this.setState({
+            openDeleteLocKm:false,
+            selectedKm:null
+        })
+    }
+    showUpdateLocKm = () => {
+        this.setState({
+            openUpdateLocKm:true
+        })
+    }
+    closeUpdateLocKm = () => {
+        this.setState({
+            openUpdateLocKm:false
+        })
+    }
+    showCancelEndOfLocation = () => {
+        this.setState({
+            openCancelEndOfLocation:true
+        })
+    }
+    closeCancelEndOfLocation = () => {
+        this.setState({
+            openCancelEndOfLocation:false
+        })
+    }
+    showEndOfLocation = () => {
+        this.setState({
+            openEndOfLocation:true
+        })
+    }
+    closeEndOfLocation = () => {
+        this.setState({
+            openEndOfLocation:false
+        })
+    }
+    showDocs = () => {
+        this.setState({openDocs:true})
+    }
+    closeDocs = () => {
+        this.setState({openDocs:false,newCg:null,newCv:null,newContrat:null,newRestitution:null})
+    }
+    /*CHANGE HANDLERS*/
     handleChange = e =>{
         this.setState({
             [e.target.name]:e.target.value
         });
     }
-
     handleChangeSociete = (e, { value }) => this.setState({ newSociete:value })
-    
     handleChangeFournisseur = (e, { value }) => this.setState({ newFournisseur:value })
-
     handleChangeVolume = (e, { value }) => this.setState({ newVolume:value })
-
     handleChangeBrand = (e, { value }) => this.setState({ newBrand:value })
-
     handleChangeModel = (e, { value }) => this.setState({ newModel:value })
-  
+    handleChangeEnergy = (e, { value }) => this.setState({ newEnergy:value })
     handleChangeColor = (e, { value }) => this.setState({ newColor:value })
-
     handleRegistrationChange = value => {
         this.setState({
             newRegistration : value
         })
     }
+    onSelectDatePicker = date => {
+        this.setState({
+            [this.state.datePickerTarget]:date.getDate().toString().padStart(2, '0')+"/"+parseInt(date.getMonth()+1).toString().padStart(2, '0')+"/"+date.getFullYear().toString().padStart(4, '0')
+        })
+    }
+    handleInputFile = (type,e) => {
+        if(e.target.validity.valid ){
+            this.setState({
+                [type]:e.target.files[0]
+            })
+        }
+    }
 
+    /*FILTERS HANDLERS*/
+
+    /*DB READ AND WRITE*/
     deleteLocation = () => {
         this.closeDelete();
         this.props.client.mutate({
@@ -316,7 +451,6 @@ class Location extends Component {
             })
         })
     }
-
     updateLocKm = () => {
         this.props.client.mutate({
             mutation:this.state.updateLocKmQuery,
@@ -337,10 +471,9 @@ class Location extends Component {
             })
         })
     }
-
-    saveEditTech = () => {
+    saveEditIdent = () => {
         this.props.client.mutate({
-            mutation:this.state.editLocationTechQuery,
+            mutation:this.state.editLocationIdentQuery,
             variables:{
                 _id:this.state._id,
                 societe:this.state.newSociete,
@@ -348,15 +481,16 @@ class Location extends Component {
                 firstRegistrationDate:this.state.newFirstRegistrationDate,
                 brand:this.state.newBrand,
                 model:this.state.newModel,
+                energy:this.state.newEnergy,
                 volume:this.state.newVolume,
                 payload:parseFloat(this.state.newPayload),
                 color:this.state.newColor
             }
         }).then(({data})=>{
-            data.editLocationTech.map(qrm=>{
+            data.editLocationIdent.map(qrm=>{
                 if(qrm.status){
                     this.props.toast({message:qrm.message,type:"success"});
-                    this.closeEditTech();
+                    this.closeEditIdent();
                     this.loadLocation();
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
@@ -364,7 +498,6 @@ class Location extends Component {
             })
         })
     }
-
     saveEditFinances = () => {
         this.props.client.mutate({
             mutation:this.state.editLocationFinancesQuery,
@@ -389,7 +522,6 @@ class Location extends Component {
             })
         })
     }
-
     archiveLocation = () => {
         this.closeArchive();
         this.props.client.mutate({
@@ -409,7 +541,6 @@ class Location extends Component {
             })
         })
     }
-
     unArchiveLocation = () => {
         this.closeUnArchive();
         this.props.client.mutate({
@@ -428,7 +559,6 @@ class Location extends Component {
             })
         })
     }
-
     endLocation = archive => {
         this.props.client.mutate({
             mutation:this.state.endOfLocationQuery,
@@ -449,7 +579,6 @@ class Location extends Component {
             })
         })
     }
-
     cancelEndLocation = () => {
         this.props.client.mutate({
             mutation:this.state.cancelEndOfLocationQuery,
@@ -468,114 +597,6 @@ class Location extends Component {
             })
         })
     }
-
-    onSelectDatePicker = date => {
-        this.setState({
-            [this.state.datePickerTarget]:date.getDate().toString().padStart(2, '0')+"/"+parseInt(date.getMonth()+1).toString().padStart(2, '0')+"/"+date.getFullYear().toString().padStart(4, '0')
-        })
-    }
-
-    showDatePicker = target => {
-        this.setState({openDatePicker:true,datePickerTarget:target})
-    }
-    closeDatePicker = () => {
-        this.setState({openDatePicker:false,datePickerTarget:""})
-    }
-
-    showDelete = () => {
-        this.setState({
-            openDelete:true
-        })
-    }
-    closeDelete = () => {
-        this.setState({
-            openDelete:false
-        })
-    }
-
-    showArchive = () => {
-        this.setState({
-            openArchive:true
-        })
-    }
-    closeArchive = () => {
-        this.setState({
-            openArchive:false
-        })
-    }
-
-    showUnArchive = () => {
-        this.setState({
-            openUnArchive:true
-        })
-    }
-    closeUnArchive = () => {
-        this.setState({
-            openUnArchive:false
-        })
-    }
-
-    showDeleteLocKm = selectedKm => {
-        this.setState({
-            openDeleteLocKm:true,
-            selectedKm:selectedKm
-        })
-    }
-    closeDeleteLocKm = () => {
-        this.setState({
-            openDeleteLocKm:false,
-            selectedKm:null
-        })
-    }
-
-    showUpdateLocKm = () => {
-        this.setState({
-            openUpdateLocKm:true
-        })
-    }
-    closeUpdateLocKm = () => {
-        this.setState({
-            openUpdateLocKm:false
-        })
-    }
-
-    showCancelEndOfLocation = () => {
-        this.setState({
-            openCancelEndOfLocation:true
-        })
-    }
-    closeCancelEndOfLocation = () => {
-        this.setState({
-            openCancelEndOfLocation:false
-        })
-    }
-
-    showEndOfLocation = () => {
-        this.setState({
-            openEndOfLocation:true
-        })
-    }
-    closeEndOfLocation = () => {
-        this.setState({
-            openEndOfLocation:false
-        })
-    }
-
-    showDocs = () => {
-        this.setState({openDocs:true})
-    }
-    closeDocs = () => {
-        this.setState({openDocs:false,newCg:null,newCv:null,newContrat:null,newRestitution:null})
-    }
-    
-    handleInputFile = (type,e) => {
-        if(e.target.validity.valid ){
-            this.setState({
-                [type]:e.target.files[0]
-            })
-        }
-    }
-
     uploadDocCg = () => {
         this.props.client.mutate({
             mutation:this.state.uploadLocationDocumentQuery,
@@ -597,7 +618,6 @@ class Location extends Component {
             })
         })
     }
-
     uploadDocCv = () => {
         this.props.client.mutate({
             mutation:this.state.uploadLocationDocumentQuery,
@@ -619,7 +639,6 @@ class Location extends Component {
             })
         })
     }
-
     uploadDocContrat = () => {
         this.props.client.mutate({
             mutation:this.state.uploadLocationDocumentQuery,
@@ -641,7 +660,6 @@ class Location extends Component {
             })
         })
     }
-
     uploadDocRestitution = () => {
         this.props.client.mutate({
             mutation:this.state.uploadLocationDocumentQuery,
@@ -663,33 +681,6 @@ class Location extends Component {
             })
         })
     }
-
-    editTech = () => {
-        this.setState({
-            editingTech:true,
-            editingFinances:false,
-            activePanel:"tech"
-        })
-    }
-    editFinances = () => {
-        this.setState({
-            editingFinances:true,
-            editingTech:false,
-            activePanel:"finances"
-        })
-    }
-
-    closeEditTech = () => {
-        this.setState({
-            editingTech:false
-        })
-    }
-    closeEditFinances = () => {
-        this.setState({
-            editingFinances:false
-        })
-    }
-
     deleteLocKm = () => {
         this.closeDeleteLocKm()
         this.props.client.mutate({
@@ -710,7 +701,6 @@ class Location extends Component {
             })
         })
     }
-
     loadLocation = () => {
         this.props.client.query({
             query:this.state.locationQuery,
@@ -739,13 +729,13 @@ class Location extends Component {
         })
     }
 
+    /*CONTENT GETTERS*/
     getChartMonths = () => {
         let monthsLabels = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jui', 'Jui','Aoû','Sep','Oct','Nov','Déc'];
         let thisYear = parseInt(moment().format('YY'))
         let start = parseInt(moment().format('M'))-1;
         return monthsLabels.slice(start+1).map(x=> x=x+" "+(thisYear-1)).concat(monthsLabels.slice(0,start+1).map(x=> x=x+" "+thisYear))
     }
-
     getInChartMonthIndex = date => {
         if(moment(date).format("Y") == moment().format('Y')){
             return 12+parseInt(moment(date).format("M"))-1
@@ -755,7 +745,6 @@ class Location extends Component {
         }
         return "error"
     }
-
     getChartSharedValues = () => {
         if(this.state.loading){return []}
         let kms = Array.from(this.state.location.kms)
@@ -812,7 +801,6 @@ class Location extends Component {
         }
         return sharedKms.filter(x =>(parseInt(moment(x.month,"MM/YYYY").format("M")) > parseInt(moment().format("M")) && parseInt(moment(x.month,"MM/YYYY").format("YYYY")) != parseInt(moment().format("YYYY"))) || (parseInt(moment(x.month,"MM/YYYY").format("M")) <= parseInt(moment().format("M")) && parseInt(moment(x.month,"MM/YYYY").format("YYYY")) == parseInt(moment().format("YYYY")))).map(x=>x.km);
     }
-
     getChartData = () => {
         return {
             labels: this.getChartMonths(),
@@ -841,7 +829,6 @@ class Location extends Component {
             ]
         }
     }
-
     getStartDateLabel = () => {
         let days= parseInt(moment().diff(moment(this.state.location.startDate,"DD/MM/YYYY"),'days', true))
         if(days < 7){
@@ -849,7 +836,6 @@ class Location extends Component {
         }
         return <Label color="green"> {moment(this.state.location.startDate, "DD/MM/YYYY").fromNow()}, le {this.state.location.startDate}</Label>
     }
-
     getEndDateLabel = () => {
         let daysLeft = parseInt(moment().diff(moment(this.state.location.endDate,"DD/MM/YYYY"),'days', true))
         if(daysLeft >= 7){
@@ -860,23 +846,23 @@ class Location extends Component {
         }
         return <Label color="green"> {moment(this.state.location.endDate, "DD/MM/YYYY").fromNow()}, le {this.state.location.endDate}</Label>
     }
-
     getActivePanel = () => {
-        if(this.state.activePanel == "tech"){
-            return this.getTechPanel()
+        if(this.state.activePanel == "ident"){
+            return this.getIdentPanel()
         }
         if(this.state.activePanel == "finances"){
             return this.getFinancesPanel()
-        }        
+        }
+        if(this.state.activePanel == "accidents"){
+            return this.getAccidentsPanel()
+        }
     }
-    
-    getTechPanel = () => {
-        if(this.state.editingTech){
+    getIdentPanel = () => {
+        if(this.state.editingIdent){
             return (
-                <Segment attached='bottom'>
-                    <Form className="formBoard editing">
-                        <Form.Field>
-                            <label>Societé</label>
+                <Segment attached='bottom' style={{padding:"24px"}}>
+                    <Form style={{display:"grid",gridTemplateRows:"auto auto auto auto 1fr auto",height:"100%"}} className="formBoard editing">
+                        <Form.Field style={{gridColumnEnd:"span 2"}}><label>Societé</label>
                             <SocietePicker restrictToVisibility defaultValue={this.state.location.societe._id} groupAppears={false} onChange={this.handleChangeSociete}/>
                         </Form.Field>
                         <RegistrationInput onChange={this.handleRegistrationChange} defaultValue={this.state.location.registration} name="newRegistration"/>
@@ -893,6 +879,10 @@ class Location extends Component {
                             <ModelPicker defaultValue={this.state.location.model._id} onChange={this.handleChangeModel}/>
                         </Form.Field>
                         <Form.Field>
+                            <label>Energie</label>
+                            <EnergyPicker defaultValue={this.state.location.energy._id} onChange={this.handleChangeEnergy}/>
+                        </Form.Field>
+                        <Form.Field>
                             <label>Volume</label>
                             <VolumePicker defaultValue={this.state.location.volume._id} onChange={this.handleChangeVolume} name="newVolume"/>
                         </Form.Field>
@@ -904,20 +894,21 @@ class Location extends Component {
                             <label>Couleur</label>
                             <ColorPicker defaultValue={this.state.location.color._id} onChange={this.handleChangeColor}/>
                         </Form.Field>
-                        <Button style={{placeSelf:"center stretch"}} color="red" icon labelPosition='right' onClick={this.closeEditTech}>Annuler<Icon name='cancel'/></Button>
-                        <Button style={{placeSelf:"center stretch"}} color="green" icon labelPosition='right' onClick={this.saveEditTech}>Sauvegarder<Icon name='check'/></Button>
+                        <Button style={{placeSelf:"center stretch"}} color="red" icon labelPosition='right' onClick={this.closeEditIdent}>Annuler<Icon name='cancel'/></Button>
+                        <Button style={{placeSelf:"center stretch"}} color="green" icon labelPosition='right' onClick={this.saveEditIdent}>Sauvegarder<Icon name='check'/></Button>
                     </Form>
                 </Segment>
             )
         }else{
             return (
-                <Segment attached='bottom'>
+                <Segment attached='bottom' style={{padding:"24px"}}>
                     <div className="formBoard displaying">
                         <div className="labelBoard">Societé :</div><div className="valueBoard">{this.state.location.societe.name}</div>
                         <div className="labelBoard">Immatriculation :</div><div className="valueBoard">{this.state.location.registration}</div>
-                        <div className="labelBoard">Date de première immatriculation :</div><div className="valueBoard">{this.state.location.firstRegistrationDate}</div>
+                        <div className="labelBoard">1ère immatriculation :</div><div className="valueBoard">{this.state.location.firstRegistrationDate}</div>
                         <div className="labelBoard">Marque :</div><div className="valueBoard">{this.state.location.brand.name}</div>
                         <div className="labelBoard">Modèle :</div><div className="valueBoard">{this.state.location.model.name}</div>
+                        <div className="labelBoard">Energie :</div><div className="valueBoard">{this.state.location.energy.name}</div>
                         <div className="labelBoard">Volume :</div><div className="valueBoard">{this.state.location.volume.meterCube+" m²"}</div>
                         <div className="labelBoard">Charge utile :</div><div className="valueBoard">{this.state.location.payload+" t."}</div>
                         <div className="labelBoard">Couleur :</div><div className="valueBoard">{this.state.location.color.name}</div>
@@ -926,7 +917,6 @@ class Location extends Component {
             )
         }
     }
-
     getFinancesPanel = () => {
         if(this.state.editingFinances){
             return (
@@ -976,7 +966,48 @@ class Location extends Component {
             )
         }
     }
-
+    getAccidentsPanel = () => {
+        return(
+            <Segment attached='bottom' style={{padding:"24px",justifySelf:"stretch",overflowY:"scroll"}}>
+                {this.getAccidentsTable()}
+            </Segment>
+        )
+    }
+    getAccidentsTable = () => {
+        if(this.state.location.accidents.length == 0){
+            return(
+                <div style={{display:"block",placeSelf:"stretch"}}>
+                    <List divided relaxed>
+                        <List.Item>
+                            <List.Content>
+                                <List.Header>C'est vide !</List.Header>
+                                Il n'y a aucun accident lié au véhicule
+                            </List.Content>
+                        </List.Item>
+                    </List>
+                </div>
+            )
+        }else{
+            return(
+                <div style={{display:"block",placeSelf:"stretch"}}>
+                    <List divided relaxed>
+                        {this.state.location.accidents.map(a=>{
+                            return (
+                                <List.Item key={a._id}>
+                                    <List.Content floated='right'>
+                                        <Button color="blue" inverted icon icon='right arrow' onClick={()=>{this.props.history.push("/accident/"+a._id);}}/>
+                                    </List.Content>
+                                    <List.Content>
+                                        <List.Header>{a.occurenceDate}</List.Header>
+                                    </List.Content>
+                                </List.Item>
+                            )
+                        })}
+                    </List>
+                </div>
+            )
+        }
+    }
     getArchivePanel = () => {
         if(this.state.location.archived){
             return (
@@ -984,7 +1015,6 @@ class Location extends Component {
             )
         }
     }
-
     getDeleteOptions = () => {
         if(this.props.user.isOwner){
             if(this.state.location.archived){
@@ -1018,7 +1048,6 @@ class Location extends Component {
             }
         }
     }
-
     getLocationOptions = () => {
         if(this.state.location.returned){
             return (
@@ -1032,6 +1061,7 @@ class Location extends Component {
         
     }
 
+    /*COMPONENTS LIFECYCLE*/
     componentDidMount = () => {
         this.loadLocation();
     }
@@ -1046,54 +1076,53 @@ class Location extends Component {
         }else{
             return (
                 <Fragment>
-                    <div style={{display:"grid",gridGap:"24px",gridTemplateRows:"auto auto 1fr"}}>
-                        <div style={{display:"grid",gridGap:"16px",gridTemplateColumns:"auto 1fr auto"}}>
+                    <div style={{display:"grid",gridGap:"24px",gridTemplateRows:"auto auto minmax(0,1fr)",gridTemplateColumns:"2fr 3fr",height:"100%"}}>
+                        <div style={{display:"grid",gridColumnEnd:"span 2",gridGap:"32px",gridTemplateColumns:"auto 1fr auto"}}>
                             <BigButtonIcon icon="angle double left" color="black" onClick={()=>{this.props.history.push("/parc/locations");}} tooltip="Retour au tableau des locations"/>
                             <Message style={{margin:"0",gridRowStart:"1",gridColumnStart:"2"}} icon='truck' header={this.state.location.registration} content={this.state.location.brand.name + " - " + this.state.location.model.name} />
                             <div style={{display:"flex",justifyContent:"flex-end"}}>
                                 <BigButtonIcon color="green" icon='dashboard' onClick={this.showUpdateLocKm} tooltip="MaJ kilométrage"/>
-                                <BigButtonIcon color="blue" icon='edit' onClick={this.editTech} tooltip="Édition : Technique"/>
+                                <BigButtonIcon color="blue" icon='edit' onClick={this.editIdent} tooltip="Édition : Identification"/>
                                 <BigButtonIcon color="blue" icon='edit' onClick={this.editFinances} tooltip="Édition : Location" spacedFromNext/>
                                 {this.getLocationOptions()}
                                 <BigButtonIcon color="purple" icon='folder' onClick={this.showDocs} tooltip="Gérer les documents" spacedFromPrevious/>
                                 {this.getDeleteOptions()}
                             </div>
                         </div>
-                        <div style={{display:"flex"}}>
+                        <div style={{display:"flex",gridColumnEnd:"span 2"}}>
                             {this.getArchivePanel()}
                         </div>
-                        <div style={{gridRowStart:"3",display:"grid",gridTemplateColumns:"2fr 3fr",gridGap:"24px"}}>
-                            <div>
-                                <Segment textAlign="center">
-                                    <p style={{margin:"0",fontWeight:"bold",fontSize:"2.4em"}}>
-                                        {this.state.location.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km
-                                    </p>
-                                    <p style={{margin:"0",fontWeight:"bold",fontSize:"1.1em"}}>
-                                        (relevé {moment(this.state.location.lastKmUpdate, "DD/MM/YYYY").fromNow()})
-                                    </p>
-                                </Segment>
-                                <Menu attached='top' pointing>
-                                    <Menu.Item color="blue" icon='wrench' name='Technique' active={this.state.activePanel == 'tech'} onClick={()=>{this.setState({activePanel:"tech"})}} />
-                                    <Menu.Item color="green" icon='phone' name='Location' active={this.state.activePanel == 'finances'} onClick={()=>{this.setState({activePanel:"finances"})}} />
-                                </Menu>
-                                {this.getActivePanel()}
-                            </div>
-                            <div style={{display:"grid",gridTemplateColumns:"256px 1fr",gridTemplateRows:"auto 640px 1fr",gridColumnStart:"2",gridGap:"8px"}}>
-                                <Table style={{placeSelf:"start",gridRowEnd:"span 2"}} basic="very">
-                                    <Table.Header>
-                                        <Table.Row>
-                                            <Table.HeaderCell>Date</Table.HeaderCell>
-                                            <Table.HeaderCell>Km</Table.HeaderCell>
-                                            <Table.HeaderCell>Suppr.</Table.HeaderCell>
-                                        </Table.Row>
-                                    </Table.Header>
-                                    <Table.Body>
-                                        {this.state.kmsReport()}
-                                    </Table.Body>
-                                </Table>
-                                <div style={{placeSelf:"stretch"}}>
-                                    <Bar ref={(reference) => this.chartRef = reference } data={this.getChartData()} height={400} style={{display:"block"}} options={{maintainAspectRatio:false,responsive:true}}/>
-                                </div>
+                        <div style={{display:"grid",gridTemplateRows:"auto auto 1fr",placeSelf:"stretch"}}>
+                            <Segment textAlign="center">
+                                <p style={{margin:"0",fontWeight:"bold",fontSize:"2.4em"}}>
+                                    {this.state.location.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km
+                                </p>
+                                <p style={{margin:"0",fontWeight:"bold",fontSize:"1.1em"}}>
+                                    (relevé {moment(this.state.location.lastKmUpdate, "DD/MM/YYYY").fromNow()})
+                                </p>
+                            </Segment>
+                            <Menu attached='top' pointing>
+                                <Menu.Item color="blue" icon='wrench' name='Identification' active={this.state.activePanel == 'ident'} onClick={()=>{this.setState({activePanel:"ident"})}} />
+                                <Menu.Item color="green" icon='phone' name='Location' active={this.state.activePanel == 'finances'} onClick={()=>{this.setState({activePanel:"finances"})}} />
+                                <Menu.Item color="orange" icon='fire' name='Accidents' active={this.state.activePanel == 'accidents'} onClick={()=>{this.setState({activePanel:"accidents"})}} />
+                            </Menu>
+                            {this.getActivePanel()}
+                        </div>
+                        <div style={{display:"grid",gridTemplateColumns:"256px 1fr",gridTemplateRows:"auto 640px 1fr",gridColumnStart:"2",gridGap:"8px"}}>
+                            <Table style={{placeSelf:"start",gridRowEnd:"span 2"}} basic="very">
+                                <Table.Header>
+                                    <Table.Row>
+                                        <Table.HeaderCell>Date</Table.HeaderCell>
+                                        <Table.HeaderCell>Km</Table.HeaderCell>
+                                        <Table.HeaderCell>Suppr.</Table.HeaderCell>
+                                    </Table.Row>
+                                </Table.Header>
+                                <Table.Body>
+                                    {this.state.kmsReport()}
+                                </Table.Body>
+                            </Table>
+                            <div style={{placeSelf:"stretch"}}>
+                                <Bar ref={(reference) => this.chartRef = reference } data={this.getChartData()} height={400} style={{display:"block"}} options={{maintainAspectRatio:false,responsive:true}}/>
                             </div>
                         </div>
                     </div>

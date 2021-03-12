@@ -20,7 +20,3 @@ extend type Query {
     documents:[Document]
     getSignedDocumentDownloadLink(_id:String!):String!
 }
-
-extend type Mutation {
-    uploadFile(file:Upload!,societe:String!,type:String,size:Int!):[QueryResultMessage]
-}

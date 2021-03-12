@@ -1,4 +1,5 @@
 import Vehicles from './vehicles.js';
+import Locations from '../location/locations.js';
 import Entretiens from '../entretien/entretiens';
 import Societes from '../societe/societes.js';
 import Licences from '../licence/licences';
@@ -224,27 +225,30 @@ export default {
         },
         vehiclesByAccidents(obj, args, { user }){
             let vehicles = Vehicles.find().fetch() || {};
-            vehicles.forEach(v => {
+            let locations = Locations.find().fetch() || {};
+            let allV = vehicles.concat(locations);
+            allV.forEach(v => {
                 affectVehicleAccidents(v)
             });
-            vehicles = vehicles.filter(v=>v.accidents.length>0);
-            vehicles.forEach(v => {
+            allV = allV.filter(v=>v.accidents.length>0);
+            allV.forEach(v => {
                 affectVehicleData(v)
             });
-            return vehicles;
+            return allV;
         },
         buVehiclesByAccidents(obj, args, { user }){
             let userFull = Meteor.users.findOne({_id:user._id});
-            let vehicles = [];
-            vehicles = Vehicles.find({$or:[{sharedTo:userFull.settings.visibility},{societe:userFull.settings.visibility}]}).fetch() || {};
-            vehicles.forEach(v => {
+            let vehicles = Vehicles.find({$or:[{sharedTo:userFull.settings.visibility},{societe:userFull.settings.visibility}]}).fetch() || {};
+            let locations = Locations.find({$or:[{sharedTo:userFull.settings.visibility},{societe:userFull.settings.visibility}]}).fetch() || {};
+            let allV = vehicles.concat(locations);
+            allV.forEach(v => {
                 affectVehicleAccidents(v)
             });
-            vehicles = vehicles.filter(v=>v.accidents.length>0);
-            vehicles.forEach(v => {
+            allV = allV.filter(v=>v.accidents.length>0);
+            allV.forEach(v => {
                 affectVehicleData(v)
             });
-            return vehicles;
+            return allV;
         },
         buVehicles(obj, args, { user }){
             let userFull = Meteor.users.findOne({_id:user._id});

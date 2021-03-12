@@ -1,10 +1,13 @@
 import Vehicles from '../vehicle/vehicles';
+import Locations from '../location/locations';
 import VehicleArchiveJustifications from '../vehicleArchiveJustification/vehicleArchiveJustifications';
 import Licences from '../licence/licences';
 import Equipements from '../equipement/equipements';
 import Entretiens from '../entretien/entretiens';
 import Batiments from '../batiment/batiments';
 import Accidents from '../accident/accidents';
+import Energies from '../energy/energies';
+
 import { Mongo } from 'meteor/mongo';
 
 export default {
@@ -12,6 +15,15 @@ export default {
         testThis(obj, args,{user}){
             if(user._id){
                 try{
+                    let e = Energies.find({}).fetch()[0];
+                    Locations.update(
+                        {},{
+                            $set: {
+                                energy:e._id._str,
+                                accidents:[]
+                            }
+                        },{multi:true}
+                    );
                     /*
                     Accidents.update(
                         {},{
@@ -205,7 +217,7 @@ export default {
                             }
                         );
                     })*/
-                    return [{status:true,message:'Empty'}];
+                    return [{status:true,message:'Locations energie : 1ere disponible par défaut, accidents vide'}];
                 }catch(e){
                     throw e;
                     return [{status:false,message:e.message}];

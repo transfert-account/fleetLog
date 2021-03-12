@@ -401,431 +401,39 @@ class Vehicle extends Component {
         }
     }
 
-    handleChange = e =>{
+    /*SHOW AND HIDE MODALS*/
+    showEditIdent = () => {
         this.setState({
-            [e.target.name]:e.target.value
-        });
+            editingIdent:true,
+            activePanel:"ident",
+            editingFinances:false,
+            editingBrokenHistory:false
+        })
     }
-
-    handleRegistrationChange = value => {
+    closeEditIdent = () => {
         this.setState({
-            newRegistration : value
+            editingIdent:false
         })
     }
-
-    handleChangePayementFormat = value => {
-        this.setState({ newPayementFormat:value })
-    }
-
-    handleChangeSociete = (e, { value }) => this.setState({ newSociete:value })
-
-    handleChangeTargetSociete = (e, { value }) => {
-        this.setState({ newTargetSociete:value })
-    }
-
-    handleChangeVolume = (e, { value }) => this.setState({ newVolume:value })
-
-    handleChangeBrand = (e, { value }) => this.setState({ newBrand:value })
-
-    handleChangeModel = (e, { value }) => this.setState({ newModel:value })
-    
-    handleChangeVehicleArchiveJustification = (e, { value }) => this.setState({ newVehicleArchiveJustification:value })
-
-    handleChangeEnergy = (e, { value }) => this.setState({ newEnergy:value })
-  
-    handleChangeOrganism = (e, { value }) => this.setState({ newPayementOrg:value })
-    
-    handleChangePayementTime = (e, { value }) => {
+    showEditFinances = () => {
         this.setState({
-            newPayementTime:value
+            editingFinances:true,
+            activePanel:"finances",
+            editingIdent:false,
+            editingBrokenHistory:false
         })
     }
-
-    handleChangeTotalPrice = (e, { value }) =>{
+    closeEditFinances = () => {
         this.setState({
-            newPurchasePrice:parseFloat(value)
+            editingFinances:false
         })
     }
-
-    handleChangeMonthlyPayement = (e, { value }) =>{
-        this.setState({
-            newMonthlyPayement:parseFloat(value)
-        })
-    }
-  
-    handleChangeColor = (e, { value }) => this.setState({ newColor:value })
-
-    deleteVehicle = () => {
-        this.closeDelete();
-        this.props.client.mutate({
-            mutation:this.state.deleteVehicleQuery,
-            variables:{
-                _id:this.state._id,
-            }
-        }).then(({data})=>{
-            data.deleteVehicle.map(qrm=>{
-                if(qrm.status){
-                    this.props.toast({message:qrm.message,type:"success"});
-                    this.props.history.push("/parc/vehicles")
-                }else{
-                    this.props.toast({message:qrm.message,type:"error"});
-                }
-            })
-        })
-    }
-
-    archiveVehicle = () => {
-        this.closeArchive();
-        this.props.client.mutate({
-            mutation:this.state.archiveVehicleQuery,
-            variables:{
-                _id:this.state._id,
-                archiveJustification:this.state.newVehicleArchiveJustification
-            }
-        }).then(({data})=>{
-            data.archiveVehicle.map(qrm=>{
-                if(qrm.status){
-                    this.props.toast({message:qrm.message,type:"success"});
-                    this.props.history.push("/parc/vehicles")
-                }else{
-                    this.props.toast({message:qrm.message,type:"error"});
-                }
-            })
-        })
-    }
-
-    unArchiveVehicle = () => {
-        this.closeUnArchive();
-        this.props.client.mutate({
-            mutation:this.state.unArchiveVehicleQuery,
-            variables:{
-                _id:this.state._id
-            }
-        }).then(({data})=>{
-            data.unArchiveVehicle.map(qrm=>{
-                if(qrm.status){
-                    this.props.toast({message:qrm.message,type:"success"});
-                    this.props.history.push("/parc/vehicles")
-                }else{
-                    this.props.toast({message:qrm.message,type:"error"});
-                }
-            })
-        })
-    }
-
-    shareVehicle = () => {
-        this.closeArchive();
-        this.props.client.mutate({
-            mutation:this.state.shareVehicleQuery,
-            variables:{
-                _id:this.state._id,
-                sharingReason:this.state.newSharingReason,
-                target:this.state.newTargetSociete
-            }
-        }).then(({data})=>{
-            data.shareVehicle.map(qrm=>{
-                if(qrm.status){
-                    this.closeShare();
-                    this.loadVehicule();
-                    this.props.toast({message:qrm.message,type:"success"});
-                }else{
-                    this.props.toast({message:qrm.message,type:"error"});
-                }
-            })
-        })
-    }
-
-    unshareVehicle = () => {
-        this.closeUnArchive();
-        this.props.client.mutate({
-            mutation:this.state.unshareVehicleQuery,
-            variables:{
-                _id:this.state._id
-            }
-        }).then(({data})=>{
-            data.unshareVehicle.map(qrm=>{
-                if(qrm.status){
-                    this.closeUnshare();
-                    this.loadVehicule();
-                    this.props.toast({message:qrm.message,type:"success"});
-                }else{
-                    this.props.toast({message:qrm.message,type:"error"});
-                }
-            })
-        })
-    }
-
-    sellVehicle = () => {
-        this.closeArchive();
-        this.props.client.mutate({
-            mutation:this.state.sellVehicleQuery,
-            variables:{
-                _id:this.state._id,
-                sellingReason:this.state.newSellingReason
-            }
-        }).then(({data})=>{
-            data.sellVehicle.map(qrm=>{
-                if(qrm.status){
-                    this.closeSell();
-                    this.loadVehicule();
-                    this.props.toast({message:qrm.message,type:"success"});
-                }else{
-                    this.props.toast({message:qrm.message,type:"error"});
-                }
-            })
-        })
-    }
-
-    unsellVehicle = () => {
-        this.props.client.mutate({
-            mutation:this.state.unsellVehicleQuery,
-            variables:{
-                _id:this.state._id
-            }
-        }).then(({data})=>{
-            data.unsellVehicle.map(qrm=>{
-                if(qrm.status){
-                    this.closeUnsell();
-                    this.loadVehicule();
-                    this.props.toast({message:qrm.message,type:"success"});
-                }else{
-                    this.props.toast({message:qrm.message,type:"error"});
-                }
-            })
-        })
-    }
-
-    cancelSellVehicle = () => {
-        this.props.client.mutate({
-            mutation:this.state.cancelSellVehicleQuery,
-            variables:{
-                _id:this.state._id
-            }
-        }).then(({data})=>{
-            data.cancelSellVehicle.map(qrm=>{
-                if(qrm.status){
-                    this.closeCancelSell();
-                    this.loadVehicule();
-                    this.props.toast({message:qrm.message,type:"success"});
-                }else{
-                    this.props.toast({message:qrm.message,type:"error"});
-                }
-            })
-        })
-    }
-
-    finishSellVehicle = () => {
-        this.props.client.mutate({
-            mutation:this.state.finishSellVehicleQuery,
-            variables:{
-                _id:this.state._id
-            }
-        }).then(({data})=>{
-            data.finishSellVehicle.map(qrm=>{
-                if(qrm.status){
-                    this.closeUnsell();
-                    this.loadVehicule();
-                    this.props.toast({message:qrm.message,type:"success"});
-                }else{
-                    this.props.toast({message:qrm.message,type:"error"});
-                }
-            })
-        })
-    }
-
-    addHistoryEntry = () => {
-        this.closeAddHistoryEntry();
-        this.props.client.mutate({
-            mutation:this.state.addHistoryEntryQuery,
-            variables:{
-                _id:this.state._id,
-                content:this.state.newHistoryEntryContent
-            }
-        }).then(({data})=>{
-            data.addHistoryEntry.map(qrm=>{
-                if(qrm.status){
-                    this.closeAddHistoryEntry();
-                    this.loadVehicule();
-                    this.setState({activePanel:"pannes"})
-                    this.props.toast({message:qrm.message,type:"success"});
-                }else{
-                    this.props.toast({message:qrm.message,type:"error"});
-                }
-            })
-        })
-    }
-
-    deleteHistoryEntry = () => {
-        this.props.client.mutate({
-            mutation:this.state.deleteHistoryEntryQuery,
-            variables:{
-                _id:this.state.selectedEntry,
-                vehicle:this.state.vehicle._id
-            }
-        }).then(({data})=>{
-            data.deleteHistoryEntry.map(qrm=>{
-                if(qrm.status){
-                    this.setState({selectedEntry:""})
-                    this.closeDeleteHistoryEntry();
-                    this.loadVehicule();
-                    this.props.toast({message:qrm.message,type:"success"});
-                }else{
-                    this.props.toast({message:qrm.message,type:"error"});
-                }
-            })
-        })
-    }
-
-    breakVehicle = () => {
-        this.closeArchive();
-        this.props.client.mutate({
-            mutation:this.state.breakVehicleQuery,
-            variables:{
-                _id:this.state._id
-            }
-        }).then(({data})=>{
-            data.breakVehicle.map(qrm=>{
-                if(qrm.status){
-                    this.closeBreak();
-                    this.loadVehicule();
-                    this.props.toast({message:qrm.message,type:"success"});
-                }else{
-                    this.props.toast({message:qrm.message,type:"error"});
-                }
-            })
-        })
-    }
-
-    unbreakVehicle = () => {
-        this.closeUnArchive();
-        this.props.client.mutate({
-            mutation:this.state.unbreakVehicleQuery,
-            variables:{
-                _id:this.state._id
-            }
-        }).then(({data})=>{
-            data.unbreakVehicle.map(qrm=>{
-                if(qrm.status){
-                    this.closeUnbreak();
-                    this.loadVehicule();
-                    this.props.toast({message:qrm.message,type:"success"});
-                }else{
-                    this.props.toast({message:qrm.message,type:"error"});
-                }
-            })
-        })
-    }
-
-    updateKm = () => {
-        this.props.client.mutate({
-            mutation:this.state.updateKmQuery,
-            variables:{
-                _id:this.state._id,
-                date:this.state.newDateReport,
-                kmValue:parseInt(this.state.newKm)
-            }
-        }).then(({data})=>{
-            data.updateKm.map(qrm=>{
-                if(qrm.status){
-                    this.props.toast({message:qrm.message,type:"success"});
-                    this.closeUpdateKm();
-                    this.loadVehicule();
-                }else{
-                    this.props.toast({message:qrm.message,type:"error"});
-                }
-            })
-        })
-    }
-
-    saveEditIdent = () => {
-        this.props.client.mutate({
-            mutation:this.state.editVehicleIdentQuery,
-            variables:{
-                _id:this.state._id,
-                societe:this.state.newSociete,
-                registration:this.state.newRegistration,
-                firstRegistrationDate:this.state.newFirstRegistrationDate,
-                brand:this.state.newBrand,
-                model:this.state.newModel,
-                volume:this.state.newVolume,
-                payload:this.state.newPayload,
-                color:this.state.newColor,
-                energy:this.state.newEnergy
-            }
-        }).then(({data})=>{
-            data.editVehicleIdent.map(qrm=>{
-                if(qrm.status){
-                    this.props.toast({message:qrm.message,type:"success"});
-                    this.closeEditIdent();
-                    this.loadVehicule();
-                }else{
-                    this.props.toast({message:qrm.message,type:"error"});
-                }
-            })
-        })
-    }
-
-    saveEditFinances = () => {
-        this.props.client.mutate({
-            mutation:this.state.editVehicleFinancesQuery,
-            variables:{
-                _id:this.state._id,
-                property:this.state.newProperty,
-                purchasePrice:parseFloat(this.state.newPurchasePrice),
-                insurancePaid:parseFloat(this.state.newInsurancePaid),
-                payementBeginDate:this.state.newPayementBeginDate,
-                payementEndDate:this.state.newPayementEndDate,
-                payementOrg:this.state.newPayementOrg,
-                payementTime:this.state.newPayementTime,
-                payementFormat:this.state.newPayementFormat,
-                monthlyPayement:parseFloat(this.state.newMonthlyPayement)
-            }
-        }).then(({data})=>{
-            data.editVehicleFinances.map(qrm=>{
-                if(qrm.status){
-                    this.props.toast({message:qrm.message,type:"success"});
-                    this.closeEditFinances();
-                    this.loadVehicule();
-                }else{
-                    this.props.toast({message:qrm.message,type:"error"});
-                }
-            })
-        })
-    }
-
-    deleteKm = () => {
-        this.closeDeleteKm()
-        this.props.client.mutate({
-            mutation:this.state.deleteKmQuery,
-            variables:{
-                _id:this.state.selectedKm,
-                vehicle:this.state._id
-            }
-        }).then(({data})=>{
-            data.deleteKm.map(qrm=>{
-                if(qrm.status){
-                    this.props.toast({message:qrm.message,type:"success"});
-                    this.loadVehicule();
-                }else{
-                    this.props.toast({message:qrm.message,type:"error"});
-                }
-            })
-        })
-    }
-
-    onSelectDatePicker = date => {
-        this.setState({
-            [this.state.datePickerTarget]:date.getDate().toString().padStart(2, '0')+"/"+parseInt(date.getMonth()+1).toString().padStart(2, '0')+"/"+date.getFullYear().toString().padStart(4, '0')
-        })
-    }
-
     showDatePicker = target => {
         this.setState({openDatePicker:true,datePickerTarget:target})
     }
     closeDatePicker = () => {
         this.setState({openDatePicker:false,datePickerTarget:""})
     }
-
     showDelete = () => {
         this.setState({
             openDelete:true
@@ -836,7 +444,6 @@ class Vehicle extends Component {
             openDelete:false
         })
     }
-
     showShare = () => {
         this.setState({
             openShare:true
@@ -848,7 +455,6 @@ class Vehicle extends Component {
             openShare:false
         })
     }
-
     showUnshare = () => {
         this.setState({
             openUnshare:true
@@ -859,7 +465,6 @@ class Vehicle extends Component {
             openUnshare:false
         })
     }
-
     showUnsell = () => {
         this.setState({
             openUnsell:true
@@ -870,7 +475,6 @@ class Vehicle extends Component {
             openUnsell:false
         })
     }
-
     showCancelSell = () => {
         this.setState({
             openCancelSell:true
@@ -881,7 +485,6 @@ class Vehicle extends Component {
             openCancelSell:false
         })
     }
-
     showSell = () => {
         this.setState({
             openSell:true
@@ -892,7 +495,6 @@ class Vehicle extends Component {
             openSell:false
         })
     }
-
     showAddHistoryEntry = () => {
         this.setState({
             openAddHistoryEntry:true
@@ -903,7 +505,6 @@ class Vehicle extends Component {
             openAddHistoryEntry:false
         })
     }
-
     showDeleteHistoryEntry = selectedEntry => {
         this.setState({
             openDeleteHistoryEntry:true,
@@ -915,7 +516,6 @@ class Vehicle extends Component {
             openDeleteHistoryEntry:false
         })
     }
-
     showBreak = () => {
         this.setState({
             openBreak:true
@@ -926,7 +526,6 @@ class Vehicle extends Component {
             openBreak:false
         })
     }
-
     showUnbreak = () => {
         this.setState({
             openUnbreak:true
@@ -937,7 +536,6 @@ class Vehicle extends Component {
             openUnbreak:false
         })
     }
-
     showArchive = () => {
         this.setState({
             openArchive:true
@@ -949,7 +547,6 @@ class Vehicle extends Component {
             newVehicleArchiveJustification:""
         })
     }
-
     showUnArchive = () => {
         this.setState({
             openUnArchive:true
@@ -960,7 +557,6 @@ class Vehicle extends Component {
             openUnArchive:false
         })
     }
-
     showDeleteKm = selectedKm => {
         this.setState({
             openDeleteKm:true,
@@ -973,7 +569,6 @@ class Vehicle extends Component {
             selectedKm:null
         })
     }
-
     showUpdateKm = () => {
         this.setState({
             openUpdateKm:true
@@ -984,21 +579,39 @@ class Vehicle extends Component {
             openUpdateKm:false
         })
     }
-
     showDocs = () => {
         this.setState({openDocs:true})
     }
     closeDocs = () => {
         this.setState({openDocs:false,newCg:null,newCv:null})
     }
-
     showDocsSold = () => {
         this.setState({openDocsSold:true})
     }
     closeDocsSold = () => {
         this.setState({openDocsSold:false,newCrf:null,newIdA:null,newSCg:null})
     }
-    
+    /*CHANGE HANDLERS*/
+    handleChange = e =>{this.setState({[e.target.name]:e.target.value});}
+    handleRegistrationChange = value => {this.setState({newRegistration : value})}
+    handleChangePayementFormat = value => {this.setState({ newPayementFormat:value })}
+    handleChangeSociete = (e, { value }) => this.setState({ newSociete:value })
+    handleChangeTargetSociete = (e, { value }) => {this.setState({ newTargetSociete:value })}
+    handleChangeVolume = (e, { value }) => this.setState({ newVolume:value })
+    handleChangeBrand = (e, { value }) => this.setState({ newBrand:value })
+    handleChangeModel = (e, { value }) => this.setState({ newModel:value })
+    handleChangeVehicleArchiveJustification = (e, { value }) => this.setState({ newVehicleArchiveJustification:value })
+    handleChangeEnergy = (e, { value }) => this.setState({ newEnergy:value })
+    handleChangeOrganism = (e, { value }) => this.setState({ newPayementOrg:value })
+    handleChangePayementTime = (e, { value }) => {this.setState({newPayementTime:value})}
+    handleChangeTotalPrice = (e, { value }) =>{this.setState({newPurchasePrice:parseFloat(value)})}
+    handleChangeMonthlyPayement = (e, { value }) =>{this.setState({newMonthlyPayement:parseFloat(value)})}
+    handleChangeColor = (e, { value }) => this.setState({ newColor:value })
+    onSelectDatePicker = date => {
+        this.setState({
+            [this.state.datePickerTarget]:date.getDate().toString().padStart(2, '0')+"/"+parseInt(date.getMonth()+1).toString().padStart(2, '0')+"/"+date.getFullYear().toString().padStart(4, '0')
+        })
+    }
     handleInputFile = (type,e) => {
         if(e.target.validity.valid ){
             this.setState({
@@ -1006,7 +619,8 @@ class Vehicle extends Component {
             })
         }
     }
-
+    /*FILTERS HANDLERS*/
+    /*DB READ AND WRITE*/
     uploadDocCg = () => {
         this.props.client.mutate({
             mutation:this.state.uploadVehicleDocumentQuery,
@@ -1028,7 +642,6 @@ class Vehicle extends Component {
             })
         })
     }
-
     uploadDocCv = () => {
         this.props.client.mutate({
             mutation:this.state.uploadVehicleDocumentQuery,
@@ -1050,7 +663,6 @@ class Vehicle extends Component {
             })
         })
     }
-
     uploadDocCrf = () => {
         this.props.client.mutate({
             mutation:this.state.uploadVehicleDocumentQuery,
@@ -1072,7 +684,6 @@ class Vehicle extends Component {
             })
         })
     }
-
     uploadDocIdA = () => {
         this.props.client.mutate({
             mutation:this.state.uploadVehicleDocumentQuery,
@@ -1094,7 +705,6 @@ class Vehicle extends Component {
             })
         })
     }
-
     uploadDocSCg = () => {
         this.props.client.mutate({
             mutation:this.state.uploadVehicleDocumentQuery,
@@ -1116,37 +726,6 @@ class Vehicle extends Component {
             })
         })
     }
-
-    showEditIdent = () => {
-        this.setState({
-            editingIdent:true,
-            activePanel:"ident",
-            editingFinances:false,
-            editingBrokenHistory:false
-        })
-    }
-
-    closeEditIdent = () => {
-        this.setState({
-            editingIdent:false
-        })
-    }
-
-    showEditFinances = () => {
-        this.setState({
-            editingFinances:true,
-            activePanel:"finances",
-            editingIdent:false,
-            editingBrokenHistory:false
-        })
-    }
-
-    closeEditFinances = () => {
-        this.setState({
-            editingFinances:false
-        })
-    }
-
     loadVehicule = () => {
         this.props.client.query({
             query:this.state.vehicleQuery,
@@ -1181,7 +760,348 @@ class Vehicle extends Component {
             })
         })
     }
-
+    deleteVehicle = () => {
+        this.closeDelete();
+        this.props.client.mutate({
+            mutation:this.state.deleteVehicleQuery,
+            variables:{
+                _id:this.state._id,
+            }
+        }).then(({data})=>{
+            data.deleteVehicle.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.history.push("/parc/vehicles")
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    archiveVehicle = () => {
+        this.closeArchive();
+        this.props.client.mutate({
+            mutation:this.state.archiveVehicleQuery,
+            variables:{
+                _id:this.state._id,
+                archiveJustification:this.state.newVehicleArchiveJustification
+            }
+        }).then(({data})=>{
+            data.archiveVehicle.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.history.push("/parc/vehicles")
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    unArchiveVehicle = () => {
+        this.closeUnArchive();
+        this.props.client.mutate({
+            mutation:this.state.unArchiveVehicleQuery,
+            variables:{
+                _id:this.state._id
+            }
+        }).then(({data})=>{
+            data.unArchiveVehicle.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.history.push("/parc/vehicles")
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    shareVehicle = () => {
+        this.closeArchive();
+        this.props.client.mutate({
+            mutation:this.state.shareVehicleQuery,
+            variables:{
+                _id:this.state._id,
+                sharingReason:this.state.newSharingReason,
+                target:this.state.newTargetSociete
+            }
+        }).then(({data})=>{
+            data.shareVehicle.map(qrm=>{
+                if(qrm.status){
+                    this.closeShare();
+                    this.loadVehicule();
+                    this.props.toast({message:qrm.message,type:"success"});
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    unshareVehicle = () => {
+        this.closeUnArchive();
+        this.props.client.mutate({
+            mutation:this.state.unshareVehicleQuery,
+            variables:{
+                _id:this.state._id
+            }
+        }).then(({data})=>{
+            data.unshareVehicle.map(qrm=>{
+                if(qrm.status){
+                    this.closeUnshare();
+                    this.loadVehicule();
+                    this.props.toast({message:qrm.message,type:"success"});
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    sellVehicle = () => {
+        this.closeArchive();
+        this.props.client.mutate({
+            mutation:this.state.sellVehicleQuery,
+            variables:{
+                _id:this.state._id,
+                sellingReason:this.state.newSellingReason
+            }
+        }).then(({data})=>{
+            data.sellVehicle.map(qrm=>{
+                if(qrm.status){
+                    this.closeSell();
+                    this.loadVehicule();
+                    this.props.toast({message:qrm.message,type:"success"});
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    unsellVehicle = () => {
+        this.props.client.mutate({
+            mutation:this.state.unsellVehicleQuery,
+            variables:{
+                _id:this.state._id
+            }
+        }).then(({data})=>{
+            data.unsellVehicle.map(qrm=>{
+                if(qrm.status){
+                    this.closeUnsell();
+                    this.loadVehicule();
+                    this.props.toast({message:qrm.message,type:"success"});
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    cancelSellVehicle = () => {
+        this.props.client.mutate({
+            mutation:this.state.cancelSellVehicleQuery,
+            variables:{
+                _id:this.state._id
+            }
+        }).then(({data})=>{
+            data.cancelSellVehicle.map(qrm=>{
+                if(qrm.status){
+                    this.closeCancelSell();
+                    this.loadVehicule();
+                    this.props.toast({message:qrm.message,type:"success"});
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    finishSellVehicle = () => {
+        this.props.client.mutate({
+            mutation:this.state.finishSellVehicleQuery,
+            variables:{
+                _id:this.state._id
+            }
+        }).then(({data})=>{
+            data.finishSellVehicle.map(qrm=>{
+                if(qrm.status){
+                    this.closeUnsell();
+                    this.loadVehicule();
+                    this.props.toast({message:qrm.message,type:"success"});
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    addHistoryEntry = () => {
+        this.closeAddHistoryEntry();
+        this.props.client.mutate({
+            mutation:this.state.addHistoryEntryQuery,
+            variables:{
+                _id:this.state._id,
+                content:this.state.newHistoryEntryContent
+            }
+        }).then(({data})=>{
+            data.addHistoryEntry.map(qrm=>{
+                if(qrm.status){
+                    this.closeAddHistoryEntry();
+                    this.loadVehicule();
+                    this.setState({activePanel:"pannes"})
+                    this.props.toast({message:qrm.message,type:"success"});
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    deleteHistoryEntry = () => {
+        this.props.client.mutate({
+            mutation:this.state.deleteHistoryEntryQuery,
+            variables:{
+                _id:this.state.selectedEntry,
+                vehicle:this.state.vehicle._id
+            }
+        }).then(({data})=>{
+            data.deleteHistoryEntry.map(qrm=>{
+                if(qrm.status){
+                    this.setState({selectedEntry:""})
+                    this.closeDeleteHistoryEntry();
+                    this.loadVehicule();
+                    this.props.toast({message:qrm.message,type:"success"});
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    breakVehicle = () => {
+        this.closeArchive();
+        this.props.client.mutate({
+            mutation:this.state.breakVehicleQuery,
+            variables:{
+                _id:this.state._id
+            }
+        }).then(({data})=>{
+            data.breakVehicle.map(qrm=>{
+                if(qrm.status){
+                    this.closeBreak();
+                    this.loadVehicule();
+                    this.props.toast({message:qrm.message,type:"success"});
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    unbreakVehicle = () => {
+        this.closeUnArchive();
+        this.props.client.mutate({
+            mutation:this.state.unbreakVehicleQuery,
+            variables:{
+                _id:this.state._id
+            }
+        }).then(({data})=>{
+            data.unbreakVehicle.map(qrm=>{
+                if(qrm.status){
+                    this.closeUnbreak();
+                    this.loadVehicule();
+                    this.props.toast({message:qrm.message,type:"success"});
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    updateKm = () => {
+        this.props.client.mutate({
+            mutation:this.state.updateKmQuery,
+            variables:{
+                _id:this.state._id,
+                date:this.state.newDateReport,
+                kmValue:parseInt(this.state.newKm)
+            }
+        }).then(({data})=>{
+            data.updateKm.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.closeUpdateKm();
+                    this.loadVehicule();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    saveEditIdent = () => {
+        this.props.client.mutate({
+            mutation:this.state.editVehicleIdentQuery,
+            variables:{
+                _id:this.state._id,
+                societe:this.state.newSociete,
+                registration:this.state.newRegistration,
+                firstRegistrationDate:this.state.newFirstRegistrationDate,
+                brand:this.state.newBrand,
+                model:this.state.newModel,
+                volume:this.state.newVolume,
+                payload:this.state.newPayload,
+                color:this.state.newColor,
+                energy:this.state.newEnergy
+            }
+        }).then(({data})=>{
+            data.editVehicleIdent.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.closeEditIdent();
+                    this.loadVehicule();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    saveEditFinances = () => {
+        this.props.client.mutate({
+            mutation:this.state.editVehicleFinancesQuery,
+            variables:{
+                _id:this.state._id,
+                property:this.state.newProperty,
+                purchasePrice:parseFloat(this.state.newPurchasePrice),
+                insurancePaid:parseFloat(this.state.newInsurancePaid),
+                payementBeginDate:this.state.newPayementBeginDate,
+                payementEndDate:this.state.newPayementEndDate,
+                payementOrg:this.state.newPayementOrg,
+                payementTime:this.state.newPayementTime,
+                payementFormat:this.state.newPayementFormat,
+                monthlyPayement:parseFloat(this.state.newMonthlyPayement)
+            }
+        }).then(({data})=>{
+            data.editVehicleFinances.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.closeEditFinances();
+                    this.loadVehicule();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    deleteKm = () => {
+        this.closeDeleteKm()
+        this.props.client.mutate({
+            mutation:this.state.deleteKmQuery,
+            variables:{
+                _id:this.state.selectedKm,
+                vehicle:this.state._id
+            }
+        }).then(({data})=>{
+            data.deleteKm.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.loadVehicule();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    /*CONTENT GETTERS*/
     getPayementProgress = () => {
         let totalMonths = parseInt(moment(this.state.vehicle.payementEndDate,"DD/MM/YYYY").diff(moment(this.state.vehicle.payementBeginDate,"DD/MM/YYYY"),'months', true));
         let monthsDone = parseInt(moment().diff(moment(this.state.vehicle.payementBeginDate,"DD/MM/YYYY"),'months', true));
@@ -1201,14 +1121,12 @@ class Vehicle extends Component {
             return <Progress active color="green" value={value} total={this.state.vehicle.purchasePrice} label={value + " / " + this.state.vehicle.purchasePrice + " : propriété, fin de payement prévue dans "+parseInt(monthsLeft)+" mois."} />
         }
     }
-
     getChartMonths = () => {
         let monthsLabels = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jui', 'Jui','Aoû','Sep','Oct','Nov','Déc'];
         let thisYear = parseInt(moment().format('YY'))
         let start = parseInt(moment().format('M'))-1;
         return monthsLabels.slice(start+1).map(x=> x=x+" "+(thisYear-1)).concat(monthsLabels.slice(0,start+1).map(x=> x=x+" "+thisYear))
     }
-
     getInChartMonthIndex = date => {
         if(moment(date).format("Y") == moment().format('Y')){
             return 12+parseInt(moment(date).format("M"))-1
@@ -1218,7 +1136,6 @@ class Vehicle extends Component {
         }
         return "error"
     }
-
     getChartSharedValues = () => {
         if(this.state.loading){return []}
         let kms = Array.from(this.state.vehicle.kms)
@@ -1287,7 +1204,6 @@ class Vehicle extends Component {
         }
         return sharedKms.filter(x =>(parseInt(moment(x.month,"MM/YYYY").format("M")) > parseInt(moment().format("M")) && parseInt(moment(x.month,"MM/YYYY").format("YYYY")) != parseInt(moment().format("YYYY"))) || (parseInt(moment(x.month,"MM/YYYY").format("M")) <= parseInt(moment().format("M")) && parseInt(moment(x.month,"MM/YYYY").format("YYYY")) == parseInt(moment().format("YYYY")))).map(x=>x.km);
     }
-
     getChartData = () => {
         return {
             labels: this.getChartMonths(),
@@ -1316,7 +1232,6 @@ class Vehicle extends Component {
             ]
         }
     }
-
     getDeleteOptions = () => {
         if(this.props.user.isOwner){
             if(this.state.vehicle.archived){
@@ -1350,7 +1265,6 @@ class Vehicle extends Component {
             }
         }
     }
-
     getShareOptions = () => {
         if(this.state.vehicle.shared){
             return(
@@ -1366,7 +1280,6 @@ class Vehicle extends Component {
             )
         }
     }
-
     getSellOptions = () => {
         if(this.state.vehicle.selling){//CONCLUSION OU RETRAIT
             return(
@@ -1390,7 +1303,6 @@ class Vehicle extends Component {
             }
         }
     }
-
     getBrokenOptions = () => {
         if(this.state.vehicle.broken){
             return(
@@ -1402,7 +1314,6 @@ class Vehicle extends Component {
             )
         }
     }
-
     getSoldDocsOptions = () => {
         if(this.state.vehicle.sold){
             return(
@@ -1410,7 +1321,6 @@ class Vehicle extends Component {
             )
         }
     }
-
     getActivePanel = () => {
         if(this.state.activePanel == "ident"){
             return this.getIdentPanel()
@@ -1425,12 +1335,11 @@ class Vehicle extends Component {
             return this.getAccidentsPanel()
         }
     }
-
     getIdentPanel = () => {
         if(this.state.editingIdent){
             return (
                 <Segment attached='bottom' style={{padding:"24px"}}>
-                    <Form className="formBoard editing">
+                    <Form style={{display:"grid",gridTemplateRows:"auto auto auto auto auto 1fr auto",height:"100%"}} className="formBoard editing">
                         <Form.Field style={{gridColumnEnd:"span 2"}}><label>Societé</label>
                             <SocietePicker restrictToVisibility defaultValue={this.state.vehicle.societe._id} groupAppears={false} onChange={this.handleChangeSociete}/>
                         </Form.Field>
@@ -1645,7 +1554,6 @@ class Vehicle extends Component {
             )
         }
     }
-
     getUncompleteFinancialPanel = () => {
         if(!this.state.vehicle.financialInfosComplete){
             return (
@@ -1653,7 +1561,6 @@ class Vehicle extends Component {
             )
         }
     }
-
     getArchivePanel = () => {
         if(this.state.vehicle.archived){
             let justification = this.state.vehicle.archiveJustification.justification
@@ -1665,7 +1572,6 @@ class Vehicle extends Component {
             )
         }
     }
-
     getSharedPanel = () => {
         if(this.state.vehicle.shared){
             return (
@@ -1673,7 +1579,6 @@ class Vehicle extends Component {
             )
         }
     }
-
     getSellingPanel = () => {
         if(this.state.vehicle.sold){
             return (
@@ -1686,7 +1591,6 @@ class Vehicle extends Component {
             )
         }
     }
-
     getBrokenPanel = () => {
         if(this.state.vehicle.broken){
             return (
@@ -1694,7 +1598,7 @@ class Vehicle extends Component {
             )
         }
     }
-
+    /*COMPONENTS LIFECYCLE*/
     componentDidMount = () => {
         this.loadVehicule();
     }

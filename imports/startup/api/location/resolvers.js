@@ -2,10 +2,12 @@ import Locations from './locations.js';
 import Societes from '../societe/societes.js';
 import Licences from '../licence/licences.js';
 import Entretiens from '../entretien/entretiens';
+import Accidents from '../accident/accidents';
 import Fournisseurs from '../fournisseur/fournisseurs';
 import Volumes from '../volume/volumes.js';
 import Brands from '../brand/brands.js';
 import Models from '../model/models.js';
+import Energies from '../energy/energies';
 import Colors from '../color/colors.js';
 import Documents from '../document/documents';
 import Equipements from '../equipement/equipements';
@@ -36,6 +38,11 @@ const affectLocationData = location => {
         location.model = Models.findOne({_id:new Mongo.ObjectID(location.model)});
     }else{
         location.model = {_id:""};
+    }
+    if(location.energy != null && location.energy.length > 0){
+        location.energy = Energies.findOne({_id:new Mongo.ObjectID(location.energy)});
+    }else{
+        location.energy = {_id:""};
     }
     if(location.color != null && location.color.length > 0){
         location.color = Colors.findOne({_id:new Mongo.ObjectID(location.color)});
@@ -78,11 +85,38 @@ const affectLocationData = location => {
     }
 }
 
+const affectLocationAccidents = location => {
+    location.accidents = Accidents.find({vehicle:location._id._str}).fetch() || {};
+    location.accidents.forEach(a => {
+        if(a.rapportExp != null && a.rapportExp.length > 0){
+            a.rapportExp = Documents.findOne({_id:new Mongo.ObjectID(a.rapportExp)});
+        }else{
+            a.rapportExp = {_id:""};
+        }
+        if(a.constat != null && a.constat.length > 0){
+            a.constat = Documents.findOne({_id:new Mongo.ObjectID(a.constat)});
+        }else{
+            a.constat = {_id:""};
+        }
+        if(a.facture != null && a.facture.length > 0){
+            a.facture = Documents.findOne({_id:new Mongo.ObjectID(a.facture)});
+        }else{
+            a.facture = {_id:""};
+        }
+        if(a.questionary != null && a.questionary.length > 0){
+            a.questionary = Documents.findOne({_id:new Mongo.ObjectID(a.questionary)});
+        }else{
+            a.questionary = {_id:""};
+        }
+    });
+}
+
 export default {
     Query : {
         location(obj, {_id}, { user }){
             let location = Locations.findOne({_id:new Mongo.ObjectID(_id)});
             affectLocationData(location)
+            affectLocationAccidents(location)
             return location;
         },
         locations(obj, args){
@@ -102,7 +136,7 @@ export default {
         }
     },
     Mutation:{
-        addLocation(obj, {societe,fournisseur,registration,firstRegistrationDate,km,lastKmUpdate,brand,model,volume,payload,color,insurancePaid,endDate,price,reason},{user}){
+        addLocation(obj, {societe,fournisseur,registration,firstRegistrationDate,km,lastKmUpdate,brand,model,energy,volume,payload,color,insurancePaid,endDate,price,reason},{user}){
             if(user._id){
                 Locations.insert({
                     _id:new Mongo.ObjectID(),
@@ -112,6 +146,7 @@ export default {
                     firstRegistrationDate:firstRegistrationDate,
                     brand:brand,
                     model:model,
+                    energy:energy,
                     volume:volume,
                     payload:payload,
                     color:color,
@@ -139,7 +174,7 @@ export default {
             }
             throw new Error('Unauthorized');
         },
-        editLocationTech(obj, {_id,societe,registration,firstRegistrationDate,brand,model,volume,payload,color},{user}){
+        editLocationIdent(obj, {_id,societe,registration,firstRegistrationDate,brand,model,energy,volume,payload,color},{user}){
             if(user._id){
                 Locations.update(
                     {
@@ -151,6 +186,7 @@ export default {
                             "firstRegistrationDate":firstRegistrationDate,
                             "brand":brand,
                             "model":model,
+                            "energy":energy,
                             "volume":volume,
                             "payload":payload,
                             "color":color

@@ -40,6 +40,11 @@ class LocationRow extends Component {
             return <Table.Cell textAlign="center">{this.props.rental.societe.name}</Table.Cell>
         }
     }
+    getDescCell = () => {
+        return(
+            <Table.Cell textAlign="center">{this.props.rental.brand.name + " - " + this.props.rental.model.name + " (" + this.props.rental.energy.name + ")"}</Table.Cell>
+        )
+    }
     getLastReportCell = () => {
             let days = parseInt(moment().diff(moment(this.props.rental.lastKmUpdate, "DD/MM/YYYY"),'days'));
             if(days < 9){
@@ -91,8 +96,7 @@ class LocationRow extends Component {
                     <Table.Cell textAlign="center">{this.props.rental.registration}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.rental.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km</Table.Cell>
                     {this.getLastReportCell()}
-                    <Table.Cell textAlign="center">{this.props.rental.brand.name}</Table.Cell>
-                    <Table.Cell textAlign="center">{this.props.rental.model.name}</Table.Cell>
+                    {this.getDescCell()}
                     <Table.Cell textAlign="center">{this.props.rental.volume.meterCube+" m²"}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.rental.payload} t.</Table.Cell>
                     {this.getEndDateLabel()}

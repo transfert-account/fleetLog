@@ -9,6 +9,7 @@ type Location{
     lastKmUpdate:String
     brand:Brand
     model:Model
+    energy:Energy
     volume:Volume
     payload:Float
     color:Color
@@ -27,6 +28,7 @@ type Location{
     archiveReason:String
     archiveDate:String
     returned:Boolean
+    accidents:[Accident]
 }
 
 extend type Query{
@@ -36,8 +38,8 @@ extend type Query{
 }
 
 extend type Mutation{
-    addLocation(societe:String!,fournisseur:String!,registration:String!,firstRegistrationDate:String!,km:Int!,lastKmUpdate:String!,brand:String!,model:String!,volume:String!,payload:Float!,color:String!,insurancePaid:Float!,price:Float!,endDate:String!,reason:String!): [QueryResultMessage]
-    editLocationTech(_id:String!,societe:String!,registration:String!,firstRegistrationDate:String!,brand:String!,model:String!,volume:String!,payload:Float!,color:String!): [QueryResultMessage]
+    addLocation(societe:String!,fournisseur:String!,registration:String!,firstRegistrationDate:String!,km:Int!,lastKmUpdate:String!,brand:String!,model:String!,energy:String!,volume:String!,payload:Float!,color:String!,insurancePaid:Float!,price:Float!,endDate:String!,reason:String!): [QueryResultMessage]
+    editLocationIdent(_id:String!,societe:String!,registration:String!,firstRegistrationDate:String!,brand:String!,model:String!,energy:String!,volume:String!,payload:Float!,color:String!): [QueryResultMessage]
     editLocationFinances(_id:String!,fournisseur:String!,insurancePaid:Float!,price:Float!,startDate:String!,endDate:String!,reason:String!): [QueryResultMessage]
     updateLocKm(_id:String!,date:String!,kmValue:Int!):[QueryResultMessage]
     archiveLocation(_id:String!,archiveReason:String!):[QueryResultMessage]

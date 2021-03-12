@@ -1,6 +1,8 @@
 type StoredObject{
     name: String
     doc: Document
+    related:String
+    type:String
 }
 
 extend type Query{

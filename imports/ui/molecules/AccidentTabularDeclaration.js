@@ -273,7 +273,7 @@ export class AccidentTabularDeclaration extends Component {
         }
     }
     getNullableValue = v => {
-        if(v == -1){
+        if(v < 0){
             return "n/a"
         }else{
             return v + " €"

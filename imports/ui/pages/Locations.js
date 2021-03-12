@@ -16,6 +16,7 @@ import VolumePicker from '../atoms/VolumePicker';
 import ColorPicker from '../atoms/ColorPicker';
 import ModelPicker from '../atoms/ModelPicker';
 import BrandPicker from '../atoms/BrandPicker';
+import EnergyPicker from '../atoms/EnergyPicker';
 
 import { gql } from 'apollo-server-express';
 import moment from 'moment';
@@ -31,6 +32,7 @@ class Locations extends Component {
         newLastKmUpdate:"",
         newBrand:"",
         newModel:"",
+        newEnergy:"",
         newVolume:"",
         newPayload:0,
         newColor:"",
@@ -206,8 +208,8 @@ class Locations extends Component {
             )
         },
         addLocationQuery : gql`
-            mutation addLocation($societe:String!,$fournisseur:String!,$registration:String!,$firstRegistrationDate:String!,$km:Int!,$lastKmUpdate:String!,$brand:String!,$model:String!,$volume:String!,$payload:Float!,$color:String!,$insurancePaid:Float!,$price:Float!,$endDate:String!,$reason:String!){
-                addLocation(societe:$societe,fournisseur:$fournisseur,registration:$registration,firstRegistrationDate:$firstRegistrationDate,km:$km,lastKmUpdate:$lastKmUpdate,brand:$brand,model:$model,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,price:$price,endDate:$endDate,reason:$reason){
+            mutation addLocation($societe:String!,$fournisseur:String!,$registration:String!,$firstRegistrationDate:String!,$km:Int!,$lastKmUpdate:String!,$brand:String!,$model:String!,$energy:String!,$volume:String!,$payload:Float!,$color:String!,$insurancePaid:Float!,$price:Float!,$endDate:String!,$reason:String!){
+                addLocation(societe:$societe,fournisseur:$fournisseur,registration:$registration,firstRegistrationDate:$firstRegistrationDate,km:$km,lastKmUpdate:$lastKmUpdate,brand:$brand,model:$model,energy:$energy,volume:$volume,payload:$payload,color:$color,insurancePaid:$insurancePaid,price:$price,endDate:$endDate,reason:$reason){
                     status
                     message
                 }
@@ -243,6 +245,10 @@ class Locations extends Component {
                         name
                     }
                     model{
+                        _id
+                        name
+                    }
+                    energy{
                         _id
                         name
                     }
@@ -312,6 +318,10 @@ class Locations extends Component {
                         name
                     }
                     model{
+                        _id
+                        name
+                    }
+                    energy{
                         _id
                         name
                     }
@@ -390,6 +400,7 @@ class Locations extends Component {
     handleChangeVolume = (e, { value }) => this.setState({ newVolume:value })
     handleChangeBrand = (e, { value }) => this.setState({ newBrand:value })
     handleChangeModel = (e, { value }) => this.setState({ newModel:value })
+    handleChangeEnergy = (e, { value }) => this.setState({ newEnergy:value })
     handleChangeColor = (e, { value }) => this.setState({ newColor:value })
     handleChangeSociete = (e, { value }) => this.setState({ newSociete:value })
     handleChangeFournisseur = (e, { value }) => this.setState({ newFournisseur:value })
@@ -440,6 +451,7 @@ class Locations extends Component {
                 lastKmUpdate:this.state.newLastKmUpdate,
                 brand:this.state.newBrand,
                 model:this.state.newModel,
+                energy:this.state.newEnergy,
                 volume:this.state.newVolume,
                 payload:parseFloat(this.state.newPayload),
                 color:this.state.newColor,
@@ -500,8 +512,7 @@ class Locations extends Component {
                         <Table.HeaderCell>Immatriculation</Table.HeaderCell>
                         <Table.HeaderCell>Kilométrage</Table.HeaderCell>
                         <Table.HeaderCell>Dernier relevé</Table.HeaderCell>
-                        <Table.HeaderCell>Marque</Table.HeaderCell>
-                        <Table.HeaderCell>Modèle</Table.HeaderCell>
+                        <Table.HeaderCell>Marque, Modèle & Energie</Table.HeaderCell>
                         <Table.HeaderCell>Volume</Table.HeaderCell>
                         <Table.HeaderCell>Charge utile</Table.HeaderCell>
                         <Table.HeaderCell>Fin de contrat</Table.HeaderCell>
@@ -554,22 +565,23 @@ class Locations extends Component {
                     </Modal.Header>
                     <Modal.Content style={{textAlign:"center"}}>
                         <Form style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr 1fr 1fr",gridGap:"16px"}}>
-                            <Form.Field style={{gridColumnStart:"2",gridColumnEnd:"span 2"}}>
+                            <Form.Field style={{gridColumnEnd:"span 2"}}>
                                 <label>Societe</label>
                                 <SocietePicker restrictToVisibility groupAppears={false} onChange={this.handleChangeSociete}/>
                             </Form.Field>
                             <Form.Field style={{gridColumnEnd:"span 2"}}><label>Fournisseur</label><FournisseurPicker onChange={this.handleChangeFournisseur}/></Form.Field>
+                            <RegistrationInput style={{gridColumnEnd:"span 2"}} onChange={this.handleRegistrationChange} name="newRegistration"/>
                             <Divider style={{gridColumnEnd:"span 6",height:"23px"}} horizontal>
                                 <Header as='h4'>
                                     <Icon name='clipboard' />
                                     Details
                                 </Header>
                             </Divider>
-                            <RegistrationInput style={{gridColumnEnd:"span 2"}} onChange={this.handleRegistrationChange} name="newRegistration"/>
                             <Form.Field style={{gridColumnEnd:"span 2"}}><label>Date de première immatriculation</label><input onChange={this.handleChange} value={this.state.newFirstRegistrationDate} onFocus={()=>{this.showDatePicker("newFirstRegistrationDate")}} name="newFirstRegistrationDate"/></Form.Field>
                             <Form.Field style={{gridColumnEnd:"span 2"}}><label>Kilométrage au retrait</label><input onChange={this.handleChange} name="newKm"/></Form.Field>
                             <Form.Field style={{gridColumnEnd:"span 2"}}><label>Date de retrait</label><input onChange={this.handleChange} value={this.state.newLastKmUpdate} onFocus={()=>{this.showDatePicker("newLastKmUpdate")}} name="newLastKmUpdate"/></Form.Field>
                             <Form.Field style={{gridColumnEnd:"span 2"}}><label>Marque</label><BrandPicker onChange={this.handleChangeBrand}/></Form.Field>
+                            <Form.Field style={{gridColumnEnd:"span 2"}}><label>Marque</label><EnergyPicker onChange={this.handleChangeEnergy}/></Form.Field>
                             <Form.Field style={{gridColumnEnd:"span 2"}}><label>Modèle</label><ModelPicker onChange={this.handleChangeModel}/></Form.Field>
                             <Form.Field style={{gridColumnEnd:"span 2"}}><label>Volume</label><VolumePicker onChange={this.handleChangeVolume}/></Form.Field>
                             <Form.Field style={{gridColumnEnd:"span 2"}}><label>Payload</label><input onChange={this.handleChange} name="newPayload"/></Form.Field>

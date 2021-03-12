@@ -1,5 +1,6 @@
 import Accidents from './accidents.js';
 import Vehicles from '../vehicle/vehicles.js';
+import Locations from '../location/locations.js';
 import Societes from '../societe/societes';
 import Models from '../model/models';
 import Brands from '../brand/brands';
@@ -16,7 +17,11 @@ const affectData = a => {
         a.societe = {_id:""};
     }
     if(a.vehicle != null && a.vehicle.length > 0){
-        a.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(a.vehicle)});
+        let v = Vehicles.findOne({_id:new Mongo.ObjectID(a.vehicle)});
+        if(v == null || v == undefined){
+            v = Locations.findOne({_id:new Mongo.ObjectID(a.vehicle)});
+        }
+        a.vehicle = v;
         if(a.vehicle.brand != null && a.vehicle.brand.length > 0){
             a.vehicle.brand = Brands.findOne({_id:new Mongo.ObjectID(a.vehicle.brand)});
         }else{
@@ -78,7 +83,11 @@ export default {
     Mutation:{
         addAccident(obj, {vehicle,occurenceDate},{user}){
             if(user._id){
-                let v = Vehicles.findOne({_id:new Mongo.ObjectID(vehicle)});
+                let v;
+                v = Vehicles.findOne({_id:new Mongo.ObjectID(vehicle)});
+                if(v == null){
+                    v = Locations.findOne({_id:new Mongo.ObjectID(vehicle)});
+                }
                 Accidents.insert({
                     _id:new Mongo.ObjectID(),
                     societe:v.societe,

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Input, Table } from 'semantic-ui-react';
 import AdministrationMenu from '../molecules/AdministrationMenu';
 import StoredObjectRow from '../molecules/StoredObjectRow';
+import MultiDropdown from '../atoms/MultiDropdown';
 import { UserContext } from '../../contexts/UserContext';
 import { withRouter } from 'react-router-dom';
 import { gql } from 'apollo-server-express';
@@ -28,8 +29,63 @@ export class Storage extends Component {
             storageDate
           }
         }
-      }
+      },
     `,
+    types:[
+      {
+        obj:"vehicles",
+        name:"Vehicles",
+        types:[
+          {type:"cg",name:""},
+          {type:"cv",name:""},
+          {type:"crf",name:""},
+          {type:"ida",name:""},
+          {type:"scg",name:""}
+        ]
+      },{
+        obj:"locations",
+        name:"Locations",
+        types:[
+          {type:"cg",name:""},
+          {type:"cv",name:""},
+          {type:"contrat",name:""},
+          {type:"restitution",name:""}
+        ]
+      },{
+        obj:"accidents",
+        name:"Accidents",
+        types:[
+          {type:"constat",name:""},
+          {type:"rapportExp",name:""},
+          {type:"facture",name:""},
+          {type:"questionary",name:""}
+        ]
+      },{
+        obj:"batiments",
+        name:"Batiments",
+        types:[
+          {type:"ficheInter",name:""}
+        ]
+      },{
+        obj:"entretiens",
+        name:"Entretiens",
+        types:[
+          {type:"ficheInter",name:""}
+        ]
+      },{
+        obj:"equipements",
+        name:"Equipements",
+        types:[
+          {type:"controlTech",name:""}
+        ]
+      },{
+        obj:"licences",
+        name:"Licences",
+        types:[
+          {type:"licence",name:""}
+        ]
+      }
+    ],
     storedObjectsRaw:[],
     storedObjects : () => {
       let displayed = Array.from(this.state.storedObjectsRaw);
@@ -68,6 +124,10 @@ export class Storage extends Component {
         <div style={{display:"grid",marginBottom:"0",gridTemplateColumns:"auto 1fr", gridGap:"32px"}}>
           <AdministrationMenu active="storage"/>
           <Input name="storageFilter" onChange={this.handleFilter} size='massive' icon='search' placeholder='Rechercher un objet ...' />
+        </div>
+        <div>
+        
+        
         </div>
         <div style={{display:"block",overflowY:"auto",justifySelf:"stretch"}}>
           <Table compact selectable striped color="blue">
