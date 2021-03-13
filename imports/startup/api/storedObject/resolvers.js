@@ -91,7 +91,9 @@ export default {
                                 so.res.push(Licences.findOne({[p.subtype]:so.doc._id._str}))
                             })
                             so.res = so.res.filter(x=>x != null)
-                            console.log(i + " => " + so.res.length)
+                            if(so.res.length == 1){
+                              console.log(so.res)
+                            }
                         }
                     })
                     return storedObjects;
