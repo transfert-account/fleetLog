@@ -8,6 +8,7 @@ import Entretiens from '../entretien/entretiens'
 import Equipements from '../equipement/equipements'
 import Licences from '../licence/licences'
 
+const COLS = [{col:Vehicles,obj:"Vehicles"},{col:Locations,obj:"Locations"},{col:Accidents,obj:"Accidents"},{col:Batiments,obj:"Batiments"},{col:Entretiens,obj:"Entretiens"},{col:Equipements,obj:"Equipements"},{col:Licences,obj:"Licences"}]
 const TYPES = [
     {
       obj:"vehicles",name:"Vehicles",types:[
@@ -84,15 +85,14 @@ export default {
                             so.res = []
                             so.debug = JSON.stringify({msg:"INITIATED"})
                             possible.forEach(p=>{
-                                so.res.push({obj:"Vehicles",objValue:Vehicles.findOne({[p.subtype]:so.doc._id._str})})
-                                so.res.push({obj:"Locations",objValue:Locations.findOne({[p.subtype]:so.doc._id._str})})
-                                so.res.push({obj:"Accidents",objValue:Accidents.findOne({[p.subtype]:so.doc._id._str})})
-                                so.res.push({obj:"Batiments",objValue:Batiments.findOne({[p.subtype]:so.doc._id._str})})
-                                so.res.push({obj:"Entretiens",objValue:Entretiens.findOne({[p.subtype]:so.doc._id._str})})
-                                so.res.push({obj:"Equipements",objValue:Equipements.findOne({[p.subtype]:so.doc._id._str})})
-                                so.res.push({obj:"Licences",objValue:Licences.findOne({[p.subtype]:so.doc._id._str})})
+                              COLS.forEach(c=>{
+                                let res = c.col.findOne({[p.subtype]:so.doc._id._str})
+                                if(res != null){
+                                  so.res.push({obj:c.obj,objValue:res})
+                                }
+                              })
                             })
-                            so.debug = JSON.stringify(so.res.filter(x=>x != null))
+                            so.debug = JSON.stringify(so.res)
                         }
                     })
                     return storedObjects;
