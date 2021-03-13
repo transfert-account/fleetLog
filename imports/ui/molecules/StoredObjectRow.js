@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import { Table, Icon, Button, Modal, Header, Label } from 'semantic-ui-react';
+import { Table, Icon, Button, Modal, Header, Label, Message } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 import gql from 'graphql-tag';
 import moment from 'moment';
@@ -87,16 +87,10 @@ export class StoredObjectRow extends Component {
                 <Fragment>
                     <Table.Row negative>
                         <Table.Cell>{this.props.so.name}</Table.Cell>
-                        <Table.Cell>{this.props.so.doc.originalFilename}</Table.Cell>
-                        <Table.Cell textAlign="center"></Table.Cell>
-                        <Table.Cell textAlign="center">
-                            <Label>
-                                NO DOC
-                            </Label>
-                        </Table.Cell>
-                        <Table.Cell textAlign="center">
-                            <Label>
-                                NO DOC
+                        <Table.Cell textAlign="center">{parseFloat(this.props.so.size/1048576).toFixed(2)} Mo</Table.Cell>
+                        <Table.Cell colSpan="3" textAlign="center">
+                            <Label color="red">
+                                Document non référencé sur la plateforme
                             </Label>
                         </Table.Cell>
                         <Table.Cell textAlign="center">
@@ -104,62 +98,102 @@ export class StoredObjectRow extends Component {
                         </Table.Cell>
                     </Table.Row>
                     <Modal open={this.state.displayStoredFileName} onClose={()=>this.setState({displayStoredFileName:false})}>
-                        <Header icon='file' content={this.props.so.doc.name} />
+                        <Header icon='file' content={"Document non référencé : " + this.props.so.name}/>
                         <Modal.Content>
-                            <p>{"Chemin : " + this.props.so.doc.path}</p>
-                            <br/>
+                            <Message color="red">
+                                Ce document apparaît ici car il est stocké sur le bucket Amazon S3 de la plateforme, toutefois il n'est référencé nul part et la plateforme ignore sont existence.
+                            </Message>
                             {this.getDownloadLink()}
                         </Modal.Content>
                         <Modal.Actions>
                             {this.getDownloadButton()}
-                            <Button basic color='red' onClick={()=>this.setState({displayStoredFileName:false})}>
-                                <Icon name='cancel'/> Fermer
-                            </Button>
+                            <Button basic color='black' onClick={()=>this.setState({displayStoredFileName:false})}><Icon name='cancel'/> Fermer</Button>
+                            <Button basic color='red' onClick={()=>this.setState({displayStoredFileName:false})}><Icon name='trash'/> Supprimer</Button>
                         </Modal.Actions>
-                    </Modal>
+                        </Modal>
                 </Fragment>
             )
         }else{
-            return (
-                <Fragment>
-                    <Table.Row>
-                        <Table.Cell>{this.props.so.name}</Table.Cell>
-                        <Table.Cell>{this.props.so.doc.originalFilename}</Table.Cell>
-                        <Table.Cell textAlign="center">{parseFloat(this.props.so.size/1048576).toFixed(2)} Mo</Table.Cell>
-                        <Table.Cell textAlign="center">
-                            <Label color='grey' image>
-                                {this.state.debug.obj}
-                                <Label.Detail>{this.state.debug.type}</Label.Detail>
-                            </Label>
-                        </Table.Cell>
-                        <Table.Cell textAlign="center">
-                            <Label color={(this.props.so.linkedObjInfos == "Not supported yet" ? "black" : "blue")}>
-                                {this.props.so.linkedObjInfos}
-                            </Label>
-                        </Table.Cell>
-                        <Table.Cell textAlign="center">
-                            <Button size='mini' style={{color:"#00a8ff"}} icon icon='search' onClick={()=>{this.setState({displayStoredFileName:true})}}/>
-                        </Table.Cell>
-                    </Table.Row>
-                    <Modal open={this.state.displayStoredFileName} onClose={()=>this.setState({displayStoredFileName:false})}>
-                        <Header icon='file' content={this.props.so.doc.name} />
-                        <Modal.Content>
-                            Stocké : <Label style={{marginRight:"16px"}}> {moment(this.props.so.doc.storageDate.split(" ")[0],"DD/MM/YYYY").fromNow()}</Label>
-                            le {this.props.so.doc.storageDate.split(" ").join(" à ")}
-                            <br/>
-                            <p>{"Chemin : " + this.props.so.doc.path}</p>
-                            <br/>
-                            {this.getDownloadLink()}
-                        </Modal.Content>
-                        <Modal.Actions>
-                            {this.getDownloadButton()}
-                            <Button basic color='red' onClick={()=>this.setState({displayStoredFileName:false})}>
-                                <Icon name='cancel'/> Fermer
-                            </Button>
-                        </Modal.Actions>
-                    </Modal>
-                </Fragment>
-            )
+            if(this.state.debug.obj == "unlinked"){
+                return (
+                    <Fragment>
+                        <Table.Row warning>
+                            <Table.Cell>{this.props.so.name}</Table.Cell>
+                            <Table.Cell textAlign="center">{parseFloat(this.props.so.size/1048576).toFixed(2)} Mo</Table.Cell>
+                            <Table.Cell textAlign="center">{this.props.so.doc.originalFilename}</Table.Cell>
+                            <Table.Cell textAlign="center" colSpan="2">
+                                <Label color="orange">
+                                    Document référencé mais orphelin
+                                </Label>
+                            </Table.Cell>
+                            <Table.Cell textAlign="center">
+                                <Button size='mini' style={{color:"#00a8ff"}} icon icon='search' onClick={()=>{this.setState({displayStoredFileName:true})}}/>
+                            </Table.Cell>
+                        </Table.Row>
+                        <Modal open={this.state.displayStoredFileName} onClose={()=>this.setState({displayStoredFileName:false})}>
+                            <Header icon='file' content={"Document non référencé : " + this.props.so.name}/>
+                            <Modal.Content>
+                                <Message color="orange">
+                                    Ce document apparaît ici car il est stocké sur le bucket Amazon S3 de la plateforme, si il référencé par la plateforme, il n'est plus lié à aucun objet dessus.
+                                </Message>
+                                <p>Stocké : <Label style={{marginRight:"16px"}}> {moment(this.props.so.doc.storageDate.split(" ")[0],"DD/MM/YYYY").fromNow()}</Label> le {this.props.so.doc.storageDate.split(" ").join(" à ")}</p>
+                                <p>{"Chemin : " + this.props.so.doc.path}</p>
+                                {this.getDownloadLink()}
+                            </Modal.Content>
+                            <Modal.Actions>
+                                {this.getDownloadButton()}
+                                <Button basic color='black' onClick={()=>this.setState({displayStoredFileName:false})}><Icon name='cancel'/> Fermer</Button>
+                                <Button basic color='red' onClick={()=>this.setState({displayStoredFileName:false})}><Icon name='trash'/> Supprimer</Button>
+                            </Modal.Actions>
+                        </Modal>
+
+
+
+
+                    </Fragment>
+                )
+            }else{
+                return (
+                    <Fragment>
+                        <Table.Row>
+                            <Table.Cell>{this.props.so.name}</Table.Cell>
+                            <Table.Cell>{this.props.so.doc.originalFilename}</Table.Cell>
+                            <Table.Cell textAlign="center">{parseFloat(this.props.so.size/1048576).toFixed(2)} Mo</Table.Cell>
+                            <Table.Cell textAlign="center">
+                                <Label color='grey' image>
+                                    {this.state.debug.obj}
+                                    <Label.Detail>{this.state.debug.type}</Label.Detail>
+                                </Label>
+                            </Table.Cell>
+                            <Table.Cell textAlign="center">
+                                <Label color={(this.props.so.linkedObjInfos == "Not supported yet" ? "black" : "blue")}>
+                                    {this.props.so.linkedObjInfos}
+                                </Label>
+                            </Table.Cell>
+                            <Table.Cell textAlign="center">
+                                <Button size='mini' style={{color:"#00a8ff"}} icon icon='search' onClick={()=>{this.setState({displayStoredFileName:true})}}/>
+                            </Table.Cell>
+                        </Table.Row>
+                        <Modal open={this.state.displayStoredFileName} onClose={()=>this.setState({displayStoredFileName:false})}>
+                            <Header icon='file' content={this.props.so.doc.name} />
+                            <Modal.Content>
+                                Stocké : <Label style={{marginRight:"16px"}}> {moment(this.props.so.doc.storageDate.split(" ")[0],"DD/MM/YYYY").fromNow()}</Label>
+                                le {this.props.so.doc.storageDate.split(" ").join(" à ")}
+                                <br/>
+                                <p>{"Chemin : " + this.props.so.doc.path}</p>
+                                <br/>
+                                {this.getDownloadLink()}
+                            </Modal.Content>
+                            <Modal.Actions>
+                                {this.getDownloadButton()}
+                                <Button basic color='red' onClick={()=>this.setState({displayStoredFileName:false})}>
+                                    <Icon name='cancel'/> Fermer
+                                </Button>
+                            </Modal.Actions>
+                        </Modal>
+                    </Fragment>
+                )
+            }
         }
     }
 }

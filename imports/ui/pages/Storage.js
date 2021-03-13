@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Input, Table, Button, Icon } from 'semantic-ui-react';
+import { Input, Table, Button, Icon, Label } from 'semantic-ui-react';
 import AdministrationMenu from '../molecules/AdministrationMenu';
 import StoredObjectRow from '../molecules/StoredObjectRow';
 import MultiDropdown from '../atoms/MultiDropdown';
@@ -18,6 +18,7 @@ export class Storage extends Component {
         storedObjects{
           name
           size
+          type
           debug
           linkedObjInfos
           doc{
@@ -36,42 +37,51 @@ export class Storage extends Component {
     `,
     types:[
       {
-        obj:"vehicles",name:"Vehicles",types:[
-          {type:"cg",name:"Carte grise"},
-          {type:"cv",name:"Carte verte"},
-          {type:"crf",name:"Cerfa de vente"},
-          {type:"ida",name:"Piece d'ID acheteur"},
-          {type:"scg",name:"Carte grise barrée"}
+        obj:"noref",name:"Non référencés",color:"red",types:[
+          {type:"noref",name:"Non référencés",color:"red"},
         ]
       },{
-        obj:"locations",name:"Locations",types:[
-          {type:"cg",name:"Carte grise"},
-          {type:"cv",name:"Carte verte"},
-          {type:"contrat",name:"Contrat de location"},
-          {type:"restitution",name:"Justificatif de restitution"}
+        obj:"unlinked",name:"Orphelins",color:"orange",types:[
+          {type:"unlinked",name:"Orphelins",color:"orange"},
+        ]
+      },
+      {
+        obj:"vehicles",name:"Vehicles",color:"blue",types:[
+          {type:"cg",name:"Carte grise",color:"blue"},
+          {type:"cv",name:"Carte verte",color:"blue"},
+          {type:"crf",name:"Cerfa de vente",color:"blue"},
+          {type:"ida",name:"Piece d'ID acheteur",color:"blue"},
+          {type:"scg",name:"Carte grise barrée",color:"blue"}
         ]
       },{
-        obj:"accidents",name:"Accidents",types:[
-          {type:"constat",name:"Constat"},
-          {type:"rapportExp",name:"Rapport de l'expert"},
-          {type:"facture",name:"Facture"},
-          {type:"questionary",name:"Questionnaire"}
+        obj:"locations",name:"Locations",color:"blue",types:[
+          {type:"cg",name:"Carte grise",color:"blue"},
+          {type:"cv",name:"Carte verte",color:"blue"},
+          {type:"contrat",name:"Contrat de location",color:"blue"},
+          {type:"restitution",name:"Justificatif de restitution",color:"blue"}
         ]
       },{
-        obj:"batiments",name:"Batiments",types:[
-          {type:"ficheInter",name:"Fiche d'intervention"}
+        obj:"accidents",name:"Accidents",color:"blue",types:[
+          {type:"constat",name:"Constat",color:"blue"},
+          {type:"rapportExp",name:"Rapport de l'expert",color:"blue"},
+          {type:"facture",name:"Facture",color:"blue"},
+          {type:"questionary",name:"Questionnaire",color:"blue"}
         ]
       },{
-        obj:"entretiens",name:"Entretiens",types:[
-          {type:"ficheInter",name:"Fiche d'intervention"}
+        obj:"batiments",name:"Batiments",color:"blue",types:[
+          {type:"ficheInter",name:"Fiche d'intervention",color:"blue"}
         ]
       },{
-        obj:"equipements",name:"Equipements",types:[
-          {type:"controlTech",name:"Contrôle technique"}
+        obj:"entretiens",name:"Entretiens",color:"blue",types:[
+          {type:"ficheInter",name:"Fiche d'intervention",color:"blue"}
         ]
       },{
-        obj:"licences",name:"Licences",types:[
-          {type:"licence",name:"Licence"}
+        obj:"equipements",name:"Equipements",color:"blue",types:[
+          {type:"controlTech",name:"Contrôle technique",color:"blue"}
+        ]
+      },{
+        obj:"licences",name:"Licences",color:"blue",types:[
+          {type:"licence",name:"Licence",color:"blue"}
         ]
       }
     ],
@@ -82,13 +92,13 @@ export class Storage extends Component {
       let displayed = Array.from(this.state.storedObjectsRaw);
       displayed = displayed.filter(d=>d.name.toLowerCase().includes(this.state.storedObjectsFilter.toLowerCase()));
       if(this.state.selectedSubtype != ""){
-        displayed = displayed.filter(d=>{
-          return d.name.split("_")[1] == this.state.selectedSubtype
-        })
+        if(this.state.selectedSubtype == "noref" || this.state.selectedSubtype == "unlinked"){
+          displayed = displayed.filter(d=>{return d.type == this.state.selectedSubtype;})
+        }else{
+          displayed = displayed.filter(d=>{return d.name.split("_")[1] == this.state.selectedSubtype})
+        }
       }
-      return displayed.map(so=>(
-        <StoredObjectRow key={so.name} so={so}/>
-      ))
+      return displayed.map(so=>(<StoredObjectRow key={so.name} so={so}/>))
     }
   }
 
@@ -121,10 +131,12 @@ export class Storage extends Component {
           <AdministrationMenu active="storage"/>
           <Input name="storageFilter" onChange={this.handleFilter} size='massive' icon='search' placeholder='Rechercher un objet ...' />
         </div>
-        <div>
-          <MultiDropdown onChange={(value)=>this.setState({selectedType:value})} options={this.state.types.map(x=>{return({key:x.obj,text:x.name,value:x.obj,label:{color:'blue',empty:true,circular:true}})})}/>
-          <MultiDropdown onChange={(value)=>this.setState({selectedSubtype:value})} options={(this.state.types.filter(x=>x.obj == this.state.selectedType)[0] ? this.state.types.filter(x=>x.obj == this.state.selectedType)[0].types.map(x=>{return({key:x.type,text:x.name,value:x.type,label:{color:'blue',empty:true,circular:true}})}) : [])}/>
+        <div style={{display:"grid",gridTemplateColumns:"auto auto auto 1fr auto auto"}}>
+          <MultiDropdown onChange={(value)=>this.setState({selectedType:value})} options={this.state.types.map(x=>{return({key:x.obj,text:x.name,value:x.obj,label:{color:x.color,empty:true,circular:true}})})}/>
+          <MultiDropdown onChange={(value)=>this.setState({selectedSubtype:value})} options={(this.state.types.filter(x=>x.obj == this.state.selectedType)[0] ? this.state.types.filter(x=>x.obj == this.state.selectedType)[0].types.map(x=>{return({key:x.type,text:x.name,value:x.type,label:{color:x.color,empty:true,circular:true}})}) : [])}/>
           <Button color="red" onClick={()=>this.setState({selectedSubtype:""})}><Icon style={{margin:"0"}} name="cancel"/></Button>
+          <Label style={{gridColumnStart:"5",placeSelf:"center"}}>{parseFloat(this.state.storedObjectsRaw.reduce((a,b)=>a + b.size,0)/1048576).toFixed(2)} Mo used</Label>
+          <Label style={{gridColumnStart:"6",placeSelf:"center"}}>Total : {this.state.storedObjectsRaw.length} docs stored</Label>
         </div>
         <div style={{display:"block",overflowY:"auto",justifySelf:"stretch"}}>
           <Table compact selectable color="blue">

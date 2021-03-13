@@ -33,7 +33,7 @@ const TYPES = [
         if(!v){
           v = Locations.findOne({_id:a._id})
         }
-        return (v.registration + "(" + a.occurenceDate + ")")
+        return (v.registration + " (" + a.occurenceDate + ")")
       },
       obj:"accidents",name:"Accidents",col:Accidents,types:[
         {type:"constat",name:"Constat"},
@@ -57,7 +57,7 @@ const TYPES = [
         {type:"controlTech",name:"Contrôle technique"}
       ]
     },{
-      getLinkedObjInfos:(l)=>l.number + "(" + l.shiftName + ")",
+      getLinkedObjInfos:(l)=>l.number,
       obj:"licences",name:"Licences",col:Licences,types:[
         {type:"licence",name:"Licence"}
       ]
@@ -85,11 +85,13 @@ export default {
                   so.doc = Documents.find({_id:new Mongo.ObjectID(so.name.split(".")[0].split("_")[9])}).fetch()[0]
                   if(so.doc == null || so.doc == undefined){
                     so.doc = {_id:""};
-                    so.debug = JSON.stringify([{obj:"NO DOC RELATED IN DB",msg:"NO DOC RELATED IN DB"}])
+                    so.debug = JSON.stringify([{obj:"noref",type:"noref",objValue:null}])
+                    so.linkedObjInfos = "noref";
+                    so.type = "noref";
                   }else{
-                    so.subtype = so.name.split("_")[1]
+                    let type = so.name.split("_")[1]
                     let possible = [];
-                    TYPES.forEach(T=>{T.types.forEach(t=>{if(so.subtype == t.type){possible.push({getLinkedObjInfos:T.getLinkedObjInfos,col:T.col,obj:T.obj,subtype:t.type})}})})
+                    TYPES.forEach(T=>{T.types.forEach(t=>{if(type == t.type){possible.push({getLinkedObjInfos:T.getLinkedObjInfos,col:T.col,obj:T.obj,subtype:t.type})}})})
                     so.res = []
                     so.linkedObjInfos = "";
                     possible.forEach(p=>{
@@ -97,15 +99,18 @@ export default {
                       if(res != null){
                         so.res.push({obj:p.obj,type:p.subtype,objValue:res})
                         so.linkedObjInfos = p.getLinkedObjInfos(res);
+                        so.type = type
                       }
                     })
                     if(possible.length == 0){
-                      so.res.push({obj:"none",type:"L0",objValue:null})
-                      so.linkedObjInfos = "none L0";
+                      so.res.push({obj:"unknown type",type:"unknown type",objValue:null})
+                      so.linkedObjInfos = "unknown type";
+                      so.type = "unknown type";
                     }
                     if(so.res.length == 0){
-                      so.res.push({obj:"res",type:"all null",objValue:null})
-                      so.linkedObjInfos = "res all null";
+                      so.res.push({obj:"unlinked",type:"unlinked",objValue:null})
+                      so.linkedObjInfos = "unlinked";
+                      so.type = "unlinked";
                     }
                     so.debug = JSON.stringify(so.res)
                   }
