@@ -79,6 +79,9 @@ export class StoredObjectRow extends Component {
         }
     }
 
+    componentDidMount = () => {
+    }
+
     render() {
         if(this.props.so.doc._id == ""){
             return (

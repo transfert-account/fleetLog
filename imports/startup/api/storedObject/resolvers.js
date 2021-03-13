@@ -85,7 +85,7 @@ export default {
                   so.doc = Documents.find({_id:new Mongo.ObjectID(so.name.split(".")[0].split("_")[9])}).fetch()[0]
                   if(so.doc == null || so.doc == undefined){
                     so.doc = {_id:""};
-                    so.debug = JSON.stringify({msg:"NO DOC RELATED IN DB"})
+                    so.debug = JSON.stringify([{obj:"NO DOC RELATED IN DB",msg:"NO DOC RELATED IN DB"}])
                   }else{
                     so.subtype = so.name.split("_")[1]
                     let possible = [];
