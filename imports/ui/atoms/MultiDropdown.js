@@ -20,9 +20,11 @@ export class MultiDropdown extends Component {
     componentDidMount = () => {
     }
 
-    render() {return (
-        <Dropdown onChange={this.handleChange} defaultValue={this.props.defaultValue} disabled={this.props.disabled} style={this.props.style} button clearable options={this.props.options} selection />
-    )}
+    render() {
+        return (
+            <Dropdown onChange={this.handleChange} defaultValue={this.props.defaultValue} disabled={this.props.disabled} style={this.props.style} button clearable options={this.props.options} selection />
+        )
+    }
 }
 const withUserContext = WrappedComponent => props => (
   <UserContext.Consumer>

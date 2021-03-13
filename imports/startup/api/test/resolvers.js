@@ -15,7 +15,7 @@ export default {
         testThis(obj, args,{user}){
             if(user._id){
                 try{
-                    let e = Energies.find({}).fetch()[0];
+                    /*let e = Energies.find({}).fetch()[0];
                     Locations.update(
                         {},{
                             $set: {
@@ -23,7 +23,7 @@ export default {
                                 accidents:[]
                             }
                         },{multi:true}
-                    );
+                    );*/
                     /*
                     Accidents.update(
                         {},{
@@ -217,7 +217,7 @@ export default {
                             }
                         );
                     })*/
-                    return [{status:true,message:'Locations energie : 1ere disponible par défaut, accidents vide'}];
+                    return [{status:true,message:'Empty'}];
                 }catch(e){
                     throw e;
                     return [{status:false,message:e.message}];
