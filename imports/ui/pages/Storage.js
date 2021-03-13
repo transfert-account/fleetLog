@@ -12,7 +12,7 @@ import 'moment/locale/fr';
 export class Storage extends Component {
 
   state = {
-    storedObjectsFilter:"scu",
+    storedObjectsFilter:"",
     storedObjectsQuery:gql`
       query storedObjects{
         storedObjects{
@@ -119,7 +119,7 @@ export class Storage extends Component {
       <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto auto 1fr"}}>
         <div style={{display:"grid",marginBottom:"0",gridTemplateColumns:"auto 1fr", gridGap:"32px"}}>
           <AdministrationMenu active="storage"/>
-          <Input defaultValue="scu" name="storageFilter" onChange={this.handleFilter} size='massive' icon='search' placeholder='Rechercher un objet ...' />
+          <Input name="storageFilter" onChange={this.handleFilter} size='massive' icon='search' placeholder='Rechercher un objet ...' />
         </div>
         <div>
           <MultiDropdown onChange={(value)=>this.setState({selectedType:value})} options={this.state.types.map(x=>{return({key:x.obj,text:x.name,value:x.obj,label:{color:'blue',empty:true,circular:true}})})}/>

@@ -70,43 +70,47 @@ export default {
             return {};
         },
         async storedObjects(obj, args, { user }){
+          try{
             if(user._id){
                 return await new Promise(async (resolve,reject)=>{
-                    let data = await Functions.getStoredObjectsList()
-                    if(data.readSucces){
-                        resolve(data.list)
-                    }else{
-                        reject(["fail"])
-                    }
-                }).then(list=>{
-                    storedObjects = list.map(x=>{return{name:x.Key,size:x.Size}})
-                    storedObjects.map((so,i)=>{
-                        so.doc = Documents.find({_id:new Mongo.ObjectID(so.name.split(".")[0].split("_")[9])}).fetch()[0]
-                        if(so.doc == null || so.doc == undefined){
-                            so.doc = {_id:""};
-                            so.debug = JSON.stringify({msg:"NO DOC RELATED IN DB"})
-                        }else{
-                            so.subtype = so.name.split("_")[1]
-                            let possible = [];
-                            TYPES.forEach(T=>{T.types.forEach(t=>{if(so.subtype == t.type){possible.push({getLinkedObjInfos:T.getLinkedObjInfos,col:T.col,obj:T.obj,subtype:t.type})}})})
-                            so.res = []
-                            so.linkedObjInfos = "";
-                            so.debug = JSON.stringify({msg:"INITIATED"})
-                            possible.forEach(p=>{
-                              let res = p.col.findOne({[p.subtype]:so.doc._id._str})
-                              if(res != null){
-                                so.res.push({obj:p.obj,type:p.subtype,objValue:res})
-                                so.linkedObjInfos = p.getLinkedObjInfos(res);
-                              }
-                            })
-                            so.debug = JSON.stringify(so.res)
-                        }
+                  let data = await Functions.getStoredObjectsList()
+                  if(data.readSucces){
+                    resolve(data.list)
+                  }else{
+                    reject(["fail"])
+                  }
+              }).then(list=>{
+                storedObjects = list.map(x=>{return{name:x.Key,size:x.Size}})
+                storedObjects.map((so,i)=>{
+                  so.doc = Documents.find({_id:new Mongo.ObjectID(so.name.split(".")[0].split("_")[9])}).fetch()[0]
+                  if(so.doc == null || so.doc == undefined){
+                    so.doc = {_id:""};
+                    so.debug = JSON.stringify({msg:"NO DOC RELATED IN DB"})
+                  }else{
+                    so.subtype = so.name.split("_")[1]
+                    let possible = [];
+                    TYPES.forEach(T=>{T.types.forEach(t=>{if(so.subtype == t.type){possible.push({getLinkedObjInfos:T.getLinkedObjInfos,col:T.col,obj:T.obj,subtype:t.type})}})})
+                    so.res = []
+                    so.linkedObjInfos = "";
+                    so.debug = JSON.stringify({msg:"INITIATED"})
+                    possible.forEach(p=>{
+                      let res = p.col.findOne({[p.subtype]:so.doc._id._str})
+                      if(res != null){
+                        so.res.push({obj:p.obj,type:p.subtype,objValue:res})
+                        so.linkedObjInfos = p.getLinkedObjInfos(res);
+                      }
                     })
-                    return storedObjects;
-                }).catch(e=>{
-                    return [{e}];
-                });
+                    so.debug = JSON.stringify(so.res)
+                  }
+                })
+                return storedObjects;
+              }).catch(e=>{
+                return [{e}];
+              });
             }
+          }catch(e){
+            console.error(e)
+          }
         },
         async getSignedStoredObjectDownloadLink(obj, {name},{user}){
             if(user._id){
