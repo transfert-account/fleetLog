@@ -80,6 +80,9 @@ export default {
                                     }
                                 })
                             })
+                            console.log("==============================")
+                            console.log("==============================")
+                            console.log("==============================")
                             so.res = []
                             possible.forEach(p=>{
                                 so.res.push(Vehicles.findOne({[p.subtype]:so.doc._id._str}))
@@ -90,7 +93,7 @@ export default {
                                 so.res.push(Equipements.findOne({[p.subtype]:so.doc._id._str}))
                                 so.res.push(Licences.findOne({[p.subtype]:so.doc._id._str}))
                             })
-                            console.log(so.res.filter(x=>x != {}).length)
+                            console.log(so.res.filter(x=>x != null))
                         }
                     })
                     return storedObjects;
