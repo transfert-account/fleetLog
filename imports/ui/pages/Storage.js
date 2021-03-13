@@ -12,12 +12,14 @@ import 'moment/locale/fr';
 export class Storage extends Component {
 
   state = {
-    storedObjectsFilter:"",
+    storedObjectsFilter:"scu",
     storedObjectsQuery:gql`
       query storedObjects{
         storedObjects{
           name
+          size
           debug
+          linkedObjInfos
           doc{
             _id
             name
@@ -117,7 +119,7 @@ export class Storage extends Component {
       <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto auto 1fr"}}>
         <div style={{display:"grid",marginBottom:"0",gridTemplateColumns:"auto 1fr", gridGap:"32px"}}>
           <AdministrationMenu active="storage"/>
-          <Input name="storageFilter" onChange={this.handleFilter} size='massive' icon='search' placeholder='Rechercher un objet ...' />
+          <Input defaultValue="scu" name="storageFilter" onChange={this.handleFilter} size='massive' icon='search' placeholder='Rechercher un objet ...' />
         </div>
         <div>
           <MultiDropdown onChange={(value)=>this.setState({selectedType:value})} options={this.state.types.map(x=>{return({key:x.obj,text:x.name,value:x.obj,label:{color:'blue',empty:true,circular:true}})})}/>
@@ -125,15 +127,14 @@ export class Storage extends Component {
           <Button color="red" onClick={()=>this.setState({selectedSubtype:""})}><Icon style={{margin:"0"}} name="cancel"/></Button>
         </div>
         <div style={{display:"block",overflowY:"auto",justifySelf:"stretch"}}>
-          <Table compact selectable striped color="blue">
+          <Table compact selectable color="blue">
             <Table.Header>
               <Table.Row>
-                <Table.HeaderCell textAlign="center">Nom de l'objet</Table.HeaderCell>
-                <Table.HeaderCell textAlign="center">Nom original du fichier</Table.HeaderCell>
-                <Table.HeaderCell textAlign="center">Type</Table.HeaderCell>
-                <Table.HeaderCell textAlign="center">Format</Table.HeaderCell>
+                <Table.HeaderCell textAlign="center">Nom de l'objet</Table.HeaderCell>                
                 <Table.HeaderCell textAlign="center">Taille du fichier</Table.HeaderCell>
-                <Table.HeaderCell textAlign="center">Date de stockage</Table.HeaderCell>
+                <Table.HeaderCell textAlign="center">Nom original</Table.HeaderCell>
+                <Table.HeaderCell textAlign="center">Type de document</Table.HeaderCell>
+                <Table.HeaderCell textAlign="center">Objet lié à </Table.HeaderCell>
                 <Table.HeaderCell textAlign="center">Actions</Table.HeaderCell>
               </Table.Row>
             </Table.Header>

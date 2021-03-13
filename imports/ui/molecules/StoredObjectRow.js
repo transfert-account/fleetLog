@@ -10,6 +10,7 @@ export class StoredObjectRow extends Component {
 
     state={
         openDelete:false,
+        debug:JSON.parse(this.props.so.debug)[0],
         displayStoredFileName:false,
         signedDownloadLink:"",
         linkGenerated:false,
@@ -79,30 +80,31 @@ export class StoredObjectRow extends Component {
     }
 
     render() {
-        console.log(JSON.parse(this.props.so.debug))
         if(this.props.so.doc._id == ""){
             return (
                 <Fragment>
-                    <Table.Row>
+                    <Table.Row negative>
                         <Table.Cell>{this.props.so.name}</Table.Cell>
-                        <Table.Cell textAlign="center" colSpan="5">NO DOC RELATED IN DB</Table.Cell>
+                        <Table.Cell>{this.props.so.doc.originalFilename}</Table.Cell>
+                        <Table.Cell textAlign="center"></Table.Cell>
                         <Table.Cell textAlign="center">
-                            <Button circular style={{color:"#00a8ff"}} inverted icon icon='search' onClick={()=>{this.setState({displayStoredFileName:true})}}/>
+                            <Label>
+                                NO DOC
+                            </Label>
+                        </Table.Cell>
+                        <Table.Cell textAlign="center">
+                            <Label>
+                                NO DOC
+                            </Label>
+                        </Table.Cell>
+                        <Table.Cell textAlign="center">
+                            <Button size='mini' style={{color:"#00a8ff"}} icon icon='search' onClick={()=>{this.setState({displayStoredFileName:true})}}/>
                         </Table.Cell>
                     </Table.Row>
                     <Modal open={this.state.displayStoredFileName} onClose={()=>this.setState({displayStoredFileName:false})}>
                         <Header icon='file' content={this.props.so.doc.name} />
                         <Modal.Content>
-                            <ReactJson src={JSON.parse(this.props.so.debug)} />
-                            <List divided relaxed>
-                                <List.Item>
-                                    <List.Icon name='folder open' size='large' verticalAlign='middle' />
-                                    <List.Content>
-                                        <List.Header>Chemin</List.Header>
-                                        <List.Description>{this.props.so.doc.path}</List.Description>
-                                    </List.Content>
-                                </List.Item>
-                            </List>
+                            <p>{"Chemin : " + this.props.so.doc.path}</p>
                             <br/>
                             {this.getDownloadLink()}
                         </Modal.Content>
@@ -121,30 +123,29 @@ export class StoredObjectRow extends Component {
                     <Table.Row>
                         <Table.Cell>{this.props.so.name}</Table.Cell>
                         <Table.Cell>{this.props.so.doc.originalFilename}</Table.Cell>
-                        <Table.Cell textAlign="center">{this.props.so.doc.type}</Table.Cell>
-                        <Table.Cell textAlign="center">{this.props.so.doc.ext}</Table.Cell>
-                        <Table.Cell textAlign="center">{parseFloat(this.props.so.doc.size/1048576).toFixed(2)} Mo</Table.Cell>
+                        <Table.Cell textAlign="center">{parseFloat(this.props.so.size/1048576).toFixed(2)} Mo</Table.Cell>
                         <Table.Cell textAlign="center">
-                            {<Label style={{marginRight:"16px"}}> {moment(this.props.so.doc.storageDate.split(" ")[0],"DD/MM/YYYY").fromNow()}</Label>}
-                            le {this.props.so.doc.storageDate.split(" ").join(" à ")}
+                            <Label color='grey' image>
+                                {this.state.debug.obj}
+                                <Label.Detail>{this.state.debug.type}</Label.Detail>
+                            </Label>
                         </Table.Cell>
                         <Table.Cell textAlign="center">
-                            <Button circular style={{color:"#00a8ff"}} inverted icon icon='search' onClick={()=>{this.setState({displayStoredFileName:true})}}/>
+                            <Label color={(this.props.so.linkedObjInfos == "Not supported yet" ? "black" : "blue")}>
+                                {this.props.so.linkedObjInfos}
+                            </Label>
+                        </Table.Cell>
+                        <Table.Cell textAlign="center">
+                            <Button size='mini' style={{color:"#00a8ff"}} icon icon='search' onClick={()=>{this.setState({displayStoredFileName:true})}}/>
                         </Table.Cell>
                     </Table.Row>
                     <Modal open={this.state.displayStoredFileName} onClose={()=>this.setState({displayStoredFileName:false})}>
                         <Header icon='file' content={this.props.so.doc.name} />
                         <Modal.Content>
-                            <ReactJson src={JSON.parse(this.props.so.debug)} />
-                            <List divided relaxed>
-                                <List.Item>
-                                    <List.Icon name='folder open' size='large' verticalAlign='middle' />
-                                    <List.Content>
-                                        <List.Header>Chemin</List.Header>
-                                        <List.Description>{this.props.so.doc.path}</List.Description>
-                                    </List.Content>
-                                </List.Item>
-                            </List>
+                            Stocké : <Label style={{marginRight:"16px"}}> {moment(this.props.so.doc.storageDate.split(" ")[0],"DD/MM/YYYY").fromNow()}</Label>
+                            le {this.props.so.doc.storageDate.split(" ").join(" à ")}
+                            <br/>
+                            <p>{"Chemin : " + this.props.so.doc.path}</p>
                             <br/>
                             {this.getDownloadLink()}
                         </Modal.Content>

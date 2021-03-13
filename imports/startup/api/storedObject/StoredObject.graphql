@@ -4,6 +4,8 @@ type StoredObject{
     related:String
     type:String
     debug:String
+    size:Int
+    linkedObjInfos:String
 }
 
 extend type Query{
