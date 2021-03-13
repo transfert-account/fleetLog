@@ -66,7 +66,7 @@ export default {
                     }
                 }).then(list=>{
                     storedObjects = list.map(x=>{return{name:x.Key}})
-                    storedObjects.map(so=>{
+                    storedObjects.map((so,i)=>{
                         so.doc = Documents.find({_id:new Mongo.ObjectID(so.name.split(".")[0].split("_")[9])}).fetch()[0]
                         if(so.doc == null || so.doc == undefined){
                             so.doc = {_id:""};
@@ -80,9 +80,6 @@ export default {
                                     }
                                 })
                             })
-                            console.log("==============================")
-                            console.log("==============================")
-                            console.log("==============================")
                             so.res = []
                             possible.forEach(p=>{
                                 so.res.push(Vehicles.findOne({[p.subtype]:so.doc._id._str}))
@@ -93,7 +90,8 @@ export default {
                                 so.res.push(Equipements.findOne({[p.subtype]:so.doc._id._str}))
                                 so.res.push(Licences.findOne({[p.subtype]:so.doc._id._str}))
                             })
-                            console.log(so.res.filter(x=>x != null))
+                            so.res = so.res.filter(x=>x != null)
+                            console.log(i + " => " + so.res.length)
                         }
                     })
                     return storedObjects;
