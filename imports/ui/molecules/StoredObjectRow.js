@@ -146,10 +146,6 @@ export class StoredObjectRow extends Component {
                                 <Button basic color='red' onClick={()=>this.setState({displayStoredFileName:false})}><Icon name='trash'/> Supprimer</Button>
                             </Modal.Actions>
                         </Modal>
-
-
-
-
                     </Fragment>
                 )
             }else{
@@ -157,8 +153,8 @@ export class StoredObjectRow extends Component {
                     <Fragment>
                         <Table.Row>
                             <Table.Cell>{this.props.so.name}</Table.Cell>
-                            <Table.Cell>{this.props.so.doc.originalFilename}</Table.Cell>
                             <Table.Cell textAlign="center">{parseFloat(this.props.so.size/1048576).toFixed(2)} Mo</Table.Cell>
+                            <Table.Cell>{this.props.so.doc.originalFilename}</Table.Cell>
                             <Table.Cell textAlign="center">
                                 <Label color='grey' image>
                                     {this.state.debug.obj}
