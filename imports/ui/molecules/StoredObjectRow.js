@@ -120,7 +120,6 @@ export class StoredObjectRow extends Component {
                 </Fragment>
             )
         }else{
-            console.log(this.state)
             return (
                 <Fragment>
                     <Table.Row>

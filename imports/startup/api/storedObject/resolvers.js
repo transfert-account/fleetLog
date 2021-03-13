@@ -100,12 +100,12 @@ export default {
                       }
                     })
                     if(possible.length == 0){
-                      so.res.push({obj:"none L0",type:"none L0",objValue:null})
+                      so.res.push({obj:"none",type:"L0",objValue:null})
                       so.linkedObjInfos = "none L0";
                     }
                     if(so.res.length == 0){
-                      so.res.push({obj:"none resallnull",type:"none resallnull",objValue:null})
-                      so.linkedObjInfos = "none resallnull";
+                      so.res.push({obj:"res",type:"all null",objValue:null})
+                      so.linkedObjInfos = "res all null";
                     }
                     so.debug = JSON.stringify(so.res)
                   }

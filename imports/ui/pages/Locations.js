@@ -187,10 +187,7 @@ class Locations extends Component {
                 }}
             )
             if(this.state.locationsFiler.length>0){
-                displayed = displayed.filter(i =>
-                    i.registration.toLowerCase().includes(this.state.locationsFiler.toLowerCase()) ||
-                    i.fournisseur.name.toLowerCase().includes(this.state.locationsFiler.toLowerCase())
-                );
+                displayed = displayed.filter(i =>i.registration.toLowerCase().includes(this.state.locationsFiler.toLowerCase()));
                 if(displayed.length == 0){
                 return(
                     <Table.Row key={"none"}>
@@ -428,7 +425,7 @@ class Locations extends Component {
     }
     handleFilter = e =>{
         this.setState({
-        locationsFiler:e
+            locationsFiler:e
         });
     }
     resetAll = () => {
@@ -538,7 +535,7 @@ class Locations extends Component {
                         <Menu.Item color="blue" name='licences' onClick={()=>{this.props.history.push("/parc/licences")}}><Icon name='drivers license'/>Licences</Menu.Item>
                         <Menu.Item color="blue" name='locations' active onClick={()=>{this.props.history.push("/parc/locations")}} ><Icon name="calendar alternate outline"/>Locations</Menu.Item>
                     </Menu>
-                    <Input style={{justifySelf:"stretch"}} name="locationsFiler" onChange={e=>{this.handleFilter(e.target.value)}} icon='search' placeholder='Rechercher une immatriculation ou un fournisseur' />
+                    <Input style={{justifySelf:"stretch"}} name="locationsFiler" onChange={e=>{this.handleFilter(e.target.value)}} icon='search' placeholder='Rechercher une immatriculation' />
                     <div style={{display:"flex",justifyContent:"flex-end"}}>
                         <BigButtonIcon icon="plus" color="blue" onClick={this.showAddLocation} tooltip="Enregistrer une location"/>
                     </div>
