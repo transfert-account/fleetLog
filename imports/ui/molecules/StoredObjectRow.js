@@ -3,6 +3,7 @@ import { Table, Icon, Button, Modal, Header, Label, List } from 'semantic-ui-rea
 import { UserContext } from '../../contexts/UserContext';
 import gql from 'graphql-tag';
 import moment from 'moment';
+import ReactJson from 'react-json-view'
 import 'moment/locale/fr';
 
 export class StoredObjectRow extends Component {
@@ -132,6 +133,7 @@ export class StoredObjectRow extends Component {
                     <Modal open={this.state.displayStoredFileName} onClose={()=>this.setState({displayStoredFileName:false})}>
                         <Header icon='file' content={this.props.so.doc.name} />
                         <Modal.Content>
+                            <ReactJson src={JSON.parse(this.props.so.debug)} />
                             <List divided relaxed>
                                 <List.Item>
                                     <List.Icon name='folder open' size='large' verticalAlign='middle' />

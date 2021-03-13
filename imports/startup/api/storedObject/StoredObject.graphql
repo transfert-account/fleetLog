@@ -3,6 +3,7 @@ type StoredObject{
     doc: Document
     related:String
     type:String
+    debug:String
 }
 
 extend type Query{

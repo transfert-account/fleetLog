@@ -81,19 +81,17 @@ export default {
                                 })
                             })
                             so.res = []
+                            so.debug = "NO DOC RELATED IN DB"
                             possible.forEach(p=>{
-                                so.res.push(Vehicles.findOne({[p.subtype]:so.doc._id._str}))
-                                so.res.push(Locations.findOne({[p.subtype]:so.doc._id._str}))
-                                so.res.push(Accidents.findOne({[p.subtype]:so.doc._id._str}))
-                                so.res.push(Batiments.findOne({[p.subtype]:so.doc._id._str}))
-                                so.res.push(Entretiens.findOne({[p.subtype]:so.doc._id._str}))
-                                so.res.push(Equipements.findOne({[p.subtype]:so.doc._id._str}))
-                                so.res.push(Licences.findOne({[p.subtype]:so.doc._id._str}))
+                                so.res.push({obj:"Vehicles",objValue:Vehicles.findOne({[p.subtype]:so.doc._id._str})})
+                                so.res.push({obj:"Locations",objValue:Locations.findOne({[p.subtype]:so.doc._id._str})})
+                                so.res.push({obj:"Accidents",objValue:Accidents.findOne({[p.subtype]:so.doc._id._str})})
+                                so.res.push({obj:"Batiments",objValue:Batiments.findOne({[p.subtype]:so.doc._id._str})})
+                                so.res.push({obj:"Entretiens",objValue:Entretiens.findOne({[p.subtype]:so.doc._id._str})})
+                                so.res.push({obj:"Equipements",objValue:Equipements.findOne({[p.subtype]:so.doc._id._str})})
+                                so.res.push({obj:"Licences",objValue:Licences.findOne({[p.subtype]:so.doc._id._str})})
                             })
-                            so.res = so.res.filter(x=>x != null)
-                            if(so.res.length == 1){
-                              console.log(so.res)
-                            }
+                            so.debug = JSON.stringify(so.res.filter(x=>x != null))
                         }
                     })
                     return storedObjects;
