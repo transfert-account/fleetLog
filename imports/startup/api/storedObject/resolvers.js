@@ -92,7 +92,6 @@ export default {
                     TYPES.forEach(T=>{T.types.forEach(t=>{if(so.subtype == t.type){possible.push({getLinkedObjInfos:T.getLinkedObjInfos,col:T.col,obj:T.obj,subtype:t.type})}})})
                     so.res = []
                     so.linkedObjInfos = "";
-                    so.debug = JSON.stringify({msg:"INITIATED"})
                     possible.forEach(p=>{
                       let res = p.col.findOne({[p.subtype]:so.doc._id._str})
                       if(res != null){
@@ -100,6 +99,14 @@ export default {
                         so.linkedObjInfos = p.getLinkedObjInfos(res);
                       }
                     })
+                    if(possible.length == 0){
+                      so.res.push({obj:"none L0",type:"none L0",objValue:null})
+                      so.linkedObjInfos = "none L0";
+                    }
+                    if(so.res.length == 0){
+                      so.res.push({obj:"none resallnull",type:"none resallnull",objValue:null})
+                      so.linkedObjInfos = "none resallnull";
+                    }
                     so.debug = JSON.stringify(so.res)
                   }
                 })

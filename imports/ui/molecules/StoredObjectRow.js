@@ -1,9 +1,8 @@
 import React, { Component, Fragment } from 'react'
-import { Table, Icon, Button, Modal, Header, Label, List } from 'semantic-ui-react';
+import { Table, Icon, Button, Modal, Header, Label } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 import gql from 'graphql-tag';
 import moment from 'moment';
-import ReactJson from 'react-json-view'
 import 'moment/locale/fr';
 
 export class StoredObjectRow extends Component {
@@ -121,6 +120,7 @@ export class StoredObjectRow extends Component {
                 </Fragment>
             )
         }else{
+            console.log(this.state)
             return (
                 <Fragment>
                     <Table.Row>
