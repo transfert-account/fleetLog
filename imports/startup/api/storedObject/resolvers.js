@@ -90,7 +90,7 @@ export default {
                                 so.res.push(Equipements.findOne({[p.subtype]:so.doc._id._str}))
                                 so.res.push(Licences.findOne({[p.subtype]:so.doc._id._str}))
                             })
-                            console.log(so.res)//YOU ARE HERE !
+                            console.log(so.res.filter(x=>x != {}).length)
                         }
                     })
                     return storedObjects;
