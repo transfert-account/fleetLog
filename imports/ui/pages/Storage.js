@@ -17,6 +17,7 @@ export class Storage extends Component {
       query storedObjects{
         storedObjects{
           name
+          debug
           doc{
             _id
             name

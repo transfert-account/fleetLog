@@ -79,6 +79,7 @@ export class StoredObjectRow extends Component {
     }
 
     render() {
+        console.log(JSON.parse(this.props.so.debug))
         if(this.props.so.doc._id == ""){
             return (
                 <Fragment>
@@ -92,6 +93,7 @@ export class StoredObjectRow extends Component {
                     <Modal open={this.state.displayStoredFileName} onClose={()=>this.setState({displayStoredFileName:false})}>
                         <Header icon='file' content={this.props.so.doc.name} />
                         <Modal.Content>
+                            <ReactJson src={JSON.parse(this.props.so.debug)} />
                             <List divided relaxed>
                                 <List.Item>
                                     <List.Icon name='folder open' size='large' verticalAlign='middle' />

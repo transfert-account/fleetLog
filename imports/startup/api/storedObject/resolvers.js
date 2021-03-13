@@ -70,6 +70,7 @@ export default {
                         so.doc = Documents.find({_id:new Mongo.ObjectID(so.name.split(".")[0].split("_")[9])}).fetch()[0]
                         if(so.doc == null || so.doc == undefined){
                             so.doc = {_id:""};
+                            so.debug = JSON.stringify({msg:"NO DOC RELATED IN DB"})
                         }else{
                             so.subtype = so.name.split("_")[1]
                             let possible = [];
@@ -81,7 +82,7 @@ export default {
                                 })
                             })
                             so.res = []
-                            so.debug = "NO DOC RELATED IN DB"
+                            so.debug = JSON.stringify({msg:"INITIATED"})
                             possible.forEach(p=>{
                                 so.res.push({obj:"Vehicles",objValue:Vehicles.findOne({[p.subtype]:so.doc._id._str})})
                                 so.res.push({obj:"Locations",objValue:Locations.findOne({[p.subtype]:so.doc._id._str})})
