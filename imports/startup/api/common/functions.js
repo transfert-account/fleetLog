@@ -55,7 +55,7 @@ export default {
             }
         })
     },
-    shipToBucket : async (file,societe,type,docId,deleteOld,oldFile) => {
+    shipToBucket : async (file,societe,type,docId) => {
         return new Promise((resolve,reject)=>{
             const { createReadStream, filename, mimetype, encoding } = file;
             let ext = filename.split(".")[filename.split(".").length-1]
@@ -79,30 +79,60 @@ export default {
                     if (err) {
                         resolve({uploadSucces:false,err:err})
                     }else{
-                        if(deleteOld){
-                            let params = {
-                                Bucket: "wg-logistique", 
-                                Key: oldFile.name
-                            };
-                            s3.deleteObject(params, function(err, data) {
-                                bound(()=>{
-                                    if(err){
-                                        resolve({uploadSucces:false,err:err})
-                                    }else{
-                                        Documents.remove({
-                                            _id:oldFile._id
-                                        });
-                                        resolve({uploadSucces:true,data:data,fileInfo:fileInfo})
-                                    }
-                                });
-                            });
-                        }else{
-                            resolve({uploadSucces:true,data:data,fileInfo:fileInfo})
-                        }
+                        resolve({uploadSucces:true,data:data,fileInfo:fileInfo})
                     }
                 });
             })
         })
+    },
+    deleteObjectAndDoc : async (name,docId) => {
+        return new Promise((resolve,reject)=>{
+            console.log("Deleting : " + name + " : " + docId)
+            let s3 = new AWS.S3({
+                region: 'eu-west-3',
+                apiVersion: '2006-03-01',
+                signatureVersion: 'v4'
+            });
+            let params = {
+                Bucket: "wg-logistique", 
+                Key: name
+            };
+            s3.deleteObject(params, function(err, data) {
+                bound(()=>{
+                    if(err){
+                        resolve({deleteSucces:false,err:err})
+                    }else{
+                        Documents.remove({
+                            _id:new Mongo.ObjectID(docId)
+                        });
+                        resolve({deleteSucces:true})
+                    }
+                });
+            });
+        })
+    },
+    deleteObject : async (name) => {
+        return new Promise((resolve,reject)=>{
+            console.log("Deleting : " + name)
+            let s3 = new AWS.S3({
+                region: 'eu-west-3',
+                apiVersion: '2006-03-01',
+                signatureVersion: 'v4'
+            });
+            let params = {
+                Bucket: "wg-logistique", 
+                Key: name
+            };
+            s3.deleteObject(params, function(err, data) {
+                bound(()=>{
+                    if(err){
+                        resolve({deleteSucces:false,err:err})
+                    }else{
+                        resolve({deleteSucces:true})
+                    }
+                });
+            });
+        });
     },
     getStoredObjectsList : async () => {
         return new Promise((resolve,reject)=>{

@@ -135,6 +135,38 @@ export default {
                     return e;
                 });
             }
-        }
+        },
+        async deleteObjectAndDoc (obj, {name,docId},{user}) {
+            if(user._id){
+                return await new Promise(async (resolve,reject)=>{
+                  let deleteInfos = await Functions.deleteObjectAndDoc(name,docId)                  
+                  if(deleteInfos.deleteSucces){
+                    resolve(deleteInfos)
+                  }else{
+                    reject(deleteInfos)
+                  }
+                }).then((deleteInfos)=>{
+                    return [{status:true,message:'Suppression réussie'}];
+                }).catch(e=>{
+                  return [{status:false,message:e}];
+                });
+            }
+        },
+        async deleteObject(obj, {name},{user}) {
+            if(user._id){
+                return await new Promise(async (resolve,reject)=>{
+                  let deleteInfos = await Functions.deleteObject(name)
+                  if(deleteInfos.deleteSucces){
+                    resolve(deleteInfos)
+                  }else{
+                    reject(deleteInfos)
+                  }
+                }).then((deleteInfos)=>{
+                    return [{status:true,message:'Suppression réussie'}];
+                }).catch(e=>{
+                  return [{status:false,message:e}];
+                });
+            }
+        },
     }
 }

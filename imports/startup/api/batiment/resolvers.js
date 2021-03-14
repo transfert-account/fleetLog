@@ -117,17 +117,9 @@ export default {
                 let batimentControl = Batiments.findOne({_id:new Mongo.ObjectID(_id)});
                 let societe = Societes.findOne({_id:new Mongo.ObjectID(batimentControl.societe)});
                 let docId = new Mongo.ObjectID();
-                let oldFile = null;
-                let deleteOld = false;
-                if(type == "ficheInter"){
-                    if(batimentControl.ficheInter != null && batimentControl.ficheInter != undefined && batimentControl.ficheInter != ""){
-                        deleteOld = true;
-                        oldFile = Documents.findOne({_id:new Mongo.ObjectID(batimentControl.ficheInter)})
-                    }
-                }
                 return await new Promise(async (resolve,reject)=>{
                     await new Promise(async (resolve,reject)=>{
-                        let uploadInfo = await Functions.shipToBucket(await file,societe,type,docId,deleteOld,oldFile)
+                        let uploadInfo = await Functions.shipToBucket(await file,societe,type,docId)
                         if(uploadInfo.uploadSucces){
                             resolve(uploadInfo)
                         }else{

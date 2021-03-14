@@ -790,41 +790,9 @@ export default {
                 let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(_id)});
                 let societe = Societes.findOne({_id:new Mongo.ObjectID(vehicle.societe)});
                 let docId = new Mongo.ObjectID();
-                let oldFile = null;
-                let deleteOld = false;
-                if(type == "cg"){
-                    if(vehicle.cg != null && vehicle.cg != undefined && vehicle.cg != ""){
-                        deleteOld = true;
-                        oldFile = Documents.findOne({_id:new Mongo.ObjectID(vehicle.cg)})
-                    }
-                }
-                if(type == "cv"){
-                    if(vehicle.cv != null && vehicle.cv != undefined && vehicle.cv != ""){
-                        deleteOld = true;
-                        oldFile = Documents.findOne({_id:new Mongo.ObjectID(vehicle.cv)})
-                    }
-                }
-                if(type == "crf"){
-                    if(vehicle.crf != null && vehicle.crf != undefined && vehicle.crf != ""){
-                        deleteOld = true;
-                        oldFile = Documents.findOne({_id:new Mongo.ObjectID(vehicle.crf)})
-                    }
-                }
-                if(type == "ida"){
-                    if(vehicle.ida != null && vehicle.ida != undefined && vehicle.ida != ""){
-                        deleteOld = true;
-                        oldFile = Documents.findOne({_id:new Mongo.ObjectID(vehicle.ida)})
-                    }
-                }
-                if(type == "scg"){
-                    if(vehicle.scg != null && vehicle.scg != undefined && vehicle.scg != ""){
-                        deleteOld = true;
-                        oldFile = Documents.findOne({_id:new Mongo.ObjectID(vehicle.scg)})
-                    }
-                }
                 return await new Promise(async (resolve,reject)=>{
                     await new Promise(async (resolve,reject)=>{
-                        let uploadInfo = await Functions.shipToBucket(await file,societe,type,docId,deleteOld,oldFile)
+                        let uploadInfo = await Functions.shipToBucket(await file,societe,type,docId)
                         if(uploadInfo.uploadSucces){
                             resolve(uploadInfo)
                         }else{

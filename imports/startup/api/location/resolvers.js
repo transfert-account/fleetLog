@@ -364,35 +364,9 @@ export default {
                 let location = Locations.findOne({_id:new Mongo.ObjectID(_id)});
                 let societe = Societes.findOne({_id:new Mongo.ObjectID(location.societe)});
                 let docId = new Mongo.ObjectID();
-                let oldFile = null;
-                let deleteOld = false;
-                if(type == "cg"){
-                    if(location.cg != null && location.cg != undefined && location.cg != ""){
-                        deleteOld = true;
-                        oldFile = Documents.findOne({_id:new Mongo.ObjectID(location.cg)})
-                    }
-                }
-                if(type == "cv"){
-                    if(location.cv != null && location.cv != undefined && location.cv != ""){
-                        deleteOld = true;
-                        oldFile = Documents.findOne({_id:new Mongo.ObjectID(location.cv)})
-                    }
-                }
-                if(type == "contrat"){
-                    if(location.contrat != null && location.contrat != undefined && location.contrat != ""){
-                        deleteOld = true;
-                        oldFile = Documents.findOne({_id:new Mongo.ObjectID(location.contrat)})
-                    }
-                }
-                if(type == "restitution"){
-                    if(location.restitution != null && location.restitution != undefined && location.restitution != ""){
-                        deleteOld = true;
-                        oldFile = Documents.findOne({_id:new Mongo.ObjectID(location.restitution)})
-                    }
-                }
                 return await new Promise(async (resolve,reject)=>{
                     await new Promise(async (resolve,reject)=>{
-                        let uploadInfo = await Functions.shipToBucket(await file,societe,type,docId,deleteOld,oldFile)
+                        let uploadInfo = await Functions.shipToBucket(await file,societe,type,docId)
                         if(uploadInfo.uploadSucces){
                             resolve(uploadInfo)
                         }else{

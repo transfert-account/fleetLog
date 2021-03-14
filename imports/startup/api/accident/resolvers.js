@@ -286,35 +286,9 @@ export default {
                 let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(accident.vehicle)});
                 let societe = Societes.findOne({_id:new Mongo.ObjectID(vehicle.societe)});
                 let docId = new Mongo.ObjectID();
-                let oldFile = null;
-                let deleteOld = false;
-                if(type == "constat"){
-                    if(accident.constat != null && accident.constat != undefined && accident.constat != ""){
-                        deleteOld = true;
-                        oldFile = Documents.findOne({_id:new Mongo.ObjectID(accident.constat)})
-                    }
-                }
-                if(type == "rapportExp"){
-                    if(accident.rapportExp != null && accident.rapportExp != undefined && accident.rapportExp != ""){
-                        deleteOld = true;
-                        oldFile = Documents.findOne({_id:new Mongo.ObjectID(accident.rapportExp)})
-                    }
-                }
-                if(type == "facture"){
-                    if(accident.facture != null && accident.facture != undefined && accident.facture != ""){
-                        deleteOld = true;
-                        oldFile = Documents.findOne({_id:new Mongo.ObjectID(accident.facture)})
-                    }
-                }
-                if(type == "questionary"){
-                    if(accident.questionary != null && accident.questionary != undefined && accident.questionary != ""){
-                        deleteOld = true;
-                        oldFile = Documents.findOne({_id:new Mongo.ObjectID(accident.questionary)})
-                    }
-                }
                 return await new Promise(async (resolve,reject)=>{
                     await new Promise(async (resolve,reject)=>{
-                        let uploadInfo = await Functions.shipToBucket(await file,societe,type,docId,deleteOld,oldFile)
+                        let uploadInfo = await Functions.shipToBucket(await file,societe,type,docId)
                         if(uploadInfo.uploadSucces){
                             resolve(uploadInfo)
                         }else{

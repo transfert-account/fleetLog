@@ -137,7 +137,7 @@ export class DocumentRow extends Component {
                     </Modal.Content>
                     <Modal.Actions>
                         <Button color="black" onClick={this.closeDelete}>Annuler</Button>
-                        <Button color="red" onClick={()=>{this.props.deleteDocument(this.props.document._id)}}>Supprimer</Button>
+                        <Button color="red" onClick={()=>{this.props.deleteObjectument(this.props.document._id)}}>Supprimer</Button>
                     </Modal.Actions>
                 </Modal>
             </Fragment>

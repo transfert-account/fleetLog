@@ -98,7 +98,7 @@ export class Storage extends Component {
           displayed = displayed.filter(d=>{return d.name.split("_")[1] == this.state.selectedSubtype})
         }
       }
-      return displayed.map(so=>(<StoredObjectRow key={so.name} so={so}/>))
+      return displayed.map(so=>(<StoredObjectRow loadStoredObjects={this.loadStoredObjects} key={so.name} so={so}/>))
     }
   }
 

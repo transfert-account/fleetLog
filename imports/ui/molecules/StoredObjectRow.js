@@ -10,7 +10,8 @@ export class StoredObjectRow extends Component {
     state={
         openDelete:false,
         debug:JSON.parse(this.props.so.debug)[0],
-        displayStoredFileName:false,
+        openDetails:false,
+        openDelete:false,
         signedDownloadLink:"",
         linkGenerated:false,
         linkGenerating:false,
@@ -19,7 +20,85 @@ export class StoredObjectRow extends Component {
             query getSignedStoredObjectDownloadLink($name: String!) {
                 getSignedStoredObjectDownloadLink(name:$name)
             }
+        `,
+        deleteObjectQuery : gql`
+            query deleteObject($name: String!) {
+                deleteObject(name:$name){
+                    status
+                    message
+                }
+            }
+        `,
+        deleteObjectAndDocQuery : gql`
+            query deleteObjectAndDoc($name: String!,$docId: String!) {
+                deleteObjectAndDoc(name:$name,docId:$docId){
+                    status
+                    message
+                }
+            }
         `
+    }
+
+    showDetails = () => {
+        this.setState({
+            openDetails:true
+        });
+    }
+    closeDetails = () => {
+        this.setState({
+            openDetails:false
+        });
+    }
+    showDelete = () => {
+        this.setState({
+            openDelete:true
+        });
+    }
+    closeDelete = () => {
+        this.setState({
+            openDelete:false
+        });
+    }
+
+    deleteObject = () => {
+        this.props.client.query({
+            query:this.state.deleteObjectQuery,
+            variables:{
+                name:this.props.so.name
+            }
+        }).then((data)=>{
+            data.data.deleteObject.map(qrm=>{
+                this.closeDelete()
+                this.closeDetails()
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.loadStoredObjects()
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+
+    deleteObjectAndDoc = () => {
+        this.props.client.query({
+            query:this.state.deleteObjectAndDocQuery,
+            variables:{
+                name:this.props.so.name,
+                docId:this.props.so.doc._id
+            }
+        }).then((data)=>{
+            data.data.deleteObjectAndDoc.map(qrm=>{
+                this.closeDelete()
+                this.closeDetails()
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.loadStoredObjects()
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
     }
 
     getSignedDocumentDownloadLink = () => {
@@ -78,6 +157,14 @@ export class StoredObjectRow extends Component {
         }
     }
 
+    getShowDeleteButton = () => {
+        if(this.props.user.isOwner){
+            return <Button basic color='red' onClick={this.showDelete}><Icon name='trash'/> Supprimer</Button>
+        }else{
+            return <Button disabled basic color='red'><Icon name='trash'/> Supprimer</Button>
+        }
+    }
+
     componentDidMount = () => {
     }
 
@@ -88,16 +175,17 @@ export class StoredObjectRow extends Component {
                     <Table.Row negative>
                         <Table.Cell>{this.props.so.name}</Table.Cell>
                         <Table.Cell textAlign="center">{parseFloat(this.props.so.size/1048576).toFixed(2)} Mo</Table.Cell>
-                        <Table.Cell colSpan="3" textAlign="center">
+                        <Table.Cell></Table.Cell>
+                        <Table.Cell colSpan="2" textAlign="center">
                             <Label color="red">
                                 Document non référencé sur la plateforme
                             </Label>
                         </Table.Cell>
                         <Table.Cell textAlign="center">
-                            <Button size='mini' style={{color:"#00a8ff"}} icon icon='search' onClick={()=>{this.setState({displayStoredFileName:true})}}/>
+                            <Button size='mini' style={{color:"#00a8ff"}} icon icon='search' onClick={()=>{this.setState({openDetails:true})}}/>
                         </Table.Cell>
                     </Table.Row>
-                    <Modal open={this.state.displayStoredFileName} onClose={()=>this.setState({displayStoredFileName:false})}>
+                    <Modal open={this.state.openDetails} onClose={this.closeDetails}>
                         <Header icon='file' content={"Document non référencé : " + this.props.so.name}/>
                         <Modal.Content>
                             <Message color="red">
@@ -107,10 +195,22 @@ export class StoredObjectRow extends Component {
                         </Modal.Content>
                         <Modal.Actions>
                             {this.getDownloadButton()}
-                            <Button basic color='black' onClick={()=>this.setState({displayStoredFileName:false})}><Icon name='cancel'/> Fermer</Button>
-                            <Button basic color='red' onClick={()=>this.setState({displayStoredFileName:false})}><Icon name='trash'/> Supprimer</Button>
+                            <Button basic color='black' onClick={this.closeDetails}><Icon name='cancel'/> Fermer</Button>
+                            {this.getShowDeleteButton()}
                         </Modal.Actions>
+                        <Modal onClose={this.closeDelete} open={this.state.openDelete}>
+                            <Header icon='trash' content={"Êtes vous certain de vouloir supprimer cet objet du bucket Amazon ?"}/>
+                            <Modal.Content>
+                                <Message color="red">
+                                    <p>La suppression de l'objet : {this.props.so.name} sera irreversible !</p>
+                                </Message>
+                            </Modal.Content>
+                            <Modal.Actions>
+                                <Button color="black" icon='cancel' content='Annuler' onClick={this.closeDelete}/>
+                                <Button color="red" icon='trash' content='Supprimer' onClick={this.deleteObject}/>
+                            </Modal.Actions>
                         </Modal>
+                    </Modal>
                 </Fragment>
             )
         }else{
@@ -127,10 +227,10 @@ export class StoredObjectRow extends Component {
                                 </Label>
                             </Table.Cell>
                             <Table.Cell textAlign="center">
-                                <Button size='mini' style={{color:"#00a8ff"}} icon icon='search' onClick={()=>{this.setState({displayStoredFileName:true})}}/>
+                                <Button size='mini' style={{color:"#00a8ff"}} icon icon='search' onClick={()=>{this.setState({openDetails:true})}}/>
                             </Table.Cell>
                         </Table.Row>
-                        <Modal open={this.state.displayStoredFileName} onClose={()=>this.setState({displayStoredFileName:false})}>
+                        <Modal open={this.state.openDetails} onClose={this.closeDetails}>
                             <Header icon='file' content={"Document non référencé : " + this.props.so.name}/>
                             <Modal.Content>
                                 <Message color="orange">
@@ -142,9 +242,19 @@ export class StoredObjectRow extends Component {
                             </Modal.Content>
                             <Modal.Actions>
                                 {this.getDownloadButton()}
-                                <Button basic color='black' onClick={()=>this.setState({displayStoredFileName:false})}><Icon name='cancel'/> Fermer</Button>
-                                <Button basic color='red' onClick={()=>this.setState({displayStoredFileName:false})}><Icon name='trash'/> Supprimer</Button>
+                                <Button basic color='black' onClick={this.closeDetails}><Icon name='cancel'/> Fermer</Button>
+                                {this.getShowDeleteButton()}
                             </Modal.Actions>
+                            <Modal onClose={this.closeDelete} open={this.state.openDelete}>
+                                <Header icon='trash' content={"Êtes vous certain de vouloir supprimer ce document ?"}/>
+                                <Message color="red">
+                                    <p>La suppression du document : {this.props.so.name} sera irreversible !</p>
+                                </Message>
+                                <Modal.Actions>
+                                    <Button color="black" icon='cancel' content='Annuler' onClick={this.closeDelete}/>
+                                    <Button color="red" icon='trash' content='Supprimer' onClick={this.deleteObjectAndDoc}/>
+                                </Modal.Actions>
+                            </Modal>
                         </Modal>
                     </Fragment>
                 )
@@ -167,10 +277,10 @@ export class StoredObjectRow extends Component {
                                 </Label>
                             </Table.Cell>
                             <Table.Cell textAlign="center">
-                                <Button size='mini' style={{color:"#00a8ff"}} icon icon='search' onClick={()=>{this.setState({displayStoredFileName:true})}}/>
+                                <Button size='mini' style={{color:"#00a8ff"}} icon icon='search' onClick={()=>{this.setState({openDetails:true})}}/>
                             </Table.Cell>
                         </Table.Row>
-                        <Modal open={this.state.displayStoredFileName} onClose={()=>this.setState({displayStoredFileName:false})}>
+                        <Modal open={this.state.openDetails} onClose={this.closeDetails}>
                             <Header icon='file' content={this.props.so.doc.name} />
                             <Modal.Content>
                                 Stocké : <Label style={{marginRight:"16px"}}> {moment(this.props.so.doc.storageDate.split(" ")[0],"DD/MM/YYYY").fromNow()}</Label>
@@ -182,7 +292,7 @@ export class StoredObjectRow extends Component {
                             </Modal.Content>
                             <Modal.Actions>
                                 {this.getDownloadButton()}
-                                <Button basic color='red' onClick={()=>this.setState({displayStoredFileName:false})}>
+                                <Button basic color='red' onClick={this.closeDetails}>
                                     <Icon name='cancel'/> Fermer
                                 </Button>
                             </Modal.Actions>

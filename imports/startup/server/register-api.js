@@ -99,7 +99,7 @@ import StoredObjectResolvers from '../api/storedObject/resolvers.js';
 import LogSchema from '../api/log/Log.graphql';
 import LogResolvers from '../api/log/resolvers.js';
 
-// #0444
+// #0445
 
 const typeDefs = [
     UserSchema,

@@ -13,7 +13,7 @@ class AdministrationMenu extends Component {
             {color:"blue",name:'pieces',uri:"/administration/pieces",icon:"cogs",label:"Pièces"},
             {color:"blue",name:'patchnotes',uri:"/administration/patchnotes",icon:"clipboard list",label:"Notes de version"},
             {color:"blue",name:'documents',uri:"/administration/documents",icon:"file outline",label:"Documents référencés"},
-            {color:"red",name:'storage',uri:"/administration/storage",icon:"file outline",label:"Storage Management"}
+            {color:"red",name:'storage',uri:"/administration/storage",icon:"amazon",label:"Storage Management"}
         ]
     }
     /*,{color:"blue",name:'logs',uri:"/administration/logs",icon:"terminal",label:"Logs Server"}*/
