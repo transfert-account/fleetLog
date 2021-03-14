@@ -202,7 +202,7 @@ const affectDashboardData = d => {
 
     d.accidentsThisYear = accidentsRaw.filter(a=>{return moment(a.occurenceDate,"DD/MM/YYYY").year() == new Date().getFullYear()}).length;
     d.accidentsOpened = accidentsRaw.filter(a=>{return a.archived == false}).length;
-    d.totalAccidentsCost = accidentsRaw.reduce((a, b)=> a + b.cost, 0);
+    d.totalAccidentsCost = accidentsRaw.reduce((a, b)=> a + b.reglementAssureur + b.chargeSinistre + b.montantInterne, 0);
 
     d.commandesToDo = 0;
     d.commandesDone = 0;

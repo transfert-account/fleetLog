@@ -10,8 +10,9 @@ type StoredObject{
 
 extend type Query{
     storedObject(name: String!): StoredObject
-    storedObjects : [StoredObject]
+    storedObjects:[StoredObject]
     getSignedStoredObjectDownloadLink(name:String!):String!
     deleteObjectAndDoc(name:String!,docId:String!):[QueryResultMessage]
     deleteObject(name:String!):[QueryResultMessage]
+    getS3BucketCapacity:Int
 }

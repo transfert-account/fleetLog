@@ -4,15 +4,18 @@ import { withRouter } from 'react-router-dom';
 /*CONTEXT*/
 import { UserContext } from '../../contexts/UserContext';
 /*ELEMENTS*/
+import { Progress } from 'semantic-ui-react';
 import { DuoIcon } from '../elements/DuoIcon';
 import { FAFree } from '../elements/FAFree';
 /*COMPONENTS*/
 import NavbarItemList from './NavbarItemList';
 import NavbarSocietePicker from '../atoms/NavbarSocietePicker';
+import { gql } from 'apollo-server-express';
 
 class Menu extends Component {
 
   state={
+    s3BucketCapacity:0,
     selectingSociete:false,
     menuItems:[
       {
@@ -97,10 +100,26 @@ class Menu extends Component {
         icon:"fas fa-shield-alt",
         color:"gold"
       }
-    ]
+    ],
+    getS3BucketCapacityQuery:gql`
+      query getS3BucketCapacity{
+        getS3BucketCapacity
+      },
+    `,
   }
 
   handleSocieteFilterChange = (e, { value }) => this.props.setSocieteFilter(value)
+
+  loadS3BucketCapacity = () => {
+    this.props.client.query({
+      query:this.state.getS3BucketCapacityQuery,
+      fetchPolicy:"network-only"
+  }).then(({data})=>{
+      this.setState({
+        s3BucketCapacity:data.getS3BucketCapacity
+      })
+  })
+  }
 
   logout = () => {
     Meteor.logout();
@@ -187,6 +206,38 @@ class Menu extends Component {
     }
   }
 
+  getS3BucketProgressColor = () => {
+    if(this.state.s3BucketCapacity > 95){
+      return "red"
+    }else{
+      if(this.state.s3BucketCapacity < 60){
+        return "green"
+      }else{
+        if(this.state.s3BucketCapacity < 80){
+          return "yellow"
+        }else{
+          return "orange"
+        }
+      }
+    }
+  }
+
+  getS3BucketProgress = () => {
+    if(this.props.user.isAdmin){
+      return(
+        <div onClick={()=>this.props.history.push("/administration/storage")} style={{cursor:"pointer",width:"100%",padding:"20px 12px"}}>
+          <Progress style={{width:"100%"}} size="tiny" color={this.getS3BucketProgressColor()} value={this.state.s3BucketCapacity} label={this.state.s3BucketCapacity+"%"} total={100}/>
+        </div>
+      )
+    }else{
+      return("")
+    }
+  }
+
+  componentDidMount = () => {
+    this.loadS3BucketCapacity();
+  }
+
   render() {
     return (
       <Fragment>
@@ -201,6 +252,7 @@ class Menu extends Component {
             {this.getFilterNavbarRow()}
             {this.getNavbarItems()}
             {this.getAdminNavbarItems()}
+            {this.getS3BucketProgress()}
             <li className="nav-item" name={"logout"}>
               <a href="#" className="nav-link" key={"logout"} onClick={this.logout}>
                 <FAFree code="fas fa-power-off" color="red"/>

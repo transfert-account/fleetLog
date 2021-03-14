@@ -69,6 +69,26 @@ export default {
         storedObject(obj, { name }, { user }){
             return {};
         },
+        async getS3BucketCapacity(obj, args, { user }){
+          try{
+            if(user._id){
+                return await new Promise(async (resolve,reject)=>{
+                  let data = await Functions.getStoredObjectsList()
+                  if(data.readSucces){
+                    resolve(data.list)
+                  }else{
+                    reject(["fail"])
+                  }
+              }).then(list=>{
+                return parseInt(parseFloat((list.reduce((a,b)=>a + b.Size,0)/1048576))/5120*100)
+              }).catch(e=>{
+                return [{e}];
+              });
+            }
+          }catch(e){
+            console.error(e)
+          }
+        },
         async storedObjects(obj, args, { user }){
           try{
             if(user._id){

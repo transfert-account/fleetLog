@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Input, Table, Button, Icon, Label, Progress } from 'semantic-ui-react';
+import { Input, Table, Button, Icon, Label, Progress, Dimmer, Loader, Segment } from 'semantic-ui-react';
 import AdministrationMenu from '../molecules/AdministrationMenu';
 import StoredObjectRow from '../molecules/StoredObjectRow';
 import MultiDropdown from '../atoms/MultiDropdown';
@@ -12,6 +12,7 @@ import 'moment/locale/fr';
 export class Storage extends Component {
 
   state = {
+    loading:true,
     storedObjectsFilter:"",
     storedObjectsQuery:gql`
       query storedObjects{
@@ -119,12 +120,22 @@ export class Storage extends Component {
       fetchPolicy:"network-only"
     }).then(({data}) => {
       this.setState({
+        loading:false,
         storedObjectsRaw:data.storedObjects
       })
     })
   }
 
   render() {
+    if(this.state.loading){
+      return(
+        <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px"}}>
+            <Dimmer inverted active>
+                <Loader size="massive">Chargement du contenu du bucket Amazon S3</Loader>
+            </Dimmer>
+        </div>
+      )
+    }
     return (
       <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto auto 1fr"}}>
         <div style={{display:"grid",marginBottom:"0",gridTemplateColumns:"auto 1fr", gridGap:"32px"}}>

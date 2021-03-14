@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react'
 import { Table, Icon, Button, Modal, Header, Label, Message } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
-import gql from 'graphql-tag';
+import { gql } from 'apollo-server-express';
 import moment from 'moment';
 import 'moment/locale/fr';
 
