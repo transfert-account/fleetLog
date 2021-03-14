@@ -135,33 +135,27 @@ export class StoredObjectRow extends Component {
         if(this.state.linkGenerated){
             return <a href={this.state.signedDownloadLink} target="blank" download>{this.state.signedDownloadLink}</a>
         }else{
-            return <p>Cliquez sur "Générer" pour faire apparaître le lien de téléchargement</p>
+            return <p>Cliquez sur "Générer" pour faire apparaître le lien de téléchargement (durée de validité du lien : 120 secondes)</p>
         }
     }
 
     getDownloadButton = () => {
-        if(this.state.linkGenerated){
+        if(this.state.linkGenerating){
             return (
-                <Button color="black" onClick={()=>{this.setState({displayDownloadLink:true})}}>Afficher</Button>
+                <Button color="black" loading></Button>
             )
         }else{
-            if(this.state.linkGenerating){
-                return (
-                    <Button color="black" loading></Button>
-                )
-            }else{
-                return (
-                    <Button color="black" onClick={this.getSignedDocumentDownloadLink}>Générer</Button>
-                )
-            }
+            return (
+                <Button color="black" onClick={this.getSignedDocumentDownloadLink}>Générer un lien de téléchargement</Button>
+            )
         }
     }
 
     getShowDeleteButton = () => {
         if(this.props.user.isOwner){
-            return <Button basic color='red' onClick={this.showDelete}><Icon name='trash'/> Supprimer</Button>
+            return <Button color='red' onClick={this.showDelete}><Icon name='trash'/> Supprimer</Button>
         }else{
-            return <Button disabled basic color='red'><Icon name='trash'/> Supprimer</Button>
+            return <Button disabled color='red'><Icon name='trash'/> Supprimer</Button>
         }
     }
 
@@ -195,7 +189,7 @@ export class StoredObjectRow extends Component {
                         </Modal.Content>
                         <Modal.Actions>
                             {this.getDownloadButton()}
-                            <Button basic color='black' onClick={this.closeDetails}><Icon name='cancel'/> Fermer</Button>
+                            <Button color='black' onClick={this.closeDetails}><Icon name='cancel'/> Fermer</Button>
                             {this.getShowDeleteButton()}
                         </Modal.Actions>
                         <Modal onClose={this.closeDelete} open={this.state.openDelete}>
@@ -220,7 +214,7 @@ export class StoredObjectRow extends Component {
                         <Table.Row warning>
                             <Table.Cell>{this.props.so.name}</Table.Cell>
                             <Table.Cell textAlign="center">{parseFloat(this.props.so.size/1048576).toFixed(2)} Mo</Table.Cell>
-                            <Table.Cell textAlign="center">{this.props.so.doc.originalFilename}</Table.Cell>
+                            <Table.Cell>{this.props.so.doc.originalFilename}</Table.Cell>
                             <Table.Cell textAlign="center" colSpan="2">
                                 <Label color="orange">
                                     Document référencé mais orphelin
@@ -242,7 +236,7 @@ export class StoredObjectRow extends Component {
                             </Modal.Content>
                             <Modal.Actions>
                                 {this.getDownloadButton()}
-                                <Button basic color='black' onClick={this.closeDetails}><Icon name='cancel'/> Fermer</Button>
+                                <Button color='black' onClick={this.closeDetails}><Icon name='cancel'/> Fermer</Button>
                                 {this.getShowDeleteButton()}
                             </Modal.Actions>
                             <Modal onClose={this.closeDelete} open={this.state.openDelete}>
@@ -292,7 +286,7 @@ export class StoredObjectRow extends Component {
                             </Modal.Content>
                             <Modal.Actions>
                                 {this.getDownloadButton()}
-                                <Button basic color='red' onClick={this.closeDetails}>
+                                <Button color='red' onClick={this.closeDetails}>
                                     <Icon name='cancel'/> Fermer
                                 </Button>
                             </Modal.Actions>
