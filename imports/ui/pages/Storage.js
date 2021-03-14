@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Input, Table, Button, Icon, Label } from 'semantic-ui-react';
+import { Input, Table, Button, Icon, Label, Progress } from 'semantic-ui-react';
 import AdministrationMenu from '../molecules/AdministrationMenu';
 import StoredObjectRow from '../molecules/StoredObjectRow';
 import MultiDropdown from '../atoms/MultiDropdown';
@@ -135,8 +135,9 @@ export class Storage extends Component {
           <MultiDropdown onChange={(value)=>this.setState({selectedType:value})} options={this.state.types.map(x=>{return({key:x.obj,text:x.name,value:x.obj,label:{color:x.color,empty:true,circular:true}})})}/>
           <MultiDropdown onChange={(value)=>this.setState({selectedSubtype:value})} options={(this.state.types.filter(x=>x.obj == this.state.selectedType)[0] ? this.state.types.filter(x=>x.obj == this.state.selectedType)[0].types.map(x=>{return({key:x.type,text:x.name,value:x.type,label:{color:x.color,empty:true,circular:true}})}) : [])}/>
           <Button color="red" onClick={()=>this.setState({selectedSubtype:""})}><Icon style={{margin:"0"}} name="cancel"/></Button>
-          <Label style={{gridColumnStart:"5",placeSelf:"center"}}>{parseFloat(this.state.storedObjectsRaw.reduce((a,b)=>a + b.size,0)/1048576).toFixed(2)} Mo used</Label>
-          <Label style={{gridColumnStart:"6",placeSelf:"center"}}>Total : {this.state.storedObjectsRaw.length} docs stored</Label>
+          <Progress color="green" progress="percent" style={{margin:"auto 32px"}} value={parseInt(parseFloat(((this.state.storedObjectsRaw.reduce((a,b)=>a + b.size,0)/1048576)))/5120*100).toFixed(1)} total={100} />
+          <Label size="large" style={{gridColumnStart:"5",placeSelf:"center",margin:"0 4px"}}>{parseFloat(this.state.storedObjectsRaw.reduce((a,b)=>a + b.size,0)/1048576).toFixed(2)} Mo utilisés</Label>
+          <Label size="large" style={{gridColumnStart:"6",placeSelf:"center",margin:"0 4px"}}>{this.state.storedObjectsRaw.length} objets stockés</Label>
         </div>
         <div style={{display:"block",overflowY:"auto",justifySelf:"stretch"}}>
           <Table compact selectable color="blue">
