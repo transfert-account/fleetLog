@@ -247,7 +247,7 @@ export class Accident extends Component {
         this.props.client.mutate({
             mutation:this.state.uploadAccidentDocumentQuery,
             variables:{
-                _id:this.props.accident._id,
+                _id:this.state.accident._id,
                 file:this.state.newConstat,
                 type:"constat",
                 size:this.state.newConstat.size
@@ -268,7 +268,7 @@ export class Accident extends Component {
         this.props.client.mutate({
             mutation:this.state.uploadAccidentDocumentQuery,
             variables:{
-                _id:this.props.accident._id,
+                _id:this.state.accident._id,
                 file:this.state.newRapportExp,
                 type:"rapportExp",
                 size:this.state.newRapportExp.size
@@ -289,7 +289,7 @@ export class Accident extends Component {
         this.props.client.mutate({
             mutation:this.state.uploadAccidentDocumentQuery,
             variables:{
-                _id:this.props.accident._id,
+                _id:this.state.accident._id,
                 file:this.state.newFacture,
                 type:"facture",
                 size:this.state.newFacture.size
@@ -310,7 +310,7 @@ export class Accident extends Component {
         this.props.client.mutate({
             mutation:this.state.uploadAccidentDocumentQuery,
             variables:{
-                _id:this.props.accident._id,
+                _id:this.state.accident._id,
                 file:this.state.newQuestionary,
                 type:"questionary",
                 size:this.state.newQuestionary.size
