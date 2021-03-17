@@ -202,6 +202,13 @@ export class Accident extends Component {
         this.loadAccident();
         this.setState({ activeItem: item })
     }
+    handleInputFile = (type,e) => {
+        if(e.target.validity.valid ){
+            this.setState({
+                [type]:e.target.files[0]
+            })
+        }
+    }
     /*FILTERS HANDLERS*/
     /*DB READ AND WRITE*/
     loadAccident = () => {
