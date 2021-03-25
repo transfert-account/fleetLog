@@ -136,36 +136,31 @@ export default {
     },
     getStoredObjectsList : async () => {
         return new Promise((resolve,rejectAllStoredObjects)=>{
-            try {
-                AWS.config.update({
-                    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-                    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-                })
-                let s3 = new AWS.S3({
-                    region: 'eu-west-3',
-                    apiVersion: '2006-03-01',
-                    signatureVersion: 'v4'
-                });
-                const params = {
-                    Bucket: "wg-logistique"
-                }
-                const listAllKeys = (params, out = []) => new Promise((resolve, reject) => {
-                    s3.listObjectsV2(params).promise().then(({Contents, IsTruncated, NextContinuationToken}) => {
-                        out.push(...Contents);
-                        !IsTruncated ? resolve(out) : resolve(listAllKeys(Object.assign(params, {ContinuationToken: NextContinuationToken}), out));
-                    }).catch(reject);
-                });
-                listAllKeys(params).then(data=>{
-                    console.log("resolved in functions : " + data.length)
-                    resolve({readSucces:true,list:data})
-                }).catch(err=>{
-                    console.error(err)
-                    reject(err)
-                }); 
-            } catch (error) {
-                console.error(error)
-                rejectAllStoredObjects(error)
+            AWS.config.update({
+                accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+                secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+            })
+            let s3 = new AWS.S3({
+                region: 'eu-west-3',
+                apiVersion: '2006-03-01',
+                signatureVersion: 'v4'
+            });
+            const params = {
+                Bucket: "wg-logistique"
             }
+            const listAllKeys = (params, out = []) => new Promise((resolve, reject) => {
+                s3.listObjectsV2(params).promise().then(({Contents, IsTruncated, NextContinuationToken}) => {
+                    out.push(...Contents);
+                    !IsTruncated ? resolve(out) : resolve(listAllKeys(Object.assign(params, {ContinuationToken: NextContinuationToken}), out));
+                }).catch(reject);
+            });
+            listAllKeys(params).then(data=>{
+                console.log("resolved in functions : " + data.length)
+                resolve({readSucces:true,list:data})
+            }).catch(err=>{
+                console.error(err)
+                reject(err)
+            });
         });
     }
 }
