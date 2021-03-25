@@ -159,6 +159,7 @@ export default {
                     console.log(data.length)
                     resolve({readSucces:true,list:data})
                 }).catch(err=>{
+                    console.error(err)
                     reject(err)
                 }); 
             } catch (error) {
