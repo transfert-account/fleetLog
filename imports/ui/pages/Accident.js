@@ -256,7 +256,7 @@ export class Accident extends Component {
             data.uploadAccidentDocument.map(qrm=>{
                 if(qrm.status){
                     this.props.toast({message:qrm.message,type:"success"});
-                    this.props.loadAccidents();
+                    this.props.loadAccident();
                     this.closeDocs();
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
@@ -277,7 +277,7 @@ export class Accident extends Component {
             data.uploadAccidentDocument.map(qrm=>{
                 if(qrm.status){
                     this.props.toast({message:qrm.message,type:"success"});
-                    this.props.loadAccidents();
+                    this.props.loadAccident();
                     this.closeDocs();
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
@@ -298,7 +298,7 @@ export class Accident extends Component {
             data.uploadAccidentDocument.map(qrm=>{
                 if(qrm.status){
                     this.props.toast({message:qrm.message,type:"success"});
-                    this.props.loadAccidents();
+                    this.props.loadAccident();
                     this.closeDocs();
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
@@ -319,7 +319,7 @@ export class Accident extends Component {
             data.uploadAccidentDocument.map(qrm=>{
                 if(qrm.status){
                     this.props.toast({message:qrm.message,type:"success"});
-                    this.props.loadAccidents();
+                    this.props.loadAccident();
                     this.closeDocs();
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});

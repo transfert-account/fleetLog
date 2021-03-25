@@ -135,6 +135,7 @@ export default {
                     so.debug = JSON.stringify(so.res)
                   }
                 })
+                console.log(storedObjects.length)
                 return storedObjects;
               }).catch(e=>{
                 return [{e}];
