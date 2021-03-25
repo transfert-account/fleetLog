@@ -156,6 +156,7 @@ export default {
                     }).catch(reject);
                 });
                 listAllKeys(params).then(data=>{
+                    console.log(data.length)
                     resolve({readSucces:true,list:data})
                 }).catch(err=>{
                     reject(err)
