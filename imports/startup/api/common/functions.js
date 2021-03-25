@@ -87,7 +87,6 @@ export default {
     },
     deleteObjectAndDoc : async (name,docId) => {
         return new Promise((resolve,reject)=>{
-            console.log("Deleting : " + name + " : " + docId)
             let s3 = new AWS.S3({
                 region: 'eu-west-3',
                 apiVersion: '2006-03-01',
@@ -113,7 +112,6 @@ export default {
     },
     deleteObject : async (name) => {
         return new Promise((resolve,reject)=>{
-            console.log("Deleting : " + name)
             let s3 = new AWS.S3({
                 region: 'eu-west-3',
                 apiVersion: '2006-03-01',
@@ -155,11 +153,9 @@ export default {
                 }).catch(reject);
             });
             listAllKeys(params).then(data=>{
-                console.log("resolved in functions : " + data.length)
                 resolve({readSucces:true,list:data})
             }).catch(err=>{
-                console.error(err)
-                reject(err)
+                reject({readSucces:false,error:err})
             });
         });
     }

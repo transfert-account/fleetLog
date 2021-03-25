@@ -10,7 +10,9 @@ import Licences from '../licence/licences'
 
 const TYPES = [
     {
-      getLinkedObjInfos:(v)=>v.registration,
+      getLinkedObjInfos:(v)=>{
+        return v.registration
+      },
       obj:"vehicles",name:"Vehicles",col:Vehicles,types:[
         {type:"cg",name:"Carte grise"},
         {type:"cv",name:"Carte verte"},
@@ -19,7 +21,9 @@ const TYPES = [
         {type:"scg",name:"Carte grise barrée"}
       ]
     },{
-      getLinkedObjInfos:(l)=>l.registration,
+      getLinkedObjInfos:(l)=>{
+        return l.registration
+      },
       obj:"locations",name:"Locations",col:Locations,types:[
         {type:"cg",name:"Carte grise"},
         {type:"cv",name:"Carte verte"},
@@ -29,10 +33,10 @@ const TYPES = [
     },{
       getLinkedObjInfos:(a)=>{
         let v = {};
-        v = Vehicles.findOne({_id:a._id})
+        v = Vehicles.findOne({_id:new Mongo.ObjectID(a.vehicle)})
         if(!v){
-          v = Locations.findOne({_id:a._id})
-        }
+          v = Locations.findOne({_id:new Mongo.ObjectID(a.vehicle)})
+        }        
         return (v.registration + " (" + a.occurenceDate + ")")
       },
       obj:"accidents",name:"Accidents",col:Accidents,types:[
@@ -96,7 +100,7 @@ export default {
               if(data.readSucces){
                 resolve(data.list)
               }else{
-                reject("fail : " + data.readSucces)
+                reject("readSucces : " + data.readSucces)
               }
             }).then(list=>{
               storedObjects = list.map(x=>{return{name:x.Key,size:x.Size}})
@@ -134,15 +138,9 @@ export default {
                   so.debug = JSON.stringify(so.res)
                 }
               })
-              console.log("returned in resolver : " + storedObjects.length)
-              if(storedObjects.length > 0){
-                console.log(storedObjects[0])
-              }
               return storedObjects;
-            }).catch(e=>{
-              console.log("catched in resolver : ")
-              console.log(e)
-              return [{err:e}];
+            }).catch(err=>{
+              return [{err:err}];
             });
           }
         },
