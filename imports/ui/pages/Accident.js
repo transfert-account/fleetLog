@@ -81,6 +81,7 @@ export class Accident extends Component {
                         }
                     }
                     occurenceDate
+                    driver
                     description
                     dateExpert
                     dateTravaux

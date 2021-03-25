@@ -15,6 +15,7 @@ export class AccidentTabularDeclaration extends Component {
         datePickerTarget:"",
         newVehicle:this.props.accident.vehicle._id,
         newOccurenceDate:this.props.accident.occurenceDate,
+        newDriver:this.props.accident.driver,
         newConstatSent:this.props.accident.constatSent,
         newDateExpert:this.props.accident.dateExpert,
         newDateTravaux:this.props.accident.dateTravaux,
@@ -24,8 +25,8 @@ export class AccidentTabularDeclaration extends Component {
         openDatePicker:false,
         newDescription:this.props.accident.description,
         editAccidentQuery : gql`
-            mutation editAccident($_id:String!,$occurenceDate:String!,$dateExpert:String!,$dateTravaux:String!,$constatSent:String!){
-                editAccident(_id:$_id,occurenceDate:$occurenceDate,dateExpert:$dateExpert,dateTravaux:$dateTravaux,constatSent:$constatSent){
+            mutation editAccident($_id:String!,$occurenceDate:String!,$driver:String!,$dateExpert:String!,$dateTravaux:String!,$constatSent:String!){
+                editAccident(_id:$_id,occurenceDate:$occurenceDate,driver:$driver,dateExpert:$dateExpert,dateTravaux:$dateTravaux,constatSent:$constatSent){
                     status
                     message
                 }
@@ -125,6 +126,7 @@ export class AccidentTabularDeclaration extends Component {
             variables:{
                 _id:this.props.accident._id,
                 occurenceDate:this.state.newOccurenceDate,
+                driver:this.state.newDriver,
                 dateExpert:this.state.newDateExpert,
                 dateTravaux:this.state.newDateTravaux,
                 constatSent:this.state.newConstatSent
@@ -185,23 +187,23 @@ export class AccidentTabularDeclaration extends Component {
     /*CONTENT GETTERS*/
     getTotalCost = () => {
         if(this.props.accident.constatSent == "internal"){
-            return this.getNullableValue(this.props.accident.chargeSinistre + this.props.accident.montantInterne)
+            return this.getNullableLabel(this.getNullableValue(this.props.accident.chargeSinistre) + this.getNullableValue(this.props.accident.montantInterne))
         }else{
-            return this.getNullableValue(this.props.accident.chargeSinistre + this.props.accident.reglementAssureur)
+            return this.getNullableLabel(this.getNullableValue(this.props.accident.chargeSinistre) + this.getNullableValue(this.props.accident.reglementAssureur))
         }
     }
     getReglementAssureur = () => {
         if(this.props.accident.constatSent == "internal"){
-            return this.getNullableValue(-1)
+            return this.getNullableLabel(-1)
         }else{
-            return this.getNullableValue(this.props.accident.reglementAssureur)
+            return this.getNullableLabel(this.props.accident.reglementAssureur)
         }
     }
     getMontantInterne = () => {
         if(this.props.accident.constatSent != "internal"){
-            return this.getNullableValue(-1)
+            return this.getNullableLabel(-1)
         }else{
-            return this.getNullableValue(this.props.accident.montantInterne)
+            return this.getNullableLabel(this.props.accident.montantInterne)
         }
     }    
     getDeclarationPanel = () => {
@@ -216,6 +218,10 @@ export class AccidentTabularDeclaration extends Component {
                             <Form.Field>
                                 <label>Date de l'accident</label>
                                 <Input value={this.state.newOccurenceDate} onFocus={()=>{this.showDatePicker("newOccurenceDate")}} name="newOccurenceDate"/>
+                            </Form.Field>
+                            <Form.Field>
+                                <label>Conducteur du véhicule</label>
+                                <Input value={this.state.newDriver} onChange={this.handleChange} name="newDriver"/>
                             </Form.Field>
                             <Form.Field>
                                 <label>Date du passage de l'expert</label>
@@ -248,9 +254,10 @@ export class AccidentTabularDeclaration extends Component {
                         <Header as="h3">Déclaration</Header>
                     </Segment>
                     <Segment raised style={{placeSelf:"stretch",margin:"0"}}>
-                        <div className="formBoard displaying" style={{gridTemplateRows:"auto auto auto auto auto auto 1fr",height:"100%"}}>
-                            <div className="labelBoard">Societé :</div><div className="valueBoard">{this.props.accident.societe.name}</div>
+                        <div className="formBoard displaying" style={{gridTemplateRows:"auto auto auto auto auto auto auto 1fr",height:"100%"}}>
+                            <div className="labelBoard">Propriétaire du véhicule :</div><div className="valueBoard">{this.props.accident.societe.name}</div>
                             <div className="labelBoard">Date de l'accident :</div><div className="valueBoard">{this.props.accident.occurenceDate}</div>
+                            <div className="labelBoard">Conducteur :</div><div className="valueBoard">{this.props.accident.driver}</div>
                             <div className="labelBoard">Date de passage de l'expert :</div><div className="valueBoard">{this.props.accident.dateExpert}</div>
                             <div className="labelBoard">Date des travaux :</div><div className="valueBoard">{this.props.accident.dateTravaux}</div>
                             <div className="labelBoard">Constat envoyé à l'assurance :</div><div className="valueBoard">{this.getConstatSentLabel()}</div>
@@ -273,6 +280,13 @@ export class AccidentTabularDeclaration extends Component {
         }
     }
     getNullableValue = v => {
+        if(v < 0){
+            return 0
+        }else{
+            return v
+        }
+    }
+    getNullableLabel = v => {
         if(v < 0){
             return "n/a"
         }else{
@@ -330,9 +344,9 @@ export class AccidentTabularDeclaration extends Component {
                         <Header as="h3">Prise en charge</Header>
                     </Segment>
                     <Segment raised style={{placeSelf:"stretch",margin:"0"}}>
-                        <div className="formBoard displaying" style={{gridTemplateRows:"auto auto auto auto auto 1fr",height:"100%"}}>
+                        <div className="formBoard displaying" style={{gridTemplateRows:"auto auto auto auto auto auto auto 1fr",height:"100%"}}>
                             <div className="labelBoard">Responsabilité :</div><div className="valueBoard">{this.getPECLabel()}</div>
-                            <div className="labelBoard">Charge Sinistre :</div><div className="valueBoard">{this.getNullableValue(this.props.accident.chargeSinistre)}</div>
+                            <div className="labelBoard">Charge Sinistre :</div><div className="valueBoard">{this.getNullableLabel(this.props.accident.chargeSinistre)}</div>
                             <div className="labelBoard">Reglement Assureur :</div><div className="valueBoard">{this.getReglementAssureur()}</div>
                             <div className="labelBoard">Montant Interne :</div><div className="valueBoard">{this.getMontantInterne()}</div>
                             <div className="labelBoard">Status :</div><div className="valueBoard">{this.getStatusLabel()}</div>

@@ -3,6 +3,7 @@ type Accident{
     societe:Societe!
     vehicle:Vehicle!
     occurenceDate:String
+    driver:String!
     description:String!
     dateExpert:String
     dateTravaux:String
@@ -39,7 +40,7 @@ extend type Query{
 
 extend type Mutation{
     addAccident(vehicle:String!,occurenceDate:String!): [QueryResultMessage]
-    editAccident(_id:String!,occurenceDate:String!,dateExpert:String!,dateTravaux:String!,constatSent:String!): [QueryResultMessage]
+    editAccident(_id:String!,occurenceDate:String!,driver:String!,dateExpert:String!,dateTravaux:String!,constatSent:String!): [QueryResultMessage]
     editPECAccident(_id:String!,responsabilite:Int!,reglementAssureur:Float!,chargeSinistre:Float!,montantInterne:Float!,status:Boolean!): [QueryResultMessage]
     editDescAccident(_id:String!,description:String!): [QueryResultMessage]
     deleteAccident(_id:String!): [QueryResultMessage]

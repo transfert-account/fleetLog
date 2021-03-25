@@ -1340,7 +1340,7 @@ class Vehicle extends Component {
             return (
                 <Segment attached='bottom' style={{padding:"24px"}}>
                     <Form style={{display:"grid",gridTemplateRows:"auto auto auto auto auto 1fr auto",height:"100%"}} className="formBoard editing">
-                        <Form.Field style={{gridColumnEnd:"span 2"}}><label>Societé</label>
+                        <Form.Field style={{gridColumnEnd:"span 2"}}><label>Propriétaire</label>
                             <SocietePicker restrictToVisibility defaultValue={this.state.vehicle.societe._id} groupAppears={false} onChange={this.handleChangeSociete}/>
                         </Form.Field>
                         <RegistrationInput onChange={this.handleRegistrationChange} defaultValue={this.state.vehicle.registration} name="newRegistration"/>
@@ -1376,7 +1376,7 @@ class Vehicle extends Component {
             return (
                 <Segment attached='bottom' style={{padding:"24px"}}>
                     <div className="formBoard displaying">
-                        <div className="labelBoard">Societé :</div><div className="valueBoard">{this.state.vehicle.societe.name}</div>
+                        <div className="labelBoard">Propriétaire :</div><div className="valueBoard">{this.state.vehicle.societe.name}</div>
                         <div className="labelBoard">Immatriculation :</div><div className="valueBoard">{this.state.vehicle.registration}</div>
                         <div className="labelBoard">1ère immatriculation :</div><div className="valueBoard">{this.state.vehicle.firstRegistrationDate}</div>
                         <div className="labelBoard">Énergie :</div><div className="valueBoard">{this.state.vehicle.energy.name}</div>
@@ -1575,7 +1575,7 @@ class Vehicle extends Component {
     getSharedPanel = () => {
         if(this.state.vehicle.shared){
             return (
-                <Message color="teal" style={{margin:"0 16px"}} icon='handshake outline' header={"En prêt chez : " + this.state.vehicle.sharedTo.name + ", depuis le : " + this.state.vehicle.sharedSince} content={"Justificaion : " + this.state.vehicle.sharingReason} />
+                <Message color="teal" style={{margin:"0 16px"}} icon='handshake outline' header={"Véhicule opéré par : " + this.state.vehicle.sharedTo.name + ", depuis le : " + this.state.vehicle.sharedSince} content={"Justificaion : " + this.state.vehicle.sharingReason} />
             )
         }
     }
@@ -1733,7 +1733,7 @@ class Vehicle extends Component {
                     </Modal>
                     <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openShare} onClose={this.closeShare} closeIcon>
                         <Modal.Header>
-                            A quelle societé prêter le vehicule {this.state.vehicle.registration} ?
+                            Quelle societé doit opérer le vehicule {this.state.vehicle.registration} ?
                         </Modal.Header>
                         <Modal.Content>
                             <Form style={{display:"grid",gridTemplateColumns:"1fr",gridGap:"16px"}}>
@@ -1754,7 +1754,7 @@ class Vehicle extends Component {
                     </Modal>
                     <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openUnshare} onClose={this.closeUnshare} closeIcon>
                         <Modal.Header>
-                        Rappeler le vehicule {this.state.vehicle.registration} prêté ?
+                            Rappeler le vehicule {this.state.vehicle.registration} prêté ?
                         </Modal.Header>
                         <Modal.Actions>
                             <Button color="grey" onClick={this.closeUnshare}>Annuler</Button>

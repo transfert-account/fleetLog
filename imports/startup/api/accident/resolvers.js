@@ -93,6 +93,7 @@ export default {
                     societe:v.societe,
                     vehicle:vehicle,
                     occurenceDate:occurenceDate,
+                    driver:"",
                     description:"",
                     dateExpert:"",
                     dateTravaux:"",
@@ -102,10 +103,10 @@ export default {
                     questionary:"",
                     constatSent:"no",
                     archived:false,
-                    responsabilite:-1,
-                    reglementAssureur:-1,
-                    chargeSinistre:-1,
-                    montantInterne:-1,
+                    responsabilite:0,
+                    reglementAssureur:0,
+                    chargeSinistre:0,
+                    montantInterne:0,
                     status:false,
                     answers:[
                         {
@@ -171,7 +172,7 @@ export default {
             }
             throw new Error('Unauthorized');
         },
-        editAccident(obj, {_id,occurenceDate,dateExpert,dateTravaux,constatSent},{user}){
+        editAccident(obj, {_id,occurenceDate,driver,dateExpert,dateTravaux,constatSent},{user}){
             if(user._id){
                 Accidents.update(
                     {
@@ -179,6 +180,7 @@ export default {
                     }, {
                         $set: {
                             "occurenceDate":occurenceDate,
+                            "driver":driver,
                             "dateExpert":dateExpert,
                             "dateTravaux":dateTravaux,
                             "constatSent":constatSent

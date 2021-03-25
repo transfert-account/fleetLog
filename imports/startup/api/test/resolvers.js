@@ -15,21 +15,52 @@ export default {
         testThis(obj, args,{user}){
             if(user._id){
                 try{
+                    let accs = Accidents.find({}).fetch();
+                    accs.forEach(acc => {
+                        let newresponsabilite;
+                        let newreglementAssureur;
+                        let newchargeSinistre;
+                        let newmontantInterne;
+                        if(acc.responsabilite == -1){
+                            newresponsabilite = 0;
+                        }else{
+                            newresponsabilite = acc.responsabilite;
+                        }
+                        if(acc.reglementAssureur == -1){
+                            newreglementAssureur = 0;
+                        }else{
+                            newreglementAssureur = acc.reglementAssureur;
+                        }
+                        if(acc.chargeSinistre == -1){
+                            newchargeSinistre = 0;
+                        }else{
+                            newchargeSinistre = acc.chargeSinistre;
+                        }
+                        if(acc.montantInterne == -1){
+                            newmontantInterne = 0;
+                        }else{
+                            newmontantInterne = acc.montantInterne;
+                        }
+                        Accidents.update(
+                            {
+                                _id:acc._id
+                            },{
+                                $set: {
+                                    driver:"",
+                                    responsabilite:newresponsabilite,
+                                    reglementAssureur:newreglementAssureur,
+                                    chargeSinistre:newchargeSinistre,
+                                    montantInterne:newmontantInterne
+                                }
+                            },{multi:true}
+                        );
+                    });
                     /*let e = Energies.find({}).fetch()[0];
                     Locations.update(
                         {},{
                             $set: {
                                 energy:e._id._str,
                                 accidents:[]
-                            }
-                        },{multi:true}
-                    );*/
-                    /*
-                    Accidents.update(
-                        {},{
-                            $set: {
-                                constatSent:"no",
-                                questionary:""
                             }
                         },{multi:true}
                     );
@@ -40,8 +71,8 @@ export default {
                                 questions:""
                             }
                         },{multi:true}
-                    );*/
-                    /*Accidents.update(
+                    );
+                    Accidents.update(
                         {},{
                             $set: {
                                 answers:[
@@ -105,8 +136,7 @@ export default {
                                 ]
                             }
                         },{multi:true}
-                    );*/
-                    /*
+                    );
                     let vs = Vehicles.find({}).fetch();
                     vs.forEach(v=>{
                         Vehicles.update(
