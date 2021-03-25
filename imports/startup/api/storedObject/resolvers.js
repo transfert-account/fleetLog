@@ -135,7 +135,10 @@ export default {
                     so.debug = JSON.stringify(so.res)
                   }
                 })
-                console.log(storedObjects.length)
+                console.log("returned in resolver : " + storedObjects.length)
+                if(storedObjects.length > 0){
+                  console.log(storedObjects[0])
+                }
                 return storedObjects;
               }).catch(e=>{
                 return [{e}];
