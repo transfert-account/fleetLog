@@ -1,0 +1,20 @@
+type ExportTemplate{
+    _id:String
+    type:String!
+    name:String!
+    scope:String!
+    columns:[ExportColumn]!
+}
+type ExportColumn{
+    colOrder:Int!
+    key:String!
+}
+
+extend type Query{
+    exportTemplates(type:String!) : [ExportTemplate]
+}
+
+extend type Mutation{
+    addExportTemplate(name:String!,type:String!,scope:String!,columns:String!): [QueryResultMessage]
+    deleteExportTemplate(_id:String!): [QueryResultMessage]
+}

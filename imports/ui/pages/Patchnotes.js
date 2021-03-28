@@ -249,8 +249,8 @@ export class Patchnotes extends Component {
                             <List.Item>
                                 <List.Icon name='paint brush' size='large' verticalAlign='middle' />
                                 <List.Content>
-                                    <List.Header>Fusion des colones "Modèle", "Marque" et "Energie"</List.Header>
-                                    <List.Description>Les colones "Modèle", "Marque" et "Energie" ont fusionner en une seule pour un gain de place</List.Description>
+                                    <List.Header>Fusion des colonnes "Modèle", "Marque" et "Energie"</List.Header>
+                                    <List.Description>Les colonnes "Modèle", "Marque" et "Energie" ont fusionner en une seule pour un gain de place</List.Description>
                                 </List.Content>
                             </List.Item>
                             <List.Item>

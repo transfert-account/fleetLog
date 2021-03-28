@@ -15,7 +15,7 @@ export default {
         testThis(obj, args,{user}){
             if(user._id){
                 try{
-                    let accs = Accidents.find({}).fetch();
+                    /*let accs = Accidents.find({}).fetch();
                     accs.forEach(acc => {
                         let newresponsabilite;
                         let newreglementAssureur;
@@ -54,7 +54,7 @@ export default {
                                 }
                             },{multi:true}
                         );
-                    });
+                    });/*
                     /*let e = Energies.find({}).fetch()[0];
                     Locations.update(
                         {},{

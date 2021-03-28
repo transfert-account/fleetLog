@@ -9,11 +9,9 @@ class ExportMenu extends Component {
         menuItems : [
             {color:"blue",name:'vehicles',uri:"/export/vehicles",icon:"truck",label:"Export Véhicules"},
             {color:"blue",name:'entretiens',uri:"/export/entretiens",icon:"wrench",label:"Export Entretiens"},
-            {color:"blue",name:'sinistres',uri:"/export/sinistres",icon:"file excel outline",label:"Export Sinistres"},
-            {color:"blue",name:'causes-sinistres',uri:"/export/causes-sinistres",icon:"file excel outline",label:"Export Causes Sinistres"},
+            {color:"blue",name:'sinistres',uri:"/export/sinistres",icon:"fire",label:"Export Sinistres"},
         ]
     }
-    /*,{color:"blue",name:'logs',uri:"/administration/logs",icon:"terminal",label:"Logs Server"}*/
 
     render() {
         return (

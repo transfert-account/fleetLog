@@ -22,7 +22,6 @@ import Planning from './Planning';
 import ExportVehicles from './ExportVehicles';
 import ExportEntretiens from './ExportEntretiens';
 import ExportSinistres from './ExportSinistres';
-import ExportCausesSinistres from './ExportCausesSinistres';
 
 import Accidents from './Accidents';
 import Accident from './Accident';
@@ -81,7 +80,6 @@ class PageBody extends Component {
               <Route exact path='/export/vehicles' component={ExportVehicles}/>
               <Route exact path='/export/entretiens' component={ExportEntretiens}/>
               <Route exact path='/export/sinistres' component={ExportSinistres}/>
-              <Route exact path='/export/causes-sinistres' component={ExportCausesSinistres}/>
 
               <Route exact path='/batiments' component={()=><Batiments userLimited={false}/>}/>
 
@@ -125,7 +123,6 @@ class PageBody extends Component {
               <Route exact path='/export/vehicles' component={ExportVehicles}/>
               <Route exact path='/export/entretiens' component={ExportEntretiens}/>
               <Route exact path='/export/sinistres' component={ExportSinistres}/>
-              <Route exact path='/export/causes-sinistres' component={ExportCausesSinistres}/>
 
               <Route exact path='/batiments' component={()=><Batiments userLimited={true}/>}/>
 
@@ -168,8 +165,7 @@ class PageBody extends Component {
 
             <Route exact path='/export/vehicles' component={ExportVehicles}/>
             <Route exact path='/export/entretiens' component={ExportEntretiens}/>
-            <Route exact path='/export/sinistres' component={ExportSinistres}/>
-            <Route exact path='/export/causes-sinistres' component={ExportCausesSinistres}/>
+            <Route exact path='/export/sinistres' component={ExportSinistres}/>            
 
             <Route exact path='/batiments' component={()=><Batiments userLimited={true}/>}/>
 

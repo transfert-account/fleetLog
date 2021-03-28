@@ -96,10 +96,13 @@ import TestResolvers from '../api/test/resolvers.js';
 import StoredObjectSchema from '../api/storedObject/StoredObject.graphql';
 import StoredObjectResolvers from '../api/storedObject/resolvers.js';
 
+import ExportTemplateSchema from '../api/exportTemplate/ExportTemplate.graphql';
+import ExportTemplateResolvers from '../api/exportTemplate/resolvers.js';
+
 import LogSchema from '../api/log/Log.graphql';
 import LogResolvers from '../api/log/resolvers.js';
 
-// #0450
+// #0456
 
 const typeDefs = [
     UserSchema,
@@ -132,6 +135,7 @@ const typeDefs = [
     AccWeatherSchema,
     AccTrackStateSchema,
     StoredObjectSchema,
+    ExportTemplateSchema,
     TestSchema
 ];
 
@@ -166,6 +170,7 @@ const resolvers = merge(
     AccWeatherResolvers,
     AccTrackStateResolvers,
     StoredObjectResolvers,
+    ExportTemplateResolvers,
     TestResolvers
 );
 

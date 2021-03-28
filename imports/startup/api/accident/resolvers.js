@@ -37,6 +37,16 @@ const affectData = a => {
         }else{
             a.vehicle.energy = {_id:""};
         }
+        if(a.vehicle.societe != null && a.vehicle.societe.length > 0){
+            a.vehicle.societe = Societes.findOne({_id:new Mongo.ObjectID(a.vehicle.societe)});
+        }else{
+            a.vehicle.societe = {_id:""};
+        }
+        if(a.vehicle.shared && a.vehicle.sharedTo != null && a.vehicle.sharedTo.length > 0){
+            a.vehicle.sharedTo = Societes.findOne({_id:new Mongo.ObjectID(a.vehicle.sharedTo)});
+        }else{
+            a.vehicle.sharedTo = {_id:""};
+        }
     }else{
         a.vehicle = {_id:""};
     }
@@ -107,7 +117,7 @@ export default {
                     reglementAssureur:0,
                     chargeSinistre:0,
                     montantInterne:0,
-                    status:false,
+                    status:true,
                     answers:[
                         {
                           page:1,
