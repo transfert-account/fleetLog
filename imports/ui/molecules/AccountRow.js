@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import { Table, Label, Dropdown, Icon, Message, Button, Modal } from 'semantic-ui-react';
+import { Table, Label, Dropdown, Icon, Message, Button, Modal, Input, Form } from 'semantic-ui-react';
 import SocietePicker from '../atoms/SocietePicker';
 import { UserContext } from '../../contexts/UserContext';
 import gql from 'graphql-tag';
@@ -34,25 +34,40 @@ export class AccountRow extends Component {
                 status
                 message
             }
-        }`
+        }`,
+        //NUKE STATES
+        nukeQueries:{
+            nukeDeleteById: gql`
+                mutation nukeDeleteById($_id:String!,$object:String!,$pass:String!){
+                    nukeDeleteById(_id:$_id,object:$object,pass:$pass){
+                        status
+                        message
+                    }
+                }
+            `,
+        },
+        openNukeModal:false,
+        nukeTarget:"",
+        pass:"",
+        object:""
     }
-
     closeDelete = () => {
         this.setState({openDelete:false})
     }
-
     showDelete = () => {
         this.setState({openDelete:true})
     }
-
     closeUnsetAdmin = () => {
         this.setState({openUnsetAdmin:false})
     }
-
     showUnsetAdmin = () => {
         this.setState({openUnsetAdmin:true})
     }
-
+    handleChange = e =>{
+        this.setState({
+          [e.target.name]:e.target.value
+        });
+    }
     tryShowUnsetAdmin = () => {
         if(this.props.u.visibility == "noidthisisgroupvisibility"){
             this.showUnsetAdmin()
@@ -60,11 +75,9 @@ export class AccountRow extends Component {
             this.unsetAdmin(this.props.u._id)
         }
     }
-
     deleteAccount = _id => {
         this.props.deleteAccount(_id);
     }
-
     setAdmin = _id =>{
         this.props.client.mutate({
             mutation : this.state.setAdminQuery,
@@ -86,7 +99,6 @@ export class AccountRow extends Component {
             })
         })
     }
-
     unsetAdmin = _id =>{
         this.props.client.mutate({
             mutation : this.state.unsetAdminQuery,
@@ -110,11 +122,9 @@ export class AccountRow extends Component {
             })
         })
     }
-
     setOwner = _id =>{
         this.props.setOwner(_id);
     }
-    
     activateAccount = _id =>{
         this.props.client.mutate({
             mutation : this.state.toggleActiveQuery,
@@ -133,7 +143,6 @@ export class AccountRow extends Component {
             })
         })
     }
-
     setVisibility = (e, { value }) => {
         this.props.client.mutate({
             mutation : this.state.setVisibilityQuery,
@@ -152,7 +161,17 @@ export class AccountRow extends Component {
             })
         })
     }
+    didRefreshSociete = () => {
+        this.setState({
+            needToRefreshSociete:false
+        })
+    }
+    handleChangeSociete = (e, { value }) => this.setState({ newSociete:value })
+    reloadAccounts = () => {
+        this.props.reloadAccounts()
+    }
 
+    /*NUKE PART*/
     executeNukeQuery = () => {
         this.props.client.query({
             query:gql`
@@ -173,18 +192,25 @@ export class AccountRow extends Component {
             })
         })
     }
-
-    didRefreshSociete = () => {
-        this.setState({
-            needToRefreshSociete:false
+    nukeDeleteById = () => {
+        this.props.client.mutate({
+            mutation:this.state.nukeQueries.nukeDeleteById,
+            variables:{
+                _id:this.state.nukeTarget,
+                pass:this.state.pass,
+                object:this.state.object
+            }
+        }).then(({data})=>{
+            data.deleteAccident.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
         })
     }
-
-    handleChangeSociete = (e, { value }) => this.setState({ newSociete:value })
-
-    reloadAccounts = () => {
-        this.props.reloadAccounts()
-    }
+    /*END NUKE PART*/
 
     render() {
         return (
@@ -248,7 +274,7 @@ export class AccountRow extends Component {
                                 {((this.props.user.isOwner) ?
                                     <Dropdown style={{margin:"0",padding:"6px"}} text='Actions ...' floating labeled button className='icon'>
                                         <Dropdown.Menu>
-                                            <Dropdown.Item icon='bolt' color="red" text='Apply deploy mass update' onClick={()=>{this.executeNukeQuery()}}/>                
+                                            <Dropdown.Item icon='bolt' color="red" text='Open nuke modal' onClick={()=>{this.setState({openNukeModal:true})}}/>                
                                         </Dropdown.Menu>
                                     </Dropdown>
                                 : 
@@ -294,6 +320,23 @@ export class AccountRow extends Component {
                         )}
                     </Table.Cell>
                 </Table.Row>
+                <Modal closeOnDimmerClick={false} dimmer="inverted" size="small" open={this.state.openNukeModal} onClose={()=>this.setState({openNukeModal:false})} closeIcon>
+                    <Modal.Header>
+                        /!\ NUKE CONSOLE /!\ 
+                    </Modal.Header>
+                    <Modal.Content style={{textAlign:"center"}}>
+                        <div autocomplete="off" style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gridGap:"16px"}}>
+                            <Input name="nukeTarget" placeholder="target" onChange={this.handleChange}/>
+                            <Input name="object" placeholder="object" onChange={this.handleChange}/>
+                            <Input name="pass" placeholder="dev pass" onChange={this.handleChange} error/>
+                            <Button color="red" onClick={this.executeNukeQuery}>NUKE</Button>
+                            <Button onClick={this.nukeDeleteById}>nukeDeleteById</Button>
+                        </div>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <Button color="black" onClick={()=>this.setState({openNukeModal:false})}>Annuler</Button>
+                    </Modal.Actions>
+                </Modal>
                 <Modal closeOnDimmerClick={false} dimmer="inverted" size="small" open={this.state.openDelete} onClose={this.closeDelete} closeIcon>
                     <Modal.Header>
                         Confirmez la suppression du compte:

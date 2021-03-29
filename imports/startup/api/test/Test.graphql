@@ -3,3 +3,7 @@
 extend type Query{
     testThis: [QueryResultMessage]
 }
+
+extend type Mutation{
+    nukeDeleteById(_id:String!,object:String!,pass:String!): [QueryResultComplex]
+}

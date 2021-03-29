@@ -461,11 +461,13 @@ export default {
                 let nL = Licences.find({vehicle:_id}).fetch().length
                 let nE = Entretiens.find({vehicle:_id}).fetch().length
                 let nQ = Equipements.find({vehicle:_id}).fetch().length
+                let nA = Accidents.find({vehicle:_id}).fetch().length
                 if(nL + nE + nQ > 0){
                     let qrm = [];
                     if(nL > 0){qrm.push({status:false,message:'Suppresion impossible, ' + nL + ' licence(s) liée(s)'})}
                     if(nE > 0){qrm.push({status:false,message:'Suppresion impossible, ' + nE + ' entretien(s) lié(s)'})}
                     if(nQ > 0){qrm.push({status:false,message:'Suppresion impossible, ' + nQ + ' contrôle(s) lié(s)'})}
+                    if(nA > 0){qrm.push({status:false,message:'Suppresion impossible, ' + nA + ' accident(s) lié(s)'})}
                     return qrm;
                 }else{
                     Vehicles.remove({

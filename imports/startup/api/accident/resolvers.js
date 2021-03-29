@@ -22,7 +22,7 @@ const affectData = a => {
             v = Locations.findOne({_id:new Mongo.ObjectID(a.vehicle)});
         }
         if(v == null || v == undefined){
-            console.log(a._id + " ===> " + a.vehicle)
+            console.log(" accident id : " + a._id + " ===> vehicle id : " + a.vehicle)
         }else{
             console.log(v.registration)
         }

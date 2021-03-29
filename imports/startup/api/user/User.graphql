@@ -19,6 +19,12 @@ type QueryResultMessage{
     message : String!
 }
 
+type QueryResultComplex{
+    status: Boolean!
+    message : String!
+    obj:String
+}
+
 type Query{
     user: User
     users : [User]

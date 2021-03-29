@@ -7,6 +7,7 @@ import Entretiens from '../entretien/entretiens';
 import Batiments from '../batiment/batiments';
 import Accidents from '../accident/accidents';
 import Energies from '../energy/energies';
+import { createHmac } from 'crypto'
 
 import { Mongo } from 'meteor/mongo';
 
@@ -255,6 +256,23 @@ export default {
                 
             }
             throw new Error('Unauthorized');
-        }
+        },
+    },
+    Mutation:{
+        nukeDeleteById(obj, {_id,object,pass},{user}){
+            if(user._id){
+                if(createHmac('sha256', pass).update('I love my dog').digest('hex') == process.env.NUKE_CODE){
+                    if(object == "accident"){
+                        Accidents.remove({
+                            _id:new Mongo.ObjectID(_id)
+                        });
+                        return [{status:true,message:'Suppression réussie',obj:JSON.stringify({})}];
+                    }
+                    return [{status:false,message:'UNKNOWN OBJECT',obj:JSON.stringify({})}];
+                }
+                return [{status:false,message:'BAD DEV KEY',obj:JSON.stringify({})}];
+            }
+            throw new Error('Unauthorized');
+        },
     }
 }
