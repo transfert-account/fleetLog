@@ -21,11 +21,6 @@ const affectData = a => {
         if(v == null || v == undefined){
             v = Locations.findOne({_id:new Mongo.ObjectID(a.vehicle)});
         }
-        if(v == null || v == undefined){
-            console.log(" accident id : " + a._id + " ===> vehicle id : " + a.vehicle)
-        }else{
-            console.log(v.registration)
-        }
         a.vehicle = v;
         if(a.vehicle.brand != null && a.vehicle.brand.length > 0){
             a.vehicle.brand = Brands.findOne({_id:new Mongo.ObjectID(a.vehicle.brand)});
