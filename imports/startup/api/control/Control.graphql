@@ -1,0 +1,32 @@
+type Control{
+    key:String!
+    name:String!
+    unit:String!
+    frequency:String!
+}
+
+type ControlStats{
+    control:Control
+    affected:Int!
+    unaffected:Int!
+    total:Int!
+    noOccurrence:Int!
+    inTime:Int!
+    soon:Int!
+    late:Int!
+}
+
+type ControlAndVehiculesEquiped{
+    control: Control
+    vehiclesOccurrences: [VehicleAndOccurrence]
+}
+
+type VehicleAndOccurrence{
+    lastOccurrence:String
+    vehicle: Vehicle
+}
+
+extend type Query{
+    ctrlStats(ctrlType:String!) : [ControlStats]
+    vehiclesByControl(key:String!) : ControlAndVehiculesEquiped
+}

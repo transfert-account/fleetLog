@@ -14,6 +14,8 @@ import Entretiens from './Entretiens';
 import Entretien from './Entretien';
 
 import Controls from './Controls';
+import Control from './Control';
+import Curatif from './Curatif';
 
 import Licences from './Licences';
 
@@ -64,12 +66,18 @@ class PageBody extends Component {
               
               <Route exact path='/parc/vehicles' component={()=><Vehicles userLimited={false}/>}/>
               <Route exact path='/parc/vehicle/:_id' component={Vehicle}/>
-              <Route exact path='/parc/controls' component={()=><Controls userLimited={false}/>}/>
+              
               <Route exact path='/parc/licences' component={()=><Licences userLimited={false}/>}/>
               <Route exact path='/parc/locations' component={()=><Locations userLimited={false}/>}/>
               <Route exact path='/parc/location/:_id' component={Location}/>
 
-              <Route exact path='/entretiens' component={()=><Entretiens userLimited={false}/>}/>
+              <Route exact path='/entretien/controls/obli' component={()=><Controls ctrlType={"obli"} userLimited={false}/>}/>
+              <Route exact path='/entretien/controls/prev' component={()=><Controls ctrlType={"prev"} userLimited={false}/>}/>
+              <Route exact path='/entretien/controls/curatif' component={()=><Curatif userLimited={false}/>}/>
+              <Route exact path='/entretien/controls/:key' component={()=><Control userLimited={false}/>}/>
+              <Route exact path='/entretien/pieces' component={()=><Pieces/>}/>
+
+              <Route exact path='/entretien/entretiens' component={()=><Entretiens userLimited={false}/>}/>
               <Route exact path='/entretien/:_id' component={Entretien}/>
 
               <Route exact path='/planning/:y/:m' component={()=><Planning userLimited={false}/>}/>
@@ -107,12 +115,17 @@ class PageBody extends Component {
               
               <Route exact path='/parc/vehicles' component={()=><Vehicles userLimited={true}/>}/>
               <Route exact path='/parc/vehicle/:_id' component={Vehicle}/>
-              <Route exact path='/parc/controls' component={()=><Controls userLimited={true}/>}/>
               <Route exact path='/parc/licences' component={()=><Licences userLimited={true}/>}/>
               <Route exact path='/parc/locations' component={()=><Locations userLimited={true}/>}/>
               <Route exact path='/parc/location/:_id' component={Location}/>
 
-              <Route exact path='/entretiens' component={()=><Entretiens userLimited={true}/>}/>
+              <Route exact path='/entretien/controls/obli' component={()=><Controls ctrlType={"obli"} userLimited={true}/>}/>
+              <Route exact path='/entretien/controls/prev' component={()=><Controls ctrlType={"prev"} userLimited={true}/>}/>
+              <Route exact path='/entretien/controls/curatif' component={()=><Curatif userLimited={true}/>}/>
+              <Route exact path='/entretien/controls/:key' component={()=><Control userLimited={true}/>}/>
+              <Route exact path='/entretien/pieces' component={()=><Pieces/>}/>
+
+              <Route exact path='/entretien/entretiens' component={()=><Entretiens userLimited={true}/>}/>
               <Route exact path='/entretien/:_id' component={Entretien}/>
 
               <Route exact path='/planning/:y/:m' component={()=><Planning userLimited={true}/>}/>
@@ -150,12 +163,17 @@ class PageBody extends Component {
 
             <Route exact path='/parc/vehicles' component={()=><Vehicles userLimited={true}/>}/>
             <Route exact path='/parc/vehicle/:_id' component={Vehicle}/>
-            <Route exact path='/parc/controls' component={()=><Controls userLimited={true}/>}/>
             <Route exact path='/parc/licences' component={()=><Licences userLimited={true}/>}/>
             <Route exact path='/parc/locations' component={()=><Locations userLimited={true}/>}/>
             <Route exact path='/parc/location/:_id' component={Location}/>
 
-            <Route exact path='/entretiens' component={()=><Entretiens userLimited={true}/>}/>
+            <Route exact path='/entretien/controls/obli' component={()=><Controls ctrlType={"obli"} userLimited={true}/>}/>
+            <Route exact path='/entretien/controls/prev' component={()=><Controls ctrlType={"prev"} userLimited={true}/>}/>
+            <Route exact path='/entretien/controls/curatif' component={()=><Curatif userLimited={true}/>}/>
+            <Route exact path='/entretien/controls/:key' component={()=><Control userLimited={true}/>}/>
+            <Route exact path='/entretien/pieces' component={()=><Pieces/>}/>
+
+            <Route exact path='/entretien/entretiens' component={()=><Entretiens userLimited={true}/>}/>
             <Route exact path='/entretien/:_id' component={Entretien}/>
 
             <Route exact path='/planning/:y/:m' component={()=><Planning userLimited={true}/>}/>

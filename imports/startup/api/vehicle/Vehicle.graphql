@@ -44,6 +44,14 @@ type Vehicle{
     broken:Boolean
     brokenSince:String
     financialInfosComplete:Boolean
+    obli:[ControlOccurrence]
+    prev:[ControlOccurrence]
+}
+
+type ControlOccurrence{
+    control:Control!
+    selected:Boolean!
+    lastOccurrence:String
 }
 
 type BrokenHistoryEntry{
@@ -105,6 +113,8 @@ extend type Mutation{
     breakVehicle(_id:String!):[QueryResultMessage]
     unbreakVehicle(_id:String!):[QueryResultMessage]
     deleteVehicle(_id:String!):[QueryResultMessage]
+    updateControl(_id:String!,key:String!,value:Boolean):[QueryResultMessage]
+    updateControlLastOccurrence(_id:String!,key:String!,lastOccurrence:String!):[QueryResultMessage]
     applyMassKmUpdate(massKmUpdateMap:String!):[QueryResultMessage]
     uploadVehicleDocument(_id:String!,file:Upload!,type:String,size:Int!):[QueryResultMessage]
 }

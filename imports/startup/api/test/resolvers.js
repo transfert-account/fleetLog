@@ -16,6 +16,15 @@ export default {
         testThis(obj, args,{user}){
             if(user._id){
                 try{
+                    Vehicles.update(
+                        {},{
+                            $set:{
+                                obli:[],
+                                prev:[],
+                            }
+                        },
+                        {multi:true}
+                    );
                     /*let accs = Accidents.find({}).fetch();
                     accs.forEach(acc => {
                         let newresponsabilite;

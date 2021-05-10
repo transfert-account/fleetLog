@@ -19,7 +19,11 @@ export class TitleTile extends Component {
 
     render() {return (
         <div onClick={()=>{this.props.history.push(this.props.tile.url)}} className={"tile " + this.props.tile.color}>
-            <FAFree code={this.props.tile.icon} color={this.props.tile.color}/>
+            <div className="outter">
+                <div className="inner">
+                    <FAFree code={this.props.tile.icon} color={this.props.tile.color}/>
+                </div>
+            </div>
             <h2>{this.props.tile.name}</h2>
         </div>
     )}

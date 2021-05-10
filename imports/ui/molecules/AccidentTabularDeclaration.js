@@ -210,10 +210,10 @@ export class AccidentTabularDeclaration extends Component {
         if(this.props.editing){
             return (
                 <Segment.Group style={{margin:"0",display:"grid",gridTemplateRows:"auto 1fr"}}>
-                    <Segment raised>
+                    <Segment>
                         <Header as="h3">Déclaration</Header>
                     </Segment>
-                    <Segment raised style={{placeSelf:"stretch"}}>
+                    <Segment style={{placeSelf:"stretch"}}>
                         <Form className="formBoard editing" style={{gridTemplateRows:"auto auto 1fr auto",height:"100%"}}>
                             <Form.Field>
                                 <label>Date de l'accident</label>
@@ -250,10 +250,10 @@ export class AccidentTabularDeclaration extends Component {
         }else{
             return(
                 <Segment.Group style={{margin:"0",display:"grid",gridTemplateRows:"auto 1fr"}}>
-                    <Segment raised>
+                    <Segment>
                         <Header as="h3">Déclaration</Header>
                     </Segment>
-                    <Segment raised style={{placeSelf:"stretch",margin:"0"}}>
+                    <Segment style={{placeSelf:"stretch",margin:"0"}}>
                         <div className="formBoard displaying" style={{gridTemplateRows:"auto auto auto auto auto auto auto 1fr",height:"100%"}}>
                             <div className="labelBoard">Propriétaire du véhicule :</div><div className="valueBoard">{this.props.accident.societe.name}</div>
                             <div className="labelBoard">Date de l'accident :</div><div className="valueBoard">{this.props.accident.occurenceDate}</div>
@@ -298,10 +298,10 @@ export class AccidentTabularDeclaration extends Component {
         if(this.props.editingPEC){
             return (
                 <Segment.Group style={{margin:"0",display:"grid",gridTemplateRows:"auto 1fr"}}>
-                    <Segment raised>
+                    <Segment>
                         <Header as="h3">Prise en charge</Header>
                     </Segment>
-                    <Segment raised style={{placeSelf:"stretch",margin:"0"}}>
+                    <Segment style={{placeSelf:"stretch",margin:"0"}}>
                         <Form className="formBoard editing" style={{gridTemplateRows:"auto auto auto 1fr auto",height:"100%"}}>
                             <Form.Field>
                                 <label>Responsabilité</label>
@@ -340,10 +340,10 @@ export class AccidentTabularDeclaration extends Component {
         }else{
             return(
                 <Segment.Group style={{margin:"0",display:"grid",gridTemplateRows:"auto 1fr"}}>
-                    <Segment raised>
+                    <Segment>
                         <Header as="h3">Prise en charge</Header>
                     </Segment>
-                    <Segment raised style={{placeSelf:"stretch",margin:"0"}}>
+                    <Segment style={{placeSelf:"stretch",margin:"0"}}>
                         <div className="formBoard displaying" style={{gridTemplateRows:"auto auto auto auto auto auto auto 1fr",height:"100%"}}>
                             <div className="labelBoard">Responsabilité :</div><div className="valueBoard">{this.getPECLabel()}</div>
                             <div className="labelBoard">Charge Sinistre :</div><div className="valueBoard">{this.getNullableLabel(this.props.accident.chargeSinistre)}</div>
@@ -389,10 +389,10 @@ export class AccidentTabularDeclaration extends Component {
                 {this.getDeclarationPanel()}
                 {this.getPECPanel()}
                 <Segment.Group style={{gridColumnEnd:"span 2",margin:"0"}}>
-                    <Segment raised>
+                    <Segment>
                         <Header as="h3">Documents</Header>
                     </Segment>
-                    <Segment raised style={{display:"flex",justifyContent:"center"}}>
+                    <Segment style={{display:"flex",justifyContent:"center"}}>
                         <DocStateLabel opened color={this.props.accident.constat._id == "" ? "red" : "green"} title="Constat"/>
                         <DocStateLabel opened color={this.props.accident.rapportExp._id == "" ? "red" : "green"} title="Rapport de l'expert"/>
                         <DocStateLabel opened color={this.props.accident.facture._id == "" ? "red" : "green"} title="Facture"/>
@@ -400,10 +400,10 @@ export class AccidentTabularDeclaration extends Component {
                     </Segment>
                 </Segment.Group>
                 <Segment.Group style={{gridColumnEnd:"span 2",margin:"0"}}>
-                    <Segment raised>
+                    <Segment>
                         <Header as="h3">Note concernant l'accident</Header>
                     </Segment>
-                    <Segment raised style={{display:"grid",gridTemplateRows:"1fr"}}>
+                    <Segment style={{display:"grid",gridTemplateRows:"1fr"}}>
                         <TextArea rows="5" className="textarea" name="newDescription" style={{border:"2px solid #d9d9d9",margin:"8px",placeSelf:"stretch"}} defaultValue={this.state.newDescription} onChange={this.handleEditDesc}/>
                     </Segment>
                 </Segment.Group>

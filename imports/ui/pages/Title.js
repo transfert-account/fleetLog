@@ -8,12 +8,6 @@ export class Title extends Component {
     state={
       tiles:[
         {
-          name:"Indicateurs",
-          icon:"fas fa-chart-line",
-          color:"blue",
-          url:"/kpi"
-        },
-        {
           name:"Parc",
           icon:"fas fa-truck",
           color:"blue",
@@ -23,13 +17,13 @@ export class Title extends Component {
           name:"Contrôles",
           icon:"fas fa-clipboard-check",
           color:"blue",
-          url:"/parc/controls"
+          url:"/entretien/controls/obli"
         },
         {
           name:"Entretiens",
           icon:"fas fa-tools",
           color:"blue",
-          url:"/entretiens"
+          url:"/entretien/entretiens"
         },
         {
           name:"Accidentologie",

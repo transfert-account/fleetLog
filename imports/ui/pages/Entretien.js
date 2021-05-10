@@ -548,10 +548,12 @@ class Entretien extends Component {
             return (
                 <Fragment>
                     <Form.Field>
-                        Temps sur l'entretien : <span style={{fontWeight:'bold'}}>{this.state.entretienRaw.time + " heures"}</span>
+                        Temps sur l'entretien :
+                        <span style={{fontWeight:'bold'}}>{this.state.entretienRaw.time + " heures"}</span>
                     </Form.Field>
                     <Form.Field>
-                        Status de l'entretien : <span style={{fontWeight:'bold'}}>{this.getStatusLabel()}</span>
+                        Status de l'entretien :
+                        <span style={{fontWeight:'bold'}}>{this.getStatusLabel()}</span>
                     </Form.Field>
                     <div style={{gridColumnEnd:"span 2",display:"flex"}}>
                         <div style={{marginRight:"16px"}}>Documents :</div>
@@ -609,7 +611,7 @@ class Entretien extends Component {
                 <Fragment>
                     <div style={{display:"grid",gridGap:"32px",gridTemplateColumns:"1fr 2fr",gridTemplateRows:"auto 1fr"}}>
                         <div style={{display:"grid",gridGap:"32px",gridTemplateColumns:"auto 1fr auto",gridColumnEnd:"span 2"}}>
-                            <BigButtonIcon icon="angle double left" color="black" onClick={()=>{this.props.history.push("/entretiens");}} tooltip="Retour au tableau des entretiens"/>
+                            <BigButtonIcon icon="angle double left" color="black" onClick={()=>{this.props.history.push("/entretien/entretiens");}} tooltip="Retour au tableau des entretiens"/>
                             <Message style={{margin:"0",gridRowStart:"1",gridColumnStart:"2"}} icon='truck' header={this.state.entretienRaw.vehicle.registration} content={this.state.entretienRaw.vehicle.brand.name + " - " + this.state.entretienRaw.vehicle.model.name + " - " + this.state.entretienRaw.vehicle.km + " km"}/>
                             <div style={{display:"flex"}}>
                                 <BigButtonIcon icon="plus" color="blue" onClick={this.showAddCommande} tooltip="Ajouter une piece à la commande" spacedFromNext/>

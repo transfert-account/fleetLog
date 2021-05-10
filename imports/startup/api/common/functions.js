@@ -6,6 +6,26 @@ import { Mongo } from 'meteor/mongo';
 const bound = Meteor.bindEnvironment((callback) => {callback();});
 
 export default {
+    getObli : () => [
+        {name:"Technique",key:"o1",unit:"km",frequency:"10000"},
+        {name:"Hayon",key:"o2",unit:"m",frequency:"6"},
+        {name:"Tachymètre",key:"o3",unit:"y",frequency:"4"},
+        {name:"Po... TBD",key:"o4",unit:"km",frequency:"10000"}
+    ],
+    getPrev : () => [
+        {name:"Essuie glaces",key:"p1",unit:"km",frequency:"10000"},
+        {name:"Batterie",key:"p2",unit:"m",frequency:"6"},
+        {name:"Plaque",key:"p3",unit:"y",frequency:"4"},
+        {name:"Disque",key:"p4",unit:"km",frequency:"10000"},
+        {name:"Pneumatiques",key:"p5",unit:"km",frequency:"10000"},
+        {name:"Bougies",key:"p6",unit:"km",frequency:"10000"},
+        {name:"Ammortisseurs",key:"p7",unit:"km",frequency:"10000"},
+        {name:"Filtre habitacle",key:"p8",unit:"km",frequency:"10000"},
+        {name:"Filtre gazoil",key:"p9",unit:"km",frequency:"10000"},
+        {name:"Filtre à air",key:"p10",unit:"km",frequency:"10000"},
+        {name:"Filtre à huile",key:"p11",unit:"km",frequency:"10000"},
+        {name:"Liquide de frein",key:"p12",unit:"km",frequency:"10000"}
+    ],
     getSignedDocumentDownloadLink: async (_id) => {
         return new Promise((resolve, reject) => {
             try{

@@ -19,6 +19,25 @@ import Functions from '../common/functions';
 import moment from 'moment';
 import { Mongo } from 'meteor/mongo';
 
+const affectVehicleControls = vehicle => {
+    let oblis = Functions.getObli();
+    let prevs = Functions.getPrev();
+    vehicle.obli = oblis.map(o=>{
+        if(vehicle.obli.filter(oc => oc.key == o.key).length > 0){
+            return {control:o,selected:true,lastOccurrence:vehicle.obli.filter(oc => oc.key == o.key)[0].lastOccurrence}
+        }else{
+            return {control:o,selected:false}
+        }
+    })
+    vehicle.prev = prevs.map(p=>{
+        if(vehicle.prev.filter(pc => pc.key == p.key).length > 0){
+            return {control:p,selected:true,lastOccurrence:vehicle.prev.filter(pc => pc.key == p.key)[0].lastOccurrence}
+        }else{
+            return {control:p,selected:false}
+        }
+    })
+}
+
 const affectVehicleData = vehicle => {
     try{
         vehicle.lastKmUpdate = vehicle.kms[vehicle.kms.length-1].reportDate
@@ -144,7 +163,7 @@ const affectMinimalVehicleData = vehicle => {
     }
 }
 
-const affectVehicleControls = vehicle => {
+const affectVehicleControlsOld = vehicle => {
     vehicle.equipements = Equipements.find({vehicle:vehicle._id._str}).fetch() || {};
     vehicle.equipements.forEach(e => {
         e.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)}) || {};
@@ -160,7 +179,7 @@ const affectVehicleControls = vehicle => {
             e.entretien = {_id:""}
         }
     });
-}
+}//OLD
 
 const affectVehicleAccidents = vehicle => {
     vehicle.accidents = Accidents.find({vehicle:vehicle._id._str}).fetch() || {};
@@ -193,6 +212,7 @@ export default {
         vehicle(obj, {_id}, { user }){
             let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(_id)});
             affectVehicleData(vehicle)
+            affectVehicleControls(vehicle)
             affectVehicleAccidents(vehicle)
             return vehicle;
         },
@@ -215,7 +235,7 @@ export default {
         vehiclesEquipedByControls(obj, args, { user }){
             let vehicles = Vehicles.find().fetch() || {};
             vehicles.forEach(v => {
-                affectVehicleControls(v)
+                affectVehicleControlsOld(v)
             });
             vehicles = vehicles.filter(v=>v.equipements.length>0);
             vehicles.forEach(v => {
@@ -272,7 +292,7 @@ export default {
             let userFull = Meteor.users.findOne({_id:user._id});
             let vehicles = Vehicles.find({$or:[{sharedTo:userFull.settings.visibility},{societe:userFull.settings.visibility}]}).fetch() || {};
             vehicles.forEach(v => {
-                affectVehicleControls(v)
+                affectVehicleControlsOld(v)
             });
             vehicles = vehicles.filter(v=>v.equipements.length>0);
             vehicles.forEach(v => {
@@ -734,6 +754,53 @@ export default {
                     }
                 )
                 return [{status:true,message:'Panne du véhicule annulée'}];
+            }
+            throw new Error('Unauthorized');
+        },
+        updateControl(obj, {_id,key,value},{user}){
+            if(user._id){
+                if(key[0] == "o"){
+                    Vehicles.update(
+                        {_id: new Mongo.ObjectID(_id)},
+                        {$pull: {obli:{key:key}}}
+                    )
+                    if(value){
+                        Vehicles.update(
+                            {_id: new Mongo.ObjectID(_id)}, 
+                            {$push: {obli:{key:key,lastOccurrence:"none"}}}
+                        )
+                    }
+                    return [{status:true,message:'Liste des contrôles obligatoires mise à jour'}];
+                }
+                if(key[0] == "p"){
+                    Vehicles.update(
+                        {_id: new Mongo.ObjectID(_id)},
+                        {$pull: {prev:{key:key}}}
+                    )
+                    if(value){
+                        Vehicles.update(
+                            {_id: new Mongo.ObjectID(_id)}, 
+                            {$push: {prev:{key:key,lastOccurrence:"none"}}}
+                        )
+                    }
+                    return [{status:true,message:'Liste des contrôles préventifs mise à jour'}];
+                }                
+            }
+            throw new Error('Unauthorized');
+        },
+        updateControlLastOccurrence(obj, {_id,key,lastOccurrence},{user}){
+            if(user._id){
+                Vehicles.update(
+                    {
+                        _id: new Mongo.ObjectID(_id),
+                        [(key[0] == "o" ? "obli" : "prev")+".key"]: key
+                    }, {
+                        $set: {
+                            [(key[0] == "o" ? "obli" : "prev")+".$.lastOccurrence"]: lastOccurrence
+                        }
+                    }
+                )
+                return [{status:true,message:'Dernière occurence du contrôle mise à jour'}];
             }
             throw new Error('Unauthorized');
         },

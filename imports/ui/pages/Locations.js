@@ -5,6 +5,7 @@ import { UserContext } from '../../contexts/UserContext';
 
 import CustomFilterSegment from '../molecules/CustomFilterSegment';
 import LocationsRow from '../molecules/LocationRow';
+import ParcMenu from '../molecules/ParcMenu';
 import BigButtonIcon from '../elements/BigIconButton';
 
 import CustomFilter from '../atoms/CustomFilter';
@@ -529,12 +530,7 @@ class Locations extends Component {
         return (
             <Fragment>
                 <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto auto 1fr auto",gridTemplateColumns:"auto 1fr auto"}}>
-                    <Menu style={{cursor:"pointer",marginBottom:"auto"}} icon='labeled'>
-                        <Menu.Item color="blue" name='vehicules' onClick={()=>{this.props.history.push("/parc/vehicles")}}><Icon name='truck'/>Vehicules</Menu.Item>
-                        <Menu.Item color="blue" name='controls' onClick={()=>{this.props.history.push("/parc/controls")}}><Icon name='clipboard check'/>Contrôles</Menu.Item>
-                        <Menu.Item color="blue" name='licences' onClick={()=>{this.props.history.push("/parc/licences")}}><Icon name='drivers license'/>Licences</Menu.Item>
-                        <Menu.Item color="blue" name='locations' active onClick={()=>{this.props.history.push("/parc/locations")}} ><Icon name="calendar alternate outline"/>Locations</Menu.Item>
-                    </Menu>
+                    <ParcMenu active="locations"/>
                     <Input style={{justifySelf:"stretch"}} name="locationsFiler" onChange={e=>{this.handleFilter(e.target.value)}} icon='search' placeholder='Rechercher une immatriculation' />
                     <div style={{display:"flex",justifyContent:"flex-end"}}>
                         <BigButtonIcon icon="plus" color="blue" onClick={this.showAddLocation} tooltip="Enregistrer une location"/>

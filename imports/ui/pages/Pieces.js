@@ -1,52 +1,53 @@
 import React, { Component, Fragment } from 'react';
-import { Modal, Menu, Button, Icon, Form, Table } from 'semantic-ui-react';
-import AdministrationMenu from '../molecules/AdministrationMenu';
+import { Modal, Menu, Button, Form, Table, Icon } from 'semantic-ui-react';
+
+import EntretienMenu from '../molecules/EntretienMenu';
+import PieceRow from '../molecules/PieceRow'
+
 import { UserContext } from '../../contexts/UserContext';
 import { withRouter } from 'react-router-dom';
-import PieceRow from '../molecules/PieceRow'
 import gql from 'graphql-tag';
 
 export class Pieces extends Component {
 
     state = {
-        selected:false,
-        currentTypePiece:"",
-        piecesFilter:"",
-        newName:"",
+        activeType:"pie",
+        newPieceName:"",
+        newPieceBrand:"",
+        newPieceReference:"",
+        newPiecePrixHT:"",
         openAddPiece:false,
+        types:[
+            {name:'Pièces',add:'une pièce',key:"pie"},
+            {name:'Pneumatiques',add:'un pneumatique',key:"pne"},
+            {name:'Agents',add:'un agent',key:"age"},
+            {name:'Outils',add:'une outil',key:"out"}
+        ],
         addPieceQuery : gql`
-            mutation addPiece($name:String!,$type:String!){
-                addPiece(name:$name,type:$type)
+            mutation addPiece($name:String!,$brand:String!,$reference:String!,$prixHT:Float!,$type:String!){
+                addPiece(name:$name,brand:$brand,reference:$reference,prixHT:$prixHT,type:$type){
+                    status
+                    message
+                }
             }
         `,
         piecesQuery : gql`
             query allPieces{
                 allPieces{
                     _id
-                    type
                     name
+                    brand
+                    reference
+                    prixHT
+                    type
                 }
             }
         `,
         piecesRaw:[],
-        pieces : type => {
+        pieces : () => {
             let displayed = Array.from(this.state.piecesRaw);
-            if(this.state.piecesFilter.length>1){
-                displayed = displayed.filter(p =>
-                    p.name.toLowerCase().includes(this.state.piecesFilter.toLowerCase())
-                );
-                if(displayed.length == 0){
-                    return(
-                    <Table.Row key={"none"}>
-                        <Table.Cell width={16} colSpan='2' textAlign="center">
-                        <p>Aucune ligne ne correspond</p>
-                        </Table.Cell>
-                    </Table.Row>
-                    )
-                }
-            }
             displayed = displayed.filter(p =>
-                p.type == type
+                p.type == this.state.activeType
             );
             return displayed.map(p =>(
                 <PieceRow loadAllPieces={this.loadAllPieces} key={p._id} piece={p}/>
@@ -54,189 +55,128 @@ export class Pieces extends Component {
         }
     }
 
-  handleChange = e =>{
-    this.setState({
-      [e.target.name]:e.target.value
-    });
-  }
-
-  openAddPiece = (type) => {
-    this.setState({
-        currentTypePiece:type,
-        openAddPiece:true
-    })
-  }
-
-  closeAddPiece = () => {
-    this.setState({
-        currentTypePiece:"",
-        openAddPiece:false
-    })
-  }
-
-  loadAllPieces = () => {
-    this.props.client.query({
-        query:this.state.piecesQuery,
-        fetchPolicy:"network-only"
-    }).then(({data})=>{
+    /*SHOW AND HIDE MODALS*/
+    showAddPiece = () => {
         this.setState({
-          piecesRaw:data.allPieces
+            openAddPiece:true
         })
-    })
-  }
+    }
+    closeAddPiece = () => {
+        this.setState({
+            openAddPiece:false
+        })
+    }
+    /*CHANGE HANDLERS*/
+    handleChange = e =>{
+        this.setState({
+            [e.target.name]:e.target.value
+        });
+    }
+    /*FILTERS HANDLERS*/
+    /*DB READ AND WRITE*/
+    addPiece = () => {
+        this.props.client.mutate({
+            mutation:this.state.addPieceQuery,
+            variables:{
+                name:this.state.newPieceName,
+                brand:this.state.newPieceBrand,
+                reference:this.state.newPieceReference,
+                prixHT:parseFloat(this.state.newPiecePrixHT)
+                ,
+                type:this.state.activeType
+            }
+        }).then(({data})=>{
+            data.addPiece.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.loadAllPieces();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+        this.closeAddPiece();
+    }
+    loadAllPieces = () => {
+        this.props.client.query({
+            query:this.state.piecesQuery,
+            fetchPolicy:"network-only"
+        }).then(({data})=>{
+            this.setState({
+                piecesRaw:data.allPieces
+            })
+        })
+    }
+    /*CONTENT GETTERS*/
+    /*COMPONENTS LIFECYCLE*/
+    componentDidMount = () => {
+        this.loadAllPieces();
+    }
 
-  componentDidMount = () => {
-      this.loadAllPieces();
-  }
-
-  addPiece = () => {
-    this.props.client.mutate({
-        mutation:this.state.addPieceQuery,
-        variables:{
-            name:this.state.newName,
-            type:this.state.currentTypePiece
-        }
-    }).then(({data})=>{
-        this.loadAllPieces()
-    })
-    this.closeAddPiece();
-  }
-
-  getAddPieceModal = () => {
-      if(this.state.openAddPiece){
-        if(this.state.currentTypePiece == "pie"){
-            return (
-                <Modal size="tiny" closeOnDimmerClick={false} open={this.state.openAddPiece} onClose={this.closeAddPiece} closeIcon>
+    render() {
+        return (
+            <Fragment>
+                <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto 1fr auto",gridTemplateColumns:"auto 1fr auto"}}>
+                    <div style={{display:"flex",flexDirection:"column",justifyContent:"start",placeSelf:"stretch"}}>
+                        <EntretienMenu active="pieces"/>
+                    </div>
+                    <div style={{gridRowStart:"2",display:"grid",gridColumnEnd:"span 3",gridTemplateColumns:"auto 1fr",gridTemplateRows:"auto auto 1fr auto",gridGap:"12px 32px"}}>
+                        <Menu size='large' pointing vertical style={{gridColumnStart:"1",placeSelf:"start"}}>
+                            {this.state.types.map(t=>{
+                                return <Menu.Item key={t.key} color="blue" name={t.name} active={this.state.activeType == t.key} onClick={()=>{this.setState({activeType:t.key})}} />
+                            })}
+                        </Menu>
+                        <Button style={{gridColumnStart:"1"}} icon labelPosition="right" color="blue" onClick={this.showAddPiece}>Créer {this.state.types.filter(t=>t.key == this.state.activeType)[0].add}<Icon name='plus'/></Button>
+                        <div style={{gridRowStart:"1",gridColumnStart:"2",gridRowEnd:"span 3"}}>
+                            <Table compact celled striped color="blue" style={{margin:"0"}}>
+                                <Table.Header>
+                                    <Table.Row>
+                                        <Table.HeaderCell textAlign="center">Nom</Table.HeaderCell>
+                                        <Table.HeaderCell textAlign="center">Marque</Table.HeaderCell>
+                                        <Table.HeaderCell textAlign="center">Référence</Table.HeaderCell>
+                                        <Table.HeaderCell textAlign="center">Prix unitaire H.T.</Table.HeaderCell>
+                                        <Table.HeaderCell textAlign="center">Actions</Table.HeaderCell>
+                                    </Table.Row>
+                                </Table.Header>
+                                <Table.Body>
+                                    {this.state.pieces()}
+                                </Table.Body>
+                            </Table>
+                        </div>
+                    </div>
+                </div>
+                <Modal size="mini" closeOnDimmerClick={false} open={this.state.openAddPiece} onClose={this.closeAddPiece} closeIcon>
                     <Modal.Header>
-                        Ajout de la piece au répértoire
+                        Créer {this.state.types.filter(t=>t.key == this.state.activeType)[0].add}
                     </Modal.Header>
                     <Modal.Content style={{textAlign:"center"}}>
-                        <Form>
-                            <Form.Field><label>Designation de la piece</label><input onChange={this.handleChange} name="newName"/></Form.Field>
+                        <Form style={{display:"grid",gridTemplateColumns:"1fr",gridGap:"16px"}}>
+                            <Form.Field style={{placeSelf:"stretch"}}>
+                                <label>Nom</label>
+                                <input onChange={this.handleChange} name="newPieceName"/>
+                            </Form.Field>
+                            <Form.Field style={{placeSelf:"stretch"}}>
+                                <label>Marque</label>
+                                <input onChange={this.handleChange} name="newPieceBrand"/>
+                            </Form.Field>
+                            <Form.Field style={{placeSelf:"stretch"}}>
+                                <label>Référence</label>
+                                <input onChange={this.handleChange} name="newPieceReference"/>
+                            </Form.Field>
+                            <Form.Field style={{placeSelf:"stretch"}}>
+                                <label>Prix H.T.</label>
+                                <input onChange={this.handleChange} name="newPiecePrixHT"/>
+                            </Form.Field>
                         </Form>
                     </Modal.Content>
                     <Modal.Actions>
-                        <Button color="teal" onClick={this.addPiece}>Ajouter</Button>
+                        <Button color="black" onClick={this.closeAddPiece}>Annuler</Button>
+                        <Button color="green" onClick={this.addPiece}>Créer</Button>
                     </Modal.Actions>
                 </Modal>
-            )
-        }
-        if(this.state.currentTypePiece == "pne"){
-        return (
-            <Modal size="tiny" closeOnDimmerClick={false} open={this.state.openAddPiece} onClose={this.closeAddPiece} closeIcon>
-                <Modal.Header>
-                    Ajout du pneumatique au répértoire
-                </Modal.Header>
-                <Modal.Content style={{textAlign:"center"}}>
-                    <Form>
-                        <Form.Field><label>Designation du pneumatique</label><input onChange={this.handleChange} name="newName"/></Form.Field>
-                    </Form>
-                </Modal.Content>
-                <Modal.Actions>
-                    <Button color="blue" onClick={this.addPiece}>Ajouter</Button>
-                </Modal.Actions>
-            </Modal>
+            </Fragment>
         )
-        }
-        if(this.state.currentTypePiece == "age"){
-        return (
-            <Modal size="tiny" closeOnDimmerClick={false} open={this.state.openAddPiece} onClose={this.closeAddPiece} closeIcon>
-                <Modal.Header>
-                    Ajout de l'agent au répértoire
-                </Modal.Header>
-                <Modal.Content style={{textAlign:"center"}}>
-                    <Form>
-                        <Form.Field><label>Designation de l'agent</label><input onChange={this.handleChange} name="newName"/></Form.Field>
-                    </Form>
-                </Modal.Content>
-                <Modal.Actions>
-                    <Button color="violet" onClick={this.addPiece}>Ajouter</Button>
-                </Modal.Actions>
-            </Modal>
-        )
-        }
-        if(this.state.currentTypePiece == "out"){
-        return (
-            <Modal size="tiny" closeOnDimmerClick={false} open={this.state.openAddPiece} onClose={this.closeAddPiece} closeIcon>
-                <Modal.Header>
-                    Ajout de l'outil au répértoire
-                </Modal.Header>
-                <Modal.Content style={{textAlign:"center"}}>
-                    <Form>
-                        <Form.Field><label>Designation de l'outil</label><input onChange={this.handleChange} name="newName"/></Form.Field>
-                    </Form>
-                </Modal.Content>
-                <Modal.Actions>
-                    <Button color="purple" onClick={this.addPiece}>Ajouter</Button>
-                </Modal.Actions>
-            </Modal>
-        )
-        }
-      }
-  }
-
-  render() {
-    return (
-        <Fragment>
-            <div style={{display:"grid",gridTemplateRows:'auto auto'}}>
-                <div style={{display:"flex",marginBottom:"32px",justifyContent:"space-between"}}>
-                    <AdministrationMenu active="pieces"/>
-                </div>
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gridGap:"12px 16px"}}>
-                    <Button color="teal" onClick={()=>{this.openAddPiece("pie")}}>+</Button>
-                    <Button color="blue" onClick={()=>{this.openAddPiece("pne")}}>+</Button>
-                    <Button color="violet" onClick={()=>{this.openAddPiece("age")}}>+</Button>
-                    <Button color="purple" onClick={()=>{this.openAddPiece("out")}}>+</Button>
-                    <Table compact='very' celled striped color="teal" style={{margin:"0 auto auto auto"}}>
-                        <Table.Header>
-                            <Table.Row>
-                                <Table.HeaderCell width={12}>Pieces</Table.HeaderCell>
-                                <Table.HeaderCell width={4}></Table.HeaderCell>
-                            </Table.Row>
-                        </Table.Header>
-                        <Table.Body>
-                            {this.state.pieces("pie")}
-                        </Table.Body>
-                    </Table>
-                    <Table compact='very' celled striped color="blue" style={{margin:"0 auto auto auto"}}>
-                        <Table.Header>
-                            <Table.Row>
-                                <Table.HeaderCell width={12}>Pneumatiques</Table.HeaderCell>
-                                <Table.HeaderCell width={4}></Table.HeaderCell>
-                            </Table.Row>
-                        </Table.Header>
-                        <Table.Body>
-                            {this.state.pieces("pne")}
-                        </Table.Body>
-                    </Table>
-                    <Table compact='very' celled striped color="violet" style={{margin:"0 auto auto auto"}}>
-                        <Table.Header>
-                            <Table.Row>
-                                <Table.HeaderCell width={12}>Agents</Table.HeaderCell>
-                                <Table.HeaderCell width={4}></Table.HeaderCell>
-                            </Table.Row>
-                        </Table.Header>
-                        <Table.Body>
-                            {this.state.pieces("age")}
-                        </Table.Body>
-                    </Table>
-                    <Table compact='very' celled striped color="purple" style={{margin:"0 auto auto auto"}}>
-                        <Table.Header>
-                            <Table.Row>
-                                <Table.HeaderCell width={12}>Outils</Table.HeaderCell>
-                                <Table.HeaderCell width={4}></Table.HeaderCell>
-                            </Table.Row>
-                        </Table.Header>
-                        <Table.Body>
-                            {this.state.pieces("out")}
-                        </Table.Body>
-                    </Table>
-                </div>
-            </div>
-            {this.getAddPieceModal()}
-        </Fragment>
-    )
-  }
+    }
 }
 
 const withUserContext = WrappedComponent => props => (

@@ -5,6 +5,7 @@ import { UserContext } from '../../contexts/UserContext';
 import BigButtonIcon from '../elements/BigIconButton';
 import EntretienRow from '../molecules/EntretienRow';
 import CustomFilterSegment from '../molecules/CustomFilterSegment';
+import EntretienMenu from '../molecules/EntretienMenu';
 
 import CustomFilter from '../atoms/CustomFilter';
 import VehiclePicker from '../atoms/VehiclePicker';
@@ -521,18 +522,19 @@ class Entretiens extends Component {
     }
     render() {
         return (
-            <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto auto 1fr auto",gridTemplateColumns:"1fr auto"}}>
+            <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto auto 1fr auto",gridTemplateColumns:"auto 1fr auto"}}>
+                <EntretienMenu active="entretiens"/>
                 <Input style={{justifySelf:"stretch"}} name="entretienFilter" onChange={this.handleChange} icon='search' placeholder='Rechercher une immatriculation'/>
                 <div style={{display:"flex",justifyContent:"flex-end"}}>
-                    <BigButtonIcon icon="plus" color="blue" onClick={this.showAddEntretien} tooltip="Créer un entretien"/>
+                    <BigButtonIcon icon="plus" color="blue" onClick={this.showAddEntretien} tooltip="Créer un entretien curatif"/>
                 </div>
-                <CustomFilterSegment resetAll={this.resetAll} style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 2"}}>
+                <CustomFilterSegment resetAll={this.resetAll} style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3"}}>
                     <CustomFilter infos={this.state.archiveFilterInfos} active={this.state.archiveFilter} />
                     <CustomFilter infos={this.state.ordersFilterInfos} active={this.state.orderStatusFilter} />
                     <CustomFilter infos={this.state.docsFilterInfos} active={this.state.docsFilter} />
                     <CustomFilter infos={this.state.fromControlFilterInfos} active={this.state.fromControlFilter} />
                 </CustomFilterSegment>
-                <div style={{gridRowStart:"3",gridColumnEnd:"span 2",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
+                <div style={{gridRowStart:"3",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                     <Table style={{marginBottom:"0"}} celled selectable compact>
                         {this.getTableHeader()}
                         <Table.Body>
@@ -542,7 +544,7 @@ class Entretiens extends Component {
                 </div>
                 <Modal size="mini" closeOnDimmerClick={false} open={this.state.openAddEntretien} onClose={this.closeAddEntretien} closeIcon>
                     <Modal.Header>
-                        Création de l'entretien
+                        Création d'un entretien curatif
                     </Modal.Header>
                     <Modal.Content style={{textAlign:"center"}}>
                         <Form style={{display:"grid",gridTemplateRows:"1fr",gridTemplateColumns:"1fr",gridGap:"16px"}}>

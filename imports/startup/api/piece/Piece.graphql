@@ -1,6 +1,9 @@
 type Piece{
     _id:String!
     type:String!
+    brand:String!
+    reference:String!
+    prixHT:Float!
     name:String!
 }
 
@@ -13,7 +16,7 @@ extend type Query{
 }
 
 extend type Mutation{
-    addPiece(name:String!,type:String!): Boolean
-    deletePiece(_id:String!): Boolean
-    editPiece(_id:String!,name:String!):Boolean
+    addPiece(name:String!,brand:String!,reference:String!,prixHT:Float!,type:String!): [QueryResultMessage]
+    deletePiece(_id:String!): [QueryResultMessage]
+    editPiece(_id:String!,name:String!,brand:String!,reference:String!,prixHT:Float!): [QueryResultMessage]
 }

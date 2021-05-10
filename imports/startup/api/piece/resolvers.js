@@ -20,14 +20,17 @@ export default {
         }
     },
     Mutation:{
-        addPiece(obj, {name,type},{user}){
+        addPiece(obj, {name,brand,reference,prixHT,type},{user}){
             if(user._id){
                 Pieces.insert({
                     _id:new Mongo.ObjectID(),
-                    type:type,
-                    name:name
+                    name:name,
+                    brand:brand,
+                    reference:reference,
+                    prixHT:prixHT,
+                    type:type
                 });
-                return true;
+                return [{status:true,message:'Création de la pièce réussie'}];
             }
             throw new Error('Unauthorized');
         },
@@ -36,22 +39,25 @@ export default {
                 Pieces.remove({
                     _id:new Mongo.ObjectID(_id)
                 });
-                return true;
+                return [{status:true,message:'Suppression de la pièce réussie'}];
             }
             throw new Error('Unauthorized');
         },
-        editPiece(obj, {_id,name},{user}){
+        editPiece(obj, {_id,name,brand,reference,prixHT},{user}){
             if(user._id){
                 Pieces.update(
                     {
                         _id: new Mongo.ObjectID(_id)
                     }, {
                         $set: {
-                            "name":name
+                            "name":name,
+                            "brand":brand,
+                            "reference":reference,
+                            "prixHT":prixHT
                         }
                     }
                 ); 
-                return true;
+                return [{status:true,message:'Modification de la pièce réussie'}];
             }
             throw new Error('Unauthorized');
         },

@@ -1,7 +1,9 @@
 import React, { Component, Fragment } from 'react'
-import { Loader, Menu, Button, Icon, Message, Modal, Progress, Input, Form, Table, TextArea, Segment, List } from 'semantic-ui-react';
+import { Loader, Menu, Button, Icon, Message, Modal, Progress, Input, Form, Table, TextArea, Label, List, Segment } from 'semantic-ui-react';
 import { Bar } from 'react-chartjs-2';
+
 import BigButtonIcon from '../elements/BigIconButton';
+
 import ModalDatePicker from '../atoms/ModalDatePicker';
 import ColorPicker from '../atoms/ColorPicker';
 import ModelPicker from '../atoms/ModelPicker';
@@ -15,8 +17,12 @@ import PayementFormatPicker from '../atoms/PayementFormatPicker';
 import PayementTimePicker from '../atoms/PayementTimePicker';
 import VehicleArchiveJustificationsPicker from '../atoms/VehicleArchiveJustificationsPicker'
 import FileManagementPanel from '../atoms/FileManagementPanel';
+
+import ControlOccurrenceRow from '../molecules/ControlOccurrenceRow';
+
 import { withRouter } from 'react-router-dom';
 import { UserContext } from '../../contexts/UserContext';
+
 import moment from 'moment';
 import { gql } from 'apollo-server-express';
 import _ from 'lodash';
@@ -79,6 +85,8 @@ class Vehicle extends Component {
         openDocsSold:false,
         openUpdateKm:false,
         openArchive:false,
+        openDisableControl:false,
+        controlToDisable:"",
         datePickerTarget:"",
         formats:[{triKey:"CPT",label:"Comptant"},{triKey:"CRC",label:"Crédit Classique"},{triKey:"CRB",label:"Crédit Bail"}],
         newDateReport:new Date().getDate().toString().padStart(2, '0')+"/"+parseInt(new Date().getMonth()+1).toString().padStart(2, '0')+"/"+new Date().getFullYear().toString().padStart(4, '0'),
@@ -227,6 +235,26 @@ class Vehicle extends Component {
                         constatSent
                         archived
                         status
+                    }
+                    obli{
+                        control{
+                            key
+                            name
+                            unit
+                            frequency
+                        }
+                        selected
+                        lastOccurrence
+                    }
+                    prev{
+                        control{
+                            key
+                            name
+                            unit
+                            frequency
+                        }
+                        selected
+                        lastOccurrence
                     }
                 }
             }
@@ -398,10 +426,30 @@ class Vehicle extends Component {
                     </Table.Cell>
                 </Table.Row>
             ))
-        }
+        },
+        updateControlQuery : gql`
+            mutation updateControl($_id:String!,$key:String!,$value:Boolean!){
+                updateControl(_id:$_id,key:$key,value:$value){
+                    status
+                    message
+                }
+            }
+        `
     }
 
     /*SHOW AND HIDE MODALS*/
+    showDisableControl = (c) => {
+        this.setState({
+            openDisableControl:true,
+            controlToDisable:c
+        })
+    }
+    closeDisableControl = (c) => {
+        this.setState({
+            openDisableControl:false,
+            controlToDisable:""
+        })
+    }
     showEditIdent = () => {
         this.setState({
             editingIdent:true,
@@ -621,6 +669,31 @@ class Vehicle extends Component {
     }
     /*FILTERS HANDLERS*/
     /*DB READ AND WRITE*/
+    switchControl = (v,c,confirm) => {
+        if(this.state.obli.concat(this.state.prev).filter(x=>x.control.key == c)[0].selected != v){
+            console.log(this.state.obli.concat(this.state.prev).filter(x=>x.control.key == c)[0].lastOccurrence != "none", !confirm,!v)
+            if(this.state.obli.concat(this.state.prev).filter(x=>x.control.key == c)[0].lastOccurrence != "none" && !confirm && !v){
+                this.showDisableControl(c)
+            }
+            this.props.client.mutate({
+                mutation:this.state.updateControlQuery,
+                variables:{
+                    _id:this.state.vehicle._id,
+                    key:c,
+                    value:v
+                }
+            }).then(({data})=>{
+                data.updateControl.map(qrm=>{
+                    if(qrm.status){
+                        this.props.toast({message:qrm.message,type:"success"});
+                        this.loadVehicle();
+                    }else{
+                        this.props.toast({message:qrm.message,type:"error"});
+                    }
+                })
+            })
+        }
+    }
     uploadDocCg = () => {
         this.props.client.mutate({
             mutation:this.state.uploadVehicleDocumentQuery,
@@ -634,7 +707,7 @@ class Vehicle extends Component {
             data.uploadVehicleDocument.map(qrm=>{
                 if(qrm.status){
                     this.props.toast({message:qrm.message,type:"success"});
-                    this.loadVehicule();
+                    this.loadVehicle();
                     this.closeDocs();
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
@@ -655,7 +728,7 @@ class Vehicle extends Component {
             data.uploadVehicleDocument.map(qrm=>{
                 if(qrm.status){
                     this.props.toast({message:qrm.message,type:"success"});
-                    this.loadVehicule();
+                    this.loadVehicle();
                     this.closeDocs();
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
@@ -676,7 +749,7 @@ class Vehicle extends Component {
             data.uploadVehicleDocument.map(qrm=>{
                 if(qrm.status){
                     this.props.toast({message:qrm.message,type:"success"});
-                    this.loadVehicule();
+                    this.loadVehicle();
                     this.closeDocsSold();
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
@@ -697,7 +770,7 @@ class Vehicle extends Component {
             data.uploadVehicleDocument.map(qrm=>{
                 if(qrm.status){
                     this.props.toast({message:qrm.message,type:"success"});
-                    this.loadVehicule();
+                    this.loadVehicle();
                     this.closeDocsSold();
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
@@ -718,7 +791,7 @@ class Vehicle extends Component {
             data.uploadVehicleDocument.map(qrm=>{
                 if(qrm.status){
                     this.props.toast({message:qrm.message,type:"success"});
-                    this.loadVehicule();
+                    this.loadVehicle();
                     this.closeDocsSold();
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
@@ -726,7 +799,7 @@ class Vehicle extends Component {
             })
         })
     }
-    loadVehicule = () => {
+    loadVehicle = () => {
         this.props.client.query({
             query:this.state.vehicleQuery,
             fetchPolicy:"network-only",
@@ -736,6 +809,8 @@ class Vehicle extends Component {
         }).then(({data})=>{
             data.vehicle.brokenHistory.reverse();
             this.setState({
+                obli:data.vehicle.obli,
+                prev:data.vehicle.prev,
                 vehicle:data.vehicle,
                 newSociete:data.vehicle.societe._id,
                 newRegistration:data.vehicle.registration,
@@ -828,7 +903,7 @@ class Vehicle extends Component {
             data.shareVehicle.map(qrm=>{
                 if(qrm.status){
                     this.closeShare();
-                    this.loadVehicule();
+                    this.loadVehicle();
                     this.props.toast({message:qrm.message,type:"success"});
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
@@ -847,7 +922,7 @@ class Vehicle extends Component {
             data.unshareVehicle.map(qrm=>{
                 if(qrm.status){
                     this.closeUnshare();
-                    this.loadVehicule();
+                    this.loadVehicle();
                     this.props.toast({message:qrm.message,type:"success"});
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
@@ -867,7 +942,7 @@ class Vehicle extends Component {
             data.sellVehicle.map(qrm=>{
                 if(qrm.status){
                     this.closeSell();
-                    this.loadVehicule();
+                    this.loadVehicle();
                     this.props.toast({message:qrm.message,type:"success"});
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
@@ -885,7 +960,7 @@ class Vehicle extends Component {
             data.unsellVehicle.map(qrm=>{
                 if(qrm.status){
                     this.closeUnsell();
-                    this.loadVehicule();
+                    this.loadVehicle();
                     this.props.toast({message:qrm.message,type:"success"});
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
@@ -903,7 +978,7 @@ class Vehicle extends Component {
             data.cancelSellVehicle.map(qrm=>{
                 if(qrm.status){
                     this.closeCancelSell();
-                    this.loadVehicule();
+                    this.loadVehicle();
                     this.props.toast({message:qrm.message,type:"success"});
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
@@ -921,7 +996,7 @@ class Vehicle extends Component {
             data.finishSellVehicle.map(qrm=>{
                 if(qrm.status){
                     this.closeUnsell();
-                    this.loadVehicule();
+                    this.loadVehicle();
                     this.props.toast({message:qrm.message,type:"success"});
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
@@ -941,7 +1016,7 @@ class Vehicle extends Component {
             data.addHistoryEntry.map(qrm=>{
                 if(qrm.status){
                     this.closeAddHistoryEntry();
-                    this.loadVehicule();
+                    this.loadVehicle();
                     this.setState({activePanel:"pannes"})
                     this.props.toast({message:qrm.message,type:"success"});
                 }else{
@@ -962,7 +1037,7 @@ class Vehicle extends Component {
                 if(qrm.status){
                     this.setState({selectedEntry:""})
                     this.closeDeleteHistoryEntry();
-                    this.loadVehicule();
+                    this.loadVehicle();
                     this.props.toast({message:qrm.message,type:"success"});
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
@@ -981,7 +1056,7 @@ class Vehicle extends Component {
             data.breakVehicle.map(qrm=>{
                 if(qrm.status){
                     this.closeBreak();
-                    this.loadVehicule();
+                    this.loadVehicle();
                     this.props.toast({message:qrm.message,type:"success"});
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
@@ -1000,7 +1075,7 @@ class Vehicle extends Component {
             data.unbreakVehicle.map(qrm=>{
                 if(qrm.status){
                     this.closeUnbreak();
-                    this.loadVehicule();
+                    this.loadVehicle();
                     this.props.toast({message:qrm.message,type:"success"});
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
@@ -1021,7 +1096,7 @@ class Vehicle extends Component {
                 if(qrm.status){
                     this.props.toast({message:qrm.message,type:"success"});
                     this.closeUpdateKm();
-                    this.loadVehicule();
+                    this.loadVehicle();
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
                 }
@@ -1048,7 +1123,7 @@ class Vehicle extends Component {
                 if(qrm.status){
                     this.props.toast({message:qrm.message,type:"success"});
                     this.closeEditIdent();
-                    this.loadVehicule();
+                    this.loadVehicle();
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
                 }
@@ -1075,7 +1150,7 @@ class Vehicle extends Component {
                 if(qrm.status){
                     this.props.toast({message:qrm.message,type:"success"});
                     this.closeEditFinances();
-                    this.loadVehicule();
+                    this.loadVehicle();
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
                 }
@@ -1094,13 +1169,14 @@ class Vehicle extends Component {
             data.deleteKm.map(qrm=>{
                 if(qrm.status){
                     this.props.toast({message:qrm.message,type:"success"});
-                    this.loadVehicule();
+                    this.loadVehicle();
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
                 }
             })
         })
     }
+
     /*CONTENT GETTERS*/
     getPayementProgress = () => {
         let totalMonths = parseInt(moment(this.state.vehicle.payementEndDate,"DD/MM/YYYY").diff(moment(this.state.vehicle.payementBeginDate,"DD/MM/YYYY"),'months', true));
@@ -1111,14 +1187,14 @@ class Vehicle extends Component {
         
         if(this.state.vehicle.payementFormat == "CRB"){
             if(parseInt(monthsLeft) == 0){
-                return <Progress active color="green" value={value} total={this.state.vehicle.purchasePrice} label="Propriété, payement terminé"/>    
+                return <Progress style={{margin:"64px"}} size="large" active color="green" value={value} total={this.state.vehicle.purchasePrice} label="Propriété, payement terminé"/>    
             }
-            return <Progress active color="orange" value={value} total={this.state.vehicle.purchasePrice} label={value + " / " + this.state.vehicle.purchasePrice + " : " + monthsLeft + " mois restant avant propriété"} />
+            return <Progress style={{margin:"64px"}} size="large" active color="orange" value={value} total={this.state.vehicle.purchasePrice} label={value + " / " + this.state.vehicle.purchasePrice + " : " + monthsLeft + " mois restant avant propriété"} />
         }else{
             if(parseInt(monthsLeft) == 0){
-                return <Progress active color="green" value={value} total={this.state.vehicle.purchasePrice} label="Propriété, payement terminé"/>    
+                return <Progress style={{margin:"64px"}} size="large" active color="green" value={value} total={this.state.vehicle.purchasePrice} label="Propriété, payement terminé"/>    
             }
-            return <Progress active color="green" value={value} total={this.state.vehicle.purchasePrice} label={value + " / " + this.state.vehicle.purchasePrice + " : propriété, fin de payement prévue dans "+parseInt(monthsLeft)+" mois."} />
+            return <Progress style={{margin:"64px"}} size="large" active color="green" value={value} total={this.state.vehicle.purchasePrice} label={value + " / " + this.state.vehicle.purchasePrice + " : propriété, fin de payement prévue dans "+parseInt(monthsLeft)+" mois."} />
         }
     }
     getChartMonths = () => {
@@ -1321,6 +1397,8 @@ class Vehicle extends Component {
             )
         }
     }
+
+    //PANELS
     getActivePanel = () => {
         if(this.state.activePanel == "ident"){
             return this.getIdentPanel()
@@ -1334,11 +1412,23 @@ class Vehicle extends Component {
         if(this.state.activePanel == "accidents"){
             return this.getAccidentsPanel()
         }
+        if(this.state.activePanel == "kms"){
+            return this.getKmReportPanel()
+        }
+        if(this.state.activePanel == "docs"){
+            return this.getDocsPanel()
+        }
+        if(this.state.activePanel == "obli"){
+            return this.getObliPanel()
+        }
+        if(this.state.activePanel == "prev"){
+            return this.getPrevPanel()
+        }
     }
     getIdentPanel = () => {
         if(this.state.editingIdent){
             return (
-                <Segment attached='bottom' style={{padding:"24px"}}>
+                <Segment style={{padding:"auto",placeSelf:"stretch"}}>
                     <Form style={{display:"grid",gridTemplateRows:"auto auto auto auto auto 1fr auto",height:"100%"}} className="formBoard editing">
                         <Form.Field style={{gridColumnEnd:"span 2"}}><label>Propriétaire</label>
                             <SocietePicker restrictToVisibility defaultValue={this.state.vehicle.societe._id} groupAppears={false} onChange={this.handleChangeSociete}/>
@@ -1374,7 +1464,7 @@ class Vehicle extends Component {
             )
         }else{
             return (
-                <Segment attached='bottom' style={{padding:"24px"}}>
+                <Segment style={{padding:"auto",placeSelf:"stretch"}}>
                     <div className="formBoard displaying">
                         <div className="labelBoard">Propriétaire :</div><div className="valueBoard">{this.state.vehicle.societe.name}</div>
                         <div className="labelBoard">Immatriculation :</div><div className="valueBoard">{this.state.vehicle.registration}</div>
@@ -1390,10 +1480,76 @@ class Vehicle extends Component {
             )
         }
     }
+    getObliPanel = () => {
+        return (
+            <div attached="right" style={{padding:"auto",justifySelf:"stretch"}}>
+                <Table compact celled>
+                    <Table.Header>
+                        <Table.Row>
+                            <Table.HeaderCell textAlign="center">Nom du contrôle</Table.HeaderCell>
+                            <Table.HeaderCell textAlign="center">Éligibilité</Table.HeaderCell>
+                            <Table.HeaderCell textAlign="center">Fréquence</Table.HeaderCell>
+                            <Table.HeaderCell textAlign="center">Dernier contrôle</Table.HeaderCell>
+                            <Table.HeaderCell textAlign="center">Échéance</Table.HeaderCell>
+                            <Table.HeaderCell textAlign="center">Actions</Table.HeaderCell>
+                        </Table.Row>
+                    </Table.Header>
+                    <Table.Body>
+                        {this.state.obli.map(o=>
+                            <ControlOccurrenceRow
+                                key={o.control.key}
+                                vehicle={{
+                                    _id:this.state.vehicle._id,
+                                    km:this.state.vehicle.km,
+                                    registration:this.state.vehicle.registration
+                                }}
+                                loadVehicle={this.loadVehicle}
+                                switchControl={this.switchControl}
+                                c={o}
+                            />
+                        )}
+                    </Table.Body>
+                </Table>
+            </div>
+        )
+    }
+    getPrevPanel = () => {
+        return (
+            <div attached="right" style={{padding:"auto",justifySelf:"stretch"}}>
+                <Table compact celled>
+                    <Table.Header>
+                        <Table.Row>
+                            <Table.HeaderCell textAlign="center">Nom du contrôle</Table.HeaderCell>
+                            <Table.HeaderCell textAlign="center">Éligibilité</Table.HeaderCell>
+                            <Table.HeaderCell textAlign="center">Fréquence</Table.HeaderCell>
+                            <Table.HeaderCell textAlign="center">Dernier contrôle</Table.HeaderCell>
+                            <Table.HeaderCell textAlign="center">Échéance</Table.HeaderCell>
+                            <Table.HeaderCell textAlign="center">Actions</Table.HeaderCell>
+                        </Table.Row>
+                    </Table.Header>
+                    <Table.Body>
+                        {this.state.prev.map(p=>
+                            <ControlOccurrenceRow
+                                key={p.control.key}
+                                vehicle={{
+                                    _id:this.state.vehicle._id,
+                                    km:this.state.vehicle.km,
+                                    registration:this.state.vehicle.registration
+                                }}
+                                loadVehicle={this.loadVehicle}
+                                switchControl={this.switchControl}
+                                c={p}
+                            />
+                        )}
+                    </Table.Body>
+                </Table>
+            </div>
+        )
+    }
     getFinancesPanel = () => {
-        if(this.state.editingFinances){
+        if(this.state.editingFinances || !this.state.vehicle.financialInfosComplete){
             return (
-                <Segment attached='bottom' style={{padding:"24px"}}>
+                <Segment style={{padding:"auto",placeSelf:"stretch"}}>
                     <Form className="formBoard" style={{display:"grid",gridTemplateColumn:"1fr 1fr"}}>
                         <Form.Field><label>Montant de l'assurance</label>
                             <Input defaultValue={this.state.vehicle.insurancePaid} onChange={this.handleChange} name="newInsurancePaid"/>
@@ -1419,17 +1575,15 @@ class Vehicle extends Component {
                         <Form.Field><label>Type de financement</label>
                             <PayementFormatPicker defaultValue={this.state.vehicle.payementFormat} change={this.handleChangePayementFormat}/>
                         </Form.Field>
-                        <div style={{display:"grid",gridColumnEnd:"span 2",gridTemplateColumns:"1fr 1fr",gridRowStart:"6",placeSelf:"stretch",gridGap:"24px"}}>
-                            <Button style={{placeSelf:"center stretch",gridColumnStart:"1"}} color="red" icon labelPosition='right' onClick={this.closeEditFinances}>Annuler<Icon name='cancel'/></Button>
-                            <Button style={{placeSelf:"center stretch",gridColumnStart:"2"}} color="green" icon labelPosition='right' onClick={this.saveEditFinances}>Sauvegarder<Icon name='check'/></Button>
-                        </div>
+                        <Button style={{placeSelf:"center stretch",gridColumnStart:"1"}} color="red" icon labelPosition='right' onClick={this.closeEditFinances}>Annuler<Icon name='cancel'/></Button>
+                        <Button style={{placeSelf:"center stretch",gridColumnStart:"2"}} color="green" icon labelPosition='right' onClick={this.saveEditFinances}>Sauvegarder<Icon name='check'/></Button>
                     </Form>
                 </Segment>
             )
         }else{
             if(this.state.vehicle.financialInfosComplete){
                 return (
-                    <Segment attached='bottom' style={{padding:"24px",display:"grid",gridTemplateRows:"1fr"}}>
+                    <Segment style={{padding:"auto",display:"grid",gridTemplateRows:"1fr",placeSelf:"stretch"}}>
                         <div className="formBoard displaying" style={{gridTemplateRows:"auto auto auto auto auto auto auto auto 1fr"}}>
                             <div className="labelBoard">Montant de l'assurance :</div>
                             <div className="valueBoard">{parseFloat(this.state.vehicle.insurancePaid).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ")} €</div>
@@ -1451,25 +1605,88 @@ class Vehicle extends Component {
                         <div>{this.getPayementProgress()}</div>
                     </Segment>
                 )
-            }else{
-                return (
-                    <Segment attached='bottom'>
-                        <div className="formBoard displaying">
-                            <Icon style={{gridColumnStart:"2",placeSelf:"center"}} name='warning sign' color="red" size='huge' />
-                            <p style={{gridColumnStart:"2"}}>Les données de financement sont incomplètes, veuillez les compléter pour afficher cette section</p>
-                            <Button basic color="blue" style={{gridColumnStart:"2",placeSelf:"stretch"}} onClick={this.showEditFinances} icon labelPosition='right'>Renseigner les informations manquantes<Icon name='edit'/></Button>
-                        </div>
-                    </Segment>
-                )
             }
         }
     }
     getHistoriquePanel = () => {
         return(
-            <Segment attached='bottom' style={{padding:"24px",justifySelf:"stretch",overflowY:"scroll"}}>
+            <Segment style={{padding:"32px",placeSelf:"stretch",overflowY:"scroll"}}>
                 {this.getBrokenHistoryTable()}
             </Segment>
         )
+    }
+    getAccidentsPanel = () => {
+        return(
+            <Segment style={{padding:"32px",placeSelf:"stretch",overflowY:"scroll"}}>
+                {this.getAccidentsTable()}
+            </Segment>
+        )
+    }
+    getKmReportPanel = () => {
+        return (
+            <div style={{padding:"auto",justifySelf:"stretch",display:"grid",gridTemplateColumns:"2fr 3fr",gridGap:"32px"}}>
+                <Table compact style={{placeSelf:"start"}}>
+                    <Table.Header>
+                        <Table.Row>
+                            <Table.HeaderCell>Date</Table.HeaderCell>
+                            <Table.HeaderCell>Km</Table.HeaderCell>
+                            <Table.HeaderCell>Suppr.</Table.HeaderCell>
+                        </Table.Row>
+                    </Table.Header>
+                    <Table.Body>
+                        {this.state.kmsReport()}
+                    </Table.Body>
+                </Table>
+                <Segment style={{margin:"0",placeSelf:"stretch"}}>
+                    <Bar ref={(reference) => this.chartRef = reference } data={this.getChartData()} height={400} style={{display:"block"}} options={{maintainAspectRatio:false,responsive:true}}/>
+                </Segment>
+            </div>
+        )
+    }
+    getDocsPanel = () => {
+        return (
+            <div attached="right" style={{padding:"auto",justifySelf:"stretch",display:"grid",gridTemplateColumns:"1fr 1fr",gridTemplateRows:"auto 1fr",gridGap:"24px"}}>
+                <FileManagementPanel importLocked={this.state.newCg == null} handleInputFile={this.handleInputFile} fileTarget="newCg" uploadDoc={this.uploadDocCg} fileInfos={this.state.vehicle.cg} title="Carte grise" type="cg"/>
+                <FileManagementPanel importLocked={this.state.newCv == null} handleInputFile={this.handleInputFile} fileTarget="newCv" uploadDoc={this.uploadDocCv} fileInfos={this.state.vehicle.cv} title="Carte verte" type="cv"/>
+            </div>
+        )
+    }
+
+    //IN PANEL TABLE
+    getAccidentsTable = () => {
+        if(this.state.vehicle.accidents.length == 0){
+            return(
+                <div style={{display:"block",placeSelf:"stretch"}}>
+                    <List divided relaxed>
+                        <List.Item>
+                            <List.Content>
+                                <List.Header>C'est vide !</List.Header>
+                                Il n'y a aucun accident lié au véhicule
+                            </List.Content>
+                        </List.Item>
+                    </List>
+                </div>
+            )
+        }else{
+            return(
+                <div style={{display:"block",placeSelf:"stretch"}}>
+                    <List divided relaxed>
+                        {this.state.vehicle.accidents.map(a=>{
+                            return (
+                                <List.Item key={a._id}>
+                                    <List.Content floated='right'>
+                                        <Button color="blue" inverted icon icon='right arrow' onClick={()=>{this.props.history.push("/accident/"+a._id);}}/>
+                                    </List.Content>
+                                    <List.Content>
+                                        <List.Header>{a.occurenceDate}</List.Header>
+                                    </List.Content>
+                                </List.Item>
+                            )
+                        })}
+                    </List>
+                </div>
+            )
+        }
     }
     getBrokenHistoryTable = () => {
         if(this.state.vehicle.brokenHistory.length != 0 && this.state.vehicle.brokenHistory[0]._id == "noid"){
@@ -1512,56 +1729,16 @@ class Vehicle extends Component {
             )
         }
     }
-    getAccidentsPanel = () => {
-        return(
-            <Segment attached='bottom' style={{padding:"24px",justifySelf:"stretch",overflowY:"scroll"}}>
-                {this.getAccidentsTable()}
-            </Segment>
-        )
-    }
-    getAccidentsTable = () => {
-        if(this.state.vehicle.accidents.length == 0){
-            return(
-                <div style={{display:"block",placeSelf:"stretch"}}>
-                    <List divided relaxed>
-                        <List.Item>
-                            <List.Content>
-                                <List.Header>C'est vide !</List.Header>
-                                Il n'y a aucun accident lié au véhicule
-                            </List.Content>
-                        </List.Item>
-                    </List>
-                </div>
-            )
-        }else{
-            return(
-                <div style={{display:"block",placeSelf:"stretch"}}>
-                    <List divided relaxed>
-                        {this.state.vehicle.accidents.map(a=>{
-                            return (
-                                <List.Item key={a._id}>
-                                    <List.Content floated='right'>
-                                        <Button color="blue" inverted icon icon='right arrow' onClick={()=>{this.props.history.push("/accident/"+a._id);}}/>
-                                    </List.Content>
-                                    <List.Content>
-                                        <List.Header>{a.occurenceDate}</List.Header>
-                                    </List.Content>
-                                </List.Item>
-                            )
-                        })}
-                    </List>
-                </div>
-            )
-        }
-    }
-    getUncompleteFinancialPanel = () => {
+
+    //MESSAGE
+    getUncompleteFinancialMessage = () => {
         if(!this.state.vehicle.financialInfosComplete){
             return (
                 <Message onClick={this.showEditFinances} color="red" style={{margin:"0 16px",cursor:"pointer"}} icon='euro' header={"Informations manquantes"} content={"Les informations relatives au financement de ce véhicule sont incomplètes, cliquez pour modifier."} />
             )
         }
     }
-    getArchivePanel = () => {
+    getArchiveMessage = () => {
         if(this.state.vehicle.archived){
             let justification = this.state.vehicle.archiveJustification.justification
             if(justification == null){
@@ -1572,14 +1749,14 @@ class Vehicle extends Component {
             )
         }
     }
-    getSharedPanel = () => {
+    getSharedMessage = () => {
         if(this.state.vehicle.shared){
             return (
                 <Message color="teal" style={{margin:"0 16px"}} icon='handshake outline' header={"Véhicule opéré par : " + this.state.vehicle.sharedTo.name + ", depuis le : " + this.state.vehicle.sharedSince} content={"Justificaion : " + this.state.vehicle.sharingReason} />
             )
         }
     }
-    getSellingPanel = () => {
+    getSellingMessage = () => {
         if(this.state.vehicle.sold){
             return (
                 <Message color="orange" style={{margin:"0 16px"}} icon='cart' header={"Véhicule vendu le : " + this.state.vehicle.soldOnDate} content={"Justificaion : " + this.state.vehicle.sellingReason} />
@@ -1591,7 +1768,7 @@ class Vehicle extends Component {
             )
         }
     }
-    getBrokenPanel = () => {
+    getBrokenMessage = () => {
         if(this.state.vehicle.broken){
             return (
                 <Message color="teal" style={{margin:"0 16px"}} icon='wrench' header={"En panne depuis le : " + this.state.vehicle.brokenSince} content={"Dernier commentaire : " + this.state.vehicle.brokenHistory[this.state.vehicle.brokenHistory.length-1].content} />
@@ -1600,7 +1777,7 @@ class Vehicle extends Component {
     }
     /*COMPONENTS LIFECYCLE*/
     componentDidMount = () => {
-        this.loadVehicule();
+        this.loadVehicle();
     }
 
     render() {
@@ -1613,10 +1790,11 @@ class Vehicle extends Component {
         }else{
             return (
                 <Fragment>
-                    <div style={{display:"grid",gridGap:"24px",gridTemplateRows:"auto auto minmax(0,1fr)",gridTemplateColumns:"2fr 3fr",height:"100%"}}>
-                        <div style={{display:"grid",gridColumnEnd:"span 2",gridGap:"32px",gridTemplateColumns:"auto 1fr auto"}}>
+                    <div style={{display:"grid",gridGap:"24px",gridTemplateRows:"auto auto minmax(0,1fr)",gridTemplateColumns:"2fr 2fr",height:"100%"}}>
+                        <div style={{display:"grid",gridColumnEnd:"span 2",gridGap:"32px",gridTemplateColumns:"auto 1fr auto auto"}}>
                             <BigButtonIcon icon="angle double left" color="black" onClick={()=>{this.props.history.push("/parc/vehicles");}} tooltip="Retour au tableau des véhicules"/>
                             <Message style={{margin:"0"}} icon='truck' header={this.state.vehicle.registration} content={this.state.vehicle.brand.name + " - " + this.state.vehicle.model.name} />
+                            <Message style={{margin:"0"}} header={this.state.vehicle.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + "km"} content={"relevé " + moment(this.state.vehicle.lastKmUpdate, "DD/MM/YYYY").fromNow()} />
                             <div style={{display:"flex",justifyContent:"flex-end"}}>
                                 <BigButtonIcon icon="dashboard" color="green" onClick={this.showUpdateKm} tooltip="Mise à jour du kilométrage"/>
                                 <BigButtonIcon icon="edit" color="blue" onClick={this.showEditIdent} tooltip="Édition du paneau identification"/>
@@ -1625,50 +1803,48 @@ class Vehicle extends Component {
                                 {this.getSellOptions()}
                                 {this.getBrokenOptions()}
                                 <BigButtonIcon icon="chat" color="blue" onClick={this.showAddHistoryEntry} tooltip="Ajout d'un commentaire à l'historique des pannes" spacedFromPrevious/>
-                                <BigButtonIcon icon="folder" color="purple" onClick={this.showDocs} tooltip="Gérer les documents" spacedFromPrevious/>
+                                <BigButtonIcon icon="folder" color="purple" onClick={()=>{this.setState({activePanel:"docs"})}} tooltip="Gérer les documents" spacedFromPrevious/>
                                 {this.getSoldDocsOptions()}
                                 {this.getDeleteOptions()}
                             </div>
                         </div>
                         <div style={{display:"flex",gridColumnEnd:"span 2"}}>
-                            {this.getUncompleteFinancialPanel()}
-                            {this.getArchivePanel()}
-                            {this.getSharedPanel()}
-                            {this.getSellingPanel()}
-                            {this.getBrokenPanel()}
+                            {this.getUncompleteFinancialMessage()}
+                            {this.getArchiveMessage()}
+                            {this.getSharedMessage()}
+                            {this.getSellingMessage()}
+                            {this.getBrokenMessage()}
                         </div>
-                        <div style={{display:"grid",gridTemplateRows:"auto auto 1fr",placeSelf:"stretch"}}>
-                            <Segment textAlign="center">
-                                <p style={{margin:"0",fontWeight:"bold",fontSize:"2.4em"}}>
-                                    {this.state.vehicle.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km
-                                </p>
-                                <p style={{margin:"0",fontWeight:"bold",fontSize:"1.1em"}}>
-                                    (relevé {moment(this.state.vehicle.lastKmUpdate, "DD/MM/YYYY").fromNow()})
-                                </p>
-                            </Segment>
-                            <Menu attached='top' pointing>
-                                <Menu.Item color="blue" icon='id card outline' name='Identification' active={this.state.activePanel == 'ident'} onClick={()=>{this.setState({activePanel:"ident"})}} />
-                                <Menu.Item color={(this.state.vehicle.financialInfosComplete ? "green" : "red")} icon='euro' name='Finances' active={this.state.activePanel == 'finances'} onClick={()=>{this.setState({activePanel:"finances"})}} />
-                                <Menu.Item color="teal" icon='clipboard list' name='Historique des pannes' active={this.state.activePanel == 'pannes'} onClick={()=>{this.setState({activePanel:"pannes"})}} />
-                                <Menu.Item color="orange" icon='fire' name='Accidents' active={this.state.activePanel == 'accidents'} onClick={()=>{this.setState({activePanel:"accidents"})}} />
-                            </Menu>
-                            {this.getActivePanel()}
-                        </div>
-                        <div style={{display:"grid",gridTemplateColumns:"256px 1fr",gridTemplateRows:"auto 1fr",gridColumnStart:"2",gridGap:"8px"}}>
-                            <Table style={{placeSelf:"start",gridRowEnd:"span 2"}} basic="very">
-                                <Table.Header>
-                                    <Table.Row>
-                                        <Table.HeaderCell>Date</Table.HeaderCell>
-                                        <Table.HeaderCell>Km</Table.HeaderCell>
-                                        <Table.HeaderCell>Suppr.</Table.HeaderCell>
-                                    </Table.Row>
-                                </Table.Header>
-                                <Table.Body>
-                                    {this.state.kmsReport()}
-                                </Table.Body>
-                            </Table>
-                            <div style={{placeSelf:"stretch"}}>
-                                <Bar ref={(reference) => this.chartRef = reference } data={this.getChartData()} height={400} style={{display:"block"}} options={{maintainAspectRatio:false,responsive:true}}/>
+                        <div style={{display:"grid",gridTemplateColumns:"auto 1fr",placeSelf:"stretch",gridColumnEnd:"span 2",gridGap:"64px"}}>
+                            <div style={{display:"flex",flexDirection:"column",justifyContent:"start",placeSelf:"stretch"}}>
+                                <Menu size='large' pointing vertical style={{gridColumnStart:"1"}}>
+                                    <Menu.Item color="blue" name='Identification' active={this.state.activePanel == 'ident'} onClick={()=>{this.setState({activePanel:"ident"})}} />
+                                    <Menu.Item color="blue" active={this.state.activePanel == 'finances'} onClick={()=>{this.setState({activePanel:"finances"})}}>
+                                        {(this.state.vehicle.financialInfosComplete ?
+                                            <Label color='green'><Icon style={{margin:0}} name="check"/></Label>
+                                        :
+                                            <Label color='red'><Icon style={{margin:0}} name="cancel"/></Label>
+                                        )}
+                                        Finances
+                                    </Menu.Item>
+                                    <Menu.Item color="blue" active={this.state.activePanel == 'obli'} onClick={()=>{this.setState({activePanel:"obli"})}}>
+                                        <Label color={(this.state.obli.filter(o=>o.selected).length == 0 ? "grey" : "green")}>{this.state.obli.filter(o=>o.selected).length}</Label>
+                                        Contrôles obligatoires
+                                    </Menu.Item>
+                                    <Menu.Item color="blue" active={this.state.activePanel == 'prev'} onClick={()=>{this.setState({activePanel:"prev"})}}>
+                                        <Label color={(this.state.prev.filter(p=>p.selected).length == 0 ? "grey" : "green")}>{this.state.prev.filter(p=>p.selected).length}</Label>
+                                        Contrôles préventifs
+                                    </Menu.Item>
+                                </Menu>
+                                <Menu size='large' pointing vertical style={{gridColumnStart:"1"}}>
+                                    <Menu.Item color="teal" active={this.state.activePanel == 'pannes'} onClick={()=>{this.setState({activePanel:"pannes"})}}><Label color='grey'>{this.state.vehicle.brokenHistory.length}</Label>Historique des pannes</Menu.Item>
+                                    <Menu.Item color="orange" active={this.state.activePanel == 'accidents'} onClick={()=>{this.setState({activePanel:"accidents"})}}><Label color='grey'>{this.state.vehicle.accidents.length}</Label>Accidents</Menu.Item>
+                                    <Menu.Item color="purple" name='Documents' active={this.state.activePanel == 'docs'} onClick={()=>{this.setState({activePanel:"docs"})}} />
+                                    <Menu.Item color="blue" active={this.state.activePanel == 'kms'} onClick={()=>{this.setState({activePanel:"kms"})}}><Label color='grey'>{this.state.vehicle.kms.length}</Label>Relevés kilométrique</Menu.Item>
+                                </Menu>
+                            </div>
+                            <div style={{placeSelf:"stretch",display:"grid",placeSelf:"stretch",gridRowStart:"1",gridColumnStart:"2"}}>
+                                {this.getActivePanel()}
                             </div>
                         </div>
                     </div>
@@ -1691,20 +1867,6 @@ class Vehicle extends Component {
                         <Modal.Actions>
                             <Button color="black" onClick={this.closeUpdateKm}>Annuler</Button>
                             <Button color="blue" onClick={this.updateKm}>Mettre à jour</Button>
-                        </Modal.Actions>
-                    </Modal>
-                    <Modal size='large' closeOnDimmerClick={false} open={this.state.openDocs} onClose={this.closeDocs} closeIcon>
-                        <Modal.Header>
-                            Documents relatifs au vehicule immatriculé : {this.state.vehicle.registration}
-                        </Modal.Header>
-                        <Modal.Content style={{textAlign:"center"}}>
-                            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gridGap:"24px"}}>
-                                <FileManagementPanel importLocked={this.state.newCg == null} handleInputFile={this.handleInputFile} fileTarget="newCg" uploadDoc={this.uploadDocCg} fileInfos={this.state.vehicle.cg} title="Carte grise" type="cg"/>
-                                <FileManagementPanel importLocked={this.state.newCv == null} handleInputFile={this.handleInputFile} fileTarget="newCv" uploadDoc={this.uploadDocCv} fileInfos={this.state.vehicle.cv} title="Carte verte" type="cv"/>
-                            </div>
-                        </Modal.Content>
-                        <Modal.Actions>
-                            <Button color="black" onClick={this.closeDocs}>Fermer</Button>
                         </Modal.Actions>
                     </Modal>
                     <Modal size='large' closeOnDimmerClick={false} open={this.state.openDocsSold} onClose={this.closeDocsSold} closeIcon>
@@ -1761,7 +1923,21 @@ class Vehicle extends Component {
                             <Button color="teal" onClick={this.unshareVehicle}>Rappeler</Button>
                         </Modal.Actions>
                     </Modal>
-                    
+                    <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openDisableControl} onClose={this.closeDisableControl} closeIcon>
+                        <Modal.Header>
+                            Êtes vous sûr ?
+                        </Modal.Header>
+                        <Modal.Content>
+                            <Message color="red">
+                                Une occurence est déjà enregistré pour ce contrôle sur ce véhicule.
+                                Rendre le véhicule inéligible au contrôle aura pour effet de supprimer toutes informations concernant les précedents contrôles réalisés.
+                            </Message>
+                        </Modal.Content>
+                        <Modal.Actions>
+                            <Button color="grey" onClick={this.closeDisableControl}>Annuler</Button>
+                            <Button color="red" onClick={()=>{this.switchControl(false,this.state.controlToDisable,true);this.closeDisableControl();}}>Confirmer</Button>
+                        </Modal.Actions>
+                    </Modal>
                     <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openSell} onClose={this.closeSell} closeIcon>
                         <Modal.Header>
                             Mettre le vehicule {this.state.vehicle.registration} en vente ?
@@ -1798,7 +1974,6 @@ class Vehicle extends Component {
                             <Button color="orange" onClick={this.cancelSellVehicle}>Annuler la vente</Button>
                         </Modal.Actions>
                     </Modal>
-
                     <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openAddHistoryEntry} onClose={this.closeAddHistoryEntry} closeIcon>
                         <Modal.Header>
                             Ajouter un commentaire dans l'historique du véhicule : {this.state.vehicle.registration} ?
@@ -1846,7 +2021,6 @@ class Vehicle extends Component {
                             <Button color="teal" onClick={this.unbreakVehicle}>Résoudre la panne</Button>
                         </Modal.Actions>
                     </Modal>
-
                     <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openArchive} onClose={this.closeArchive} closeIcon>
                         <Modal.Header>
                             Archiver le vehicule : {this.state.vehicle.registration} ?

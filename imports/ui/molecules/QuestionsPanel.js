@@ -41,7 +41,7 @@ export class QuestionsPanel extends Component {
             )
         }else{
             return(
-                <Segment.Group raised style={{placeSelf:"stretch"}}>
+                <Segment.Group style={{placeSelf:"stretch"}}>
                     <Segment>
                         <h2>{this.props.index+1 + ") " + this.props.questions.title}</h2>
                     </Segment>

@@ -110,7 +110,7 @@ export class Compte extends Component {
     }
     return (
       <div style={{display:"grid",gridGap:"16px",gridTemplateColumns:"1fr 75% 1fr"}}>
-        <Segment raised style={{display:"grid",gridColumnStart:"2",gridGap:"16px",placeSelf:"stretch",marginTop:"16px",padding:"24px 0",gridTemplateColumns:"1fr 3fr"}}>
+        <Segment style={{display:"grid",gridColumnStart:"2",gridGap:"16px",placeSelf:"stretch",marginTop:"16px",padding:"24px 0",gridTemplateColumns:"1fr 3fr"}}>
           <div style={{display:"grid",borderRight:"6px solid #74b9ff"}}>
             <Header style={{placeSelf:"center"}} as='h3' icon>
               <Icon circular name='user outline'/>
@@ -124,7 +124,7 @@ export class Compte extends Component {
             <Button onClick={this.randomizeAvatar} style={{justifySelf:"stretch",alignSelf:"center",gridRowStart:"2",gridColumnStart:"2"}} color="black" size="big" content="Aleatoire !" icon='random' labelPosition='right'/>
           </Form>
         </Segment>
-        <Segment raised style={{display:"grid",gridColumnStart:"2",gridGap:"16px",placeSelf:"stretch",marginTop:"16px",padding:"24px 0",gridTemplateColumns:"1fr 3fr"}}>
+        <Segment style={{display:"grid",gridColumnStart:"2",gridGap:"16px",placeSelf:"stretch",marginTop:"16px",padding:"24px 0",gridTemplateColumns:"1fr 3fr"}}>
           <div style={{display:"grid",borderRight:"6px solid #74b9ff"}}>
             <Header style={{placeSelf:"center"}} as='h3' icon>
               <Icon circular name='key'/>

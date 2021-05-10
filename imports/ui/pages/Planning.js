@@ -544,7 +544,7 @@ class Planning extends Component {
       <Fragment>
         <div style={{display:"grid",gridTemplateColumns:"auto 1fr",gridTemplateRows:"auto 1fr",gridGap:"32px",height:"100%"}}>
           <Calendar userLimited={this.props.userLimited} didRefreshMonth={this.didRefreshMonth} needToRefreshMonth={this.state.needToRefreshMonth} selectDate={this.selectDate} month={this.state.month} year={this.state.year}/>
-          <Segment raised style={{gridRowEnd:"span 2",display:"grid",gridGap:"20px",gridTemplateRows:"auto minmax(0,1fr)"}}>
+          <Segment style={{gridRowEnd:"span 2",display:"grid",gridGap:"20px",gridTemplateRows:"auto minmax(0,1fr)"}}>
             <Menu size="massive" widths={3} pointing secondary>
               <Menu.Item color="blue" name='selectedDay' active={this.state.activeItem === 'selectedDay'} onClick={()=>this.setState({activeItem:"selectedDay"})}>
                 {this.state.selectedDate.format("DD/MM/YYYY")}

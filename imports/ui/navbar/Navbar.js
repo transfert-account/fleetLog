@@ -35,9 +35,9 @@ class Menu extends Component {
         color:"blue"
       },
       {
-        name:"entretiens",
+        name:"entretien/entretiens",
         active:"entretiens",
-        label:"Entretiens",
+        label:"Entretien",
         display:true,
         icon:"fas fa-tools",
         color:"blue"

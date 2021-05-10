@@ -18,7 +18,7 @@ class CustomSegmentFilter extends Component {
 
     render() {
         return (
-            <Segment raised style={Object.assign({display:"grid",gridTemplateColumns:"1fr auto auto"},this.props.style)}>
+            <Segment style={Object.assign({display:"grid",gridTemplateColumns:"1fr auto auto",margin:"0"},this.props.style)}>
                 <div style={{display:"flex",justifyContent:"start",placeSelf:"stretch"}}>
                     {this.props.children}
                 </div>

@@ -58,7 +58,7 @@ class FileManagementPanel extends Component {
         if(this.props.fileInfos._id != "" && this.props.fileInfos._id != undefined){
             return (
                 <Fragment>
-                    <Segment raised style={{margin:"4px"}}>
+                    <Segment style={{margin:"4px"}}>
                         <div style={{display:"grid",gridTemplateRows:"auto 1fr auto auto",gridTemplateColumns:"1fr 1fr 1fr 1fr",gridGap:"6px"}}>
                             <p style={{gridColumnEnd:"span 4"}}><Icon name='folder open'/>{this.props.title}</p>
                             <Message color="green" style={{gridColumnEnd:"span 4",display:"grid",gridTemplateColumns:"auto 1fr",gridTemplateRows:"auto auto auto 1fr"}}>
@@ -103,7 +103,7 @@ class FileManagementPanel extends Component {
             )
         }else{
             return (
-                <Segment raised style={{margin:"4px"}}>
+                <Segment style={{margin:"4px"}}>
                     <div style={{display:"grid",gridTemplateRows:"auto 1fr auto auto",gridTemplateColumns:"1fr 1fr",gridGap:"6px"}}>
                         <p style={{gridColumnEnd:"span 2"}}><Icon name='folder open'/>{this.props.title}</p>
                         <Message color="red" style={{gridColumnEnd:"span 2",display:"grid",gridTemplateColumns:"1fr",gridTemplateRows:"1fr"}}>

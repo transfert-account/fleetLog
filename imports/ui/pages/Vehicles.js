@@ -4,6 +4,7 @@ import { UserContext } from '../../contexts/UserContext';
 
 import VehiclesRow from '../molecules/VehiclesRow';
 import CustomFilterSegment from '../molecules/CustomFilterSegment';
+import ParcMenu from '../molecules/ParcMenu';
 
 import BigButtonIcon from '../elements/BigIconButton';
 
@@ -954,12 +955,7 @@ export class Vehicles extends Component {
         return (
             <Fragment>
                 <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto auto 1fr auto",gridTemplateColumns:"auto 1fr auto"}}>
-                    <Menu style={{cursor:"pointer",marginBottom:"auto"}} icon='labeled'>
-                        <Menu.Item color="blue" name='vehicules' active onClick={()=>{this.props.history.push("/parc/vehicles")}}><Icon name='truck'/>Vehicules</Menu.Item>
-                        <Menu.Item color="blue" name='controls' onClick={()=>{this.props.history.push("/parc/controls")}}><Icon name='clipboard check'/>Contrôles</Menu.Item>
-                        <Menu.Item color="blue" name='licences' onClick={()=>{this.props.history.push("/parc/licences")}}><Icon name='drivers license'/>Licences</Menu.Item>
-                        <Menu.Item color="blue" name='locations' onClick={()=>{this.props.history.push("/parc/locations")}} ><Icon name="calendar alternate outline"/> Locations</Menu.Item>
-                    </Menu>
+                    <ParcMenu active="vehicles"/>
                     <Input style={{justifySelf:"stretch"}} name="vehiclesFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher une immatriculation'/>
                     <div style={{display:"flex",justifyContent:"flex-end"}}>
                         <BigButtonIcon icon="dashboard" color="green" onClick={this.showMassKmUpdate} tooltip="Mise à jour de masse des compteurs"/>
