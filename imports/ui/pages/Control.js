@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { Message, Table, Popup, Button, Label } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 import EntretienMenu from '../molecules/EntretienMenu';
-import BigButtonIcon from '../elements/BigIconButton';
+import BigIconButton from '../elements/BigIconButton';
 import { withRouter } from 'react-router-dom';
 import { gql } from 'apollo-server-express';
 import moment from 'moment';
@@ -21,6 +21,7 @@ export class Control extends Component {
                     }
                     vehiclesOccurrences{
                         lastOccurrence
+                        entretien
                         vehicle{
                             _id
                             societe{
@@ -53,6 +54,14 @@ export class Control extends Component {
             }
         `,
         vehiclesRaw:[],
+        createEntretienFromControlQuery: gql`
+            mutation createEntretienFromControl($vehicle:String!,$control:String!){
+                createEntretienFromControl(vehicle:$vehicle,control:$control){
+                    status
+                    message
+                }
+            }
+        `,
         controlRaw:{name:"name",key:"key",unit:"unit",frequency:"999999"},
     }
     
@@ -71,6 +80,24 @@ export class Control extends Component {
             this.setState({
                 controlRaw:data.vehiclesByControl.control,
                 vehiclesRaw:this.setEcheanceValues(data.vehiclesByControl.control,data.vehiclesByControl.vehiclesOccurrences)
+            })
+        })
+    }
+    addEntretien = v => {
+        this.props.client.mutate({
+            mutation:this.state.createEntretienFromControlQuery,
+            variables:{
+                vehicle:v,
+                control:this.props.match.params.key
+            }
+        }).then(({data})=>{
+            data.createEntretienFromControl.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.loadVehiclesAndControl();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
             })
         })
     }
@@ -161,7 +188,7 @@ export class Control extends Component {
         return (
             <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto 1fr auto",gridTemplateColumns:"auto auto 1fr"}}>
                 <EntretienMenu active={(this.props.match.params.key[0] == "o" ? "obli" : "prev")}/>
-                <BigButtonIcon icon="angle double left" color="black" onClick={()=>{this.props.history.push("/entretien/controls/"+(this.props.match.params.key[0] == "o" ? "obli" : "prev"));}} tooltip={"Retour aux contrôles" + (this.props.match.params.key[0] == "o" ? " obligatoires" : " préventifs")}/>
+                <BigIconButton icon="angle double left" color="black" onClick={()=>{this.props.history.push("/entretien/controls/"+(this.props.match.params.key[0] == "o" ? "obli" : "prev"));}} tooltip={"Retour aux contrôles" + (this.props.match.params.key[0] == "o" ? " obligatoires" : " préventifs")}/>
                 <Message style={{margin:"0"}} icon='wrench' header={this.state.controlRaw.name} content={"à éffectuer tous les " + this.state.controlRaw.frequency + " " + this.formatUnit(this.state.controlRaw.unit)} />
                 <div style={{gridRowStart:"2",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                     <Table compact celled>
@@ -174,7 +201,7 @@ export class Control extends Component {
                             </Table.Row>
                         </Table.Header>
                         <Table.Body>
-                            {this.state.vehiclesRaw.sort((a,b)=>{return b.echeance.value - a.echeance.value}).map(v=>{
+                            {this.state.vehiclesRaw.sort((a,b)=>{if(this.state.controlRaw.unit == "km"){return b.echeance.value - a.echeance.value}else{return a.echeance.value - b.echeance.value}}).map(v=>{
                                 return(
                                     <Table.Row key={v.registration}>
                                         <Table.Cell collapsing textAlign="right">
@@ -187,8 +214,9 @@ export class Control extends Component {
                                         </Table.Cell>
                                         <Table.Cell textAlign="center">{this.getEcheanceCell(v)}</Table.Cell>
                                         <Table.Cell collapsing textAlign="center">
-                                            <Popup trigger={<Button color="blue" icon onClick={console.log("click")} icon="alternate calendar outline"/>}>Créer l'entretien</Popup>
-                                            <Popup trigger={<Button color="blue" icon onClick={()=>this.props.history.push("/parc/vehicle/"+v.vehicle._id)} icon="arrow right"/>}>Voir le véhicule</Popup>
+                                            <Popup trigger={<Button icon disabled={v.entretien != null} onClick={()=>this.addEntretien(v.vehicle._id)} icon="calendar outline"/>}>Créer l'entretien</Popup>
+                                            <Popup trigger={<Button color="blue" disabled={v.entretien == null} icon onClick={()=>this.props.history.push("/entretien/"+v.entretien)} icon="wrench" style={{marginLeft:"32px"}}/>}>Voir l'entretien</Popup>
+                                            <Popup trigger={<Button color="blue" icon onClick={()=>this.props.history.push("/parc/vehicle/"+v.vehicle._id)} icon="car"/>}>Voir le véhicule</Popup>
                                         </Table.Cell>
                                     </Table.Row>
                                 )

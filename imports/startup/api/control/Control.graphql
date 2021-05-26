@@ -23,6 +23,7 @@ type ControlAndVehiculesEquiped{
 
 type VehicleAndOccurrence{
     lastOccurrence:String
+    entretien:String
     vehicle: Vehicle
 }
 

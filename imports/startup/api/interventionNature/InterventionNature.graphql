@@ -1,0 +1,13 @@
+type InterventionNature{
+    _id: String
+    name: String
+}
+
+extend type Query{
+    interventionNatures : [InterventionNature]
+}
+
+extend type Mutation{
+    addInterventionNature(name:String!): [QueryResultMessage]
+    deleteInterventionNature(_id:String!): [QueryResultMessage]
+}

@@ -179,7 +179,7 @@ class VehiclePicker extends Component {
 
     render() {
         return (
-            <Dropdown search selection defaultValue={this.props.defaultValue} options={this.state.getVehiclesAndLocations().map(v=>{return{key:v._id,text:v.registration,value:v._id}})} placeholder='Choisissez un véhicule' onChange={this.setVehicle} />
+            <Dropdown size={(this.props.size != null ? this.props.size : "")} search selection defaultValue={this.props.defaultValue} options={this.state.getVehiclesAndLocations().map(v=>{return{key:v._id,text:v.registration,value:v._id}})} placeholder='Choisissez un véhicule' onChange={this.setVehicle} />
         )
     }
 }

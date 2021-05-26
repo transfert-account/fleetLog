@@ -18,6 +18,8 @@ import AccRoadProfilePicker from '../atoms/AccRoadProfilePicker';
 import AccTrackStatePicker from '../atoms/AccTrackStatePicker';
 import AccWeatherPicker from '../atoms/AccWeatherPicker';
 
+import InterventionNaturePicker from '../atoms/InterventionNaturePicker';
+
 import ColorPicker from '../atoms/ColorPicker';
 import { withRouter } from 'react-router-dom';
 import gql from 'graphql-tag';
@@ -51,6 +53,7 @@ class Content extends Component {
         needToRefreshAccTrackStates:false,
         needToRefreshAccRoadProfiles:false,
         needToRefreshAccPlaces:false,
+        needToRefreshInterventionNatures:false,
         editSocieteQuery: gql`
             mutation editSociete($_id:String!,$name:String!){
                 editSociete(_id:$_id,name:$name){
@@ -268,16 +271,32 @@ class Content extends Component {
             }
         `,
         addAccPlaceQuery : gql`
-            mutation addAccPlace($name:String!){
-                addAccPlace(name:$name){
+        mutation addAccPlace($name:String!){
+            addAccPlace(name:$name){
+                status
+                message
+            }
+        }
+        `,
+        deleteAccPlaceQuery : gql`
+            mutation deleteAccPlace($_id:String!){
+                deleteAccPlace(_id:$_id){
                     status
                     message
                 }
             }
         `,
-        deleteAccPlaceQuery : gql`
-            mutation deleteAccPlace($_id:String!){
-                deleteAccPlace(_id:$_id){
+        addInterventionNatureQuery : gql`
+            mutation addInterventionNature($name:String!){
+                addInterventionNature(name:$name){
+                    status
+                    message
+                }
+            }
+        `,
+        deleteInterventionNatureQuery : gql`
+            mutation deleteInterventionNature($_id:String!){
+                deleteInterventionNature(_id:$_id){
                     status
                     message
                 }
@@ -1300,6 +1319,74 @@ class Content extends Component {
         })
     }
 
+    //Nature d'intervention
+    handleChangeInterventionNature = (e, { value }) => this.setState({ selectedInterventionNature:value })
+    showAddInterventionNature = () => {
+        this.setState({
+            openAddInterventionNature:true
+        })
+    }
+    showDelInterventionNature = () => {
+        this.setState({
+            openDelInterventionNature:true
+        })
+    }
+    closeAddInterventionNature = () => {
+        this.setState({
+            openAddInterventionNature:false
+        })
+    }
+    closeDelInterventionNature = () => {
+        this.setState({
+            openDelInterventionNature:false
+        })
+    }
+    addInterventionNature = () => {
+        this.closeAddInterventionNature()
+        this.props.client.mutate({
+            mutation:this.state.addInterventionNatureQuery,
+            variables:{
+                name:this.state.newInterventionNature
+            }
+        }).then(({data})=>{
+            data.addInterventionNature.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.setState({
+                        needToRefreshInterventionNatures:true
+                    })
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    deleteInterventionNature = () => {
+        this.closeDelInterventionNature()
+        this.props.client.mutate({
+            mutation:this.state.deleteInterventionNatureQuery,
+            variables:{
+                _id:this.state.selectedInterventionNature
+            }
+        }).then(({data})=>{
+            data.deleteInterventionNature.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.setState({
+                        needToRefreshInterventionNatures:true
+                    })
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    didRefreshInterventionNatures = () => {
+        this.setState({
+            needToRefreshInterventionNatures:false
+        })
+    }
+
     render() {
         return (
             <Fragment>
@@ -1525,6 +1612,21 @@ class Content extends Component {
                                 <Table.Cell textAlign="center">
                                     <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddAccRoadProfile} icon labelPosition='right'>Ajouter<Icon name='plus'/></Button>
                                     <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelAccRoadProfile} icon labelPosition='right'>Supprimer<Icon name='trash'/></Button>
+                                </Table.Cell>
+                            </Table.Row>
+                            <Table.Row>
+                                <Table.Cell>
+                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
+                                        <Icon name='clipboard check'/>
+                                        <Header.Content>Nature d'intervention</Header.Content>
+                                    </Header>
+                                </Table.Cell>
+                                <Table.Cell textAlign="center">
+                                    <InterventionNaturePicker didRefresh={this.didRefreshInterventionNature} needToRefresh={this.state.needToRefreshInterventionNatures} onChange={this.handleChangeInterventionNature} value={this.state.selectedInterventionNature} />
+                                </Table.Cell>
+                                <Table.Cell textAlign="center">
+                                    <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddInterventionNature} icon labelPosition='right'>Ajouter<Icon name='plus'/></Button>
+                                    <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelInterventionNature} icon labelPosition='right'>Supprimer<Icon name='trash'/></Button>
                                 </Table.Cell>
                             </Table.Row>
                         </Table.Body>
@@ -1935,6 +2037,34 @@ class Content extends Component {
                     <Modal.Actions>
                         <Button color="black" onClick={this.closeAddAccRoadProfile}>Annuler</Button>
                         <Button color="red" onClick={this.deleteAccRoadProfile}>Supprimer</Button>
+                    </Modal.Actions>
+                </Modal>
+
+                {/* INTERVENTION NATURE */}
+                <Modal size="mini" closeOnDimmerClick={false} open={this.state.openAddInterventionNature} onClose={this.closeAddInterventionNature} closeIcon>
+                    <Modal.Header>
+                        Ajout d'un profil de route lors d'accident
+                    </Modal.Header>
+                    <Modal.Content style={{textAlign:"center"}}>
+                        <Form style={{display:"grid",gridTemplateColumns:"1fr",gridGap:"16px"}}>
+                            <Form.Field style={{placeSelf:"stretch"}}>
+                                <label>Nom de l'intervention</label>
+                                <input onChange={this.handleChange} name="newInterventionNature"/>
+                            </Form.Field>
+                        </Form>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <Button color="black" onClick={this.closeAddInterventionNature}>Annuler</Button>
+                        <Button color="green" onClick={this.addInterventionNature}>Créer</Button>
+                    </Modal.Actions>
+                </Modal>
+                <Modal closeOnDimmerClick={false} open={this.state.openDelInterventionNature} onClose={this.closeDelInterventionNature} closeIcon>
+                    <Modal.Header>
+                        Suppression d'une nature d'intervention
+                    </Modal.Header>
+                    <Modal.Actions>
+                        <Button color="black" onClick={this.closeAddInterventionNature}>Annuler</Button>
+                        <Button color="red" onClick={this.deleteInterventionNature}>Supprimer</Button>
                     </Modal.Actions>
                 </Modal>
             </Fragment>

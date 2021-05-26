@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Input, Button, Modal, Form } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 
-import BigButtonIcon from '../elements/BigIconButton';
+import BigIconButton from '../elements/BigIconButton';
 
 import CustomFilterSegment from '../molecules/CustomFilterSegment';
 import BatimentControlRowGroup from '../molecules/BatimentControlRowGroup';
@@ -299,7 +299,7 @@ class Batiments extends Component {
         return (
             <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto auto 1fr auto",gridTemplateColumns:"auto 1fr auto"}}>
                 <Input style={{justifySelf:"stretch",gridColumnEnd:"span 2"}} name="storeFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher un nom de contrôle' />
-                <BigButtonIcon icon="plus" color="blue" onClick={this.showAddBatimentControl} tooltip="Ajouter un contrôle au batiment"/>
+                <BigIconButton icon="plus" color="blue" onClick={this.showAddBatimentControl} tooltip="Ajouter un contrôle au batiment"/>
                 <CustomFilterSegment resetAll={this.resetAll} style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3"}}>
                     <CustomFilter infos={this.state.timeLeftFilterInfos} active={this.state.timeLeftFilter} />
                     <CustomFilter infos={this.state.docsFilterInfos} active={this.state.docsFilter} />

@@ -3,7 +3,7 @@ import { Mongo } from 'meteor/mongo';
 
 export default {
     Query : {
-        allPieces(obj, args){
+        piecesAll(obj, args){
             return Pieces.find().fetch() || {};
         },
         pieces(obj, args){

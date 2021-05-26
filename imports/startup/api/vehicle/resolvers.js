@@ -10,8 +10,6 @@ import Accidents from '../accident/accidents.js';
 import Organisms from '../organism/organisms.js';
 import PayementTimes from '../payementTime/payementTimes';
 import Colors from '../color/colors.js';
-import Equipements from '../equipement/equipements';
-import EquipementDescriptions from '../equipementDescription/equipementDescriptions';
 import VehicleArchiveJustifications from '../vehicleArchiveJustification/vehicleArchiveJustifications';
 import Documents from '../document/documents';
 import Energies from '../energy/energies'
@@ -24,14 +22,14 @@ const affectVehicleControls = vehicle => {
     let prevs = Functions.getPrev();
     vehicle.obli = oblis.map(o=>{
         if(vehicle.obli.filter(oc => oc.key == o.key).length > 0){
-            return {control:o,selected:true,lastOccurrence:vehicle.obli.filter(oc => oc.key == o.key)[0].lastOccurrence}
+            return {control:o,selected:true,lastOccurrence:vehicle.obli.filter(oc => oc.key == o.key)[0].lastOccurrence,entretien:vehicle.obli.filter(oc => oc.key == o.key)[0].entretien}
         }else{
             return {control:o,selected:false}
         }
     })
     vehicle.prev = prevs.map(p=>{
         if(vehicle.prev.filter(pc => pc.key == p.key).length > 0){
-            return {control:p,selected:true,lastOccurrence:vehicle.prev.filter(pc => pc.key == p.key)[0].lastOccurrence}
+            return {control:p,selected:true,lastOccurrence:vehicle.prev.filter(pc => pc.key == p.key)[0].lastOccurrence,entretien:vehicle.prev.filter(pc => pc.key == p.key)[0].entretien}
         }else{
             return {control:p,selected:false}
         }
@@ -162,24 +160,6 @@ const affectMinimalVehicleData = vehicle => {
         console.error(e)
     }
 }
-
-const affectVehicleControlsOld = vehicle => {
-    vehicle.equipements = Equipements.find({vehicle:vehicle._id._str}).fetch() || {};
-    vehicle.equipements.forEach(e => {
-        e.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)}) || {};
-        if(e.controlTech != null && e.controlTech.length > 0){
-            e.controlTech = Documents.findOne({_id:new Mongo.ObjectID(e.controlTech)});
-        }else{
-            e.controlTech = {_id:""};
-        }
-        if(e.entretien != null && e.entretien != undefined && e.entretien != ""){
-            let entretienId = e.entretien
-            e.entretien = Entretiens.findOne({_id:new Mongo.ObjectID(entretienId)});
-        }else{
-            e.entretien = {_id:""}
-        }
-    });
-}//OLD
 
 const affectVehicleAccidents = vehicle => {
     vehicle.accidents = Accidents.find({vehicle:vehicle._id._str}).fetch() || {};
@@ -366,7 +346,9 @@ export default {
                     monthlyPayement:0,
                     payementTime:"",
                     payementOrg:"",
-                    payementFormat:""
+                    payementFormat:"",
+                    obli:[],
+                    prev:[]
                 });
                 return [{status:true,message:'Création réussie'}];
             }
@@ -480,13 +462,11 @@ export default {
             if(user._id){
                 let nL = Licences.find({vehicle:_id}).fetch().length
                 let nE = Entretiens.find({vehicle:_id}).fetch().length
-                let nQ = Equipements.find({vehicle:_id}).fetch().length
                 let nA = Accidents.find({vehicle:_id}).fetch().length
                 if(nL + nE + nQ > 0){
                     let qrm = [];
                     if(nL > 0){qrm.push({status:false,message:'Suppresion impossible, ' + nL + ' licence(s) liée(s)'})}
                     if(nE > 0){qrm.push({status:false,message:'Suppresion impossible, ' + nE + ' entretien(s) lié(s)'})}
-                    if(nQ > 0){qrm.push({status:false,message:'Suppresion impossible, ' + nQ + ' contrôle(s) lié(s)'})}
                     if(nA > 0){qrm.push({status:false,message:'Suppresion impossible, ' + nA + ' accident(s) lié(s)'})}
                     return qrm;
                 }else{
@@ -767,7 +747,7 @@ export default {
                     if(value){
                         Vehicles.update(
                             {_id: new Mongo.ObjectID(_id)}, 
-                            {$push: {obli:{key:key,lastOccurrence:"none"}}}
+                            {$push: {obli:{key:key,lastOccurrence:"none",entretien:null}}}
                         )
                     }
                     return [{status:true,message:'Liste des contrôles obligatoires mise à jour'}];
@@ -780,7 +760,7 @@ export default {
                     if(value){
                         Vehicles.update(
                             {_id: new Mongo.ObjectID(_id)}, 
-                            {$push: {prev:{key:key,lastOccurrence:"none"}}}
+                            {$push: {prev:{key:key,lastOccurrence:"none",entretien:null}}}
                         )
                     }
                     return [{status:true,message:'Liste des contrôles préventifs mise à jour'}];

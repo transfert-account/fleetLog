@@ -18,10 +18,10 @@ export class Pieces extends Component {
         newPiecePrixHT:"",
         openAddPiece:false,
         types:[
-            {name:'Pièces',add:'une pièce',key:"pie"},
-            {name:'Pneumatiques',add:'un pneumatique',key:"pne"},
-            {name:'Agents',add:'un agent',key:"age"},
-            {name:'Outils',add:'une outil',key:"out"}
+            {name:'Pièces',add:'une pièce',key:"pie",icon:"cogs"},
+            {name:'Pneumatiques',add:'un pneumatique',key:"pne",icon:"cog"},
+            {name:'Agents',add:'un agent',key:"age",icon:"tint"},
+            {name:'Outils',add:'une outil',key:"out",icon:"wrench"}
         ],
         addPieceQuery : gql`
             mutation addPiece($name:String!,$brand:String!,$reference:String!,$prixHT:Float!,$type:String!){
@@ -32,8 +32,8 @@ export class Pieces extends Component {
             }
         `,
         piecesQuery : gql`
-            query allPieces{
-                allPieces{
+            query piecesAll{
+                piecesAll{
                     _id
                     name
                     brand
@@ -103,7 +103,7 @@ export class Pieces extends Component {
             fetchPolicy:"network-only"
         }).then(({data})=>{
             this.setState({
-                piecesRaw:data.allPieces
+                piecesRaw:data.piecesAll
             })
         })
     }
@@ -121,12 +121,12 @@ export class Pieces extends Component {
                         <EntretienMenu active="pieces"/>
                     </div>
                     <div style={{gridRowStart:"2",display:"grid",gridColumnEnd:"span 3",gridTemplateColumns:"auto 1fr",gridTemplateRows:"auto auto 1fr auto",gridGap:"12px 32px"}}>
-                        <Menu size='large' pointing vertical style={{gridColumnStart:"1",placeSelf:"start"}}>
+                        <Menu size='big' pointing vertical style={{gridColumnStart:"1",placeSelf:"start"}}>
                             {this.state.types.map(t=>{
-                                return <Menu.Item key={t.key} color="blue" name={t.name} active={this.state.activeType == t.key} onClick={()=>{this.setState({activeType:t.key})}} />
+                                return <Menu.Item key={t.key} color="blue" name={t.name} active={this.state.activeType == t.key} onClick={()=>{this.setState({activeType:t.key})}} icon={t.icon}/>
                             })}
                         </Menu>
-                        <Button style={{gridColumnStart:"1"}} icon labelPosition="right" color="blue" onClick={this.showAddPiece}>Créer {this.state.types.filter(t=>t.key == this.state.activeType)[0].add}<Icon name='plus'/></Button>
+                        <Button size='big' style={{gridColumnStart:"1"}} icon labelPosition="right" onClick={this.showAddPiece}>Créer {this.state.types.filter(t=>t.key == this.state.activeType)[0].add}<Icon name='plus'/></Button>
                         <div style={{gridRowStart:"1",gridColumnStart:"2",gridRowEnd:"span 3"}}>
                             <Table compact celled striped color="blue" style={{margin:"0"}}>
                                 <Table.Header>

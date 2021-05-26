@@ -13,7 +13,7 @@ export class FAFree extends Component {
     /*COMPONENTS LIFECYCLE*/
 
     render() {return (
-        <i style={{size:this.props.size}} className={"fafree "+ this.props.color + " " + this.props.code}></i>
+        <i style={this.props.style} className={"fafree "+ this.props.color + " " + this.props.code}></i>
     )}
 }
 const withUserContext = WrappedComponent => props => (

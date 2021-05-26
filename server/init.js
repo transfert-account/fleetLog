@@ -3,8 +3,6 @@ import { Accounts } from "meteor/accounts-base";
 import { Meteor } from 'meteor/meteor';
 import { SyncedCron } from 'meteor/littledata:synced-cron';
 import Entretiens from '../imports/startup/api/entretien/entretiens';
-import Equipements from '../imports/startup/api/equipement/equipements';
-import EquipementDescriptions from '../imports/startup/api/equipementDescription/equipementDescriptions';
 import Vehicles from '../imports/startup/api/vehicle/vehicles';
 
 
@@ -35,7 +33,8 @@ let entretiensCreationFromControlAlertStep = {
         return parser.recur().on(3).hour();
     },
     job : () => {
-        let controls = Equipements.find().fetch()
+        //let controls = Equipements.find().fetch()
+        let controls = [];
         controls.forEach(c=>{
             c.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(c.equipementDescription)})
             c.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(c.vehicle)})
@@ -69,8 +68,8 @@ let entretiensCreationFromControlAlertStep = {
             }
             if(creationNeeded){
                 if(c.entretienCreated == false){
-                    let e = Equipements.findOne({_id:c._id})
-                    let ed = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)})
+                    let e = {} /*Equipements.findOne({_id:c._id})*/
+                    let ed = {} /*EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)})*/
                     let v = Vehicles.findOne({_id:new Mongo.ObjectID(e.vehicle)});
                     let entretienId = new Mongo.ObjectID();
                     try {
@@ -90,7 +89,7 @@ let entretiensCreationFromControlAlertStep = {
                             fromControl:true,
                             control:c._id._str
                         });
-                        Equipements.update(
+                        /*Equipements.update(
                             {
                                 _id:c._id
                             },{
@@ -99,7 +98,7 @@ let entretiensCreationFromControlAlertStep = {
                                     entretienCreated:true
                                 }
                             }
-                        );
+                        );*/
                     } catch (error) {
                         console.log(error)
                     }
@@ -108,7 +107,7 @@ let entretiensCreationFromControlAlertStep = {
         })
     }
 }
-SyncedCron.add(entretiensCreationFromControlAlertStep);
+//SyncedCron.add(entretiensCreationFromControlAlertStep);
 
-SyncedCron.config({logger:()=>{}});
-SyncedCron.start();
+//SyncedCron.config({logger:()=>{}});
+//SyncedCron.start();

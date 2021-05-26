@@ -21,7 +21,6 @@ type Vehicle{
     payementBeginDate:String
     payementEndDate:String
     property:Boolean
-    equipements:[Equipement]
     accidents:[Accident]
     purchasePrice:Float
     monthlyPayement:Float
@@ -51,6 +50,7 @@ type Vehicle{
 type ControlOccurrence{
     control:Control!
     selected:Boolean!
+    entretien:String
     lastOccurrence:String
 }
 

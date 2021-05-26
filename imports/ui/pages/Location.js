@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react'
 import { Loader, Label, Button, Icon, Message, Modal, Input, Form, Menu, Table, List, TextArea, Segment } from 'semantic-ui-react';
 import { Bar } from 'react-chartjs-2';
 
-import BigButtonIcon from '../elements/BigIconButton';
+import BigIconButton from '../elements/BigIconButton';
 import { UserContext } from '../../contexts/UserContext';
 import RegistrationInput from '../atoms/RegistrationInput';
 import ColorPicker from '../atoms/ColorPicker';
@@ -1020,15 +1020,15 @@ class Location extends Component {
             if(this.state.location.archived){
                 return(
                     <Fragment>
-                        <BigButtonIcon color="orange" onClick={this.showUnArchive} icon='share square' tooltip="Désarchiver la location"/>
-                        <BigButtonIcon color="red" onClick={this.showDelete} icon='trash' tooltip="Supprimer la location"/>
+                        <BigIconButton color="orange" onClick={this.showUnArchive} icon='share square' tooltip="Désarchiver la location"/>
+                        <BigIconButton color="red" onClick={this.showDelete} icon='trash' tooltip="Supprimer la location"/>
                     </Fragment>
                 )
             }else{
                 return(
                     <Fragment>
-                        <BigButtonIcon color="orange" onClick={this.showArchive} icon='archive' tooltip="Archiver la location"/>
-                        <BigButtonIcon color="red" onClick={this.showDelete} icon='trash' tooltip="Supprimer la location"/>
+                        <BigIconButton color="orange" onClick={this.showArchive} icon='archive' tooltip="Archiver la location"/>
+                        <BigIconButton color="red" onClick={this.showDelete} icon='trash' tooltip="Supprimer la location"/>
                     </Fragment>
                 )
             }
@@ -1036,13 +1036,13 @@ class Location extends Component {
             if(this.state.location.archived){
                 return(
                     <Fragment>
-                        <BigButtonIcon color="orange" onClick={this.showUnArchive} icon='share square' tooltip="Désarchiver la location"/>
+                        <BigIconButton color="orange" onClick={this.showUnArchive} icon='share square' tooltip="Désarchiver la location"/>
                     </Fragment>
                 )
             }else{
                 return(
                     <Fragment>
-                        <BigButtonIcon color="orange" onClick={this.showArchive} icon='archive' tooltip="Archiver la location"/>
+                        <BigIconButton color="orange" onClick={this.showArchive} icon='archive' tooltip="Archiver la location"/>
                     </Fragment>
                 )
             }
@@ -1051,11 +1051,11 @@ class Location extends Component {
     getLocationOptions = () => {
         if(this.state.location.returned){
             return (
-                <BigButtonIcon color="black" icon='sign-in' onClick={this.showCancelEndOfLocation} tooltip="Annuler le retour"/>
+                <BigIconButton color="black" icon='sign-in' onClick={this.showCancelEndOfLocation} tooltip="Annuler le retour"/>
             )
         }else{
             return (
-                <BigButtonIcon color="black" icon='sign-out' onClick={this.showEndOfLocation} tooltip="Retour de la location"/>
+                <BigIconButton color="black" icon='sign-out' onClick={this.showEndOfLocation} tooltip="Retour de la location"/>
             )
         }
         
@@ -1078,14 +1078,14 @@ class Location extends Component {
                 <Fragment>
                     <div style={{display:"grid",gridGap:"24px",gridTemplateRows:"auto auto minmax(0,1fr)",gridTemplateColumns:"2fr 3fr",height:"100%"}}>
                         <div style={{display:"grid",gridColumnEnd:"span 2",gridGap:"32px",gridTemplateColumns:"auto 1fr auto"}}>
-                            <BigButtonIcon icon="angle double left" color="black" onClick={()=>{this.props.history.push("/parc/locations");}} tooltip="Retour au tableau des locations"/>
+                            <BigIconButton icon="angle double left" color="black" onClick={()=>{this.props.history.push("/parc/locations");}} tooltip="Retour au tableau des locations"/>
                             <Message style={{margin:"0",gridRowStart:"1",gridColumnStart:"2"}} icon='truck' header={this.state.location.registration} content={this.state.location.brand.name + " - " + this.state.location.model.name} />
                             <div style={{display:"flex",justifyContent:"flex-end"}}>
-                                <BigButtonIcon color="green" icon='dashboard' onClick={this.showUpdateLocKm} tooltip="MaJ kilométrage"/>
-                                <BigButtonIcon color="blue" icon='edit' onClick={this.editIdent} tooltip="Édition : Identification"/>
-                                <BigButtonIcon color="blue" icon='edit' onClick={this.editFinances} tooltip="Édition : Location" spacedFromNext/>
+                                <BigIconButton color="green" icon='dashboard' onClick={this.showUpdateLocKm} tooltip="MaJ kilométrage"/>
+                                <BigIconButton color="blue" icon='edit' onClick={this.editIdent} tooltip="Édition : Identification"/>
+                                <BigIconButton color="blue" icon='edit' onClick={this.editFinances} tooltip="Édition : Location" spacedFromNext/>
                                 {this.getLocationOptions()}
-                                <BigButtonIcon color="purple" icon='folder' onClick={this.showDocs} tooltip="Gérer les documents" spacedFromPrevious/>
+                                <BigIconButton color="purple" icon='folder' onClick={this.showDocs} tooltip="Gérer les documents" spacedFromPrevious/>
                                 {this.getDeleteOptions()}
                             </div>
                         </div>

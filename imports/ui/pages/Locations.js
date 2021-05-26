@@ -6,7 +6,7 @@ import { UserContext } from '../../contexts/UserContext';
 import CustomFilterSegment from '../molecules/CustomFilterSegment';
 import LocationsRow from '../molecules/LocationRow';
 import ParcMenu from '../molecules/ParcMenu';
-import BigButtonIcon from '../elements/BigIconButton';
+import BigIconButton from '../elements/BigIconButton';
 
 import CustomFilter from '../atoms/CustomFilter';
 import SocietePicker from '../atoms/SocietePicker';
@@ -533,7 +533,7 @@ class Locations extends Component {
                     <ParcMenu active="locations"/>
                     <Input style={{justifySelf:"stretch"}} name="locationsFiler" onChange={e=>{this.handleFilter(e.target.value)}} icon='search' placeholder='Rechercher une immatriculation' />
                     <div style={{display:"flex",justifyContent:"flex-end"}}>
-                        <BigButtonIcon icon="plus" color="blue" onClick={this.showAddLocation} tooltip="Enregistrer une location"/>
+                        <BigIconButton icon="plus" color="blue" onClick={this.showAddLocation} tooltip="Enregistrer une location"/>
                     </div>
                     <CustomFilterSegment resetAll={this.resetAll} style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3"}}>
                         <CustomFilter infos={this.state.archiveFilterInfos} active={this.state.archiveFilter} />

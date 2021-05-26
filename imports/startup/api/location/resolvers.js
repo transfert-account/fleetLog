@@ -10,8 +10,6 @@ import Models from '../model/models.js';
 import Energies from '../energy/energies';
 import Colors from '../color/colors.js';
 import Documents from '../document/documents';
-import Equipements from '../equipement/equipements';
-import EquipementDescriptions from '../equipementDescription/equipementDescriptions';
 import Functions from '../common/functions';
 import moment from 'moment';
 import { Mongo } from 'meteor/mongo';
@@ -59,10 +57,6 @@ const affectLocationData = location => {
     }else{
         location.societe = {_id:""};
     }
-    location.equipements = Equipements.find({location:location._id._str}).fetch() || {};
-    location.equipements.forEach((e,ei) => {
-        e.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)}) || {};
-    });
     if(location.cg != null && location.cg.length > 0){
         location.cg = Documents.findOne({_id:new Mongo.ObjectID(location.cg)});
     }else{
@@ -271,12 +265,10 @@ export default {
             if(user._id){
                 let nL = Licences.find({vehicle:_id}).fetch().length
                 let nE = Entretiens.find({vehicle:_id}).fetch().length
-                let nQ = Equipements.find({vehicle:_id}).fetch().length
                 if(nL + nE + nQ > 0){
                     let qrm = [];
                     if(nL > 0){qrm.push({status:false,message:'Suppresion impossible, ' + nL + ' licence(s) liée(s)'})}
                     if(nE > 0){qrm.push({status:false,message:'Suppresion impossible, ' + nE + ' entretien(s) lié(s)'})}
-                    if(nQ > 0){qrm.push({status:false,message:'Suppresion impossible, ' + nQ + ' equipement(s) lié(s)'})}
                     return qrm;
                 }else{
                     Locations.remove({

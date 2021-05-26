@@ -4,7 +4,7 @@ import { UserContext } from '../../contexts/UserContext';
 
 import FournisseurRow from '../molecules/FournisseurRow';
 
-import BigButtonIcon from '../elements/BigIconButton';
+import BigIconButton from '../elements/BigIconButton';
 
 import { gql } from 'apollo-server-express'
 
@@ -119,7 +119,7 @@ class Fournisseurs extends Component {
         <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"28px",gridTemplateRows:"auto 1fr",gridTemplateColumns:"1fr auto"}}>
             <Input style={{justifySelf:"stretch",gridColumnEnd:"span 2"}} name="storeFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher un nom, une adresse ou un mail' />
             <div style={{display:"flex",justifyContent:"flex-end"}}>
-                <BigButtonIcon icon="plus" color="blue" onClick={this.showAddFournisseur} tooltip="Ajouter un fournisseur"/>
+                <BigIconButton icon="plus" color="blue" onClick={this.showAddFournisseur} tooltip="Ajouter un fournisseur"/>
             </div>
             <div style={{gridRowStart:"2",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                 <Table style={{marginBottom:"0"}} celled selectable color="blue" compact>

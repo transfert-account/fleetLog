@@ -2,7 +2,6 @@ import Vehicles from '../vehicle/vehicles';
 import Locations from '../location/locations';
 import VehicleArchiveJustifications from '../vehicleArchiveJustification/vehicleArchiveJustifications';
 import Licences from '../licence/licences';
-import Equipements from '../equipement/equipements';
 import Entretiens from '../entretien/entretiens';
 import Batiments from '../batiment/batiments';
 import Accidents from '../accident/accidents';

@@ -9,26 +9,19 @@ export class ControlOccurrenceRow extends Component {
 
     state={
         openDatePicker:false,
-        openUpdateControl: false,
         newLastControlDate:"",
         newLastControlKm:"",
-        updateControlLastOccurrenceQuery:gql`
-            mutation updateControlLastOccurrence($_id:String!,$key:String!,$lastOccurrence:String!){
-                updateControlLastOccurrence(_id: $_id,key: $key,lastOccurrence: $lastOccurrence){
+        createEntretienFromControlQuery: gql`
+            mutation createEntretienFromControl($vehicle:String!,$control:String!){
+                createEntretienFromControl(vehicle:$vehicle,control:$control){
                     status
                     message
                 }
             }
-        `
+        `,
     }
     
     /*SHOW AND HIDE MODALS*/
-    closeUpdateControl = () => {
-        this.setState({openUpdateControl:false,newLastControlDate:"",newLastControlKm:""})
-    }
-    showUpdateControl = () => {
-        this.setState({openUpdateControl:true,newLastControlDate:"",newLastControlKm:""})
-    }
     showDatePicker = target => {
         this.setState({openDatePicker:true,datePickerTarget:target})
     }
@@ -48,19 +41,23 @@ export class ControlOccurrenceRow extends Component {
     }
     /*FILTERS HANDLERS*/
     /*DB READ AND WRITE*/
-    updateControl = () => {
-        console.log(this.state.newLastControlDate)
+    addEntretien = v => {
         this.props.client.mutate({
-            mutation:this.state.updateControlLastOccurrenceQuery,
+            mutation:this.state.createEntretienFromControlQuery,
             variables:{
-                _id:this.props.vehicle._id,
-                key:this.props.c.control.key,
-                lastOccurrence:(this.state.newLastControlDate != "" ? this.state.newLastControlDate : this.state.newLastControlKm)
+                vehicle:this.props.vehicle._id,
+                control:this.props.c.control.key
             }
-        }).then((data)=>{
-            this.closeUpdateControl()
-            this.props.loadVehicle();
-        });
+        }).then(({data})=>{
+            data.createEntretienFromControl.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.props.loadVehicle();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
     }
     /*CONTENT GETTERS*/
     formatUnit = u => {
@@ -160,35 +157,17 @@ export class ControlOccurrenceRow extends Component {
                 <Table.Cell collapsing textAlign="center">{(this.props.c.lastOccurrence == "none" || !this.props.c.selected ? "-" : this.props.c.lastOccurrence + " " + (this.props.c.control.unit == "km" ? "km" : ""))}</Table.Cell>
                 {this.getEcheanceCell(this.props.c)}
                 <Table.Cell collapsing textAlign="center">
-                    <Popup trigger={<Button disabled={!this.props.c.selected} color="blue" icon onClick={this.showUpdateControl} icon="alternate calendar outline"/>}>
+                    <Popup trigger={<Button disabled={!this.props.c.selected || this.props.c.entretien != null} icon onClick={()=>this.addEntretien(this.props.c.control.key)} icon="alternate calendar outline"/>}>
                         Créer l'entretien
                     </Popup>
-                    <Popup trigger={<Button disabled={!this.props.c.selected} color="blue" icon onClick={()=>this.props.history.push("/entretien/controls/"+this.props.c.control.key)} icon="arrow right"/>}>
+                    <Popup trigger={<Button style={{marginLeft:"32px"}} disabled={!this.props.c.selected || this.props.c.entretien == null} color="blue" icon onClick={()=>this.props.history.push("/entretien/"+this.props.c.entretien)} icon="wrench"/>}>
+                        Voir l'entretien
+                    </Popup>
+                    <Popup trigger={<Button disabled={!this.props.c.selected} color="blue" icon onClick={()=>this.props.history.push("/entretien/controls/"+this.props.c.control.key)} icon="clipboard check"/>}>
                         Voir le contrôle
                     </Popup>
                 </Table.Cell>
             </Table.Row>
-            <Modal open={this.state.openUpdateControl} onClose={this.closeUpdateControl} closeIcon>
-                <Modal.Header>
-                    Mise à jour du dernier controle : {this.props.c.control.name}
-                </Modal.Header>
-                <Modal.Content style={{textAlign:"center"}}>
-                    <Form style={{display:"grid",gridTemplateRows:"1fr",gridTemplateColumns:"1fr",gridGap:"16px"}}>
-                        <Form.Field className={(this.props.c.control.unit != "km" ? "" : "hide")}>
-                            <label>Dernier controle (date)</label>
-                            <input onChange={this.handleChange} value={this.state.newLastControlDate} onFocus={()=>{this.showDatePicker("newLastControlDate")}} placeholder="Date du dernier contrôle"/>
-                        </Form.Field>
-                        <Form.Field className={(this.props.c.control.unit != "km" ? "hide" : "")}>
-                            <label>Kilométrage au dernier controle</label>
-                            <input onChange={this.handleChange} value={this.state.newLastControlKm} name="newLastControlKm" placeholder="Kilométrage au dernier contrôle"/>
-                        </Form.Field>
-                    </Form>
-                </Modal.Content>
-                <Modal.Actions>
-                    <Button color="black" onClick={this.closeUpdateControl}>Annuler</Button>
-                    <Button color="blue" onClick={this.updateControl}>Mettre à jour</Button>
-                </Modal.Actions>
-            </Modal>
             <ModalDatePicker onSelectDatePicker={this.onSelectDatePicker} closeDatePicker={this.closeDatePicker} open={this.state.openDatePicker}/>
         </Fragment>
     )}

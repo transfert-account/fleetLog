@@ -4,7 +4,7 @@ import { Button, Icon, Header, Message, Table, Modal, Form, Input, Dropdown } fr
 
 import ExportMenu from '../molecules/ExportMenu';
 import CustomFilterSegment from '../molecules/CustomFilterSegment';
-import BigButtonIcon from '../elements/BigIconButton';
+import BigIconButton from '../elements/BigIconButton';
 
 import CustomFilter from '../atoms/CustomFilter';
 
@@ -667,8 +667,8 @@ export class ExportSinistres extends Component {
         if(this.state.step == "columns"){
             return (
                 <Fragment>
-                    <BigButtonIcon color="blue" icon="download" onClick={this.showLoadExportTemplate} tooltip={"Charger"}/>
-                    <BigButtonIcon color="blue" icon="save outline" onClick={this.showSaveExportTemplate} disabled={this.state.availableColumns.filter(c=>c.active).length == 0} tooltip={"Sauvegarder"}/>
+                    <BigIconButton color="blue" icon="download" onClick={this.showLoadExportTemplate} tooltip={"Charger"}/>
+                    <BigIconButton color="blue" icon="save outline" onClick={this.showSaveExportTemplate} disabled={this.state.availableColumns.filter(c=>c.active).length == 0} tooltip={"Sauvegarder"}/>
                 </Fragment>
             )
         }

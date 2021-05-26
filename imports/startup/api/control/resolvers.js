@@ -120,12 +120,12 @@ export default {
                 res.control = Functions.getObli().filter(c=>c.key == key)[0]
                 res.vehiclesOccurrences = Vehicles.find({obli:{$elemMatch:{key:key}}}).fetch();
                 res.vehiclesOccurrences.forEach(v=>affectVehicleData(v))
-                res.vehiclesOccurrences = res.vehiclesOccurrences.map(v=>{return({vehicle:v,lastOccurrence:v.obli.filter(o=>o.key == key)[0].lastOccurrence})})
+                res.vehiclesOccurrences = res.vehiclesOccurrences.map(v=>{return({vehicle:v,lastOccurrence:v.obli.filter(o=>o.key == key)[0].lastOccurrence,entretien:v.obli.filter(o=>o.key == key)[0].entretien})})
             }else{
                 res.control = Functions.getPrev().filter(c=>c.key == key)[0]
                 res.vehiclesOccurrences = Vehicles.find({prev:{$elemMatch:{key:key}}}).fetch();
                 res.vehiclesOccurrences.forEach(v=>affectVehicleData(v))
-                res.vehiclesOccurrences = res.vehiclesOccurrences.map(v=>{return({vehicle:v,lastOccurrence:v.prev.filter(o=>o.key == key)[0].lastOccurrence})})
+                res.vehiclesOccurrences = res.vehiclesOccurrences.map(v=>{return({vehicle:v,lastOccurrence:v.prev.filter(o=>o.key == key)[0].lastOccurrence,entretien:v.prev.filter(o=>o.key == key)[0].entretien})})
             }
             return res;
         }

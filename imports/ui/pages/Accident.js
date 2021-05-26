@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Message, Modal, Button, Loader, Icon, Menu } from 'semantic-ui-react';
+import { Message, Modal, Button, Loader, Icon, Menu, Header } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 import { gql } from 'apollo-server-express';
 
@@ -9,7 +9,7 @@ import FileManagementPanel from '../atoms/FileManagementPanel';
 import AccidentTabularDeclaration from '../molecules/AccidentTabularDeclaration';
 import AccidentTabularCirconstances from '../molecules/AccidentTabularCirconstances';
 
-import BigButtonIcon from '../elements/BigIconButton';
+import BigIconButton from '../elements/BigIconButton';
 
 export class Accident extends Component {
 
@@ -367,14 +367,14 @@ export class Accident extends Component {
     /*CONTENT GETTERS*/
     getArchiveButton = () => {
         if(this.state.accident.archived){
-            return <BigButtonIcon icon="check" color="green" onClick={this.showUnArchive} tooltip="Désarchiver"/>
+            return <BigIconButton icon="check" color="green" onClick={this.showUnArchive} tooltip="Désarchiver"/>
         }else{
-            return <BigButtonIcon icon="archive" color="orange" onClick={this.showArchive} tooltip="Archiver"/>
+            return <BigIconButton icon="archive" color="orange" onClick={this.showArchive} tooltip="Archiver"/>
         }
     }
     getDeleteButton = () => {
         if(this.props.user.isOwner){
-            return <BigButtonIcon icon="trash" color="red" onClick={this.showDelete} tooltip="Supprimer l'accident"/>
+            return <BigIconButton icon="trash" color="red" onClick={this.showDelete} tooltip="Supprimer l'accident"/>
         }
     }
     getActiveTab = () => {
@@ -407,14 +407,20 @@ export class Accident extends Component {
                 <Fragment>
                     <div style={{display:"grid",gridTemplateRows:"auto auto minmax(0,1fr)",gridTemplateColumns:"2fr 3fr",height:"100%"}}>
                         <div style={{display:"grid",gridColumnEnd:"span 2",gridGap:"32px",gridTemplateColumns:"auto 1fr 1fr auto"}}>
-                            <BigButtonIcon icon="angle double left" color="black" onClick={()=>{this.props.history.push("/accidentologie");}} tooltip="Retour au tableau des véhicules"/>
-                            <Message style={{margin:"0"}} icon='truck' header={this.state.accident.vehicle.registration} content={this.state.accident.vehicle.brand.name + " - " + this.state.accident.vehicle.model.name} />
+                            <BigIconButton icon="angle double left" color="black" onClick={()=>{this.props.history.push("/accidentologie");}} tooltip="Retour au tableau des accidents"/>
+                            <Message style={{margin:"0",cursor:"pointer"}} onClick={()=>{this.props.history.push("/parc/vehicle/"+this.state.accident.vehicle._id)}} icon>
+                                <Icon name="truck"/>
+                                <Message.Content>
+                                    <Message.Header style={{color:"#2185d0"}}>{this.state.accident.vehicle.registration}</Message.Header>
+                                    {this.state.accident.vehicle.brand.name + " - " + this.state.accident.vehicle.model.name}
+                                </Message.Content>
+                            </Message>
                             <Message style={{margin:"0"}} icon='calendar' header={this.state.accident.occurenceDate} />
                             <div style={{display:"flex",justifyContent:"flex-end"}}>
-                                <BigButtonIcon icon="edit" color="blue" onClick={this.showEdit} tooltip="Éditer l'accident"/>
-                                <BigButtonIcon icon="edit" color="blue" onClick={this.showEditPEC} spacedFromNext tooltip="Éditer la prise en charge de l'accident"/>
+                                <BigIconButton icon="edit" color="blue" onClick={this.showEdit} tooltip="Éditer l'accident"/>
+                                <BigIconButton icon="edit" color="blue" onClick={this.showEditPEC} spacedFromNext tooltip="Éditer la prise en charge de l'accident"/>
                                 {this.getArchiveButton()}
-                                <BigButtonIcon icon="folder open" color="purple" onClick={this.showDocs} tooltip="Gérer les documents"/>
+                                <BigIconButton icon="folder open" color="purple" onClick={this.showDocs} tooltip="Gérer les documents"/>
                                 {this.getDeleteButton()}
                             </div>
                         </div>

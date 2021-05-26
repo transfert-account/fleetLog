@@ -1,19 +1,27 @@
 type Entretien{
-    _id:String!
-    piece:Piece
-    vehicle:Vehicle!
-    description:String
-    title:String
-    archived:Boolean!
-    occurenceDate:String
-    user:User!
-    time:Float!
-    status:Int!
-    fromControl:Boolean!
-    control:Equipement
-    societe:Societe!
+    _id:String!,
+    type:String!,
+    originControl:Control,
+    originNature:InterventionNature,
+    vehicle:Vehicle!,
+    piecesQty:[PieceQty],
+    archived:Boolean!,
     ficheInter:Document
-    commandes:[Commande]
+    status:Int!
+    time:Float!
+    notes:[Note]!
+    user:String!
+}
+
+type PieceQty{
+    piece:Piece!
+    qty:Int!
+}
+
+type Note{
+    _id:String!
+    text:String!
+    date:String!
 }
 
 extend type Query{
@@ -30,13 +38,14 @@ extend type Query{
 extend type Mutation{
     affectToMe(_id:String!,occurenceDate:String!): [QueryResultMessage]
     release(_id:String!): [QueryResultMessage]
-    addEntretien(vehicle:String!): [QueryResultMessage]
-    createEntretienFromControl(control:String!): [QueryResultMessage]
+    createEntretien(vehicle:String!,nature:String!,pieces:String!): [QueryResultComplex]
+    createEntretienFromControl(vehicle:String!,control:String!): [QueryResultMessage]
     deleteEntretien(_id:String!): [QueryResultMessage]
     archiveEntretien(_id:String!,archived:Boolean!): [QueryResultMessage]
     disArchiveEntretien(_id:String!,archived:Boolean!): [QueryResultMessage]
-    editDesc(_id:String!,description:String!): [QueryResultMessage]
-    editTitle(_id:String!,title:String!): [QueryResultMessage]
+    addNote(_id:String!,note:String!): [QueryResultMessage]
+    deleteNote(entretien:String!,_id:String!): [QueryResultMessage]
     editInfos(_id:String!,time:Float!,status:Int!): [QueryResultMessage]
+    editPieces(_id:String!,pieces:String!): [QueryResultMessage]
     uploadEntretienDocument(_id:String!,file:Upload!,type:String,size:Int!):[QueryResultMessage]
 }

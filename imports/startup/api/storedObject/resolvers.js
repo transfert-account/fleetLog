@@ -5,7 +5,6 @@ import Locations from '../location/locations'
 import Accidents from '../accident/accidents'
 import Batiments from '../batiment/batiments'
 import Entretiens from '../entretien/entretiens'
-import Equipements from '../equipement/equipements'
 import Licences from '../licence/licences'
 
 const TYPES = [
@@ -54,11 +53,6 @@ const TYPES = [
       getLinkedObjInfos:(e)=>"Not supported yet",
       obj:"entretiens",name:"Entretiens",col:Entretiens,types:[
         {type:"ficheInter",name:"Fiche d'intervention"}
-      ]
-    },{
-      getLinkedObjInfos:(e)=>"Not supported yet",
-      obj:"equipements",name:"Equipements",col:Equipements,types:[
-        {type:"controlTech",name:"Contrôle technique"}
       ]
     },{
       getLinkedObjInfos:(l)=>l.number,

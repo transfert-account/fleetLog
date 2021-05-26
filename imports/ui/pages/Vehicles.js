@@ -6,7 +6,7 @@ import VehiclesRow from '../molecules/VehiclesRow';
 import CustomFilterSegment from '../molecules/CustomFilterSegment';
 import ParcMenu from '../molecules/ParcMenu';
 
-import BigButtonIcon from '../elements/BigIconButton';
+import BigIconButton from '../elements/BigIconButton';
 
 import ModalDatePicker from '../atoms/ModalDatePicker';
 import CustomFilter from '../atoms/CustomFilter';
@@ -607,7 +607,7 @@ export class Vehicles extends Component {
     /*CHANGE HANDLERS*/
     handleChange = e =>{
         this.setState({
-        [e.target.name]:e.target.value
+            [e.target.name]:e.target.value
         });
     }
     handleFilter = e =>{
@@ -958,8 +958,8 @@ export class Vehicles extends Component {
                     <ParcMenu active="vehicles"/>
                     <Input style={{justifySelf:"stretch"}} name="vehiclesFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher une immatriculation'/>
                     <div style={{display:"flex",justifyContent:"flex-end"}}>
-                        <BigButtonIcon icon="dashboard" color="green" onClick={this.showMassKmUpdate} tooltip="Mise à jour de masse des compteurs"/>
-                        <BigButtonIcon icon="plus" color="blue" onClick={this.showAddVehicle} tooltip="Ajouter un véhicule"/>
+                        <BigIconButton icon="dashboard" color="green" onClick={this.showMassKmUpdate} tooltip="Mise à jour de masse des compteurs"/>
+                        <BigIconButton icon="plus" color="blue" onClick={this.showAddVehicle} tooltip="Ajouter un véhicule"/>
                     </div>
                     <CustomFilterSegment resetAll={this.resetAll} style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3"}} fullLoaded={this.state.fullLoaded} entryLoaded={this.state.filteredEntry} entryLoadedText={"véhicules"}>
                         <CustomFilter infos={this.state.archiveFilterInfos} active={this.state.archiveFilter} />

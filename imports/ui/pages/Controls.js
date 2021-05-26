@@ -43,7 +43,6 @@ export class Controls extends Component {
     /*FILTERS HANDLERS*/
     /*DB READ AND WRITE*/
     loadCtrls = () => {
-        console.log(this.props.ctrlType)
         this.props.client.query({
             query:this.state.ctrlStatsQuery,
             variables:{
@@ -78,8 +77,8 @@ export class Controls extends Component {
                         <Table.Row>
                             <Table.HeaderCell textAlign="center">Contrôle</Table.HeaderCell>
                             <Table.HeaderCell textAlign="center">Fréquence</Table.HeaderCell>
-                            <Table.HeaderCell collapsing textAlign="center">Véhicule affectés / Total</Table.HeaderCell>
-                            <Table.HeaderCell collapsing textAlign="center">Non éligible</Table.HeaderCell>
+                            <Table.HeaderCell collapsing textAlign="center">Éligible / Total</Table.HeaderCell>
+                            <Table.HeaderCell collapsing textAlign="center">Non éligible / Total</Table.HeaderCell>
                             <Table.HeaderCell collapsing textAlign="center">A temps</Table.HeaderCell>
                             <Table.HeaderCell collapsing textAlign="center">Limite</Table.HeaderCell>
                             <Table.HeaderCell collapsing textAlign="center">En retard</Table.HeaderCell>
@@ -90,7 +89,7 @@ export class Controls extends Component {
                     <Table.Body>
                         {this.state.ctrlStats.map(c=>{
                             return (
-                                <Table.Row>
+                                <Table.Row key={c.control.name}>
                                     <Table.Cell>{c.control.name}</Table.Cell>
                                     <Table.Cell textAlign="center">{c.control.frequency + " " + this.formatUnit(c.control.unit)}</Table.Cell>
                                     <Table.Cell textAlign="center">

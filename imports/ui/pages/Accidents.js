@@ -5,7 +5,7 @@ import { UserContext } from '../../contexts/UserContext';
 import CustomFilterSegment from '../molecules/CustomFilterSegment';
 import VehicleAgglomeratedAccidentsRow from '../molecules/VehicleAgglomeratedAccidentsRow';
 
-import BigButtonIcon from '../elements/BigIconButton';
+import BigIconButton from '../elements/BigIconButton';
 
 import VehiclePicker from '../atoms/VehiclePicker';
 import ModalDatePicker from '../atoms/ModalDatePicker';
@@ -752,7 +752,7 @@ class Accidents extends Component {
       <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto auto 1fr",gridTemplateColumns:"auto 1fr auto"}}>
         <Input style={{justifySelf:"stretch",gridColumnEnd:"span 2"}} name="accidentFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher une immatriculation' />
         <div style={{display:"flex",justifyContent:"flex-end"}}>
-            <BigButtonIcon icon="plus" color="blue" onClick={this.showAddAccident} tooltip="Nouvel accident"/>
+            <BigIconButton icon="plus" color="blue" onClick={this.showAddAccident} tooltip="Nouvel accident"/>
         </div>
         <CustomFilterSegment resetAll={this.resetAll} style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3"}}>
           <CustomFilter infos={this.state.archiveFilterInfos} active={this.state.archiveFilter} />

@@ -1,8 +1,9 @@
 import React, { Component, Fragment } from 'react'
-import { Loader, Menu, Button, Icon, Message, Modal, Progress, Input, Form, Table, TextArea, Label, List, Segment } from 'semantic-ui-react';
+import { Loader, Menu, Button, Icon, Message, Modal, Progress, Input, Form, Table, TextArea, Label, Popup, Segment, Header } from 'semantic-ui-react';
 import { Bar } from 'react-chartjs-2';
 
-import BigButtonIcon from '../elements/BigIconButton';
+import BigIconButton from '../elements/BigIconButton';
+import FAFree from '../elements/FAFree';
 
 import ModalDatePicker from '../atoms/ModalDatePicker';
 import ColorPicker from '../atoms/ColorPicker';
@@ -244,6 +245,7 @@ class Vehicle extends Component {
                             frequency
                         }
                         selected
+                        entretien
                         lastOccurrence
                     }
                     prev{
@@ -254,6 +256,7 @@ class Vehicle extends Component {
                             frequency
                         }
                         selected
+                        entretien
                         lastOccurrence
                     }
                 }
@@ -671,7 +674,6 @@ class Vehicle extends Component {
     /*DB READ AND WRITE*/
     switchControl = (v,c,confirm) => {
         if(this.state.obli.concat(this.state.prev).filter(x=>x.control.key == c)[0].selected != v){
-            console.log(this.state.obli.concat(this.state.prev).filter(x=>x.control.key == c)[0].lastOccurrence != "none", !confirm,!v)
             if(this.state.obli.concat(this.state.prev).filter(x=>x.control.key == c)[0].lastOccurrence != "none" && !confirm && !v){
                 this.showDisableControl(c)
             }
@@ -864,8 +866,9 @@ class Vehicle extends Component {
         }).then(({data})=>{
             data.archiveVehicle.map(qrm=>{
                 if(qrm.status){
+                    this.closeArchive();
+                    this.loadVehicle();
                     this.props.toast({message:qrm.message,type:"success"});
-                    this.props.history.push("/parc/vehicles")
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
                 }
@@ -882,8 +885,9 @@ class Vehicle extends Component {
         }).then(({data})=>{
             data.unArchiveVehicle.map(qrm=>{
                 if(qrm.status){
+                    this.closeUnArchive();
+                    this.loadVehicle();
                     this.props.toast({message:qrm.message,type:"success"});
-                    this.props.history.push("/parc/vehicles")
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
                 }
@@ -1313,15 +1317,15 @@ class Vehicle extends Component {
             if(this.state.vehicle.archived){
                 return(
                     <Fragment>
-                        <BigButtonIcon icon="archive" color="orange" onClick={this.showUnArchive} tooltip="Désarchiver le vehicule"/>
-                        <BigButtonIcon icon="trash" color="red" onClick={this.showDelete} tooltip="Supprimer le vehicule"/>
+                        <BigIconButton icon="archive" color="orange" onClick={this.showUnArchive} tooltip="Désarchiver le vehicule"/>
+                        <BigIconButton icon="trash" color="red" onClick={this.showDelete} tooltip="Supprimer le vehicule"/>
                     </Fragment>
                 )
             }else{
                 return(
                     <Fragment>
-                        <BigButtonIcon icon="archive" color="orange" onClick={this.showArchive} tooltip="Archiver le vehicule"/>
-                        <BigButtonIcon icon="trash" color="red" onClick={this.showDelete} tooltip="Supprimer le vehicule"/>
+                        <BigIconButton icon="archive" color="orange" onClick={this.showArchive} tooltip="Archiver le vehicule"/>
+                        <BigIconButton icon="trash" color="red" onClick={this.showDelete} tooltip="Supprimer le vehicule"/>
                     </Fragment>
                 )
             }
@@ -1329,13 +1333,13 @@ class Vehicle extends Component {
             if(this.state.vehicle.archived){
                 return(
                     <Fragment>
-                        <BigButtonIcon icon="archive" color="orange" onClick={this.showUnArchive} tooltip="Désarchiver le vehicule"/>
+                        <BigIconButton icon="archive" color="orange" onClick={this.showUnArchive} tooltip="Désarchiver le vehicule"/>
                     </Fragment>
                 )
             }else{
                 return(
                     <Fragment>
-                        <BigButtonIcon icon="archive" color="orange" onClick={this.showArchive} tooltip="Archiver le vehicule"/>
+                        <BigIconButton icon="archive" color="orange" onClick={this.showArchive} tooltip="Archiver le vehicule"/>
                     </Fragment>
                 )
             }
@@ -1345,13 +1349,13 @@ class Vehicle extends Component {
         if(this.state.vehicle.shared){
             return(
                 <Fragment>
-                    <BigButtonIcon icon="handshake" color="teal" onClick={this.showUnshare} tooltip="Rappeler le vehicule"/>
+                    <BigIconButton icon="handshake" color="teal" onClick={this.showUnshare} tooltip="Rappeler le vehicule"/>
                 </Fragment>
             )
         }else{
             return(
                 <Fragment>
-                    <BigButtonIcon icon="handshake" color="teal" onClick={this.showShare} tooltip="Prêter le vehicule"/>
+                    <BigIconButton icon="handshake" color="teal" onClick={this.showShare} tooltip="Prêter le vehicule"/>
                 </Fragment>
             )
         }
@@ -1360,20 +1364,20 @@ class Vehicle extends Component {
         if(this.state.vehicle.selling){//CONCLUSION OU RETRAIT
             return(
                 <Fragment>
-                    <BigButtonIcon icon="cart" color="teal" onClick={this.showUnsell} tooltip="Fin la vente"/>
+                    <BigIconButton icon="cart" color="teal" onClick={this.showUnsell} tooltip="Fin la vente"/>
                 </Fragment>
             )
         }else{
             if(!this.state.vehicle.sold){//MISE EN VENTE
                 return(
                     <Fragment>
-                        <BigButtonIcon icon="cart" color="teal" onClick={this.showSell} tooltip="Mettre en vente"/>
+                        <BigIconButton icon="cart" color="teal" onClick={this.showSell} tooltip="Mettre en vente"/>
                     </Fragment>
                 )
             }else{//ANNULATION
                 return(
                     <Fragment>
-                        <BigButtonIcon icon="cart" color="orange" onClick={this.showCancelSell} tooltip="Annuler la vente"/>
+                        <BigIconButton icon="cart" color="orange" onClick={this.showCancelSell} tooltip="Annuler la vente"/>
                     </Fragment>
                 )
             }
@@ -1382,18 +1386,18 @@ class Vehicle extends Component {
     getBrokenOptions = () => {
         if(this.state.vehicle.broken){
             return(
-                <BigButtonIcon icon="wrench" color="teal" onClick={this.showUnbreak} tooltip="Résoudre la panne"/>
+                <BigIconButton icon="wrench" color="teal" onClick={this.showUnbreak} tooltip="Résoudre la panne"/>
             )
         }else{
             return(
-                <BigButtonIcon icon="wrench" color="teal" onClick={this.showBreak} tooltip="Déclarer une panne"/>
+                <BigIconButton icon="wrench" color="teal" onClick={this.showBreak} tooltip="Déclarer une panne"/>
             )
         }
     }
     getSoldDocsOptions = () => {
         if(this.state.vehicle.sold){
             return(
-                <BigButtonIcon icon="folder" color="violet" onClick={this.showDocsSold} tooltip="Gérer les documents du véhicule vendu" spacedFromNext/>
+                <BigIconButton icon="folder" color="violet" onClick={this.showDocsSold} tooltip="Gérer les documents du véhicule vendu" spacedFromNext/>
             )
         }
     }
@@ -1609,18 +1613,67 @@ class Vehicle extends Component {
         }
     }
     getHistoriquePanel = () => {
-        return(
-            <Segment style={{padding:"32px",placeSelf:"stretch",overflowY:"scroll"}}>
-                {this.getBrokenHistoryTable()}
-            </Segment>
-        )
+        if(this.state.vehicle.brokenHistory.length != 0 && this.state.vehicle.brokenHistory[0]._id == "noid"){
+            return(
+                <div style={{display:"flex",flexDirection:"column",placeSelf:"stretch"}}>
+                    <Segment style={{display:"grid",gridTemplateColumns:"1fr",gridTemplateRows:"1fr",cursor:"pointer"}}>
+                        <Header style={{margin:"48px",placeSelf:"center"}} as='h2'>Il n'y a aucune données dans l'historique</Header>
+                    </Segment>
+                </div>
+            )
+        }else{
+            return(
+                <div style={{display:"flex",flexDirection:"column",placeSelf:"stretch"}}>
+                    {this.state.vehicle.brokenHistory.map(b=>{
+                        return (
+                            <Segment
+                                key={b._id}
+                                onClick={()=>{this.props.history.push("/accident/"+a._id)}}
+                                style={{display:"grid",gridTemplateColumns:"auto 1fr auto",marginBottom:"12px",marginTop:"0",padding:"8px 16px",gridTemplateRows:"auto auto",cursor:"pointer"}}
+                            >
+                                <FAFree code="far fa-comment" style={{gridRowEnd:"span 2",gridColumnStart:"1",placeSelf:"center",marginRight:"16px",fontSize:"2em"}}/>
+                                <Header style={{margin:"0",placeSelf:"center start"}} as='a'>{b.content}</Header>
+                                <div style={{gridRowStart:"2",gridColumnStart:"2"}}>
+                                    <p>{b.date}</p>
+                                </div>
+                                {((this.props.user.isOwner ? <Popup trigger={<Button style={{gridRowEnd:"span 2",placeSelf:"center"}} color="red" icon onClick={()=>this.showDeleteHistoryEntry(b._id)} icon="trash" />}>Supprimer</Popup> : ""))}
+                            </Segment>
+                        )
+                    })}
+                </div>
+            )
+        }
     }
     getAccidentsPanel = () => {
-        return(
-            <Segment style={{padding:"32px",placeSelf:"stretch",overflowY:"scroll"}}>
-                {this.getAccidentsTable()}
-            </Segment>
-        )
+        if(this.state.vehicle.accidents.length == 0){
+            return(
+                <div style={{display:"flex",flexDirection:"column",placeSelf:"stretch"}}>
+                    <Segment style={{display:"grid",gridTemplateColumns:"1fr",gridTemplateRows:"1fr",cursor:"pointer"}}>
+                        <Header style={{margin:"48px",placeSelf:"center"}} as='h2'>Il n'y aucun accident pour ce véhicule</Header>
+                    </Segment>
+                </div>
+            )
+        }else{
+            return(
+                <div style={{display:"flex",flexDirection:"column",placeSelf:"stretch"}}>
+                    {this.state.vehicle.accidents.map(a=>{
+                        return (
+                            <Segment
+                                key={a._id}
+                                onClick={()=>{this.props.history.push("/accident/"+a._id)}}
+                                style={{display:"grid",gridTemplateColumns:"auto 1fr auto",marginBottom:"12px",marginTop:"0",padding:"8px 16px",gridTemplateRows:"auto auto",cursor:"pointer"}}
+                            >
+                                <FAFree code="fas fa-fire" style={{gridRowEnd:"span 2",gridColumnStart:"1",placeSelf:"center",marginRight:"16px",fontSize:"2em"}}/>
+                                <Header color="blue" style={{margin:"0",placeSelf:"center start"}} as='a'>{a.occurenceDate}</Header>
+                                <div style={{gridRowStart:"2",gridColumnStart:"2"}}>
+                                    <p>Cliquez pour y accéder</p>
+                                </div>
+                            </Segment>
+                        )
+                    })}
+                </div>
+            )
+        }
     }
     getKmReportPanel = () => {
         return (
@@ -1652,89 +1705,11 @@ class Vehicle extends Component {
         )
     }
 
-    //IN PANEL TABLE
-    getAccidentsTable = () => {
-        if(this.state.vehicle.accidents.length == 0){
-            return(
-                <div style={{display:"block",placeSelf:"stretch"}}>
-                    <List divided relaxed>
-                        <List.Item>
-                            <List.Content>
-                                <List.Header>C'est vide !</List.Header>
-                                Il n'y a aucun accident lié au véhicule
-                            </List.Content>
-                        </List.Item>
-                    </List>
-                </div>
-            )
-        }else{
-            return(
-                <div style={{display:"block",placeSelf:"stretch"}}>
-                    <List divided relaxed>
-                        {this.state.vehicle.accidents.map(a=>{
-                            return (
-                                <List.Item key={a._id}>
-                                    <List.Content floated='right'>
-                                        <Button color="blue" inverted icon icon='right arrow' onClick={()=>{this.props.history.push("/accident/"+a._id);}}/>
-                                    </List.Content>
-                                    <List.Content>
-                                        <List.Header>{a.occurenceDate}</List.Header>
-                                    </List.Content>
-                                </List.Item>
-                            )
-                        })}
-                    </List>
-                </div>
-            )
-        }
-    }
-    getBrokenHistoryTable = () => {
-        if(this.state.vehicle.brokenHistory.length != 0 && this.state.vehicle.brokenHistory[0]._id == "noid"){
-            return(
-                <div style={{display:"block",placeSelf:"stretch"}}>
-                    <List divided relaxed>
-                        <List.Item>
-                            <List.Content>
-                                <List.Header>C'est vide !</List.Header>
-                                Il n'y a aucune données dans l'historique
-                            </List.Content>
-                        </List.Item>
-                    </List>
-                </div>
-            )
-        }else{
-            return(
-                <div style={{display:"block",placeSelf:"stretch"}}>
-                    <List divided relaxed>
-                        {this.state.vehicle.brokenHistory.map(b=>{
-                            return (
-                                <List.Item key={b._id}>
-                                    {((this.props.user.isOwner ? 
-                                            <List.Content floated='right'>
-                                                <Button color="red" inverted icon icon='trash' onClick={()=>{this.showDeleteHistoryEntry(b._id)}}/>
-                                            </List.Content>
-                                        :
-                                            ""
-                                        )
-                                    )}
-                                    <List.Content>
-                                        <List.Header>{b.date}</List.Header>
-                                        {b.content}
-                                    </List.Content>
-                                </List.Item>
-                            )
-                        })}
-                    </List>
-                </div>
-            )
-        }
-    }
-
     //MESSAGE
     getUncompleteFinancialMessage = () => {
         if(!this.state.vehicle.financialInfosComplete){
             return (
-                <Message onClick={this.showEditFinances} color="red" style={{margin:"0 16px",cursor:"pointer"}} icon='euro' header={"Informations manquantes"} content={"Les informations relatives au financement de ce véhicule sont incomplètes, cliquez pour modifier."} />
+                <Message onClick={this.showEditFinances} color="red" style={{margin:"0",cursor:"pointer"}} icon='euro' header={"Informations manquantes"} content={"Les informations relatives au financement de ce véhicule sont incomplètes, cliquez pour modifier."} />
             )
         }
     }
@@ -1745,33 +1720,33 @@ class Vehicle extends Component {
                 justification = "Aucune justification"
             }
             return (
-                <Message color="orange" style={{margin:"0 16px"}} icon='archive' header={"Archivé depuis le : " + this.state.vehicle.archiveDate} content={"Justificaion : " + justification} />
+                <Message color="orange" style={{margin:"0"}} icon='archive' header={"Archivé depuis le : " + this.state.vehicle.archiveDate} content={"Justificaion : " + justification} />
             )
         }
     }
     getSharedMessage = () => {
         if(this.state.vehicle.shared){
             return (
-                <Message color="teal" style={{margin:"0 16px"}} icon='handshake outline' header={"Véhicule opéré par : " + this.state.vehicle.sharedTo.name + ", depuis le : " + this.state.vehicle.sharedSince} content={"Justificaion : " + this.state.vehicle.sharingReason} />
+                <Message color="teal" style={{margin:"0"}} icon='handshake outline' header={"Véhicule opéré par : " + this.state.vehicle.sharedTo.name + ", depuis le : " + this.state.vehicle.sharedSince} content={"Justificaion : " + this.state.vehicle.sharingReason} />
             )
         }
     }
     getSellingMessage = () => {
         if(this.state.vehicle.sold){
             return (
-                <Message color="orange" style={{margin:"0 16px"}} icon='cart' header={"Véhicule vendu le : " + this.state.vehicle.soldOnDate} content={"Justificaion : " + this.state.vehicle.sellingReason} />
+                <Message color="orange" style={{margin:"0"}} icon='cart' header={"Véhicule vendu le : " + this.state.vehicle.soldOnDate} content={"Justificaion : " + this.state.vehicle.sellingReason} />
             )
         }
         if(this.state.vehicle.selling){
             return (
-                <Message color="teal" style={{margin:"0 16px"}} icon='cart' header={"En vente depuis le : " + this.state.vehicle.sellingSince} content={"Justificaion : " + this.state.vehicle.sellingReason} />
+                <Message color="teal" style={{margin:"0"}} icon='cart' header={"En vente depuis le : " + this.state.vehicle.sellingSince} content={"Justificaion : " + this.state.vehicle.sellingReason} />
             )
         }
     }
     getBrokenMessage = () => {
         if(this.state.vehicle.broken){
             return (
-                <Message color="teal" style={{margin:"0 16px"}} icon='wrench' header={"En panne depuis le : " + this.state.vehicle.brokenSince} content={"Dernier commentaire : " + this.state.vehicle.brokenHistory[this.state.vehicle.brokenHistory.length-1].content} />
+                <Message color="teal" style={{margin:"0"}} icon='wrench' header={"En panne depuis le : " + this.state.vehicle.brokenSince} content={"Dernier commentaire : " + this.state.vehicle.brokenHistory[this.state.vehicle.brokenHistory.length-1].content} />
             )
         }
     }
@@ -1792,23 +1767,23 @@ class Vehicle extends Component {
                 <Fragment>
                     <div style={{display:"grid",gridGap:"24px",gridTemplateRows:"auto auto minmax(0,1fr)",gridTemplateColumns:"2fr 2fr",height:"100%"}}>
                         <div style={{display:"grid",gridColumnEnd:"span 2",gridGap:"32px",gridTemplateColumns:"auto 1fr auto auto"}}>
-                            <BigButtonIcon icon="angle double left" color="black" onClick={()=>{this.props.history.push("/parc/vehicles");}} tooltip="Retour au tableau des véhicules"/>
+                            <BigIconButton icon="angle double left" color="black" onClick={()=>{this.props.history.push("/parc/vehicles");}} tooltip="Retour au tableau des véhicules"/>
                             <Message style={{margin:"0"}} icon='truck' header={this.state.vehicle.registration} content={this.state.vehicle.brand.name + " - " + this.state.vehicle.model.name} />
                             <Message style={{margin:"0"}} header={this.state.vehicle.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + "km"} content={"relevé " + moment(this.state.vehicle.lastKmUpdate, "DD/MM/YYYY").fromNow()} />
                             <div style={{display:"flex",justifyContent:"flex-end"}}>
-                                <BigButtonIcon icon="dashboard" color="green" onClick={this.showUpdateKm} tooltip="Mise à jour du kilométrage"/>
-                                <BigButtonIcon icon="edit" color="blue" onClick={this.showEditIdent} tooltip="Édition du paneau identification"/>
-                                <BigButtonIcon icon="edit" color="blue" onClick={this.showEditFinances} tooltip="Édition de paneau finances" spacedFromNext/>
+                                <BigIconButton icon="dashboard" color="green" onClick={this.showUpdateKm} tooltip="Mise à jour du kilométrage"/>
+                                <BigIconButton icon="edit" color="blue" onClick={this.showEditIdent} tooltip="Édition du paneau identification"/>
+                                <BigIconButton icon="edit" color="blue" onClick={this.showEditFinances} tooltip="Édition de paneau finances" spacedFromNext/>
                                 {this.getShareOptions()}
                                 {this.getSellOptions()}
                                 {this.getBrokenOptions()}
-                                <BigButtonIcon icon="chat" color="blue" onClick={this.showAddHistoryEntry} tooltip="Ajout d'un commentaire à l'historique des pannes" spacedFromPrevious/>
-                                <BigButtonIcon icon="folder" color="purple" onClick={()=>{this.setState({activePanel:"docs"})}} tooltip="Gérer les documents" spacedFromPrevious/>
+                                <BigIconButton icon="chat" color="blue" onClick={this.showAddHistoryEntry} tooltip="Ajout d'un commentaire à l'historique des pannes" spacedFromPrevious/>
+                                <BigIconButton icon="folder" color="purple" onClick={()=>{this.setState({activePanel:"docs"})}} tooltip="Gérer les documents" spacedFromPrevious/>
                                 {this.getSoldDocsOptions()}
                                 {this.getDeleteOptions()}
                             </div>
                         </div>
-                        <div style={{display:"flex",gridColumnEnd:"span 2"}}>
+                        <div style={{display:"grid",gridGap:"16px",gridAutoFlow:"column",gridColumnEnd:"span 2",gridTemplateRows:"auto"}}>
                             {this.getUncompleteFinancialMessage()}
                             {this.getArchiveMessage()}
                             {this.getSharedMessage()}
@@ -1817,7 +1792,7 @@ class Vehicle extends Component {
                         </div>
                         <div style={{display:"grid",gridTemplateColumns:"auto 1fr",placeSelf:"stretch",gridColumnEnd:"span 2",gridGap:"64px"}}>
                             <div style={{display:"flex",flexDirection:"column",justifyContent:"start",placeSelf:"stretch"}}>
-                                <Menu size='large' pointing vertical style={{gridColumnStart:"1"}}>
+                                <Menu size='big' pointing vertical style={{gridColumnStart:"1"}}>
                                     <Menu.Item color="blue" name='Identification' active={this.state.activePanel == 'ident'} onClick={()=>{this.setState({activePanel:"ident"})}} />
                                     <Menu.Item color="blue" active={this.state.activePanel == 'finances'} onClick={()=>{this.setState({activePanel:"finances"})}}>
                                         {(this.state.vehicle.financialInfosComplete ?
@@ -1836,7 +1811,7 @@ class Vehicle extends Component {
                                         Contrôles préventifs
                                     </Menu.Item>
                                 </Menu>
-                                <Menu size='large' pointing vertical style={{gridColumnStart:"1"}}>
+                                <Menu size='big' pointing vertical style={{gridColumnStart:"1"}}>
                                     <Menu.Item color="teal" active={this.state.activePanel == 'pannes'} onClick={()=>{this.setState({activePanel:"pannes"})}}><Label color='grey'>{this.state.vehicle.brokenHistory.length}</Label>Historique des pannes</Menu.Item>
                                     <Menu.Item color="orange" active={this.state.activePanel == 'accidents'} onClick={()=>{this.setState({activePanel:"accidents"})}}><Label color='grey'>{this.state.vehicle.accidents.length}</Label>Accidents</Menu.Item>
                                     <Menu.Item color="purple" name='Documents' active={this.state.activePanel == 'docs'} onClick={()=>{this.setState({activePanel:"docs"})}} />

@@ -24,125 +24,50 @@ class EntretienRow extends Component {
     /*DB READ AND WRITE*/
     /*CONTENT GETTERS*/
     getEntretienType = () => {
-        if(this.props.entretien.fromControl){
+        if(this.props.entretien.type == "obli"){
             return(
-                <Table.Cell textAlign="center">
-                    <Label color="grey" image>
+                <Label image>
+                    <Icon style={{margin:"0"}} name='clipboard check'/>
+                    <Label.Detail>OBLIGATOIRE</Label.Detail>
+                </Label>
+            )
+        }else{
+            if(this.props.entretien.type == "prev"){
+                return(
+                    <Label image>
                         <Icon style={{margin:"0"}} name='clipboard check'/>
                         <Label.Detail>PRÉVENTIF</Label.Detail>
                     </Label>
-                </Table.Cell>
-            )
-        }else{
-            return(
-                <Table.Cell textAlign="center">
-                    <Label image>
-                        <Icon style={{margin:"0"}} name='wrench'/>
-                        <Label.Detail>CURATIF</Label.Detail>
-                    </Label>
-                </Table.Cell>
-            )
-        }
-    }
-    getSocieteCell = () => {
-        if(!this.props.userLimited){
-            return <Table.Cell textAlign="center">
-                {this.props.entretien.societe.name}
-                <Popup content={(this.props.entretien.vehicle.shared ? (this.props.entretien.vehicle.sharedTo ? "En prêt vers " + this.props.entretien.vehicle.sharedTo.name : "Chargement ...") : "Le véhicule n'est pas en prêt")} trigger={
-                    <Button style={{marginLeft:"12px"}} color={(this.props.entretien.vehicle.shared ? "teal":"none")} icon="handshake"/>
-                }/>
-            </Table.Cell>
-        }
-    }
-    getOrderState = state => {
-        if(state == 1){
-            let q = this.props.entretien.commandes.filter(c=>c.status == 1).length;
-            if(q>0){
-                return (
-                    <Table.Cell textAlign="center">
+                )
+            }else{
+                if(this.props.entretien.type == "cura"){
+                    return(
                         <Label color="grey" image>
-                            <Icon style={{margin:"0"}} name='clipboard' />
-                            <Label.Detail>{q}</Label.Detail>
+                            <Icon style={{margin:"0"}} name='wrench'/>
+                            <Label.Detail>CURATIF</Label.Detail>
                         </Label>
-                    </Table.Cell>
-                )
-            }else{
-                return(
-                    <Table.Cell textAlign="center">
-                        <Label image>
-                            <Icon style={{margin:"0"}} name='clipboard' />
-                            <Label.Detail>{q}</Label.Detail>
-                        </Label>
-                    </Table.Cell>
-                )
-            }
-        }
-        if(state == 2){
-            let q = this.props.entretien.commandes.filter(c=>c.status == 2).length;
-            if(q>0){
-                return(
-                    <Table.Cell textAlign="center">
-                        <Label color="orange" image>
-                            <Icon style={{margin:"0"}} name='truck' />
-                            <Label.Detail>{q}</Label.Detail>
-                        </Label>
-                    </Table.Cell>
-                )
-            }else{
-                return(
-                    <Table.Cell textAlign="center">
-                        <Label image>
-                            <Icon style={{margin:"0"}} name='truck' />
-                            <Label.Detail>{q}</Label.Detail>
-                        </Label>
-                    </Table.Cell>
-                )
-            }
-        }
-        if(state == 3){
-            let q = this.props.entretien.commandes.filter(c=>c.status == 3).length;
-            if(q>0){
-                return(
-                    <Table.Cell textAlign="center">
-                        <Label color="green" image>
-                            <Icon style={{margin:"0"}} name='check' />
-                            <Label.Detail>{q}</Label.Detail>
-                        </Label>
-                    </Table.Cell>
-                )
-            }else{
-                return(
-                    <Table.Cell textAlign="center">
-                        <Label image>
-                            <Icon style={{margin:"0"}} name='check' />
-                            <Label.Detail>{q}</Label.Detail>
-                        </Label>
-                    </Table.Cell>
-                )
+                    )
+                }
             }
         }
     }
-    getDocsStates = () => {
-        return (
-            <Table.Cell textAlign="center">
-                <DocStateLabel color={this.props.entretien.ficheInter._id == "" ? "red" : "green"} title="Fiche inter."/>
-            </Table.Cell>
-        )
+    getEntretienOrigin = () => {
+        if(this.props.entretien.originNature != null){
+            return this.props.entretien.originNature.name
+        }else{
+            return this.props.entretien.originControl.name
+        }
     }
+    
     /*COMPONENTS LIFECYCLE*/
     render() {
         return (
             <Fragment>
                 <Table.Row>
-                    {this.getSocieteCell()}
-                    <Table.Cell textAlign="center">{this.props.entretien.vehicle.registration}</Table.Cell>
-                    {this.getEntretienType()}
-                    <Table.Cell>{this.props.entretien.title}</Table.Cell>
-                    <Table.Cell>{this.props.entretien.description.substring(0,128)}</Table.Cell>
-                    {this.getOrderState(1)}
-                    {this.getOrderState(2)}
-                    {this.getOrderState(3)}
-                    {this.getDocsStates()}
+                    <Table.Cell collapsing textAlign="center">{this.props.entretien.vehicle.registration}</Table.Cell>
+                    <Table.Cell collapsing textAlign="right">{this.getEntretienType()}</Table.Cell>
+                    <Table.Cell collapsing>{this.getEntretienOrigin()}</Table.Cell>
+                    <Table.Cell>{this.props.entretien.notes[0].text}</Table.Cell>
                     <ActionsGridCell actions={this.state.rowActions}/>
                 </Table.Row>
             </Fragment>

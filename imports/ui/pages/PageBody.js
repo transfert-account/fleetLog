@@ -36,7 +36,6 @@ import Compte from './Compte';
 import Accounts from './Accounts';
 import Content from './Content';
 import Pieces from './Pieces';
-import Equipements from './Equipements';
 import Patchnotes from './Patchnotes';
 import Storage from './Storage';
 import Logs from './Logs';
@@ -97,7 +96,6 @@ class PageBody extends Component {
               
               <Route exact path='/administration/accounts' component={Accounts}/>
               <Route exact path='/administration/content' component={Content}/>
-              <Route exact path='/administration/equipements' component={Equipements}/>
               <Route exact path='/administration/pieces' component={Pieces}/>
               <Route exact path='/administration/patchnotes' component={Patchnotes}/>
               <Route exact path='/administration/storage' component={Storage}/>
@@ -145,7 +143,6 @@ class PageBody extends Component {
               
               <Route exact path='/administration/accounts' component={Accounts}/>
               <Route exact path='/administration/content' component={Content}/>
-              <Route exact path='/administration/equipements' component={Equipements}/>
               <Route exact path='/administration/pieces' component={Pieces}/>
               <Route exact path='/administration/patchnotes' component={Patchnotes}/>
               <Route exact path='/administration/logs' component={Logs}/>

@@ -1,15 +1,11 @@
 import Entretiens from './entretiens';
-import Equipements from '../equipement/equipements';
-import EquipementDescriptions from '../equipementDescription/equipementDescriptions';
+import InterventionNature from '../interventionNature/interventionNatures';
 import Vehicles from '../vehicle/vehicles';
-import Locations from '../location/locations';
 import Commandes from '../commande/commandes';
 import Pieces from '../piece/pieces';
-import Volumes from '../volume/volumes.js';
 import Brands from '../brand/brands.js';
 import Models from '../model/models.js';
-import Organisms from '../organism/organisms.js';
-import Colors from '../color/colors.js';
+import Energies from '../energy/energies';
 import Societes from '../societe/societes';
 import Documents from '../document/documents';
 import Functions from '../common/functions';
@@ -18,15 +14,7 @@ import { Mongo } from 'meteor/mongo';
 
 const affectEntretienData = (e,i,entretiens) => {
     try{
-        e.commandes = Commandes.find({entretien:e._id._str}).fetch() || [];
-        e.commandes.forEach(c => {
-            c.piece = Pieces.findOne({_id:new Mongo.ObjectID(c.piece)});
-        });
-        if(Vehicles.findOne({_id:new Mongo.ObjectID(e.vehicle)}) == undefined){
-            e.vehicle = Locations.findOne({_id:new Mongo.ObjectID(e.vehicle)});
-        }else{
-            e.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(e.vehicle)});
-        }
+        e.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(e.vehicle)});
         e.vehicle.lastKmUpdate = e.vehicle.kms[e.vehicle.kms.length-1].reportDate
         e.vehicle.km = e.vehicle.kms[e.vehicle.kms.length-1].kmValue
         if(e.vehicle.societe != null && e.vehicle.societe.length > 0){
@@ -44,42 +32,84 @@ const affectEntretienData = (e,i,entretiens) => {
         }else{
             e.vehicle.model = {_id:""};
         }
-        if(e.vehicle.payementOrg != null && e.vehicle.payementOrg.length > 0){
-            e.vehicle.payementOrg = Organisms.findOne({_id:new Mongo.ObjectID(e.vehicle.payementOrg)});
-        }else{
-            e.vehicle.payementOrg = {_id:""};
-        }
-        if(e.vehicle.color != null && e.vehicle.color.length > 0){
-            e.vehicle.color = Colors.findOne({_id:new Mongo.ObjectID(e.vehicle.color)});
-        }else{
-            e.vehicle.color = {_id:""};
-        }
-        if(e.vehicle.volume != null && e.vehicle.volume.length > 0){
-            e.vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(e.vehicle.volume)});
-        }else{
-            e.vehicle.volume = {_id:""};
-        }
         if(e.vehicle.shared){
             e.vehicle.sharedTo = Societes.findOne({_id:new Mongo.ObjectID(e.vehicle.sharedTo)});
         }else{
             e.vehicle.sharedTo = {_id:""};
         }
-        if(e.societe != null && e.societe.length > 0){
-            e.societe = Societes.findOne({_id:new Mongo.ObjectID(e.societe)});
+        if(e.originNature != null){
+            e.originNature = InterventionNature.findOne({_id:new Mongo.ObjectID(e.originNature)});
+        }else{e.originNature = null;}
+        if(e.originControl != null){
+            if(e.originControl[0] == "o"){
+                e.originControl = Functions.getObli().filter(c=>c.key == e.originControl)[0];
+            }else{
+                e.originControl = Functions.prev().filter(c=>c.key == e.originControl)[0];
+            }
         }else{
-            e.societe = {_id:"",name:""};
+            e.originControl = null;
         }
-        e.piece = Pieces.findOne({_id:new Mongo.ObjectID(e.piece)});
+    }catch(err){
+        console.log(err)
+    }
+}
+
+const affectEntretienFullData = e => {
+    try{
+        e.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(e.vehicle)});
+        e.vehicle.lastKmUpdate = e.vehicle.kms[e.vehicle.kms.length-1].reportDate
+        e.vehicle.km = e.vehicle.kms[e.vehicle.kms.length-1].kmValue
+        //Societe du vehicule
+        if(e.vehicle.societe != null && e.vehicle.societe.length > 0){
+            e.vehicle.societe = Societes.findOne({_id:new Mongo.ObjectID(e.vehicle.societe)});
+        }else{
+            e.vehicle.societe = {_id:"",name:""};
+        }
+        //Marque
+        if(e.vehicle.brand != null && e.vehicle.brand.length > 0){
+            e.vehicle.brand = Brands.findOne({_id:new Mongo.ObjectID(e.vehicle.brand)});
+        }else{
+            e.vehicle.brand = {_id:""};
+        }
+        //Model
+        if(e.vehicle.model != null && e.vehicle.model.length > 0){
+            e.vehicle.model = Models.findOne({_id:new Mongo.ObjectID(e.vehicle.model)});
+        }else{
+            e.vehicle.model = {_id:""};
+        }
+        //Energie
+        if(e.vehicle.energy != null && e.vehicle.energy.length > 0){
+            e.vehicle.energy = Energies.findOne({_id:new Mongo.ObjectID(e.vehicle.energy)});
+        }else{
+            e.vehicle.energy = {_id:""};
+        }
+        //Vehicule opéré par
+        if(e.vehicle.shared){
+            e.vehicle.sharedTo = Societes.findOne({_id:new Mongo.ObjectID(e.vehicle.sharedTo)});
+        }else{
+            e.vehicle.sharedTo = {_id:""};
+        }
+        //Origin : nature / controle
+        if(e.originNature != null){
+            e.originControl = null;
+            e.originNature = InterventionNature.findOne({_id:new Mongo.ObjectID(e.originNature)});
+        }else{
+            e.originNature = null;
+            if(e.originControl[0] == "o"){
+                e.originControl = Functions.getObli().filter(c=>c.key == e.originControl)[0];
+            }else{
+                e.originControl = Functions.getPrev().filter(c=>c.key == e.originControl)[0];
+            }
+        }
+        //Pieces
+        e.piecesQty.map(p=>{
+            p.piece = Pieces.find({_id:new Mongo.ObjectID(p.piece)}).fetch()[0];
+        })
+        //Docs
         if(e.ficheInter != null && e.ficheInter.length > 0){
             e.ficheInter = Documents.findOne({_id:new Mongo.ObjectID(e.ficheInter)});
         }else{
             e.ficheInter = {_id:""};
-        }
-        if(e.control != null && e.control.length > 0){
-            e.control = Equipements.findOne({_id:new Mongo.ObjectID(e.control)});
-            if(e.control.equipementDescription != null && e.control.equipementDescription.length > 0){
-                e.control.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.control.equipementDescription)});
-            }
         }
     }catch(err){
         console.log(err)
@@ -198,140 +228,91 @@ export default {
         },
         entretien(obj, {_id},{user}){
             let entretien = Entretiens.findOne({_id:new Mongo.ObjectID(_id)});
-            if(Vehicles.findOne({_id:new Mongo.ObjectID(entretien.vehicle)}) == undefined){
-                entretien.vehicle = Locations.findOne({_id:new Mongo.ObjectID(entretien.vehicle)});
-            }else{
-                entretien.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(entretien.vehicle)});    
-            }
-            entretien.vehicle.lastKmUpdate = entretien.vehicle.kms[entretien.vehicle.kms.length-1].reportDate
-            entretien.vehicle.km = entretien.vehicle.kms[entretien.vehicle.kms.length-1].kmValue
-            if(entretien.vehicle.societe != null && entretien.vehicle.societe.length > 0){
-                entretien.vehicle.societe = Societes.findOne({_id:new Mongo.ObjectID(entretien.vehicle.societe)});
-            }else{
-                entretien.vehicle.societe = {_id:"",name:""};
-            }
-            if(entretien.vehicle.brand != null && entretien.vehicle.brand.length > 0){
-                entretien.vehicle.brand = Brands.findOne({_id:new Mongo.ObjectID(entretien.vehicle.brand)});
-            }else{
-                entretien.vehicle.brand = {_id:""};
-            }
-            if(entretien.vehicle.model != null && entretien.vehicle.model.length > 0){
-                entretien.vehicle.model = Models.findOne({_id:new Mongo.ObjectID(entretien.vehicle.model)});
-            }else{
-                entretien.vehicle.model = {_id:""};
-            }
-            if(entretien.vehicle.payementOrg != null && entretien.vehicle.payementOrg.length > 0){
-                entretien.vehicle.payementOrg = Organisms.findOne({_id:new Mongo.ObjectID(entretien.vehicle.payementOrg)});
-            }else{
-                entretien.vehicle.payementOrg = {_id:""};
-            }
-            if(entretien.vehicle.color != null && entretien.vehicle.color.length > 0){
-                entretien.vehicle.color = Colors.findOne({_id:new Mongo.ObjectID(entretien.vehicle.color)});
-            }else{
-                entretien.vehicle.color = {_id:""};
-            }
-            if(entretien.vehicle.volume != null && entretien.vehicle.volume.length > 0){
-                entretien.vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(entretien.vehicle.volume)});
-            }else{
-                entretien.vehicle.volume = {_id:""};
-            }
-            entretien.piece = Pieces.findOne({_id:new Mongo.ObjectID(entretien.piece)});
-            if(entretien.ficheInter != null && entretien.ficheInter.length > 0){
-                entretien.ficheInter = Documents.findOne({_id:new Mongo.ObjectID(entretien.ficheInter)});
-            }else{
-                entretien.ficheInter = {_id:""};
-            }
-            if(entretien.control != null && entretien.control.length > 0){
-                entretien.control = Equipements.findOne({_id:new Mongo.ObjectID(entretien.control)});
-            }
+            affectEntretienFullData(entretien)            
             return entretien;
         }
     },
     Mutation:{
-        addEntretien(obj, {vehicle},{user}){
+        createEntretien(obj, {vehicle,nature,pieces},{user}){
             if(user._id){
                 let v = Vehicles.findOne({_id:new Mongo.ObjectID(vehicle)});
+                let newId = new Mongo.ObjectID()._str;
+                console.log(newId);
                 Entretiens.insert({
-                    _id:new Mongo.ObjectID(),
-                    piece:"",
+                    _id:new Mongo.ObjectID(newId),
+                    type:"cura",
+                    originNature:nature,
+                    originControl:null,
                     vehicle:vehicle,
-                    description:"",
-                    title:"",
-                    ficheInter:"",
-                    archived:false,
-                    occurenceDate:"",
-                    user:"",
+                    piecesQty:JSON.parse(pieces),
+                    status:0,
                     time:0,
-                    status:1,
-                    societe:v.societe,
-                    fromControl:false,
-                    control:null
+                    notes:[{
+                        _id:new Mongo.ObjectID(),
+                        text:"Entretien curatif généré manuellement",
+                        date:moment().format('DD/MM/YYYY HH:mm:ss')
+                    }],
+                    archived:false,
+                    user:"",
                 });
-                return [{status:true,message:'Création réussie'}];
+                return [{status:true,message:'Création réussie',obj:newId}];
             }
             throw new Error('Unauthorized');
         },
-        createEntretienFromControl(obj, {control},{user}){
+        createEntretienFromControl(obj, {vehicle,control},{user}){
             if(user._id){
-                let e = Equipements.findOne({_id:new Mongo.ObjectID(control)})
-                let ed = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)})
-                let v = Vehicles.findOne({_id:new Mongo.ObjectID(e.vehicle)});
-                let entretienId = new Mongo.ObjectID();
+                let entretienId = new Mongo.ObjectID()
+                let v = Vehicles.findOne({_id:new Mongo.ObjectID(vehicle)});
                 Entretiens.insert({
                     _id:entretienId,
-                    piece:"",
-                    title:"Contrôle : " + ed.name,
-                    description:"Entretien généré manuellement par le contrôle lié au véhicule " + v.registration,
-                    vehicle:e.vehicle,
-                    ficheInter:"",
-                    archived:false,
-                    occurenceDate:"",
-                    user:"",
+                    type:(control[0]=="o" ? "obli" : "prev"),
+                    originNature:null,
+                    originControl:control,
+                    vehicle:vehicle,
+                    piecesQty:[],
+                    status:0,
                     time:0,
-                    status:1,
-                    societe:v.societe,
-                    fromControl:true,
-                    control:control
+                    notes:[{
+                        _id:new Mongo.ObjectID(),
+                        text:"Entretien généré manuellement par le contrôle lié au véhicule " + v.registration,
+                        date:moment().format('DD/MM/YYYY HH:mm:ss')
+                    }],
+                    archived:false,
+                    user:"",
                 });
-                Equipements.update(
+                Vehicles.update(
                     {
-                        _id: new Mongo.ObjectID(control)
-                    },{
+                        _id: new Mongo.ObjectID(vehicle),
+                        [(control[0] == "o" ? "obli" : "prev")+".key"]: control
+                    }, {
                         $set: {
-                            entretien:entretienId._str,
-                            entretienCreated:true
+                            [(control[0] == "o" ? "obli" : "prev")+".$.entretien"]: entretienId._str
                         }
-                    },
-                    {multi:true}
-                );
+                    }
+                )
                 return [{status:true,message:'Création réussie'}];
             }
             throw new Error('Unauthorized');
         },
         deleteEntretien(obj, {_id},{user}){
             if(user._id){
-                let nC = Commandes.find({entretien:_id}).fetch().length
-                if(nC > 0){
-                    let qrm = [];
-                    if(nC > 0){qrm.push({status:false,message:'Suppresion impossible, ' + nC + ' commande(s) liée(s)'})}
-                    return qrm;
-                }else{
-                    Equipements.update(
+                let e = Entretiens.findOne({_id:new Mongo.ObjectID(_id)});
+                if(e.type != "cura"){
+                    Vehicles.update(
                         {
-                            entretien: _id
-                        },{
+                            _id: new Mongo.ObjectID(e.vehicle),
+                            [(e.originControl[0] == "o" ? "obli" : "prev")+".key"]: e.originControl
+                        }, {
                             $set: {
-                                entretien:"",
-                                entretienCreated:false
+                                [(e.originControl[0] == "o" ? "obli" : "prev")+".$.entretien"]: null
                             }
-                        },
-                        {multi:true}
-                    );
-                    Entretiens.remove({
-                        _id:new Mongo.ObjectID(_id)
-                    });
-                    return [{status:true,message:'Suppression réussie'}];
+                        }
+                    )
                 }
+                Entretiens.remove({
+                    _id:new Mongo.ObjectID(_id)
+                });
+                return [{status:true,message:'Suppression réussie'}];
             }
             throw new Error('Unauthorized');
         },
@@ -365,33 +346,39 @@ export default {
             }
             throw new Error('Unauthorized');
         },
-        editDesc(obj, {_id,description},{user}){
+        addNote(obj, {_id,note},{user}){
             if(user._id){
                 Entretiens.update(
                     {
                         _id: new Mongo.ObjectID(_id)
                     }, {
-                        $set: {
-                            "description":description
+                        $push: {
+                            "notes": {
+                                _id: new Mongo.ObjectID(),
+                                text:note,
+                                date:moment().format('DD/MM/YYYY HH:mm:ss')
+                            }
                         }
                     }
                 ); 
-                return [{status:true,message:'Description sauvegardée'}];
+                return [{status:true,message:'Note sauvegardée'}];
             }
             throw new Error('Unauthorized');
         },
-        editTitle(obj, {_id,title},{user}){
+        deleteNote(obj, {entretien,_id},{user}){
             if(user._id){
                 Entretiens.update(
                     {
-                        _id: new Mongo.ObjectID(_id)
-                    }, {
-                        $set: {
-                            "title":title
+                        _id:new Mongo.ObjectID(entretien)
+                    },{
+                        $pull: {
+                            "notes": {
+                                _id: new Mongo.ObjectID(_id)
+                            }
                         }
                     }
-                ); 
-                return [{status:true,message:'Titre sauvegardé'}];
+                )
+                return [{status:true,message:'Note supprimée'}];
             }
             throw new Error('Unauthorized');
         },
@@ -408,6 +395,21 @@ export default {
                     }
                 ); 
                 return [{status:true,message:'Informations sauvegardées'}];
+            }
+            throw new Error('Unauthorized');
+        },
+        editPieces(obj, {_id,pieces},{user}){
+            if(user._id){
+                Entretiens.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "piecesQty":JSON.parse(pieces),
+                        }
+                    }
+                ); 
+                return [{status:true,message:'Pièces sauvegardées'}];
             }
             throw new Error('Unauthorized');
         },

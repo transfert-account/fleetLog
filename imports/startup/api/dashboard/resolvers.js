@@ -3,8 +3,6 @@ import Vehicles from '../vehicle/vehicles';
 import Models from '../model/models';
 import Volumes from '../volume/volumes';
 import Locations from '../location/locations';
-import Equipements from '../equipement/equipements';
-import EquipementDescriptions from '../equipementDescription/equipementDescriptions';
 import Commandes from '../commande/commandes';
 import Licences from '../licence/licences';
 import Batiments from '../batiment/batiments';
@@ -13,7 +11,7 @@ import Accidents from '../accident/accidents';
 import moment from 'moment';
 import { Mongo } from 'meteor/mongo';
 
-const affectDashboardData = d => {
+/*const affectDashboardData = d => {
     d.vehicleCV = {total:0,affected:0,missing:0};
     d.vehicleCG = {total:0,affected:0,missing:0};
     d.locationCV = {total:0,affected:0,missing:0};
@@ -291,7 +289,7 @@ const affectDashboardData = d => {
     if(d.avgKm != 0 && nbV != 0){
         d.avgKm = parseInt(d.avgKm / nbV)
     }
-}
+}*/
 
 const getGroupAvgKms = () => {
     let avgKm = 0;
@@ -350,6 +348,7 @@ const getGroupVehicleRepartition = type => {
 export default {
     Query : {
         dashboards(obj, args,{user}){
+            return []
             let dashboards = [];
             let societes = Societes.find().fetch() || {};
             societes.map(s=>{

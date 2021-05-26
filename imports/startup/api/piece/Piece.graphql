@@ -8,7 +8,7 @@ type Piece{
 }
 
 extend type Query{
-    allPieces : [Piece]
+    piecesAll : [Piece]
     pieces : [Piece]
     pneus : [Piece]
     agents : [Piece]

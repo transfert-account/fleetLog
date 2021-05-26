@@ -15,12 +15,6 @@ import VehicleResolvers from '../api/vehicle/resolvers.js';
 import LicenceSchema from '../api/licence/Licence.graphql';
 import LicenceResolvers from '../api/licence/resolvers.js';
 
-import EquipementDescriptionSchema from '../api/equipementDescription/EquipementDescription.graphql';
-import EquipementDescriptionResolvers from '../api/equipementDescription/resolvers.js';
-
-import EquipementSchema from '../api/equipement/Equipement.graphql';
-import EquipementResolvers from '../api/equipement/resolvers.js';
-
 import FournisseurSchema from '../api/fournisseur/Fournisseur.graphql';
 import FournisseurResolvers from '../api/fournisseur/resolvers.js';
 
@@ -102,22 +96,22 @@ import ExportTemplateResolvers from '../api/exportTemplate/resolvers.js';
 import ControlSchema from '../api/control/Control.graphql';
 import ControlResolvers from '../api/control/resolvers.js';
 
+import InterventionNatureSchema from '../api/interventionNature/InterventionNature.graphql';
+import InterventionNatureResolvers from '../api/interventionNature/resolvers.js';
+
 import LogSchema from '../api/log/Log.graphql';
 import LogResolvers from '../api/log/resolvers.js';
 
-// #0481
+// #0510
 
 const typeDefs = [
     UserSchema,
     SocieteSchema,
     VehicleSchema,
-    EquipementDescriptionSchema,
-    EquipementSchema,
     LicenceSchema,
     FournisseurSchema,
     PieceSchema,
     EntretienSchema,
-    CommandeSchema,
     PlanningSchema,
     VolumeSchema,
     LocationSchema,
@@ -140,6 +134,7 @@ const typeDefs = [
     StoredObjectSchema,
     ExportTemplateSchema,
     ControlSchema,
+    InterventionNatureSchema,
     TestSchema
 ];
 
@@ -147,13 +142,10 @@ const resolvers = merge(
     UserResolvers,
     SocieteResolvers,
     VehicleResolvers,
-    EquipementDescriptionResolvers,
-    EquipementResolvers,
     LicenceResolvers,
     FournisseurResolvers,
     PieceResolvers,
     EntretienResolvers,
-    CommandeResolvers,
     PlanningResolvers,
     VolumeResolvers,
     LocationResolvers,
@@ -176,6 +168,7 @@ const resolvers = merge(
     StoredObjectResolvers,
     ExportTemplateResolvers,
     ControlResolvers,
+    InterventionNatureResolvers,
     TestResolvers
 );
 

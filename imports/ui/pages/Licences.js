@@ -6,7 +6,7 @@ import LicenceRow from '../molecules/LicenceRow';
 import CustomFilterSegment from '../molecules/CustomFilterSegment';
 import ParcMenu from '../molecules/ParcMenu';
 
-import BigButtonIcon from '../elements/BigIconButton';
+import BigIconButton from '../elements/BigIconButton';
 
 import CustomFilter from '../atoms/CustomFilter';
 
@@ -432,7 +432,7 @@ export class Licences extends Component {
                     <ParcMenu active="licences"/>
                     <Input style={{justifySelf:"stretch"}} name="storeFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher une tournée, un numéro de licence ou une immatriculation' />
                     <div style={{display:"flex",justifyContent:"flex-end"}}>
-                        <BigButtonIcon icon="plus" color="blue" onClick={this.showAddLicence} tooltip="Ajouter une licence"/>
+                        <BigIconButton icon="plus" color="blue" onClick={this.showAddLicence} tooltip="Ajouter une licence"/>
                     </div>
                     <CustomFilterSegment resetAll={this.resetAll} style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3"}}>
                         <CustomFilter infos={this.state.endDateInfos} active={this.state.endDateFilter} />
