@@ -348,7 +348,7 @@ export class Vehicles extends Component {
                 displayed.sort((a, b) => a.registration.localeCompare(b.registration))
                 if(this.state.filteredEntry != displayed.length){this.setState({filteredEntry:displayed.length})}
                 return displayed.map(i =>(
-                    <VehiclesRow loadVehicles={this.loadVehicles} hideSociete={this.props.userLimited} societesRaw={this.state.societesRaw} key={i._id} vehicle={i} full={this.state.fullLoaded}/>
+                    <VehiclesRow loadVehicles={this.loadVehicles} societesRaw={this.state.societesRaw} key={i._id} vehicle={i} full={this.state.fullLoaded}/>
                 ))
             }
         },
@@ -438,91 +438,6 @@ export class Vehicles extends Component {
                     }
                     selling
                     sold
-                    broken
-                }
-            }
-        `,
-        buVehiclesEmptyQuery: gql`
-            query buVehiclesEmpty{
-                buVehiclesEmpty{
-                    _id
-                    societe{
-                        _id
-                        name
-                    }
-                    registration
-                    firstRegistrationDate
-                    km
-                    lastKmUpdate
-                    payload
-                    payementFormat
-                    archived
-                    shared
-                    selling
-                    broken
-                }
-            }
-        `,
-        buVehiclesQuery : gql`
-            query buVehicles{
-                buVehicles{
-                    _id
-                    societe{
-                        _id
-                        trikey
-                        name
-                    }
-                    registration
-                    firstRegistrationDate
-                    km
-                    lastKmUpdate
-                    brand{
-                        _id
-                        name
-                    }
-                    model{
-                        _id
-                        name
-                    }
-                    volume{
-                        _id
-                        meterCube
-                    }
-                    payload
-                    color{
-                        _id
-                        name
-                        hex
-                    }
-                    energy{
-                        _id
-                        name
-                    }
-                    insurancePaid
-                    financialInfosComplete
-                    payementBeginDate
-                    property
-                    purchasePrice
-                    monthlyPayement
-                    payementOrg{
-                        _id
-                        name
-                    }
-                    payementFormat
-                    archived
-                    archiveDate
-                    cg{
-                        _id
-                    }
-                    cv{
-                        _id
-                    }
-                    shared
-                    sharedTo{
-                        _id
-                        name
-                    }
-                    selling
                     broken
                 }
             }
@@ -780,15 +695,13 @@ export class Vehicles extends Component {
         })
     }
     loadVehicles = () => {
-        let vehiculesQuery = (this.props.userLimited ? this.state.buVehiclesEmptyQuery : this.state.vehiclesEmptyQuery);
         this.props.client.query({
-            query: vehiculesQuery,
+            query: this.state.vehiclesEmptyQuery,
             fetchPolicy:"network-only"
         }).then(({data})=>{
-            let vehicles = (this.props.userLimited ? data.buVehiclesEmpty : data.vehiclesEmpty);
             this.setState({
                 loading:false,
-                vehiclesRaw:vehicles,
+                vehiclesRaw:data.vehiclesEmpty,
                 newSociete:"",
                 newRegistration:"",
                 newFirstRegistrationDate:"",
@@ -811,15 +724,13 @@ export class Vehicles extends Component {
         })
     }
     loadVehiclesFull = () => {
-        let vehiculesQuery = (this.props.userLimited ? this.state.buVehiclesQuery : this.state.vehiclesQuery);
         this.props.client.query({
-            query: vehiculesQuery,
+            query: this.state.vehiclesQuery,
             fetchPolicy:"network-only"
         }).then(({data})=>{
-            let vehicles = (this.props.userLimited ? data.buVehicles : data.vehicles);
             this.setState({
                 fullLoaded:true,
-                vehiclesRaw:vehicles,
+                vehiclesRaw:data.vehicles,
                 newSociete:"",
                 newRegistration:"",
                 newFirstRegistrationDate:"",
@@ -905,46 +816,6 @@ export class Vehicles extends Component {
             )
         }
     }
-    getTableHeader = () => {
-        if(this.props.userLimited){
-            return(
-                <Table.Header>
-                    <Table.Row textAlign='center'>
-                        <Table.HeaderCell>Spécificité</Table.HeaderCell>
-                        <Table.HeaderCell>Immatriculation</Table.HeaderCell>
-                        <Table.HeaderCell>Kilométrage</Table.HeaderCell>
-                        <Table.HeaderCell>Dernier relevé</Table.HeaderCell>
-                        <Table.HeaderCell>Marque, Modèle & Energie</Table.HeaderCell>
-                        <Table.HeaderCell>Volume</Table.HeaderCell>
-                        <Table.HeaderCell>Charge utile</Table.HeaderCell>
-                        <Table.HeaderCell>Infos financement</Table.HeaderCell>
-                        <Table.HeaderCell>Propriété</Table.HeaderCell>
-                        <Table.HeaderCell>Documents</Table.HeaderCell>
-                        <Table.HeaderCell>Actions</Table.HeaderCell>
-                    </Table.Row>
-                </Table.Header>
-            )
-        }else{
-            return(
-                <Table.Header>
-                    <Table.Row textAlign='center'>
-                        <Table.HeaderCell>Societe</Table.HeaderCell>
-                        <Table.HeaderCell>Spécificité</Table.HeaderCell>
-                        <Table.HeaderCell>Immatriculation</Table.HeaderCell>
-                        <Table.HeaderCell>Kilométrage</Table.HeaderCell>
-                        <Table.HeaderCell>Dernier relevé</Table.HeaderCell>
-                        <Table.HeaderCell>Marque, Modèle & Energie</Table.HeaderCell>
-                        <Table.HeaderCell>Volume</Table.HeaderCell>
-                        <Table.HeaderCell>Charge utile</Table.HeaderCell>
-                        <Table.HeaderCell>Infos financement</Table.HeaderCell>
-                        <Table.HeaderCell>Propriété</Table.HeaderCell>
-                        <Table.HeaderCell>Documents</Table.HeaderCell>
-                        <Table.HeaderCell>Actions</Table.HeaderCell>    
-                    </Table.Row>
-                </Table.Header>
-            )
-        }
-    }
 
     /*COMPONENTS LIFECYCLE*/
     componentDidMount = () => {
@@ -972,7 +843,22 @@ export class Vehicles extends Component {
                     </CustomFilterSegment>
                     <div style={{gridRowStart:"3",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                         <Table style={{marginBottom:"0"}} celled selectable compact>
-                            {this.getTableHeader()}
+                            <Table.Header>
+                                <Table.Row textAlign='center'>
+                                    <Table.HeaderCell>Propriétaire</Table.HeaderCell>
+                                    <Table.HeaderCell>Spécificité</Table.HeaderCell>
+                                    <Table.HeaderCell>Immatriculation</Table.HeaderCell>
+                                    <Table.HeaderCell>Kilométrage</Table.HeaderCell>
+                                    <Table.HeaderCell>Dernier relevé</Table.HeaderCell>
+                                    <Table.HeaderCell>Marque, Modèle & Energie</Table.HeaderCell>
+                                    <Table.HeaderCell>Volume</Table.HeaderCell>
+                                    <Table.HeaderCell>Charge utile</Table.HeaderCell>
+                                    <Table.HeaderCell>Infos financement</Table.HeaderCell>
+                                    <Table.HeaderCell>Propriété</Table.HeaderCell>
+                                    <Table.HeaderCell>Documents</Table.HeaderCell>
+                                    <Table.HeaderCell>Actions</Table.HeaderCell>    
+                                </Table.Row>
+                            </Table.Header>
                             <Table.Body>
                                 {this.state.vehicles()}
                             </Table.Body>

@@ -34,32 +34,6 @@ class VehiclePicker extends Component {
                 }
             }
         `,
-        buVehiclesQuery : gql`
-            query buVehicles{
-                buVehicles{
-                    _id
-                    societe{
-                        _id
-                        trikey
-                        name
-                    }
-                    registration
-                    km
-                    brand{
-                        _id
-                        name
-                    }
-                    model{
-                        _id
-                        name
-                    }
-                    volume{
-                        _id
-                        meterCube
-                    }
-                }
-            }
-        `,
         locationsQuery : gql`
             query locations{
                 locations{
@@ -127,11 +101,11 @@ class VehiclePicker extends Component {
     loadVehicles = () => {
         if(this.props.userRestricted){
             this.props.client.query({
-                query:this.state.buVehiclesQuery,
+                query:this.state.vehiclesQuery,
                 fetchPolicy:"network-only"
             }).then(({data})=>{
                 this.setState({
-                    vehiclesRaw:data.buVehicles
+                    vehiclesRaw:data.vehicles
                 })
             })
         }else{

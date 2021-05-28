@@ -78,9 +78,9 @@
 }*/
 body{
   font-weight: 400;
-  /*font-family: 'Open Sans', !important;*/
+  font-family: 'Open Sans', !important;
   overflow: hidden;
-  font-family: Helvetica, sans-serif !important;
+  
 }
 #app {
   /*background-image: linear-gradient(170deg, #b8c6db 0%, #f5f7fa 74%);
@@ -145,7 +145,6 @@ body {
 
 .home-top-container .ui.form .field>label{
   color: #ecf0f1 !important;
-  font-family: 'Montserrat', sans-serif;
   font-size: 1rem;
   font-weight: 400;
 }
@@ -231,19 +230,19 @@ body {
   grid-template-rows:auto 1fr;
   grid-template-columns:1fr;
   padding:64px;
-  grid-gap: 48px;
+  grid-gap: 32px;
   height:100%;
 }
 
 .title .text{
   margin: 16px;
   font-family: 'Prompt', sans-serif;
+  font-weight: 400;
   place-self: center;
   text-align: center;
-  font-weight: 900;
-  font-size: 8vh;
+  font-size: 10vh;
   color: #3D5A80;
-  letter-spacing: .25ch;
+  letter-spacing: .3ch;
 }
 
 .title .tiles{
@@ -295,8 +294,8 @@ body {
   text-align: center;
   z-index: 1;
   font-family: 'Prompt', sans-serif;
-  font-weight: 600;
-  font-size: 0.9vw;
+  font-weight: 500;
+  font-size: 1vw;
   letter-spacing: .25ch;
 }
 
@@ -726,7 +725,7 @@ svg.teal g .fa-primary{
 }
 
 /*//////////////////////////////////
-/////////// CALENDAR TILE/ /////////
+///////////// CALENDAR /////////////
 //////////////////////////////////*/
 
 .calendar-tile-container{
@@ -737,71 +736,63 @@ svg.teal g .fa-primary{
   display:grid;
   grid-gap:6px;
   grid-template-columns:84px 84px 84px 84px 84px 84px 84px;
-  grid-template-rows:1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-rows:auto 1fr 1fr 1fr 1fr 1fr 1fr;
+}
+.calendar-day-label{
+  text-align:center;
+  border-radius:4px;
+  background-color:#E4E4E4;
+  font-weight:bold;
+  padding:4px 0;
+  margin-bottom:4px;
+  font-size:1.1rem;
 }
 .calendar-tile{
   cursor: pointer;
   border-radius: 4px;
+  padding: 8px;
   justify-items: stretch;
-  display: grid;
-  grid-template-rows: 22px 1fr;
-  grid-template-columns: 1fr 1fr;
-  padding-bottom: 22px;
-  background-color: #C8D6E5;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  background-color: #E4E4E4;
 }
 .calendar-tile.today{
   background-color: #ECC785;
 }
-.calendar-tile.selected{
-  background-color: #9ECEFF;
+.calendar-tile.selected .date-display-wrap{
+  background-color: rgba(0,0,0,.1)
 }
 .calendar-tile:hover{
-  background-color: #9ECEFF;
+  background-color: #D2D2D2;
 }
-.calendar-tile.today:hover .date-display{
-  background-color: rgba(0,0,0,0.1);
-}
-.calendar-tile.selected:hover .date-display{
-  background-color: rgba(0,0,0,0.1);
-}
-.calendar-tile:hover .date-display{
-  background-color: rgba(0,0,0,0.1);
-}
-.date-display{
-  grid-column-end: span 2;
-  grid-row-start: 2;
-  text-align: center;
-  place-self: center;
+.date-display-wrap{
   border-radius: 32px;
+  grid-row-start: 1;
+  grid-column-start: 2;
+  margin-top: 4px;
+  text-align: center;
+  align-self: center;
   display: grid;
-  grid-template-rows: auto auto;
-  height: 64px;
-  width: 64px;
+  grid-template-rows: auto;
+  height: 48px;
+  width: 48px;
   padding: 0;
   font-weight: bold;
   justify-content: space-around;
 }
-.calendar-tile .day-of-week{
-  place-self: end center;
-  font-size: 1.1rem;
-  margin: 0;
+.date-display{
+  place-self: center;
 }
 .calendar-tile .day-of-month{
-  place-self: start center;
-  font-size: 1.7rem;
+  font-size: 1.8rem;
   margin: 0;
 }
-
-.entretiens-label-s{
-  place-self: end;
-  height: 22px;
-  width: 22px;
-}
-
-.entretiens-label-u{
-  place-self: start;
-  height: 22px;
-  width: 22px;
+.calendar-tile .label{
+  position: relative;
+  bottom: 8px;
+  margin: 0;
+  place-self: center;
 }
 
 /*//////////////////////////////////

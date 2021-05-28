@@ -110,11 +110,6 @@ class AccidentRow extends Component {
             </Table.Cell>
         )
     }
-    getSocieteCell = () => {
-        if(!this.props.hideSociete){
-            return (<Table.Cell style={{textAlign:"center"}}>{this.props.vehicle.societe.name}</Table.Cell>)
-        }
-    }
     getRowActions = () => {
         let actions = [
             {color:"blue",click:()=>{this.navigateToAccident()},icon:'arrow right',tooltip:"Détails de l'accident"}
@@ -126,7 +121,7 @@ class AccidentRow extends Component {
         return (
             <Fragment>
                 <Table.Row>
-                    {this.getSocieteCell()}
+                    <Table.Cell style={{textAlign:"center"}}>{this.props.vehicle.societe.name}</Table.Cell>
                     <Table.Cell style={{textAlign:"center"}}>{this.props.vehicle.registration}</Table.Cell>
                     <Table.Cell style={{textAlign:"center"}}>{this.props.accident.occurenceDate}</Table.Cell>
                     <Table.Cell style={{textAlign:"center"}}>{this.getOthersLabel()}</Table.Cell>

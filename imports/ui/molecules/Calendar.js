@@ -13,6 +13,7 @@ class Calendar extends Component {
     year : parseInt(this.props.match.params.y),
     month : parseInt(this.props.match.params.m),
     selected:null,
+    daysName:["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"],
     entretiensPopulatedMonthQuery: gql`
       query entretiensPopulatedMonth($month:Int!,$year:Int!) {
         entretiensPopulatedMonth(month:$month,year:$year){
@@ -36,51 +37,17 @@ class Calendar extends Component {
               }
               km
             }
-            description
-            fromControl
+            notes{
+              _id
+              text
+              date
+            }
             user{
               _id
               firstname
               lastname
             }
             archived
-            occurenceDate
-          }
-        }
-      }
-    `,
-    entretiensPopulatedMonthByUserQuery: gql`
-      query entretiensPopulatedMonthByUser($month:Int!,$year:Int!) {
-        entretiensPopulatedMonthByUser(month:$month,year:$year){
-          day
-          month
-          year
-          dow
-          today
-          entretiens{
-            _id
-            vehicle{
-              _id
-              registration
-              brand{
-                _id
-                name
-              }
-              model{
-                _id
-                name
-              }
-              km
-            }
-            description
-            fromControl
-            user{
-              _id
-              firstname
-              lastname
-            }
-            archived
-            occurenceDate
           }
         }
       }
@@ -137,39 +104,21 @@ class Calendar extends Component {
   }
 
   loadMonth = ({year,month}) => {
-    if(this.props.userLimited){
-      this.props.client.query({
-        query:this.state.entretiensPopulatedMonthByUserQuery,
-        variables:{
-          month:month,
-          year:year
-        },
-        fetchPolicy:"network-only"
-      }).then(({data})=>{
-        this.props.didRefreshMonth()
-        this.setState({
-          daysOfTheMonth:data.entretiensPopulatedMonthByUser,
-          year:year,
-          month:month
-        })
+    this.props.client.query({
+      query:this.state.entretiensPopulatedMonthQuery,
+      variables:{
+        month:month,
+        year:year
+      },
+      fetchPolicy:"network-only"
+    }).then(({data})=>{
+      this.props.didRefreshMonth()
+      this.setState({
+        daysOfTheMonth:data.entretiensPopulatedMonth,
+        year:year,
+        month:month
       })
-    }else{
-      this.props.client.query({
-        query:this.state.entretiensPopulatedMonthQuery,
-        variables:{
-          month:month,
-          year:year
-        },
-        fetchPolicy:"network-only"
-      }).then(({data})=>{
-        this.props.didRefreshMonth()
-        this.setState({
-          daysOfTheMonth:data.entretiensPopulatedMonth,
-          year:year,
-          month:month
-        })
-      })
-    }
+    })
   }
 
   selectDate = (y,m,d) =>{
@@ -190,6 +139,9 @@ class Calendar extends Component {
         <Header style={{gridRowStart:"1",gridColumnStart:"3"}} as="h2" textAlign='center'>{this.getMonthName(this.state.month)+" "+this.state.year}</Header>
         <Button style={{gridRowStart:"1",gridColumnStart:"4",alignSelf:"center"}} size="small" color="blue" onClick={this.navigateToNextMonth} icon><Icon name="right arrow"/></Button>
         <div className="calendar-tile-container">
+          {this.state.daysName.map(name =>{
+            return <div className="calendar-day-label">{name.substring(0,3)}</div>
+          })}
           {this.state.daysOfTheMonth.map(day => (
             <CalendarTile key={day.year+"/"+day.month+"/"+day.day+"/"+day.entretiens.length} user={this.props.user} selected={this.dateIsSelected({d:day.day,m:day.month,y:day.year})} day={day} selectDate={this.selectDate} />
           ))}

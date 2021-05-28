@@ -190,19 +190,28 @@ class Locations extends Component {
             if(this.state.locationsFiler.length>0){
                 displayed = displayed.filter(i =>i.registration.toLowerCase().includes(this.state.locationsFiler.toLowerCase()));
                 if(displayed.length == 0){
+                    return(
+                        <Table.Row key={"none"}>
+                            <Table.Cell width={16} colSpan='14' textAlign="center">
+                                <p>Aucun consommable répondant à ce filtre</p>
+                            </Table.Cell>
+                        </Table.Row>
+                    )
+                }
+            }
+            if(displayed.length == 0){
                 return(
                     <Table.Row key={"none"}>
-                    <Table.Cell width={16} colSpan='14' textAlign="center">
-                        <p>Aucun consommable répondant à ce filtre</p>
-                    </Table.Cell>
+                        <Table.Cell colSpan="11" textAlign="center">
+                           <p>Aucun véhicule de location</p>
+                        </Table.Cell>
                     </Table.Row>
                 )
-                }
             }
             displayed.sort((a, b) => a.registration.localeCompare(b.registration))
             //displayed = displayed.slice((this.state.currentPage - 1) * this.state.rowByPage, this.state.currentPage * this.state.rowByPage);
             return displayed.map(l =>(
-                <LocationsRow hideSociete={this.props.userLimited} loadLocations={this.loadLocations} societesRaw={this.state.societesRaw} key={l._id} rental={l}/>)
+                <LocationsRow loadLocations={this.loadLocations} societesRaw={this.state.societesRaw} key={l._id} rental={l}/>)
             )
         },
         addLocationQuery : gql`
@@ -216,79 +225,6 @@ class Locations extends Component {
         locationsQuery : gql`
             query locations{
                 locations{
-                    _id
-                    societe{
-                        _id
-                        trikey
-                        name
-                    }
-                    fournisseur{
-                        _id
-                        name
-                        phone
-                        mail
-                        address
-                    }
-                    registration
-                    firstRegistrationDate
-                    km
-                    kms{
-                        _id
-                        reportDate
-                        kmValue
-                    }
-                    lastKmUpdate
-                    brand{
-                        _id
-                        name
-                    }
-                    model{
-                        _id
-                        name
-                    }
-                    energy{
-                        _id
-                        name
-                    }
-                    volume{
-                        _id
-                        meterCube
-                    }
-                    payload
-                    color{
-                        _id
-                        name
-                        hex
-                    }
-                    insurancePaid
-                    startDate
-                    endDate
-                    price
-                    rentalContract
-                    reason
-                    reparation
-                    archived
-                    archiveReason
-                    archiveDate
-                    cg{
-                        _id
-                    }
-                    cv{
-                        _id
-                    }
-                    contrat{
-                        _id
-                    }
-                    restitution
-                    {
-                        _id
-                    }
-                }
-            }
-        `,
-        buLocationsQuery : gql`
-            query buLocations{
-                buLocations{
                     _id
                     societe{
                         _id
@@ -471,56 +407,34 @@ class Locations extends Component {
         })
     }
     loadLocations = () => {
-        let locationsQuery = (this.props.userLimited ? this.state.buLocationsQuery : this.state.locationsQuery);
         this.props.client.query({
-            query:locationsQuery,
+            query:this.state.locationsQuery,
             fetchPolicy:"network-only"
         }).then(({data})=>{
-            let locations = (this.props.userLimited ? data.buLocations : data.locations);
             this.setState({
-                locationsRaw:locations
+                locationsRaw:data.locations
             })
         })
     }
     /*CONTENT GETTERS*/
     getTableHeader = () => {
-        if(this.props.userLimited){
-            return(
-                <Table.Header>
-                    <Table.Row textAlign='center'>
-                        <Table.HeaderCell>Immatriculation</Table.HeaderCell>
-                        <Table.HeaderCell>Kilométrage</Table.HeaderCell>
-                        <Table.HeaderCell>Dernier relevé</Table.HeaderCell>
-                        <Table.HeaderCell>Marque</Table.HeaderCell>
-                        <Table.HeaderCell>Modèle</Table.HeaderCell>
-                        <Table.HeaderCell>Volume</Table.HeaderCell>
-                        <Table.HeaderCell>Charge utile</Table.HeaderCell>
-                        <Table.HeaderCell>Fin de contrat</Table.HeaderCell>
-                        <Table.HeaderCell>Fournisseur</Table.HeaderCell>
-                        <Table.HeaderCell>Documents</Table.HeaderCell>
-                        <Table.HeaderCell>Actions</Table.HeaderCell>
-                    </Table.Row>
-                </Table.Header>
-            )
-        }else{
-            return(
-                <Table.Header>
-                    <Table.Row textAlign='center'>
-                        <Table.HeaderCell>Societe</Table.HeaderCell>
-                        <Table.HeaderCell>Immatriculation</Table.HeaderCell>
-                        <Table.HeaderCell>Kilométrage</Table.HeaderCell>
-                        <Table.HeaderCell>Dernier relevé</Table.HeaderCell>
-                        <Table.HeaderCell>Marque, Modèle & Energie</Table.HeaderCell>
-                        <Table.HeaderCell>Volume</Table.HeaderCell>
-                        <Table.HeaderCell>Charge utile</Table.HeaderCell>
-                        <Table.HeaderCell>Fin de contrat</Table.HeaderCell>
-                        <Table.HeaderCell>Fournisseur</Table.HeaderCell>
-                        <Table.HeaderCell>Documents</Table.HeaderCell>
-                        <Table.HeaderCell>Actions</Table.HeaderCell>
-                    </Table.Row>
-                </Table.Header>
-            )
-        }
+        return(
+            <Table.Header>
+                <Table.Row textAlign='center'>
+                    <Table.HeaderCell>Opéré par</Table.HeaderCell>
+                    <Table.HeaderCell>Immatriculation</Table.HeaderCell>
+                    <Table.HeaderCell>Kilométrage</Table.HeaderCell>
+                    <Table.HeaderCell>Dernier relevé</Table.HeaderCell>
+                    <Table.HeaderCell>Marque, Modèle & Energie</Table.HeaderCell>
+                    <Table.HeaderCell>Volume</Table.HeaderCell>
+                    <Table.HeaderCell>Charge utile</Table.HeaderCell>
+                    <Table.HeaderCell>Fin de contrat</Table.HeaderCell>
+                    <Table.HeaderCell>Fournisseur</Table.HeaderCell>
+                    <Table.HeaderCell>Documents</Table.HeaderCell>
+                    <Table.HeaderCell>Actions</Table.HeaderCell>
+                </Table.Row>
+            </Table.Header>
+        )
     }
     /*COMPONENTS LIFECYCLE*/
     componentDidMount = () => {
@@ -548,7 +462,7 @@ class Locations extends Component {
                             </Table.Body>
                         </Table>
                         <Dimmer inverted active={this.state.loading}>
-                            <Loader size='massive'>Chargement des vehicules ...</Loader>
+                            <Loader size='massive'>Chargement des vehicules de location ...</Loader>
                         </Dimmer>
                     </div>
                 </div>

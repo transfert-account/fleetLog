@@ -97,7 +97,9 @@ class Entretiens extends Component {
             displayed = displayed.filter(e =>
                 e.archived == this.state.archiveFilter
             );
-            
+            if(this.props.user.isAdmin && this.props.user.visibility == "noidthisisgroupvisibility" && this.props.societeFilter != "noidthisisgroupvisibility"){
+                displayed = displayed.filter(e =>e.societe._id == this.props.societeFilter);
+            }
             displayed = displayed.filter(e =>{
                 if(this.state.typeFilter == "all"){
                     return true
@@ -119,23 +121,28 @@ class Entretiens extends Component {
                     )
                 }
             }
+            if(displayed.length == 0){
+                return(
+                    <Table.Row key={"none"}>
+                        <Table.Cell colSpan='6' textAlign="center">
+                            <p>Aucun entretien</p>
+                        </Table.Cell>
+                    </Table.Row>
+                )
+            }
             displayed.sort((a, b) => a.vehicle.registration.localeCompare(b.vehicle.registration))
             return displayed.map(e =>(
-                <EntretienRow userLimited={this.props.userLimited} loadEntretiens={this.loadEntretiens} key={e._id} entretien={e}/>
+                <EntretienRow loadEntretiens={this.loadEntretiens} key={e._id} entretien={e}/>
             ))
         },
-        addEntretienQuery : gql`
-            mutation addEntretien($vehicle:String!){
-                addEntretien(vehicle:$vehicle){
-                    status
-                    message
-                }
-            }
-        `,
         entretiensQuery : gql`
             query entretiens{
                 entretiens{
                     _id
+                    societe{
+                        _id
+                        name
+                    }
                     vehicle{
                         _id
                         registration
@@ -168,32 +175,8 @@ class Entretiens extends Component {
                         name
                     }
                     archived
-                    user
-                }
-            }
-        `,
-        buEntretiensQuery : gql`
-            query buEntretiens{
-                buEntretiens{
-                    _id
-                    vehicle{
+                    user{
                         _id
-                        registration
-                        firstRegistrationDate
-                        km
-                        brand{
-                            _id
-                            name
-                        }
-                        model{
-                            _id
-                            name
-                        }
-                        shared
-                        sharedTo{
-                            _id
-                            name
-                        }
                     }
                 }
             }
@@ -250,35 +233,16 @@ class Entretiens extends Component {
     }
     /*DB READ AND WRITE*/
     loadEntretiens = () => {
-        let entretiensQuery = (this.props.userLimited ? this.state.buEntretiensQuery : this.state.entretiensQuery);
         this.props.client.query({
-            query:entretiensQuery,
+            query:this.state.entretiensQuery,
             fetchPolicy:"network-only"
         }).then(({data})=>{
-            let entretiens = (this.props.userLimited ? data.buEntretiens : data.entretiens);
             this.setState({
-                entretiensRaw:entretiens
+                entretiensRaw:data.entretiens
             })
         })
     }
-    addEntretien = () => {
-        this.closeAddEntretien()
-        this.props.client.mutate({
-            mutation:this.state.addEntretienQuery,
-            variables:{
-                vehicle:this.state.newVehicle
-            }
-        }).then(({data})=>{
-            data.addEntretien.map(qrm=>{
-                if(qrm.status){
-                    this.props.toast({message:qrm.message,type:"success"});
-                    this.loadEntretiens();
-                }else{
-                    this.props.toast({message:qrm.message,type:"error"});
-                }
-            })
-        })
-    }
+
     /*CONTENT GETTERS*/
     /*COMPONENTS LIFECYCLE*/
     componentDidMount = () => {
@@ -286,23 +250,21 @@ class Entretiens extends Component {
     }
     render() {
         return (
-            <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto auto 1fr auto",gridTemplateColumns:"auto 1fr auto"}}>
+            <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto auto 1fr auto",gridTemplateColumns:"auto 1fr"}}>
                 <EntretienMenu active="entretiens"/>
                 <Input style={{justifySelf:"stretch"}} name="entretienFilter" onChange={this.handleChange} icon='search' placeholder='Rechercher une immatriculation'/>
-                <div style={{display:"flex",justifyContent:"flex-end"}}>
-                    <BigIconButton icon="plus" color="blue" onClick={this.showAddEntretien} tooltip="Créer un entretien curatif"/>
-                </div>
-                <CustomFilterSegment resetAll={this.resetAll} style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3"}}>
+                <CustomFilterSegment resetAll={this.resetAll} style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 2"}}>
                     {this.state.filters.map(f=>{
                         return(
                             <CustomFilter key={f.infos} infos={this.state[f.infos]} active={this.state[f.filter]}/>
                         )
                     })}
                 </CustomFilterSegment>
-                <div style={{gridRowStart:"3",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
+                <div style={{gridRowStart:"3",gridColumnEnd:"span 2",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                     <Table style={{marginBottom:"0"}} celled selectable compact>
                         <Table.Header>
                             <Table.Row textAlign='center'>
+                                <Table.HeaderCell>Propriétaire</Table.HeaderCell>
                                 <Table.HeaderCell>Véhicule</Table.HeaderCell>
                                 <Table.HeaderCell>Type</Table.HeaderCell>
                                 <Table.HeaderCell>Nature</Table.HeaderCell>
@@ -315,22 +277,6 @@ class Entretiens extends Component {
                         </Table.Body>
                     </Table>
                 </div>
-                <Modal size="mini" closeOnDimmerClick={false} open={this.state.openAddEntretien} onClose={this.closeAddEntretien} closeIcon>
-                    <Modal.Header>
-                        Création d'un entretien curatif
-                    </Modal.Header>
-                    <Modal.Content style={{textAlign:"center"}}>
-                        <Form style={{display:"grid",gridTemplateRows:"1fr",gridTemplateColumns:"1fr",gridGap:"16px"}}>
-                            <Form.Field>
-                                <label>Véhicule associé</label>
-                                <VehiclePicker userRestricted={this.props.userLimited} hideLocations={true} onChange={this.handleChangeVehicle}/>
-                            </Form.Field>
-                        </Form>
-                    </Modal.Content>
-                    <Modal.Actions>
-                        <Button color="blue" onClick={this.addEntretien}>Créer</Button>
-                    </Modal.Actions>
-                </Modal>
             </div>
         )
     }

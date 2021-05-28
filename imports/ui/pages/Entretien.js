@@ -3,7 +3,6 @@ import { Loader, Table, Button, Icon, Segment, Form, Message, Modal, Input, Drop
 import { UserContext } from '../../contexts/UserContext';
 import BigIconButton from '../elements/BigIconButton';
 import FAFree from '../elements/FAFree';
-import PiecePicker from '../atoms/PiecePicker';
 import FileManagementPanel from '../atoms/FileManagementPanel';
 import ModalDatePicker from '../atoms/ModalDatePicker'
 import { withRouter } from 'react-router-dom';
@@ -15,6 +14,7 @@ class Entretien extends Component {
     state={
         editing:false,
         activePanel:"infos",
+        filterAddPiece:"",
         entretienRaw:null,
         newPiece:"",
         newDesc:"",
@@ -22,11 +22,13 @@ class Entretien extends Component {
         newTitle:"",
         newTime:0,
         newPieces:[],
+        piecesRaw:[],
         newAffectDate:"",
         openDatePicker:false,
         newStatus:0,
         newNote:"",
         openAddNote:false,
+        openAddPiece:false,
         openDeleteNote:false,
         openDelete:false,
         openAffectToMe:false,
@@ -103,7 +105,9 @@ class Entretien extends Component {
                     }
                     status
                     archived
-                    user
+                    user{
+                        _id
+                    }
                 }
             }
         `,
@@ -130,14 +134,6 @@ class Entretien extends Component {
                     message
                 }
             }
-        `,
-        addCommandeQuery : gql`
-        mutation addCommande($entretien:String!,$piece:String!,$price:Float!){
-            addCommande(entretien:$entretien,piece:$piece,price:$price){
-                status
-                message
-            }
-        }
         `,
         addNoteQuery : gql`
             mutation addNote($_id:String!,$note:String!){
@@ -171,6 +167,14 @@ class Entretien extends Component {
                 }
             }
         `,
+        addPieceToEntretienQuery : gql`
+            mutation addPieceToEntretien($_id:String!,$piece:String!){
+                addPieceToEntretien(_id:$_id,piece:$piece){
+                    status
+                    message
+                }
+            }
+        `,
         uploadEntretienDocumentQuery : gql`
             mutation uploadEntretienDocument($_id: String!,$file: Upload!,$type: String!,$size: Int!) {
                 uploadEntretienDocument(_id:$_id,file:$file,type:$type,size:$size) {
@@ -179,22 +183,40 @@ class Entretien extends Component {
                 }
             }
         `,
+        piecesAllQuery: gql`
+            query piecesAll{
+                piecesAll{
+                    _id
+                    type
+                    brand
+                    reference
+                    prixHT
+                    name
+                }
+            }
+        `,
         types: [
             {key:"obli",label:"obligatoire",labelCap:"Obligatoire"},
             {key:"prev",label:"préventif",labelCap:"Préventif"},
             {key:"cura",label:"curatif",labelCap:"Curatif"}
-        ]
+        ],
+        piecesTypes:[
+            {name:'Pièces',add:'une pièce',key:"pie"},
+            {name:'Pneumatiques',add:'un pneumatique',key:"pne"},
+            {name:'Agents',add:'un agent',key:"age"},
+            {name:'Outils',add:'une outil',key:"out"}
+        ],
     }
 
     /*SHOW AND HIDE MODALS*/
-    showAddCommande = () => {
+    showAddPiece = () => {
         this.setState({
-            openAddCommande:true
+            openAddPiece: true
         })
     }
-    closeAddCommande = () => {
+    closeAddPiece = () => {
         this.setState({
-            openAddCommande:false
+            openAddPiece: false
         })
     }
     showAddNote = () => {
@@ -297,6 +319,32 @@ class Entretien extends Component {
     }
     /*FILTERS HANDLERS*/
     /*DB READ AND WRITE*/
+    loadEntretien = () => {
+        this.props.client.query({
+            query:this.state.entretienQuery,
+            variables:{
+                _id:this.state._id
+            },
+            fetchPolicy:"network-only"
+        }).then(({data})=>{
+            this.setState({
+                entretienRaw:data.entretien,
+                newTime:data.entretien.time,
+                newStatus:data.entretien.status,
+                loadingEntretien:false
+            })
+        })
+    }
+    loadAllPieces = () => {
+        this.props.client.query({
+            query:this.state.piecesAllQuery,
+            fetchPolicy:"network-only"
+        }).then(({data})=>{
+            this.setState({
+                piecesRaw:data.piecesAll
+            })
+        })
+    }
     saveEdit = () => {
         this.setState({editing:false})
         this.props.client.mutate({
@@ -338,19 +386,22 @@ class Entretien extends Component {
             })
         })
     }
-    loadEntretien = () => {
-        this.props.client.query({
-            query:this.state.entretienQuery,
+    addPiece = id => {
+        this.closeAddPiece();
+        this.props.client.mutate({
+            mutation:this.state.addPieceToEntretienQuery,
             variables:{
-                _id:this.state._id
-            },
-            fetchPolicy:"network-only"
+                _id:this.state.entretienRaw._id,
+                piece:id
+            }
         }).then(({data})=>{
-            this.setState({
-                entretienRaw:data.entretien,
-                newTime:data.entretien.time,
-                newStatus:data.entretien.status,
-                loadingEntretien:false
+            data.addPieceToEntretien.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.loadEntretien();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
             })
         })
     }
@@ -462,6 +513,7 @@ class Entretien extends Component {
             data.editPieces.map(qrm=>{
                 if(qrm.status){
                     this.props.toast({message:qrm.message,type:"success"});
+                    this.loadEntretien();
                 }else{
                     this.props.toast({message:qrm.message,type:"error"});
                 }
@@ -607,7 +659,7 @@ class Entretien extends Component {
                         {this.state.entretienRaw.piecesQty.map(p=>{
                             totalHT += parseFloat(p.piece.prixHT*p.qty)
                             return(
-                                <Table.Row>
+                                <Table.Row key={p.piece._id}>
                                     <Table.Cell><b>{p.piece.name}</b><br/>{p.piece.brand + " " + p.piece.reference}</Table.Cell>
                                     <Table.Cell textAlign="center">{new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(parseFloat(p.piece.prixHT))}</Table.Cell>
                                     <Table.Cell textAlign="center">{p.qty}</Table.Cell>
@@ -701,6 +753,7 @@ class Entretien extends Component {
     }
     /*COMPONENTS LIFECYCLE*/
     componentDidMount = () => {
+        this.loadAllPieces();
         this.loadEntretien();
     }
 
@@ -727,7 +780,7 @@ class Entretien extends Component {
                             {this.getOverviewMessage()}
                             <div style={{display:"flex"}}>
                                 <BigIconButton icon="edit" color="blue" onClick={()=>{this.setState({editing:true,activePanel:"infos"})}} tooltip="Editer les infos de l'entretien"/>
-                                <BigIconButton icon="cart" color="blue" onClick={this.showAddCommande} tooltip="Ajouter une piece à la commande"/>
+                                <BigIconButton icon="cart" color="blue" onClick={this.showAddPiece} tooltip="Ajouter une piece"/>
                                 <BigIconButton icon="chat" color="blue" onClick={this.showAddNote} tooltip="Ajouter une note" spacedFromNext/>
                                 <BigIconButton icon="folder open" color="purple" onClick={()=>this.setState({activePanel:"docs"})} tooltip="Documents"/>
                                 {this.getArchiveButton()}
@@ -746,38 +799,49 @@ class Entretien extends Component {
                             {this.getActivePanel()}
                         </div>
                     </div>
-                    <Modal size="small" closeOnDimmerClick={false} open={this.state.openAddCommande} onClose={this.closeAddCommande} closeIcon>
+                    <Modal closeOnDimmerClick={false} open={this.state.openAddPiece} onClose={this.closeAddPiece} closeIcon>
                         <Modal.Header>
-                            Choisissez une pièce à commander
+                            <Input size='big' placeholder="Filtrer les pièces à commander ..." fluid icon="search" iconPosition="left" name="filterAddPiece" onChange={this.handleChange}/>
                         </Modal.Header>
                         <Modal.Content style={{textAlign:"center"}}>
-                            <Form style={{display:"grid",gridTemplateRows:"1fr 1fr 1fr",gridTemplateColumns:"1fr 1fr 1fr 1fr",gridGap:"16px"}}>
-                                <Form.Field style={{gridRowStart:"1",gridColumnStart:"1"}}>
-                                    <label>Pièces</label>
-                                    <PiecePicker type={"pie"} name={"Pièces"} onChange={this.handleChangePiece}/>
-                                </Form.Field>
-                                <Form.Field style={{gridRowStart:"1",gridColumnStart:"2"}}>
-                                    <label>Pneumatiques</label>
-                                    <PiecePicker type={"pne"} name={"Pneumatiques"} onChange={this.handleChangePiece}/>
-                                </Form.Field>
-                                <Form.Field style={{gridRowStart:"1",gridColumnStart:"3"}}>
-                                    <label>Agents</label>
-                                    <PiecePicker type={"age"} name={"Agents"} onChange={this.handleChangePiece}/>
-                                </Form.Field>
-                                <Form.Field style={{gridRowStart:"1",gridColumnStart:"4"}}>
-                                    <label>Outils</label>
-                                    <PiecePicker type={"out"} name={"Outils"} onChange={this.handleChangePiece}/>
-                                </Form.Field>
-                                <Message color={this.getContentColor()} icon={this.getPieceIcon()} header={this.state.newPieceName} style={{gridRowStart:"2",gridColumnStart:"2",gridColumnEnd:"span 2"}} content={this.getPieceTypeName()}/>
-                                <Form.Field style={{gridRowStart:"3",gridColumnStart:"2",gridColumnEnd:"span 2",placeSelf:"stretch"}}>
-                                    <label>Cout de la commande</label>
-                                    <Input name="newPrice" onChange={this.handleChange}/>
-                                </Form.Field>
-                            </Form>
+                            <Modal.Description>
+                                <Table striped celled compact="very">
+                                    <Table.Header>
+                                        <Table.Row>
+                                            <Table.HeaderCell>Type</Table.HeaderCell>
+                                            <Table.HeaderCell>Nom</Table.HeaderCell>
+                                            <Table.HeaderCell>Actions</Table.HeaderCell>
+                                        </Table.Row>
+                                    </Table.Header>
+                                    <Table.Body>
+                                        {this.state.piecesRaw.filter(p=>{
+                                            if(this.state.entretienRaw.piecesQty.map(x=>(x.piece._id)).includes(p._id)){
+                                                return false;
+                                            }
+                                            if(this.state.filterAddPiece.length > 0){
+                                                return (p.name.toLowerCase().includes(this.state.filterAddPiece.toLowerCase()))
+                                            }else{
+                                                return true
+                                            }
+                                        }).map(p=>{
+                                            return(
+                                                <Table.Row key={p._id}>
+                                                    <Table.Cell collapsing>{this.state.piecesTypes.filter(t=>t.key == p.type)[0].name}</Table.Cell>
+                                                    <Table.Cell>{p.name}</Table.Cell>
+                                                    <Table.Cell collapsing>
+                                                    <Button onClick={()=>{this.addPiece(p._id)}} icon>
+                                                        <Icon name="shopping cart"/>
+                                                    </Button>
+                                                    </Table.Cell>
+                                                </Table.Row>
+                                            )
+                                        })}
+                                    </Table.Body>
+                                </Table>
+                            </Modal.Description>
                         </Modal.Content>
                         <Modal.Actions>
-                            <Button color="grey" onClick={this.closeAddCommande}>Annuler</Button>
-                            <Button color="blue" onClick={this.addCommande}>Créer</Button>
+                            <Button color="blue" onClick={this.closeAddPiece}>Créer</Button>
                         </Modal.Actions>
                     </Modal>
                     <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openAddNote} onClose={this.closeAddNote} closeIcon>

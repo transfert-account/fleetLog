@@ -44,29 +44,28 @@ class Planning extends Component {
       query entretiensOfTheDay($date:String!){
         entretiensOfTheDay(date:$date){
           _id
-          description
-          fromControl
-          user{
-            _id
-            firstname
-            lastname
-          }
-          title
           societe{
             _id
             trikey
             name
           }
-          commandes{
+          originNature{
             _id
-            piece{
-              _id
-              name
-              type
-            }
-            entretien
-            status
-            price
+            name
+          }
+          originControl{
+            key
+            name
+          }
+          notes{
+            _id
+            text
+            date
+          }
+          user{
+            _id
+            firstname
+            lastname
           }
           vehicle{
             _id
@@ -85,11 +84,6 @@ class Planning extends Component {
               meterCube
             }
             payload
-            color{
-              _id
-              name
-              hex
-            }
           }
         }
       }
@@ -98,15 +92,30 @@ class Planning extends Component {
       query myEntretiens{
         myEntretiens{
           _id
-          description
-          fromControl
-          title
           societe{
             _id
             trikey
             name
           }
+          originNature{
+            _id
+            name
+          }
+          originControl{
+            key
+            name
+          }
+          notes{
+            _id
+            text
+            date
+          }
           occurenceDate
+          societe{
+            _id
+            trikey
+            name
+          }
           vehicle{
             _id
             registration
@@ -124,11 +133,6 @@ class Planning extends Component {
               meterCube
             }
             payload
-            color{
-              _id
-              name
-              hex
-            }
           }
         }
       }
@@ -137,13 +141,23 @@ class Planning extends Component {
       query unaffectedEntretiens{
         unaffectedEntretiens{
           _id
-          description
-          fromControl
-          title
           societe{
             _id
             trikey
             name
+          }
+          originNature{
+            _id
+            name
+          }
+          originControl{
+            key
+            name
+          }
+          notes{
+            _id
+            text
+            date
           }
           vehicle{
             _id
@@ -162,11 +176,6 @@ class Planning extends Component {
               meterCube
             }
             payload
-            color{
-              _id
-              name
-              hex
-            }
           }
         }
       }
@@ -184,98 +193,6 @@ class Planning extends Component {
         release(_id:$_id){
           status
           message
-        }
-      }
-    `,
-    buEntretiensOfTheDayQuery : gql`
-      query buEntretiensOfTheDay($date:String!){
-        buEntretiensOfTheDay(date:$date){
-          _id
-          description
-          fromControl
-          user{
-            _id
-            firstname
-            lastname
-          }
-          title
-          commandes{
-            _id
-            piece{
-              _id
-              name
-              type
-            }
-            entretien
-            status
-            price
-          }
-          vehicle{
-            _id
-            societe{
-              _id
-              trikey
-              name
-            }
-            registration
-            km
-            brand{
-              _id
-              name
-            }
-            model{
-              _id
-              name
-            }
-            volume{
-              _id
-              meterCube
-            }
-            payload
-            color{
-              _id
-              name
-              hex
-            }
-          }
-        }
-      }
-    `,
-    buUnaffectedEntretiensQuery : gql`
-      query buUnaffectedEntretiens{
-        buUnaffectedEntretiens{
-          _id
-          description
-          fromControl
-          title
-          vehicle{
-            _id
-            societe{
-              _id
-              trikey
-              name
-            }
-            registration
-            km
-            brand{
-              _id
-              name
-            }
-            model{
-              _id
-              name
-            }
-            volume{
-              _id
-              meterCube
-            }
-            payload
-            color{
-              _id
-              name
-              hex
-            }
-          }
         }
       }
     `
@@ -401,18 +318,18 @@ class Planning extends Component {
       })
     })
   }
+
   loadUnaffectedEntretiens = () => {
-    let unaffectedEntretiensQuery = (this.props.userLimited ? this.state.buUnaffectedEntretiensQuery : this.state.unaffectedEntretiensQuery);
     this.props.client.query({
-      query:unaffectedEntretiensQuery,
+      query:this.state.unaffectedEntretiensQuery,
       fetchPolicy:"network-only"
     }).then(({data})=>{
-      let unaffectedEntretiens = (this.props.userLimited ? data.buUnaffectedEntretiens : data.unaffectedEntretiens);
       this.setState({
-        unaffectedEntretiensRaw:unaffectedEntretiens
+        unaffectedEntretiensRaw: data.unaffectedEntretiens
       })
     })
   }
+
   loadMyEntretiens = () => {
     this.props.client.query({
       query:this.state.myEntretiensQuery,
@@ -423,24 +340,18 @@ class Planning extends Component {
       })
     })
   }
+
   loadEntretiensOfTheDay = (date) => {
     let formatedDate = "";
-    if(date != null){
-      formatedDate = date;
-    }else{
-      formatedDate = this.state.selectedDate;
-    }
-    let entretiensOfTheDayQuery = (this.props.userLimited ? this.state.buEntretiensOfTheDayQuery : this.state.entretiensOfTheDayQuery);
     this.props.client.query({
-      query:entretiensOfTheDayQuery,
+      query:this.state.entretiensOfTheDayQuery,
       variables:{
-        date: formatedDate.format('DD/MM/YYYY')
+        date: (date != null ? formatedDate = date : formatedDate = this.state.selectedDate).format('DD/MM/YYYY')
       },
       fetchPolicy:"network-only"
     }).then(({data})=>{
-      let entretiensOfTheDay = (this.props.userLimited ? data.buEntretiensOfTheDay : data.entretiensOfTheDay);
       this.setState({
-        entretiensOfTheDayRaw:entretiensOfTheDay
+        entretiensOfTheDayRaw:data.entretiensOfTheDay
       })
     })
   }
@@ -460,7 +371,7 @@ class Planning extends Component {
           </Table.Header>
           <Table.Body>
             {this.state.entretiensOfTheDay().map(e=>{
-              return (<PlanningRow hideSociete={this.props.userLimited} key={e._id+"unaffected"} active={this.state.activeItem} triggerReleaseEntretien={this.triggerReleaseEntretien} navigateToEntretien={this.navigateToEntretien} entretien={e} />)
+              return (<PlanningRow key={e._id+"unaffected"} active={this.state.activeItem} triggerReleaseEntretien={this.triggerReleaseEntretien} navigateToEntretien={this.navigateToEntretien} entretien={e} />)
             })}
           </Table.Body>
         </Table>
@@ -480,7 +391,7 @@ class Planning extends Component {
           </Table.Header>
           <Table.Body>
             {this.state.myEntretiensRaw.map(e=>{
-              return (<PlanningRow hideSociete={this.props.userLimited} active={this.state.activeItem} triggerReleaseEntretien={this.triggerReleaseEntretien} key={e._id} navigateToEntretien={this.navigateToEntretien} entretien={e} />)
+              return (<PlanningRow active={this.state.activeItem} triggerReleaseEntretien={this.triggerReleaseEntretien} key={e._id} navigateToEntretien={this.navigateToEntretien} entretien={e} />)
             })}
           </Table.Body>
         </Table>
@@ -491,7 +402,7 @@ class Planning extends Component {
         <Table color="orange" celled selectable compact>
           <Table.Header>
             <Table.Row textAlign='center'>
-              {(this.props.userLimited ? "" : <Table.HeaderCell>Societe</Table.HeaderCell>)}
+              <Table.HeaderCell>Societe</Table.HeaderCell>
               <Table.HeaderCell>Véhicule</Table.HeaderCell>
               <Table.HeaderCell>Type</Table.HeaderCell>
               <Table.HeaderCell>Entretien</Table.HeaderCell>
@@ -500,7 +411,7 @@ class Planning extends Component {
           </Table.Header>
           <Table.Body>
             {this.state.unaffectedEntretiens().map(e=>{
-              return (<PlanningRow hideSociete={this.props.userLimited} active={this.state.activeItem} key={e._id+"unaffected"} triggerAffectToMe={this.triggerAffectToMe} navigateToEntretien={this.navigateToEntretien} entretien={e} />)
+              return (<PlanningRow active={this.state.activeItem} key={e._id+"unaffected"} triggerAffectToMe={this.triggerAffectToMe} navigateToEntretien={this.navigateToEntretien} entretien={e} />)
             })}
           </Table.Body>
         </Table>
@@ -508,11 +419,9 @@ class Planning extends Component {
     }
   }
   getSelectedDayLabel = () => {
-    let myEntretiensLabel = this.state.entretiensOfTheDay().filter(e=>e.user._id == this.props.user._id).length;
     let allEntretiensLabel = this.state.entretiensOfTheDay().length;
     return(
       <Fragment>
-        {(myEntretiensLabel != 0 ? <Label size="big" color="green" >{myEntretiensLabel}</Label> : "")}
         {(allEntretiensLabel != 0 ? <Label size="big" color="blue" >{allEntretiensLabel}</Label> : "")}
       </Fragment>
     )
@@ -533,6 +442,7 @@ class Planning extends Component {
       return(<Label size="big" color="grey" >0</Label>)
     }
   }
+  
   /*COMPONENTS LIFECYCLE*/
   componentDidMount = () => {
     this.loadUnaffectedEntretiens();
@@ -543,7 +453,7 @@ class Planning extends Component {
     return (
       <Fragment>
         <div style={{display:"grid",gridTemplateColumns:"auto 1fr",gridTemplateRows:"auto 1fr",gridGap:"32px",height:"100%"}}>
-          <Calendar userLimited={this.props.userLimited} didRefreshMonth={this.didRefreshMonth} needToRefreshMonth={this.state.needToRefreshMonth} selectDate={this.selectDate} month={this.state.month} year={this.state.year}/>
+          <Calendar didRefreshMonth={this.didRefreshMonth} needToRefreshMonth={this.state.needToRefreshMonth} selectDate={this.selectDate} month={this.state.month} year={this.state.year}/>
           <Segment style={{gridRowEnd:"span 2",display:"grid",gridGap:"20px",gridTemplateRows:"auto minmax(0,1fr)"}}>
             <Menu size="massive" widths={3} pointing secondary>
               <Menu.Item color="blue" name='selectedDay' active={this.state.activeItem === 'selectedDay'} onClick={()=>this.setState({activeItem:"selectedDay"})}>

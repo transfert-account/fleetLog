@@ -35,11 +35,6 @@ class LocationRow extends Component {
         }
         return <Table.Cell textAlign="center"><Label color="green"> {moment(this.props.rental.endDate, "DD/MM/YYYY").fromNow()}, le {this.props.rental.endDate}</Label></Table.Cell>
     }
-    getSocieteCell = () => {
-        if(!this.props.hideSociete){
-            return <Table.Cell textAlign="center">{this.props.rental.societe.name}</Table.Cell>
-        }
-    }
     getDescCell = () => {
         return(
             <Table.Cell textAlign="center">{this.props.rental.brand.name + " - " + this.props.rental.model.name + " (" + this.props.rental.energy.name + ")"}</Table.Cell>
@@ -92,7 +87,7 @@ class LocationRow extends Component {
         return (
             <Fragment>
                 <Table.Row>
-                    {this.getSocieteCell()}
+                    <Table.Cell textAlign="center">{this.props.rental.societe.name}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.rental.registration}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.rental.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km</Table.Cell>
                     {this.getLastReportCell()}

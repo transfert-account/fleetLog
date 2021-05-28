@@ -24,9 +24,6 @@ import PieceResolvers from '../api/piece/resolvers.js';
 import EntretienSchema from '../api/entretien/Entretien.graphql';
 import EntretienResolvers from '../api/entretien/resolvers.js';
 
-import CommandeSchema from '../api/commande/Commande.graphql';
-import CommandeResolvers from '../api/commande/resolvers.js';
-
 import PlanningSchema from '../api/planning/Planning.graphql';
 import PlanningResolvers from '../api/planning/resolvers.js';
 
@@ -63,8 +60,8 @@ import DocumentResolvers from '../api/document/resolvers.js';
 import EnergySchema from '../api/energy/Energy.graphql';
 import EnergyResolvers from '../api/energy/resolvers';
 
-import BatimentSchema from '../api/batiment/Batiment.graphql';
-import BatimentResolvers from '../api/batiment/resolvers';
+import BatimentSchema from '../api/batimentControl/BatimentControl.graphql';
+import BatimentResolvers from '../api/batimentControl/resolvers';
 
 import AccidentSchema from '../api/accident/Accident.graphql';
 import AccidentResolvers from '../api/accident/resolvers';
@@ -102,7 +99,7 @@ import InterventionNatureResolvers from '../api/interventionNature/resolvers.js'
 import LogSchema from '../api/log/Log.graphql';
 import LogResolvers from '../api/log/resolvers.js';
 
-// #0510
+// #0525
 
 const typeDefs = [
     UserSchema,

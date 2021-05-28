@@ -1,17 +1,18 @@
 import React, { Component } from 'react';
-import { Input, Button, Modal, Form } from 'semantic-ui-react';
+import { Input, Button, Modal, Form, Table } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 
 import BigIconButton from '../elements/BigIconButton';
 
 import CustomFilterSegment from '../molecules/CustomFilterSegment';
-import BatimentControlRowGroup from '../molecules/BatimentControlRowGroup';
+import BatimentControlRow from '../molecules/BatimentControlRow';
 
 import CustomFilter from '../atoms/CustomFilter';
 import ModalDatePicker from '../atoms/ModalDatePicker'
 import SocietePicker from '../atoms/SocietePicker'
 
 import { gql } from 'apollo-server-express';
+import moment from 'moment';
 
 class Batiments extends Component {
 
@@ -101,12 +102,24 @@ class Batiments extends Component {
         batimentControls : () => {
             let displayed = Array.from(this.state.batimentControlsRaw);
             if(this.props.user.isAdmin && this.props.user.visibility == "noidthisisgroupvisibility" && this.props.societeFilter != "noidthisisgroupvisibility"){
-                displayed = displayed.filter(b =>
-                    b.societe._id == this.props.societeFilter
+                displayed = displayed.filter(bc =>
+                    bc.societe._id == this.props.societeFilter
                 );
             }
-            return displayed.map(b =>(
-                <BatimentControlRowGroup batimentFilter={this.state.batimentFilter} docsFilter={this.state.docsFilter} timeLeftFilter={this.state.timeLeftFilter} loadBatiments={this.loadBatiments} key={b.societe._id} batiment={b}/>
+            if(displayed.length == 0){
+                return(
+                    <Table.Row key={"none"}>
+                        <Table.Cell colSpan='7' textAlign="center">
+                        <p>Aucun contrôle</p>
+                        </Table.Cell>
+                    </Table.Row>
+                )
+            }
+            return displayed.sort((a,b)=>{
+                return parseInt(moment(a.lastExecution,"DD/MM/YYYY").add(a.delay, 'days').diff(moment(),'day', true)) -
+                parseInt(moment(b.lastExecution,"DD/MM/YYYY").add(a.delay, 'days').diff(moment(),'day', true))
+            }).map(bc =>(
+                <BatimentControlRow batimentFilter={this.state.batimentFilter} docsFilter={this.state.docsFilter} timeLeftFilter={this.state.timeLeftFilter} loadBatiments={this.loadBatiments} key={bc._id} control={bc}/>
             ))
         },
         addBatimentControlQuery : gql`
@@ -125,64 +138,33 @@ class Batiments extends Component {
                 }
             }
         `,
-        batimentsQuery : gql`
-            query batiments{
-                batiments{
+        batimentControlsQuery : gql`
+            query batimentControls{
+                batimentControls{
+                    _id
                     societe{
                         _id
                         trikey
                         name
                     }
-                    controls{
+                    name
+                    delay
+                    lastExecution
+                    delay
+                    ficheInter{
                         _id
                         name
-                        delay
-                        lastExecution
-                        delay
-                        ficheInter{
-                            _id
-                            name
-                            size
-                            path
-                            originalFilename
-                            ext
-                            type
-                            mimetype
-                            storageDate
-                        }
+                        size
+                        path
+                        originalFilename
+                        ext
+                        type
+                        mimetype
+                        storageDate
                     }
                 }
             }
         `,
-        buBatimentsQuery : gql`
-            query buBatiments{
-                buBatiments{
-                    societe{
-                        _id
-                        trikey
-                        name
-                    }
-                    controls{
-                        _id
-                        name
-                        delay
-                        lastExecution
-                        delay
-                        ficheInter{
-                            _id
-                            name
-                            size
-                            path
-                            originalFilename
-                            ext
-                            type
-                            mimetype
-                            storageDate
-                        }
-                    }
-                }
-            }
-        `
     }
     /*SHOW AND HIDE MODALS*/
     showAddBatimentControl = () => {
@@ -238,14 +220,12 @@ class Batiments extends Component {
     }
     /*DB READ AND WRITE*/
     loadBatiments = () => {
-        let batimentsQuery = (this.props.userLimited ? this.state.buBatimentsQuery : this.state.batimentsQuery);
         this.props.client.query({
-            query:batimentsQuery,
+            query:this.state.batimentControlsQuery,
             fetchPolicy:"network-only"
         }).then(({data})=>{
-            let batiments = (this.props.userLimited ? data.buBatiments : data.batiments);
             this.setState({
-                batimentControlsRaw:batiments
+                batimentControlsRaw:data.batimentControls
             })
         })
     }
@@ -305,7 +285,22 @@ class Batiments extends Component {
                     <CustomFilter infos={this.state.docsFilterInfos} active={this.state.docsFilter} />
                 </CustomFilterSegment>
                 <div style={{gridRowStart:"3",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
-                    {this.state.batimentControls()}
+                    <Table style={{marginBottom:"16px"}} celled selectable color="blue" compact>
+                        <Table.Header>
+                            <Table.Row textAlign='center'>
+                                <Table.HeaderCell>Societe</Table.HeaderCell>
+                                <Table.HeaderCell>Contrôle</Table.HeaderCell>
+                                <Table.HeaderCell>Délai</Table.HeaderCell>
+                                <Table.HeaderCell>Dernière exécution</Table.HeaderCell>
+                                <Table.HeaderCell>Avant prochaine exécution</Table.HeaderCell>
+                                <Table.HeaderCell>Documents</Table.HeaderCell>
+                                <Table.HeaderCell>Actions</Table.HeaderCell>
+                            </Table.Row>
+                        </Table.Header>
+                        <Table.Body>
+                            {this.state.batimentControls()}
+                        </Table.Body>
+                    </Table>
                 </div>
                 <Modal size="tiny" closeOnDimmerClick={false} open={this.state.openAddBatimentControl} onClose={this.closeAddBatimentControl} closeIcon>
                     <Modal.Header>

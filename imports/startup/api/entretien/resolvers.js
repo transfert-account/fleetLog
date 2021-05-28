@@ -1,7 +1,6 @@
-import Entretiens from './entretiens';
+import Entretiens, { ENTRETIENS } from './entretiens';
 import InterventionNature from '../interventionNature/interventionNatures';
 import Vehicles from '../vehicle/vehicles';
-import Commandes from '../commande/commandes';
 import Pieces from '../piece/pieces';
 import Brands from '../brand/brands.js';
 import Models from '../model/models.js';
@@ -12,15 +11,15 @@ import Functions from '../common/functions';
 import moment from 'moment';
 import { Mongo } from 'meteor/mongo';
 
-const affectEntretienData = (e,i,entretiens) => {
+const affectEntretienData = e => {
     try{
         e.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(e.vehicle)});
         e.vehicle.lastKmUpdate = e.vehicle.kms[e.vehicle.kms.length-1].reportDate
         e.vehicle.km = e.vehicle.kms[e.vehicle.kms.length-1].kmValue
         if(e.vehicle.societe != null && e.vehicle.societe.length > 0){
-            entretiens[i].vehicle.societe = Societes.findOne({_id:new Mongo.ObjectID(e.vehicle.societe)});
+            e.vehicle.societe = Societes.findOne({_id:new Mongo.ObjectID(e.vehicle.societe)});
         }else{
-            entretiens[i].vehicle.societe = {_id:"",name:""};
+            e.vehicle.societe = {_id:"",name:""};
         }
         if(e.vehicle.brand != null && e.vehicle.brand.length > 0){
             e.vehicle.brand = Brands.findOne({_id:new Mongo.ObjectID(e.vehicle.brand)});
@@ -36,6 +35,11 @@ const affectEntretienData = (e,i,entretiens) => {
             e.vehicle.sharedTo = Societes.findOne({_id:new Mongo.ObjectID(e.vehicle.sharedTo)});
         }else{
             e.vehicle.sharedTo = {_id:""};
+        }
+        if(e.societe != null && e.societe.length > 0){
+            e.societe = Societes.findOne({_id:new Mongo.ObjectID(e.societe)});
+        }else{
+            e.societe = {_id:"",name:""};
         }
         if(e.originNature != null){
             e.originNature = InterventionNature.findOne({_id:new Mongo.ObjectID(e.originNature)});
@@ -101,6 +105,12 @@ const affectEntretienFullData = e => {
                 e.originControl = Functions.getPrev().filter(c=>c.key == e.originControl)[0];
             }
         }
+        //Societe du controle
+        if(e.societe != null && e.societe.length > 0){
+            e.societe = Societes.findOne({_id:new Mongo.ObjectID(e.societe)});
+        }else{
+            e.societe = {_id:"",name:""};
+        }
         //Pieces
         e.piecesQty.map(p=>{
             p.piece = Pieces.find({_id:new Mongo.ObjectID(p.piece)}).fetch()[0];
@@ -130,34 +140,14 @@ const affectUserData = e => {
 export default {
     Query : {
         entretiens(obj, args,{user}){
-            let entretiens = Entretiens.find().fetch() || {};
+            let entretiens = ENTRETIENS(user);
             entretiens.forEach((e,i) => {
-                affectEntretienData(e,i,entretiens);
-            });
-            return entretiens;
-        },
-        buEntretiens(obj, args,{user}){
-            let userFull = Meteor.users.findOne({_id:user._id});
-            let entretiens = Entretiens.find().fetch() || {};
-            entretiens.forEach((e,i) => {
-                affectEntretienData(e,i,entretiens);
-            });
-            entretiens = entretiens.filter(e=>{
-                return e.vehicle.societe._id == userFull.settings.visibility || e.vehicle.sharedTo._id == userFull.settings.visibility
-            });
-            return entretiens;
-        },
-        buEntretiensOfTheDay(obj, {date},{user}){
-            let userFull = Meteor.users.findOne({_id:user._id});
-            let entretiens = Entretiens.find({societe:userFull.settings.visibility}).fetch().filter(e=>moment(e.occurenceDate,"DD/MM/YYYY").isSame(moment(date,"DD/MM/YYYY"), 'day'))
-            entretiens.forEach((e,i) => {
-                affectEntretienData(e,i,entretiens);
-                affectUserData(e)
+                affectEntretienData(e);
             });
             return entretiens;
         },
         entretiensOfTheDay(obj, {date},{user}){
-            let entretiens = Entretiens.find().fetch().filter(e=>moment(e.occurenceDate,"DD/MM/YYYY").isSame(moment(date,"DD/MM/YYYY"), 'day'))
+            let entretiens = ENTRETIENS(user).filter(e=>moment(e.occurenceDate,"DD/MM/YYYY").isSame(moment(date,"DD/MM/YYYY"), 'day'))
             entretiens.forEach((e,i) => {
                 affectEntretienData(e,i,entretiens);
                 affectUserData(e)
@@ -172,55 +162,7 @@ export default {
             return entretiens;
         },
         unaffectedEntretiens(obj, args,{user}){
-            let entretiens = Entretiens.find({user:"",archived:false}).fetch() || {};
-            entretiens.forEach((e,i) => {
-                e.commandes = Commandes.find({entretien:e._id._str}).fetch() || [];
-                e.commandes.forEach(c => {
-                    c.piece = Pieces.findOne({_id:new Mongo.ObjectID(c.piece)});
-                });
-            });
-            entretiens.map(e=>{
-                let lowestStatus = 3;
-                e.commandes.map(c=>{
-                    if(c.status != 3){
-                        lowestStatus = c.status
-                    }
-                })
-                if(lowestStatus != 3){
-                    e.ready = false
-                }else{
-                    e.ready = true
-                }
-            })
-            entretiens = entretiens.filter(e=>e.ready);
-            entretiens.forEach((e,i) => {
-                affectEntretienData(e,i,entretiens);
-            });
-            return entretiens;
-        },
-        buUnaffectedEntretiens(obj, args,{user}){
-            let userFull = Meteor.users.findOne({_id:user._id});
-            let entretiens = Entretiens.find({societe:userFull.settings.visibility,user:""}).fetch() || {};
-            entretiens.forEach((e,i) => {
-                e.commandes = Commandes.find({entretien:e._id._str}).fetch() || [];
-                e.commandes.forEach(c => {
-                    c.piece = Pieces.findOne({_id:new Mongo.ObjectID(c.piece)});
-                });
-            });
-            entretiens.map(e=>{
-                let lowestStatus = 3;
-                e.commandes.map(c=>{
-                    if(c.status != 3){
-                        lowestStatus = c.status
-                    }
-                })
-                if(lowestStatus != 3){
-                    e.ready = false
-                }else{
-                    e.ready = true
-                }
-            })
-            entretiens = entretiens.filter(e=>e.ready);
+            let entretiens = ENTRETIENS(user).filter(e=>e.user == "" && !e.archived);
             entretiens.forEach((e,i) => {
                 affectEntretienData(e,i,entretiens);
             });
@@ -237,9 +179,9 @@ export default {
             if(user._id){
                 let v = Vehicles.findOne({_id:new Mongo.ObjectID(vehicle)});
                 let newId = new Mongo.ObjectID()._str;
-                console.log(newId);
                 Entretiens.insert({
                     _id:new Mongo.ObjectID(newId),
+                    societe:v.societe,
                     type:"cura",
                     originNature:nature,
                     originControl:null,
@@ -265,6 +207,7 @@ export default {
                 let v = Vehicles.findOne({_id:new Mongo.ObjectID(vehicle)});
                 Entretiens.insert({
                     _id:entretienId,
+                    societe:v.societe,
                     type:(control[0]=="o" ? "obli" : "prev"),
                     originNature:null,
                     originControl:control,
@@ -365,6 +308,24 @@ export default {
             }
             throw new Error('Unauthorized');
         },
+        addPieceToEntretien(obj, {_id,piece},{user}){
+            if(user._id){
+                Entretiens.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $push: {
+                            "piecesQty": {
+                                piece:piece,
+                                qty:1
+                            }
+                        }
+                    }
+                ); 
+                return [{status:true,message:'Pièce ajoutée'}];
+            }
+            throw new Error('Unauthorized');
+        },
         deleteNote(obj, {entretien,_id},{user}){
             if(user._id){
                 Entretiens.update(
@@ -405,7 +366,7 @@ export default {
                         _id: new Mongo.ObjectID(_id)
                     }, {
                         $set: {
-                            "piecesQty":JSON.parse(pieces),
+                            "piecesQty":JSON.parse(pieces).filter(x=>x.qty>0),
                         }
                     }
                 ); 

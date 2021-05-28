@@ -403,7 +403,7 @@ class Accidents extends Component {
       }
       return displayed.map(v =>{
         return(
-          <VehicleAgglomeratedAccidentsRow archiveFilter={this.state.archiveFilter} docsFilter={this.state.docsFilter} constatSentFilter={this.state.constatSentFilter} archiveFilter={this.state.archiveFilter} hideSociete={this.props.userLimited} loadAccidents={this.loadAccidents} key={v._id} vehicle={v}/>
+          <VehicleAgglomeratedAccidentsRow archiveFilter={this.state.archiveFilter} docsFilter={this.state.docsFilter} constatSentFilter={this.state.constatSentFilter} archiveFilter={this.state.archiveFilter} loadAccidents={this.loadAccidents} key={v._id} vehicle={v}/>
         )
       })
     },
@@ -514,9 +514,9 @@ class Accidents extends Component {
         }
       }
     `,
-    buVehiclesByAccidentsQuery: gql`
-      query buVehiclesByAccidents{
-        buVehiclesByAccidents{
+    vehiclesByAccidentsQuery: gql`
+      query vehiclesByAccidents{
+        vehiclesByAccidents{
           _id
           societe{
             _id
@@ -712,14 +712,12 @@ class Accidents extends Component {
   }
   /*DB READ AND WRITE*/
   loadAccidents = () => {
-    let accidentsQuery = (this.props.userLimited ? this.state.buVehiclesByAccidentsQuery : this.state.vehiclesByAccidentsQuery);
     this.props.client.query({
-        query:accidentsQuery,
+        query:this.state.vehiclesByAccidentsQuery,
         fetchPolicy:"network-only"
     }).then(({data})=>{
-        let accidents = (this.props.userLimited ? data.buVehiclesByAccidents : data.vehiclesByAccidents);
         this.setState({
-          accidentsRaw:accidents
+          accidentsRaw:data.vehiclesByAccidents
         })
     })
   }

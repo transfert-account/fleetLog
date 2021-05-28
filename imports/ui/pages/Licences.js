@@ -182,7 +182,7 @@ export class Licences extends Component {
                 );
             }
             return displayed.map(l =>(
-                <LicenceRow userLimited={this.props.userLimited} hideSociete={this.props.userLimited} loadLicences={this.loadLicences} societesRaw={this.state.societesRaw} key={l._id} licence={l}/>
+                <LicenceRow loadLicences={this.loadLicences} societesRaw={this.state.societesRaw} key={l._id} licence={l}/>
             ))
         },
         addLicenceQuery : gql`
@@ -225,42 +225,6 @@ export class Licences extends Component {
                             meterCube
                         }
                         payload
-                    }
-                }
-            }
-        `,
-        buLicencesQuery : gql`
-            query buLicences{
-                buLicences{
-                    _id
-                    societe{
-                        _id
-                        trikey
-                        name
-                    }
-                    number
-                    shiftName
-                    endDate
-                    licence{
-                        _id
-                        name
-                        size
-                        path
-                        originalFilename
-                        ext
-                        type
-                        mimetype
-                        storageDate
-                    }
-                    vehicle{
-                    _id
-                    registration
-                    km
-                    volume{
-                        _id
-                        meterCube
-                    }
-                    payload
                     }
                 }
             }
@@ -349,15 +313,13 @@ export class Licences extends Component {
         })
     }
     loadLicences = () => {
-        let licencesQuery = (this.props.userLimited ? this.state.buLicencesQuery : this.state.licencesQuery);
         this.props.client.query({
-            query:licencesQuery,
+            query:this.state.licencesQuery,
             fetchPolicy:"network-only"
         }).then(({data})=>{
-            let licences = (this.props.userLimited ? data.buLicences : data.licences);
             this.setState({
                 loading:false,
-                licencesRaw:licences
+                licencesRaw:data.licences
             })
         })
     }
@@ -384,34 +346,19 @@ export class Licences extends Component {
     }
     /*CONTENT GETTERS*/
     getTableHeader = () => {
-        if(this.props.userLimited){
-            return(
-                <Table.Header>
-                    <Table.Row textAlign='center'>
-                        <Table.HeaderCell>Numero de licence</Table.HeaderCell>
-                        <Table.HeaderCell>Véhicule associé</Table.HeaderCell>
-                        <Table.HeaderCell>Nom de tournée</Table.HeaderCell>
-                        <Table.HeaderCell>Fin de validité</Table.HeaderCell>
-                        <Table.HeaderCell>Documents</Table.HeaderCell>
-                        <Table.HeaderCell>Actions</Table.HeaderCell>
-                    </Table.Row>
-                </Table.Header>
-            )
-        }else{
-            return(
-                <Table.Header>
-                    <Table.Row textAlign='center'>
-                        <Table.HeaderCell>Societe</Table.HeaderCell>
-                        <Table.HeaderCell>Numero de licence</Table.HeaderCell>
-                        <Table.HeaderCell>Véhicule associé</Table.HeaderCell>
-                        <Table.HeaderCell>Nom de tournée</Table.HeaderCell>
-                        <Table.HeaderCell>Fin de validité</Table.HeaderCell>
-                        <Table.HeaderCell>Documents</Table.HeaderCell>
-                        <Table.HeaderCell>Actions</Table.HeaderCell>
-                    </Table.Row>
-                </Table.Header>
-            )
-        }
+        return(
+            <Table.Header>
+                <Table.Row textAlign='center'>
+                    <Table.HeaderCell>Societe</Table.HeaderCell>
+                    <Table.HeaderCell>Numero de licence</Table.HeaderCell>
+                    <Table.HeaderCell>Véhicule associé</Table.HeaderCell>
+                    <Table.HeaderCell>Nom de tournée</Table.HeaderCell>
+                    <Table.HeaderCell>Fin de validité</Table.HeaderCell>
+                    <Table.HeaderCell>Documents</Table.HeaderCell>
+                    <Table.HeaderCell>Actions</Table.HeaderCell>
+                </Table.Row>
+            </Table.Header>
+        )
     }
     /*COMPONENTS LIFECYCLE*/
     componentDidMount = () => {
@@ -460,7 +407,7 @@ export class Licences extends Component {
                                 <Form.Field><label>Numero de licence</label><input onChange={this.handleChange} placeholder="Numero de licence" name="newNumber"/></Form.Field>
                                 <Form.Field>
                                     <label>Véhicule associé</label>
-                                    <VehiclePicker userRestricted={this.props.userLimited} onChange={this.handleChangeVehicle}/>
+                                    <VehiclePicker onChange={this.handleChangeVehicle}/>
                                 </Form.Field>
                                 <Form.Field>
                                     <label>Date de fin de validité</label>

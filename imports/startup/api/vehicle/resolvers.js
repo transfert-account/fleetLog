@@ -1,4 +1,4 @@
-import Vehicles from './vehicles.js';
+import Vehicles, { VEHICLES } from './vehicles.js';
 import Locations from '../location/locations.js';
 import Entretiens from '../entretien/entretiens';
 import Societes from '../societe/societes.js';
@@ -197,23 +197,21 @@ export default {
             return vehicle;
         },
         vehicles(obj, args, { user }){
-            let vehicles = [];
-            vehicles = Vehicles.find().fetch() || {};
+            let vehicles = VEHICLES(user);
             vehicles.forEach(v => {
                 affectVehicleData(v)
             });
             return vehicles;
         },
         vehiclesEmpty(obj, args, { user }){
-            let vehicles = [];
-            vehicles = Vehicles.find().fetch() || {};
+            let vehicles = VEHICLES(user);
             vehicles.forEach(v => {
                 affectMinimalVehicleData(v)
             });
             return vehicles;
         },
         vehiclesEquipedByControls(obj, args, { user }){
-            let vehicles = Vehicles.find().fetch() || {};
+            let vehicles = VEHICLES(user);
             vehicles.forEach(v => {
                 affectVehicleControlsOld(v)
             });
@@ -224,7 +222,7 @@ export default {
             return vehicles;
         },
         vehiclesByAccidents(obj, args, { user }){
-            let vehicles = Vehicles.find().fetch() || {};
+            let vehicles = VEHICLES(user);
             let locations = Locations.find().fetch() || {};
             let allV = vehicles.concat(locations);
             allV.forEach(v => {
@@ -235,50 +233,6 @@ export default {
                 affectVehicleData(v)
             });
             return allV;
-        },
-        buVehiclesByAccidents(obj, args, { user }){
-            let userFull = Meteor.users.findOne({_id:user._id});
-            let vehicles = Vehicles.find({$or:[{sharedTo:userFull.settings.visibility},{societe:userFull.settings.visibility}]}).fetch() || {};
-            let locations = Locations.find({$or:[{sharedTo:userFull.settings.visibility},{societe:userFull.settings.visibility}]}).fetch() || {};
-            let allV = vehicles.concat(locations);
-            allV.forEach(v => {
-                affectVehicleAccidents(v)
-            });
-            allV = allV.filter(v=>v.accidents.length>0);
-            allV.forEach(v => {
-                affectVehicleData(v)
-            });
-            return allV;
-        },
-        buVehicles(obj, args, { user }){
-            let userFull = Meteor.users.findOne({_id:user._id});
-            let vehicles = [];
-            vehicles = Vehicles.find({$or:[{sharedTo:userFull.settings.visibility},{societe:userFull.settings.visibility}]}).fetch() || {};
-            vehicles.forEach(v => {
-                affectVehicleData(v)
-            });
-            return vehicles;
-        },
-        buVehiclesEmpty(obj, args, { user }){
-            let userFull = Meteor.users.findOne({_id:user._id});
-            let vehicles = [];
-            vehicles = Vehicles.find({$or:[{sharedTo:userFull.settings.visibility},{societe:userFull.settings.visibility}]}).fetch() || {};
-            vehicles.forEach(v => {
-                affectMinimalVehicleData(v)
-            });
-            return vehicles;
-        },
-        buVehiclesEquipedByControls(obj, args, { user }){
-            let userFull = Meteor.users.findOne({_id:user._id});
-            let vehicles = Vehicles.find({$or:[{sharedTo:userFull.settings.visibility},{societe:userFull.settings.visibility}]}).fetch() || {};
-            vehicles.forEach(v => {
-                affectVehicleControlsOld(v)
-            });
-            vehicles = vehicles.filter(v=>v.equipements.length>0);
-            vehicles.forEach(v => {
-                affectVehicleData(v)
-            });
-            return vehicles;
         },
         massKmUpdateVehiclesValidation(obj, {jsonFromExcelFile}){
             let requiredVehicles = JSON.parse(jsonFromExcelFile);
@@ -483,7 +437,7 @@ export default {
                 archiveJustification = "Aucune données"
             }
             if(user._id){
-                let vehicle = Vehicles.find({_id:new Mongo.ObjectID(_id)}).fetch()[0];
+                let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(_id)});
                 if(vehicle.shared){
                     return [{status:false,message:"Impossible d'archiver un véhicule en prêt"}];
                 }
@@ -524,7 +478,7 @@ export default {
                 sharingReason = "Aucune données"
             }
             if(user._id){
-                let vehicle = Vehicles.find({_id:new Mongo.ObjectID(_id)}).fetch()[0];
+                let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(_id)});
                 if(vehicle.archived){
                     return [{status:false,message:'Impossible de prêter un véhicule archivé'}];
                 }
@@ -567,7 +521,7 @@ export default {
                 sellingReason = "Aucune données"
             }
             if(user._id){
-                let vehicle = Vehicles.find({_id:new Mongo.ObjectID(_id)}).fetch()[0];
+                let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(_id)});
                 if(vehicle.archived){
                     return [{status:false,message:'Impossible de mettre en vente un véhicule archivé'}];
                 }
@@ -675,7 +629,7 @@ export default {
         },
         breakVehicle(obj, {_id},{user}){
             if(user._id){
-                let vehicle = Vehicles.find({_id:new Mongo.ObjectID(_id)}).fetch()[0];
+                let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(_id)});
                 if(vehicle.archived){
                     return [{status:false,message:'Impossible mettre un véhicule archivé en panne'}];
                 }

@@ -10,7 +10,7 @@ import FileManagementPanel from '../atoms/FileManagementPanel';
 import moment from 'moment'
 import gql from 'graphql-tag';
 
-class BatimentControlRowGroup extends Component {
+class BatimentControlRow extends Component {
 
     state={
         _id:this.props.control._id,
@@ -234,6 +234,7 @@ class BatimentControlRowGroup extends Component {
         if(this.state.editing){
             return (
                 <Table.Row>
+                    <Table.Cell textAlign="center">{this.props.control.societe.name}</Table.Cell>
                     <Table.Cell textAlign="center"><Input defaultValue={this.state.newName} onChange={this.handleChange} placeholder="Nom du contrôle " name="newName"/></Table.Cell>
                     <Table.Cell textAlign="center"><Input defaultValue={this.state.newDelay} onChange={this.handleChange} placeholder="Delai entre deux exécution" name="newDelay"/></Table.Cell>
                     <Table.Cell textAlign="center">{this.props.control.lastExecution}</Table.Cell>
@@ -249,6 +250,7 @@ class BatimentControlRowGroup extends Component {
             return (
                 <Fragment>
                     <Table.Row>
+                        <Table.Cell textAlign="center">{this.props.control.societe.name}</Table.Cell>
                         <Table.Cell textAlign="center">{this.props.control.name}</Table.Cell>
                         <Table.Cell textAlign="center">{this.props.control.delay} jours</Table.Cell>
                         <Table.Cell textAlign="center">{this.props.control.lastExecution}</Table.Cell>
@@ -281,7 +283,7 @@ class BatimentControlRowGroup extends Component {
                     </Modal>
                     <Modal closeOnDimmerClick={false} open={this.state.openDocs} onClose={this.closeDocs} closeIcon>
                         <Modal.Header>
-                            Documents relatifs au contrôle {this.props.control.name} de la societe : {this.props.societe.name}
+                            Documents relatifs au contrôle {this.props.control.name} de la societe : {this.props.control.societe.name}
                         </Modal.Header>
                         <Modal.Content style={{textAlign:"center"}}>
                             <div style={{display:"grid",gridTemplateColumns:"1fr",gridGap:"24px"}}>
@@ -305,4 +307,4 @@ const withUserContext = WrappedComponent => props => (
     </UserContext.Consumer>
   )
   
-export default wrappedInUserContext = withUserContext(BatimentControlRowGroup);
+export default wrappedInUserContext = withUserContext(BatimentControlRow);

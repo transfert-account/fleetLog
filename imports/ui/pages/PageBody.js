@@ -33,7 +33,7 @@ import Accident from './Accident';
 
 import Fournisseurs from './Fournisseurs';
 
-import Batiments from './Batiments';
+import BatimentControls from './BatimentControls';
 
 import Compte from './Compte';
 import Accounts from './Accounts';
@@ -45,11 +45,30 @@ import Logs from './Logs';
 
 import Title from '../pages/Title';
 
+
+class ProtectedRoutes extends Component {
+  render() {
+    const { component: Component, ...props } = this.props
+    return (
+      this.props.user && this.props.user.isAdmin ?
+      <Fragment>
+        <Route exact path='/administration/accounts' component={withNavbar(Accounts)}/>
+        <Route exact path='/administration/content' component={withNavbar(Content)}/>
+        <Route exact path='/administration/pieces' component={withNavbar(Pieces)}/>
+        <Route exact path='/administration/patchnotes' component={withNavbar(Patchnotes)}/>
+        <Route exact path='/administration/storage' component={withNavbar(Storage)}/>
+        <Route exact path='/administration/logs' component={withNavbar(Logs)}/>
+      </Fragment>
+      :
+      <Redirect from='*' to={'/home'}/>
+    )
+  }
+}
+
 class PageBody extends Component {
 
   render = () =>{
     if(isBrowser){
-      console.log("We're on desktop")
       if(this.props.user._id == null || this.props.user._id == undefined){
         return(
           <Switch>
@@ -57,144 +76,50 @@ class PageBody extends Component {
             <Redirect from='*' to={'/'}/>
           </Switch>
         );
-      }else{
-        if(this.props.user.isAdmin){//Si l'utilisateur est administrateur
-          if(this.props.user.visibility == "noidthisisgroupvisibility"){//Si l'utilisateur a une visibilité groupe
-            return(
-              <Switch>
-                <Route exact path='/home' component={withNavbar(()=><Title userLimited={false}/>)}/>
-                
-                <Route exact path='/parc/vehicles' component={withNavbar(()=><Vehicles userLimited={false}/>)}/>
-                <Route exact path='/parc/vehicle/:_id' component={withNavbar(Vehicle)}/>
-                
-                <Route exact path='/parc/licences' component={withNavbar(()=><Licences userLimited={false}/>)}/>
-                <Route exact path='/parc/locations' component={withNavbar(()=><Locations userLimited={false}/>)}/>
-                <Route exact path='/parc/location/:_id' component={withNavbar(Location)}/>
+      }else{//DESKTOP
+        return(
+          <Switch>
+            <Route exact path='/home' component={withNavbar(Title)}/>
+            
+            <Route exact path='/parc/vehicles' component={withNavbar(Vehicles)}/>
+            <Route exact path='/parc/vehicle/:_id' component={withNavbar(Vehicle)}/>
+            
+            <Route exact path='/parc/locations' component={withNavbar(Locations)}/>
+            <Route exact path='/parc/location/:_id' component={withNavbar(Location)}/>
 
-                <Route exact path='/entretien/controls/obli' component={withNavbar(()=><Controls ctrlType={"obli"} userLimited={false}/>)}/>
-                <Route exact path='/entretien/controls/prev' component={withNavbar(()=><Controls ctrlType={"prev"} userLimited={false}/>)}/>
-                <Route exact path='/entretien/controls/curatif' component={withNavbar(()=><Curatif userLimited={false}/>)}/>
-                <Route exact path='/entretien/controls/:key' component={withNavbar(()=><Control userLimited={false}/>)}/>
-                <Route exact path='/entretien/pieces' component={withNavbar(()=><Pieces/>)}/>
+            <Route exact path='/parc/licences' component={withNavbar(Licences)}/>
 
-                <Route exact path='/entretien/entretiens' component={withNavbar(()=><Entretiens userLimited={false}/>)}/>
-                <Route exact path='/entretien/:_id' component={withNavbar(Entretien)}/>
+            <Route exact path='/entretien/controls/obli' component={withNavbar(()=><Controls ctrlType={"obli"}/>)}/>
+            <Route exact path='/entretien/controls/prev' component={withNavbar(()=><Controls ctrlType={"prev"}/>)}/>
+            <Route exact path='/entretien/controls/curatif' component={withNavbar(Curatif)}/>
+            <Route exact path='/entretien/controls/:key' component={withNavbar(Control)}/>
+            <Route exact path='/entretien/pieces' component={withNavbar(Pieces)}/>
 
-                <Route exact path='/planning/:y/:m' component={withNavbar(()=><Planning userLimited={false}/>)}/>
+            <Route exact path='/entretien/entretiens' component={withNavbar(Entretiens)}/>
+            <Route exact path='/entretien/:_id' component={withNavbar(Entretien)}/>
 
-                <Route exact path='/accidentologie' component={withNavbar(()=><Accidents userLimited={false}/>)}/>
-                <Route exact path='/accident/:_id' component={withNavbar(Accident)}/>
+            <Route exact path='/planning/:y/:m' component={withNavbar(Planning)}/>
 
-                <Route exact path='/export/vehicles' component={withNavbar(ExportVehicles)}/>
-                <Route exact path='/export/entretiens' component={withNavbar(ExportEntretiens)}/>
-                <Route exact path='/export/sinistres' component={withNavbar(ExportSinistres)}/>
+            <Route exact path='/accidentologie' component={withNavbar(Accidents)}/>
+            <Route exact path='/accident/:_id' component={withNavbar(Accident)}/>
 
-                <Route exact path='/batiments' component={withNavbar(()=><Batiments userLimited={false}/>)}/>
+            <Route exact path='/export/vehicles' component={withNavbar(ExportVehicles)}/>
+            <Route exact path='/export/entretiens' component={withNavbar(ExportEntretiens)}/>
+            <Route exact path='/export/sinistres' component={withNavbar(ExportSinistres)}/>
 
-                <Route exact path='/fournisseurs' component={withNavbar(Fournisseurs)}/>
+            <Route exact path='/batiment_controls' component={withNavbar(BatimentControls)}/>
 
-                <Route exact path='/compte' component={withNavbar(Compte)}/>
-                
-                <Route exact path='/administration/accounts' component={withNavbar(Accounts)}/>
-                <Route exact path='/administration/content' component={withNavbar(Content)}/>
-                <Route exact path='/administration/pieces' component={withNavbar(Pieces)}/>
-                <Route exact path='/administration/patchnotes' component={withNavbar(Patchnotes)}/>
-                <Route exact path='/administration/storage' component={withNavbar(Storage)}/>
-                <Route exact path='/administration/logs' component={withNavbar(Logs)}/>
-                
-                <Redirect from='*' to={'/home'}/>
-              </Switch>
-            );
-          }else{//Si l'utilisateur est admin avec une visibilité societé définie
-            return(
-              <Switch>
-                <Route exact path='/home' component={withNavbar(()=><Title userLimited={true}/>)}/>
+            <Route exact path='/fournisseurs' component={withNavbar(Fournisseurs)}/>
 
-                <Route exact path='/parc/vehicles' component={withNavbar(()=><Vehicles userLimited={true}/>)}/>
-                <Route exact path='/parc/vehicle/:_id' component={withNavbar(Vehicle)}/>
-
-                <Route exact path='/parc/licences' component={withNavbar(()=><Licences userLimited={true}/>)}/>
-                <Route exact path='/parc/locations' component={withNavbar(()=><Locations userLimited={true}/>)}/>
-                <Route exact path='/parc/location/:_id' component={withNavbar(Location)}/>
-
-                <Route exact path='/entretien/controls/obli' component={withNavbar(()=><Controls ctrlType={"obli"} userLimited={true}/>)}/>
-                <Route exact path='/entretien/controls/prev' component={withNavbar(()=><Controls ctrlType={"prev"} userLimited={true}/>)}/>
-                <Route exact path='/entretien/controls/curatif' component={withNavbar(()=><Curatif userLimited={true}/>)}/>
-                <Route exact path='/entretien/controls/:key' component={withNavbar(()=><Control userLimited={true}/>)}/>
-                <Route exact path='/entretien/pieces' component={withNavbar(()=><Pieces/>)}/>
-
-                <Route exact path='/entretien/entretiens' component={withNavbar(()=><Entretiens userLimited={true}/>)}/>
-                <Route exact path='/entretien/:_id' component={withNavbar(Entretien)}/>
-
-                <Route exact path='/planning/:y/:m' component={withNavbar(()=><Planning userLimited={true}/>)}/>
-
-                <Route exact path='/accidentologie' component={withNavbar(()=><Accidents userLimited={true}/>)}/>
-                <Route exact path='/accident/:_id' component={withNavbar(Accident)}/>
-
-                <Route exact path='/export/vehicles' component={withNavbar(ExportVehicles)}/>
-                <Route exact path='/export/entretiens' component={withNavbar(ExportEntretiens)}/>
-                <Route exact path='/export/sinistres' component={withNavbar(ExportSinistres)}/>
-
-                <Route exact path='/batiments' component={withNavbar(()=><Batiments userLimited={true}/>)}/>
-
-                <Route exact path='/fournisseurs' component={withNavbar(Fournisseurs)}/>
-
-                <Route exact path='/compte' component={withNavbar(Compte)}/>
-
-                <Route exact path='/administration/accounts' component={withNavbar(Accounts)}/>
-                <Route exact path='/administration/content' component={withNavbar(Content)}/>
-                <Route exact path='/administration/pieces' component={withNavbar(Pieces)}/>
-                <Route exact path='/administration/patchnotes' component={withNavbar(Patchnotes)}/>
-                <Route exact path='/administration/storage' component={withNavbar(Storage)}/>
-                <Route exact path='/administration/logs' component={withNavbar(Logs)}/>
-
-                <Redirect from='*' to={'/home'}/>
-              </Switch>
-            );
-          }
-        }else{//Si l'utilisateur est user, et a donc une visibilité societé définie
-          return(
-            <Switch>
-              <Route exact path='/home' component={withNavbar(()=><Title userLimited={true}/>)}/>
-
-              <Route exact path='/parc/vehicles' component={withNavbar(()=><Vehicles userLimited={true}/>)}/>
-              <Route exact path='/parc/vehicle/:_id' component={withNavbar(Vehicle)}/>
-
-              <Route exact path='/parc/licences' component={withNavbar(()=><Licences userLimited={true}/>)}/>
-              <Route exact path='/parc/locations' component={withNavbar(()=><Locations userLimited={true}/>)}/>
-              <Route exact path='/parc/location/:_id' component={withNavbar(Location)}/>
-
-              <Route exact path='/entretien/controls/obli' component={withNavbar(()=><Controls ctrlType={"obli"} userLimited={true}/>)}/>
-              <Route exact path='/entretien/controls/prev' component={withNavbar(()=><Controls ctrlType={"prev"} userLimited={true}/>)}/>
-              <Route exact path='/entretien/controls/curatif' component={withNavbar(()=><Curatif userLimited={true}/>)}/>
-              <Route exact path='/entretien/controls/:key' component={withNavbar(()=><Control userLimited={true}/>)}/>
-              <Route exact path='/entretien/pieces' component={withNavbar(()=><Pieces/>)}/>
-
-              <Route exact path='/entretien/entretiens' component={withNavbar(()=><Entretiens userLimited={true}/>)}/>
-              <Route exact path='/entretien/:_id' component={withNavbar(Entretien)}/>
-
-              <Route exact path='/planning/:y/:m' component={withNavbar(()=><Planning userLimited={true}/>)}/>
-
-              <Route exact path='/accidentologie' component={withNavbar(()=><Accidents userLimited={true}/>)}/>
-              <Route exact path='/accident/:_id' component={withNavbar(Accident)}/>
-
-              <Route exact path='/export/vehicles' component={withNavbar(ExportVehicles)}/>
-              <Route exact path='/export/entretiens' component={withNavbar(ExportEntretiens)}/>
-              <Route exact path='/export/sinistres' component={withNavbar(ExportSinistres)}/>
-
-              <Route exact path='/batiments' component={withNavbar(()=><Batiments userLimited={true}/>)}/>
-
-              <Route exact path='/fournisseurs' component={withNavbar(Fournisseurs)}/>
-
-              <Route exact path='/compte' component={withNavbar(Compte)}/>
-
-              <Redirect from='*' to={'/home'}/>
-            </Switch>
-          );
-        }
+            <Route exact path='/compte' component={withNavbar(Compte)}/>
+            
+            <ProtectedRoutes />  
+            
+            <Redirect from='*' to={'/home'}/>
+          </Switch>
+        );
       }
-    }else{
-      console.log("We're on mobile")
+    }else{//MOBILE
       if(this.props.user._id == null || this.props.user._id == undefined){
         return(
           <Switch>
@@ -203,36 +128,14 @@ class PageBody extends Component {
           </Switch>
         )
       }else{
-        if(this.props.user.isAdmin){//Si l'utilisateur est administrateur
-          if(this.props.user.visibility == "noidthisisgroupvisibility"){//Si l'utilisateur a une visibilité groupe
-            return(
-              <Switch>
-                <Route exact path='/entretien/entretiens' component={withoutNavbar(()=><Entretiens userLimited={false}/>)}/>
-                <Route exact path='/entretien/:_id' component={withoutNavbar(Entretien)}/>
-      
-                <Redirect from='*' to={'/entretien/entretiens'}/>
-              </Switch>
-            )
-          }else{//Si l'utilisateur est admin avec une visibilité societé définie
-            return(
-              <Switch>
-                <Route exact path='/entretien/entretiens' component={withoutNavbar(()=><Entretiens userLimited={true}/>)}/>
-                <Route exact path='/entretien/:_id' component={withoutNavbar(Entretien)}/>
-      
-                <Redirect from='*' to={'/entretien/entretiens'}/>
-              </Switch>
-            )
-          }
-        }else{
-          return(
-            <Switch>
-              <Route exact path='/entretien/entretiens' component={withoutNavbar(()=><Entretiens userLimited={true}/>)}/>
-              <Route exact path='/entretien/:_id' component={withoutNavbar(Entretien)}/>
-    
-              <Redirect from='*' to={'/entretien/entretiens'}/>
-            </Switch>
-          )
-        }
+        return(
+          <Switch>
+            <Route exact path='/entretien/entretiens' component={withoutNavbar(Entretiens)}/>
+            <Route exact path='/entretien/:_id' component={withoutNavbar(Entretien)}/>
+  
+            <Redirect from='*' to={'/entretien/entretiens'}/>
+          </Switch>
+        )  
       }
     }
   }

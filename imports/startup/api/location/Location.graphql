@@ -34,7 +34,6 @@ type Location{
 extend type Query{
     location(_id: String!): Location
     locations : [Location]
-    buLocations : [Location]
 }
 
 extend type Mutation{

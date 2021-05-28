@@ -1,4 +1,4 @@
-import Licences from './licences';
+import Licences, { LICENCES } from './licences';
 import Vehicles from '../vehicle/vehicles';
 import Societes from '../societe/societes';
 import Locations from '../location/locations';
@@ -8,65 +8,37 @@ import Functions from '../common/functions';
 import moment from 'moment';
 import { Mongo } from 'meteor/mongo';
 
+const affectData = licence => {
+    if(licence.societe != null && licence.societe.length > 0){
+        licence.societe = Societes.findOne({_id:new Mongo.ObjectID(licence.societe)});
+    }else{
+        licence.societe = {_id:"",name:""};
+    }
+    if(licence.vehicle != null && licence.vehicle != undefined && licence.vehicle != ""){
+        let vehicleId = licence.vehicle
+        licence.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(vehicleId)});
+        if(licence.vehicle == null || licence.vehicle == undefined || licence.vehicle == ""){
+            licence.vehicle = Locations.findOne({_id:new Mongo.ObjectID(vehicleId)});
+        }
+        if(licence.vehicle.volume != null && licence.vehicle.volume.length > 0){
+            licence.vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(licence.vehicle.volume)});
+        }else{
+            licence.vehicle.volume = {_id:""};
+        }
+    }
+    if(licence.licence != null && licence.licence.length > 0){
+        licence.licence = Documents.findOne({_id:new Mongo.ObjectID(licence.licence)});
+    }else{
+        licence.licence = {_id:""};
+    }
+}
+
 export default {
     Query : {
-        licence(obj, {_id}, { user }){
-            return Licences.find({_id:_id}).fetch() || {};
-        },
-        licences(obj, args){
-            let licences = Licences.find().fetch() || {};
-            licences.forEach((l,i) => {
-                if(l.societe != null && l.societe.length > 0){
-                    licences[i].societe = Societes.findOne({_id:new Mongo.ObjectID(l.societe)});
-                }else{
-                    licences[i].societe = {_id:"",name:""};
-                }
-                if(l.vehicle != null && l.vehicle != undefined && l.vehicle != ""){
-                    let vehicleId = l.vehicle
-                    l.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(vehicleId)});
-                    if(l.vehicle == null || l.vehicle == undefined || l.vehicle == ""){
-                        l.vehicle = Locations.findOne({_id:new Mongo.ObjectID(vehicleId)});
-                    }
-                    if(l.vehicle.volume != null && l.vehicle.volume.length > 0){
-                        l.vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(l.vehicle.volume)});
-                    }else{
-                        l.vehicle.volume = {_id:""};
-                    }
-                }
-                if(l.licence != null && l.licence.length > 0){
-                    l.licence = Documents.findOne({_id:new Mongo.ObjectID(l.licence)});
-                }else{
-                    l.licence = {_id:""};
-                }
-            });
-            return licences;
-        },
-        buLicences(obj, args, { user }){
-            let userFull = Meteor.users.findOne({_id:user._id});
-            let licences = Licences.find({societe:userFull.settings.visibility}).fetch() || {};
+        licences(obj, args, {user}){
+            let licences = LICENCES(user);
             licences.forEach(l => {
-                if(l.societe != null && l.societe.length > 0){
-                    l.societe = Societes.findOne({_id:new Mongo.ObjectID(l.societe)});
-                }else{
-                    l.societe = {_id:"",name:""};
-                }
-                if(l.vehicle != null && l.vehicle != undefined && l.vehicle != ""){
-                    let vehicleId = l.vehicle
-                    l.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(vehicleId)});
-                    if(l.vehicle == null || l.vehicle == undefined || l.vehicle == ""){
-                        l.vehicle = Locations.findOne({_id:new Mongo.ObjectID(vehicleId)});
-                    }
-                    if(l.vehicle.volume != null && l.vehicle.volume.length > 0){
-                        l.vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(l.vehicle.volume)});
-                    }else{
-                        l.vehicle.volume = {_id:""};
-                    }
-                }
-                if(l.licence != null && l.licence.length > 0){
-                    l.licence = Documents.findOne({_id:new Mongo.ObjectID(l.licence)});
-                }else{
-                    l.licence = {_id:""};
-                }
+                affectData(l)
             });
             return licences;
         }

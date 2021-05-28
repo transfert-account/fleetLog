@@ -3,7 +3,7 @@ import Documents from '../document/documents';
 import Vehicles from '../vehicle/vehicles';
 import Locations from '../location/locations'
 import Accidents from '../accident/accidents'
-import Batiments from '../batiment/batiments'
+import BatimentControls from '../batimentControl/batimentControls'
 import Entretiens from '../entretien/entretiens'
 import Licences from '../licence/licences'
 
@@ -46,7 +46,7 @@ const TYPES = [
       ]
     },{
       getLinkedObjInfos:(b)=>"Not supported yet",
-      obj:"batiments",name:"Batiments",col:Batiments,types:[
+      obj:"batiments",name:"Batiments",col:BatimentControls,types:[
         {type:"ficheInter",name:"Fiche d'intervention"}
       ]
     },{

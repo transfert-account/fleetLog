@@ -1,4 +1,4 @@
-import Accidents from './accidents.js';
+import Accidents, { ACCIDENTS } from './accidents.js';
 import Vehicles from '../vehicle/vehicles.js';
 import Locations from '../location/locations.js';
 import Societes from '../societe/societes';
@@ -80,15 +80,10 @@ export default {
             return a;
         },
         accidents(obj, args, {user}){
-            let accidents = Accidents.find({}).fetch();
+            let accidents = ACCIDENTS(user);
             accidents.map(a=>affectData(a))
             return accidents;
         },
-        buAccidents(obj, args, {user}){
-            let accidents = Accidents.find({societe:user.settings.visibility}).fetch();
-            accidents.map(a=>affectData(a))
-            return accidents;
-        }
     },
     Mutation:{
         addAccident(obj, {vehicle,occurenceDate},{user}){

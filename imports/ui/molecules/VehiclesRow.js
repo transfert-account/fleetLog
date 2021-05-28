@@ -94,15 +94,6 @@ class VehiclesRow extends Component {
             )
         }
     }
-    getSocieteCell = () => {
-        if(!this.props.hideSociete){
-            return (
-                <Table.Cell textAlign="center">
-                    {this.props.vehicle.societe.name}
-                </Table.Cell>
-            )
-        }
-    }
     getSpecialCell = () => {
         return(
             <Table.Cell textAlign="center">
@@ -181,7 +172,7 @@ class VehiclesRow extends Component {
         if(this.props.full){
             return (
                 <Table.Row>
-                    {this.getSocieteCell()}
+                    <Table.Cell textAlign="center">{this.props.vehicle.societe.name}</Table.Cell>
                     {this.getSpecialCell()}
                     <Table.Cell textAlign="center">{this.props.vehicle.registration}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.vehicle.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km</Table.Cell>
@@ -198,7 +189,7 @@ class VehiclesRow extends Component {
         }else{
             return(
                 <Table.Row>
-                    {this.getSocieteCell()}
+                    <Table.Cell textAlign="center">{this.props.vehicle.societe.name}</Table.Cell>
                     {this.getSpecialCell()}
                     <Table.Cell textAlign="center">{this.props.vehicle.registration}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.vehicle.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km</Table.Cell>

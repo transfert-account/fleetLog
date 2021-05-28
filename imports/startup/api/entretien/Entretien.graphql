@@ -1,5 +1,6 @@
 type Entretien{
     _id:String!,
+    societe:Societe!,
     type:String!,
     originControl:Control,
     originNature:InterventionNature,
@@ -10,7 +11,8 @@ type Entretien{
     status:Int!
     time:Float!
     notes:[Note]!
-    user:String!
+    user:User
+    occurenceDate:String
 }
 
 type PieceQty{
@@ -26,12 +28,9 @@ type Note{
 
 extend type Query{
     entretiens : [Entretien]
-    buEntretiens : [Entretien]
     entretien(_id:String!) : Entretien
     unaffectedEntretiens : [Entretien]
-    buUnaffectedEntretiens : [Entretien]
     entretiensOfTheDay(date:String!) : [Entretien]
-    buEntretiensOfTheDay(date:String!) : [Entretien]
     myEntretiens : [Entretien]
 }
 
@@ -44,6 +43,7 @@ extend type Mutation{
     archiveEntretien(_id:String!,archived:Boolean!): [QueryResultMessage]
     disArchiveEntretien(_id:String!,archived:Boolean!): [QueryResultMessage]
     addNote(_id:String!,note:String!): [QueryResultMessage]
+    addPieceToEntretien(_id:String!,piece:String!): [QueryResultMessage]
     deleteNote(entretien:String!,_id:String!): [QueryResultMessage]
     editInfos(_id:String!,time:Float!,status:Int!): [QueryResultMessage]
     editPieces(_id:String!,pieces:String!): [QueryResultMessage]

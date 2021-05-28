@@ -1,4 +1,4 @@
-import Entretiens from '../entretien/entretiens';
+import Entretiens, { ENTRETIENS } from '../entretien/entretiens';
 import moment from 'moment';
 import { Mongo } from 'meteor/mongo';
 
@@ -10,7 +10,7 @@ export default {
             let date = new Date(year, month, 1);
             let days = [];
             let today = null;
-            let entretiens = Entretiens.find().fetch().filter(e=>moment(e.occurenceDate,"DD/MM/YYYY").isSame(date, 'month'))
+            let entretiens = ENTRETIENS(user).filter(e=>moment(e.occurenceDate,"DD/MM/YYYY").isSame(date, 'month'))
             entretiens.forEach((e,i) => {
                 if(e.user != null && e.user.length > 0){
                     e.user = Meteor.users.findOne({_id:e.user});

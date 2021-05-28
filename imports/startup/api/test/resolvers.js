@@ -3,7 +3,7 @@ import Locations from '../location/locations';
 import VehicleArchiveJustifications from '../vehicleArchiveJustification/vehicleArchiveJustifications';
 import Licences from '../licence/licences';
 import Entretiens from '../entretien/entretiens';
-import Batiments from '../batiment/batiments';
+import Batiments from '../batimentControl/batimentControls';
 import Accidents from '../accident/accidents';
 import Energies from '../energy/energies';
 import { createHmac } from 'crypto'
@@ -15,7 +15,8 @@ export default {
         testThis(obj, args,{user}){
             if(user._id){
                 try{
-                    Vehicles.update(
+                    //NEW
+                    /*Vehicles.update(
                         {},{
                             $set:{
                                 obli:[],
@@ -23,7 +24,10 @@ export default {
                             }
                         },
                         {multi:true}
-                    );
+                    );*/
+                    Batiments.remove({});
+
+                    //OLD
                     /*let accs = Accidents.find({}).fetch();
                     accs.forEach(acc => {
                         let newresponsabilite;

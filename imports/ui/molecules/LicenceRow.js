@@ -168,18 +168,12 @@ class LicenceRow extends Component {
         })
     }
     saveEdit = () => {
-        let newSociete;
-        if(this.props.hideSociete){
-            newSociete = this.props.licence.societe._id;
-        }else{
-            newSociete = this.state.newSociete;
-        }
         this.closeEdit();
         this.props.client.mutate({
             mutation:this.state.editLicenceQuery,
             variables:{
                 _id:this.state._id,
-                societe:newSociete,
+                societe:this.state.newSociete,
                 number:this.state.newNumber,
                 shiftName:this.state.newShiftName,
                 endDate:this.state.newEndDate
@@ -258,16 +252,6 @@ class LicenceRow extends Component {
             </Table.Cell>
         )
     }
-    getEditSocieteCell = () => {
-        if(!this.props.hideSociete){
-            return <Table.Cell textAlign="center"><Dropdown value={this.state.newSociete} placeholder='Choisir un société' search selection onChange={this.handleChangeSociete} options={this.props.societesRaw.map(x=>{return{key:x._id,text:x.name,value:x._id}})} name="newSociete" /></Table.Cell>
-        }
-    }
-    getSocieteCell = () => {
-        if(!this.props.hideSociete){
-            return <Table.Cell textAlign="center">{this.props.licence.societe.name}</Table.Cell>
-        }
-    }
     getDocsStates = () => {
         return (
             <Table.Cell textAlign="center">
@@ -307,7 +291,9 @@ class LicenceRow extends Component {
             return (
                 <Fragment>
                     <Table.Row>
-                        {this.getEditSocieteCell()}
+                        <Table.Cell textAlign="center">
+                            <Dropdown value={this.state.newSociete} placeholder='Choisir un société' search selection onChange={this.handleChangeSociete} options={this.props.societesRaw.map(x=>{return{key:x._id,text:x.name,value:x._id}})} name="newSociete" />
+                        </Table.Cell>
                         <Table.Cell textAlign="center">
                             <Input value={this.state.newNumber} onChange={this.handleChange} placeholder="Numero de licence" name="newNumber"/>
                         </Table.Cell>
@@ -333,7 +319,7 @@ class LicenceRow extends Component {
             return (
                 <Fragment>
                     <Table.Row>
-                        {this.getSocieteCell()}
+                        <Table.Cell textAlign="center">{this.props.licence.societe.name}</Table.Cell>
                         <Table.Cell textAlign="center">{this.props.licence.number}</Table.Cell>
                         <Table.Cell textAlign="center">{this.props.licence.vehicle.registration}</Table.Cell>
                         <Table.Cell textAlign="center">{this.props.licence.shiftName}</Table.Cell>

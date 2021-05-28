@@ -13,40 +13,22 @@ export class VehicleAgglomeratedAccidentsRow extends Component {
     /*DB READ AND WRITE*/
     /*CONTENT GETTERS*/
     getTableHeader = () => {
-        if(this.props.userLimited){
-            return(
-              <Table.Header>
-                  <Table.Row textAlign='center'>
-                    <Table.HeaderCell>Vehicle</Table.HeaderCell>
-                    <Table.HeaderCell>Date</Table.HeaderCell>
-                    <Table.HeaderCell>Informations</Table.HeaderCell>
-                    <Table.HeaderCell>Circonstances renseignées</Table.HeaderCell>
-                    <Table.HeaderCell>Constat Envoyé</Table.HeaderCell>
-                    <Table.HeaderCell>Responsabilité</Table.HeaderCell>
-                    <Table.HeaderCell>Statut</Table.HeaderCell>
-                    <Table.HeaderCell>Document</Table.HeaderCell>
-                    <Table.HeaderCell>Actions</Table.HeaderCell>
-                  </Table.Row>
-              </Table.Header>
-            )
-        }else{
-            return(
-              <Table.Header>
-                  <Table.Row textAlign='center'>
-                    <Table.HeaderCell>Societe</Table.HeaderCell>
-                    <Table.HeaderCell>Vehicle</Table.HeaderCell>
-                    <Table.HeaderCell>Date</Table.HeaderCell>
-                    <Table.HeaderCell>Informations</Table.HeaderCell>
-                    <Table.HeaderCell>Circonstances renseignées</Table.HeaderCell>
-                    <Table.HeaderCell>Constat Envoyé</Table.HeaderCell>
-                    <Table.HeaderCell>Responsabilité</Table.HeaderCell>
-                    <Table.HeaderCell>Statut</Table.HeaderCell>
-                    <Table.HeaderCell>Document</Table.HeaderCell>
-                    <Table.HeaderCell>Actions</Table.HeaderCell>
-                  </Table.Row>
-              </Table.Header>
-            )
-        }
+        return(
+            <Table.Header>
+                <Table.Row textAlign='center'>
+                <Table.HeaderCell>Propriétaire</Table.HeaderCell>
+                <Table.HeaderCell>Vehicle</Table.HeaderCell>
+                <Table.HeaderCell>Date</Table.HeaderCell>
+                <Table.HeaderCell>Informations</Table.HeaderCell>
+                <Table.HeaderCell>Circonstances renseignées</Table.HeaderCell>
+                <Table.HeaderCell>Constat Envoyé</Table.HeaderCell>
+                <Table.HeaderCell>Responsabilité</Table.HeaderCell>
+                <Table.HeaderCell>Statut</Table.HeaderCell>
+                <Table.HeaderCell>Document</Table.HeaderCell>
+                <Table.HeaderCell>Actions</Table.HeaderCell>
+                </Table.Row>
+            </Table.Header>
+        )
     }
     /*COMPONENTS LIFECYCLE*/
 
@@ -62,7 +44,7 @@ export class VehicleAgglomeratedAccidentsRow extends Component {
                     {this.getTableHeader()}
                     <Table.Body>
                         {this.props.vehicle.accidents.map(a=>
-                            <AccidentRow vehicle={this.props.vehicle} hideSociete={this.props.userLimited} loadAccidents={this.loadAccidents} key={a._id} accident={a}/>
+                            <AccidentRow vehicle={this.props.vehicle} loadAccidents={this.loadAccidents} key={a._id} accident={a}/>
                         )}
                     </Table.Body>
                 </Table>

@@ -1,46 +1,31 @@
-import Batiments from './batiments.js';
+import BatimentControls, { BATIMENT_CONTROLS } from './batimentControls.js';
 import Societes from '../societe/societes';
 import Documents from '../document/documents';
 import Functions from '../common/functions';
 import moment from 'moment';
 import { Mongo } from 'meteor/mongo';
 
-const affectBatimentControls = batiment => {
-    batiment.controls = Batiments.find({societe:batiment.societe._id._str}).fetch()
-    batiment.controls.map(bc=>{
-        if(bc.ficheInter != null && bc.ficheInter.length > 0){
-            bc.ficheInter = Documents.findOne({_id:new Mongo.ObjectID(bc.ficheInter)});
-        }else{
-            bc.ficheInter = {_id:""};
-        }
-    })
+const affectBatimentControlData = batimentControl => {
+    batimentControl.societe = Societes.findOne({_id:new Mongo.ObjectID(batimentControl.societe)})
+    if(batimentControl.ficheInter != null && batimentControl.ficheInter.length > 0){
+        batimentControl.ficheInter = Documents.findOne({_id:new Mongo.ObjectID(batimentControl.ficheInter)});
+    }else{
+        batimentControl.ficheInter = {_id:""};
+    }
 }
 
 export default {
     Query : {
-        batiment(obj, args, {user}){
-            let societes = Societes.findOne({_id:user.settings.visibility}) || {};
-            let batiments = societes.map(s=>{return{societe:s,controls:[]}});
-            batiments.map(b=>affectBatimentControls(b))
-            return batiments;
-        },
-        batiments(obj, args, {user}){
-            let societes = Societes.find().fetch() || {};
-            let batiments = societes.map(s=>{return{societe:s,controls:[]}});
-            batiments.map(b=>affectBatimentControls(b))
-            return batiments;
-        },
-        buBatiments(obj, args, {user}){
-            let societes = Societes.find({_id: new Mongo.ObjectID(user.settings.visibility)}).fetch() || {};
-            let batiments = societes.map(s=>{return{societe:s,controls:[]}});
-            batiments.map(b=>affectBatimentControls(b))
-            return batiments;
+        batimentControls(obj, args, {user}){
+            let batimentControls = BATIMENT_CONTROLS(user);
+            batimentControls.map(b=>affectBatimentControlData(b))
+            return batimentControls;
         }
     },
     Mutation:{
         addBatimentControl(obj, {societe,name,delay,lastExecution},{user}){
             if(user._id){
-                Batiments.insert({
+                BatimentControls.insert({
                     _id:new Mongo.ObjectID(),
                     societe:societe,
                     name:name,
@@ -56,7 +41,7 @@ export default {
             if(user._id){
                 let societes = Societes.find().fetch();
                 societes.map(s=>{
-                    Batiments.insert({
+                    BatimentControls.insert({
                         _id:new Mongo.ObjectID(),
                         societe:s._id._str,
                         name:name,
@@ -71,7 +56,7 @@ export default {
         },
         editBatimentControl(obj, {_id,name,delay},{user}){
             if(user._id){
-                Batiments.update(
+                BatimentControls.update(
                     {
                         _id: new Mongo.ObjectID(_id)
                     }, {
@@ -87,7 +72,7 @@ export default {
         },
         updateBatimentControl(obj, {_id,lastExecution},{user}){
             if(user._id){
-                Batiments.update(
+                BatimentControls.update(
                     {
                         _id: new Mongo.ObjectID(_id)
                     }, {
@@ -102,7 +87,7 @@ export default {
         },
         deleteBatimentControl(obj, {_id},{user}){
             if(user._id){
-                Batiments.remove({
+                BatimentControls.remove({
                     _id:new Mongo.ObjectID(_id)
                 });
                 return [{status:true,message:'Suppression réussie'}];
@@ -114,7 +99,7 @@ export default {
                 if(type != "ficheInter"){
                     return [{status:false,message:'Type de fichier innatendu (ficheInter)'}];
                 }
-                let batimentControl = Batiments.findOne({_id:new Mongo.ObjectID(_id)});
+                let batimentControl = BatimentControls.findOne({_id:new Mongo.ObjectID(_id)});
                 let societe = Societes.findOne({_id:new Mongo.ObjectID(batimentControl.societe)});
                 let docId = new Mongo.ObjectID();
                 return await new Promise(async (resolve,reject)=>{
@@ -137,7 +122,7 @@ export default {
                             type:type,
                             storageDate:moment().format('DD/MM/YYYY HH:mm:ss')
                         });
-                        Batiments.update(
+                        BatimentControls.update(
                             {
                                 _id: new Mongo.ObjectID(_id)
                             }, {

@@ -9,9 +9,7 @@ type Licence{
 }
 
 extend type Query{
-    licence(_id: String!): Licence
     licences : [Licence]
-    buLicences : [Licence]
 }
 
 extend type Mutation{

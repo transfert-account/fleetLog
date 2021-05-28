@@ -1,10 +1,6 @@
-type Batiment{
-    societe:Societe
-    controls:[BatimentControl]
-}
-
 type BatimentControl{
     _id:String
+    societe:Societe
     name:String
     lastExecution:String
     delay:Int
@@ -12,9 +8,7 @@ type BatimentControl{
 }
 
 extend type Query{
-    batiment : Batiment
-    batiments : [Batiment]
-    buBatiments : [Batiment]
+    batimentControls : [BatimentControl]
 }
 
 extend type Mutation{

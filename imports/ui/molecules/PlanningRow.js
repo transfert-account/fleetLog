@@ -8,12 +8,12 @@ export class PlanningRow extends Component {
 
     state={
         rowActionsUnaffected:[
-            {color:"blue",click:()=>{this.navigate()},icon:"arrow right",tooltip:"Voir l'entretien"},
             {color:"green",click:()=>{this.triggerAffectToMe()},icon:"calendar check outline",tooltip:"S'affecter l'entretien"},
+            {color:"blue",click:()=>{this.navigate()},icon:"arrow right",tooltip:"Voir l'entretien"}
         ],
         rowActionsAffected:[
-            {color:"green",click:()=>{this.navigate()},icon:"arrow right",tooltip:"Voir votre entretien"},
-            {color:"red",click:()=>{this.triggerReleaseEntretien()},icon:"calendar check outline",tooltip:"Désaffecter l'entretien"}
+            {color:"red",click:()=>{this.triggerReleaseEntretien()},icon:"calendar check outline",tooltip:"Désaffecter l'entretien"},
+            {color:"blue",click:()=>{this.navigate()},icon:"arrow right",tooltip:"Voir l'entretien"}
         ]
     }
     
@@ -25,11 +25,6 @@ export class PlanningRow extends Component {
     }
     triggerReleaseEntretien = () => {
         this.props.triggerReleaseEntretien(this.props.entretien._id)
-    }
-    getSocieteCell = () => {
-        if(!this.props.hideSociete){
-            return <Table.Cell textAlign="center">{this.props.entretien.societe.name}</Table.Cell>
-        }
     }
     getEntretienTypeCell = () => {
         if(this.props.entretien.fromControl){
@@ -52,31 +47,30 @@ export class PlanningRow extends Component {
             )
         }
     }
-    getUserCell = () => {
-        if(!this.props.hideSociete){
-            return <Table.Cell textAlign="center">{this.props.entretien.user.firstname + " " +this.props.entretien.user.lastname}<br/>{this.props.entretien.societe.name}</Table.Cell>
-        }else{
-            return <Table.Cell textAlign="center">{this.props.entretien.user.firstname + " " +this.props.entretien.user.lastname}</Table.Cell>
-        }
-    }
     getRowActionsAffected = () => {
-        let actions = [
-            {color:(this.props.user._id == this.props.entretien.user._id ? "green" : "blue"),click:()=>{this.navigate()},icon:"arrow right",tooltip:(this.props.user._id == this.props.entretien.user._id ? "Voir votre entretien" : "Voir l'entretien")},
-        ];
+        let actions = [];
         if(this.props.user._id == this.props.entretien.user._id || this.props.user.isAdmin){
             actions.push({color:"red",click:()=>{this.triggerReleaseEntretien()},icon:"calendar check outline",tooltip:"Désaffecter l'entretien"})
         }
+        actions.push({color:"blue",click:()=>{this.navigate()},icon:"arrow right",tooltip:"Voir l'entretien"})
         return (actions)
+    }
+    getEntretienOriginCell = () => {
+        if(this.props.entretien.originNature != null){
+            return this.props.entretien.originNature.name
+        }else{
+            return this.props.entretien.originControl.name
+        }
     }
 
     render() {
         if(this.props.active == "selectedDay"){
             return (
                 <Table.Row key={this.props.entretien._id}>
-                    {this.getUserCell()}
+                    <Table.Cell textAlign="center">{this.props.entretien.user.firstname + " " +this.props.entretien.user.lastname}<br/>{this.props.entretien.societe.name}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.entretien.vehicle.registration}</Table.Cell>
                     {this.getEntretienTypeCell()}
-                    <Table.Cell textAlign="center">{this.props.entretien.title}</Table.Cell>
+                    <Table.Cell textAlign="center">{this.getEntretienOriginCell()}</Table.Cell>
                     <ActionsGridCell actions={this.getRowActionsAffected()}/>
                 </Table.Row>
             )
@@ -86,7 +80,7 @@ export class PlanningRow extends Component {
                 <Table.Row key={this.props.entretien._id}>
                     <Table.Cell textAlign="center">{this.props.entretien.vehicle.registration}</Table.Cell>
                     {this.getEntretienTypeCell()}
-                    <Table.Cell textAlign="center">{this.props.entretien.title}</Table.Cell>
+                    <Table.Cell textAlign="center">{this.getEntretienOriginCell()}</Table.Cell>
                     <Table.Cell style={{padding:"0"}} textAlign='center'>
                         {this.props.entretien.occurenceDate}
                     </Table.Cell>
@@ -97,10 +91,10 @@ export class PlanningRow extends Component {
         if(this.props.active == "unaffected"){
             return (
                 <Table.Row key={this.props.entretien._id}>
-                    {this.getSocieteCell()}
+                    <Table.Cell textAlign="center">{this.props.entretien.societe.name}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.entretien.vehicle.registration}</Table.Cell>
                     {this.getEntretienTypeCell()}
-                    <Table.Cell textAlign="center">{this.props.entretien.title}</Table.Cell>
+                    <Table.Cell textAlign="center">{this.getEntretienOriginCell()}</Table.Cell>
                     <ActionsGridCell actions={this.state.rowActionsUnaffected}/>
                 </Table.Row>
             )

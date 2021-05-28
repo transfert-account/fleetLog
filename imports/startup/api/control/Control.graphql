@@ -28,6 +28,6 @@ type VehicleAndOccurrence{
 }
 
 extend type Query{
-    ctrlStats(ctrlType:String!) : [ControlStats]
+    ctrlStats(ctrlType:String!,societe:String!) : [ControlStats]
     vehiclesByControl(key:String!) : ControlAndVehiculesEquiped
 }

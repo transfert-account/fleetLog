@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react';
 import { Label } from 'semantic-ui-react';
-import { withRouter } from 'react-router-dom';
 import _ from 'lodash';
 
 class CalendarTile extends Component {
@@ -31,9 +30,6 @@ class CalendarTile extends Component {
       selectedClient:value
     });
   }
-  getDayName = n => {
-      return ["","Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"][n];
-  }
   getMonthName = n => {
     return ["Janvier","Fevrier","Mars","Avril","Mai","Juin","Juillet","Aout","Septembre","Octobre","Novembre","Decembre"][n];
   }
@@ -43,14 +39,7 @@ class CalendarTile extends Component {
   getEntretiensPlannedUserAffected = () => {
     if(this.state.entretiens.length != 0){
       return(
-        <Label color="green" className="entretiens-label-u">{this.state.entretiens.filter(e=>e.user._id == this.props.user._id).length}</Label>
-      )
-    }
-  }
-  getEntretiensPlanned = () => {
-    if(this.state.entretiens.length != 0){
-      return(
-        <Label color="blue" className="entretiens-label-s">{this.state.entretiens.length}</Label>
+        <Label color="green">{this.state.entretiens.filter(e=>e.user._id == this.props.user._id).length}</Label>
       )
     }
   }
@@ -67,12 +56,12 @@ class CalendarTile extends Component {
     return (
       <Fragment>
         <div className={"calendar-tile"+className} onClick={()=>{this.selectDay()}} style={{gridColumnStart:this.state.dow}}>
-          {this.getEntretiensPlannedUserAffected()}
-          {this.getEntretiensPlanned()}
-          <div className="date-display">
-            <p className="day-of-week">{this.getDayName(this.state.dow).substring(0,3)}</p>
-            <p className="day-of-month">{('00'+this.state.day).slice(-2)}</p>
+          <div className="date-display-wrap">
+            <div className="date-display">
+              <p className="day-of-month">{('00'+this.state.day).slice(-2)}</p>
+            </div>
           </div>
+          {this.getEntretiensPlannedUserAffected()}
         </div>
       </Fragment>
     )

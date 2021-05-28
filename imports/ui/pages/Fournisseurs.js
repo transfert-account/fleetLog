@@ -18,20 +18,20 @@ class Fournisseurs extends Component {
     fournisseurs : () => {
       let displayed = Array.from(this.state.fournisseursRaw);
       if(this.state.fournisseurFilter.length>1){
-          displayed = displayed.filter(f =>
-            f.name.toLowerCase().includes(this.state.fournisseurFilter.toLowerCase()) ||
-            f.mail.toLowerCase().includes(this.state.fournisseurFilter.toLowerCase()) ||
-            f.address.toLowerCase().includes(this.state.fournisseurFilter.toLowerCase())
-          );
-          if(displayed.length == 0){
-            return(
-              <Table.Row key={"none"}>
-                <Table.Cell width={16} colSpan='14' textAlign="center">
-                  <p>Aucun fournisseur ne correspond à ce filtre</p>
-                </Table.Cell>
-              </Table.Row>
-            )
-          }
+        displayed = displayed.filter(f =>
+          f.name.toLowerCase().includes(this.state.fournisseurFilter.toLowerCase()) ||
+          f.mail.toLowerCase().includes(this.state.fournisseurFilter.toLowerCase()) ||
+          f.address.toLowerCase().includes(this.state.fournisseurFilter.toLowerCase())
+        );
+        if(displayed.length == 0){
+          return(
+            <Table.Row key={"none"}>
+              <Table.Cell width={16} colSpan='14' textAlign="center">
+                <p>Aucun fournisseur ne correspond à ce filtre</p>
+              </Table.Cell>
+            </Table.Row>
+          )
+        }
       }
       return displayed.map(f =>(
           <FournisseurRow loadFournisseurs={this.loadFournisseurs} key={f._id} fournisseur={f}/>

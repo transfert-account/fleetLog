@@ -67,8 +67,8 @@ class Menu extends Component {
         color:"blue"
       },
       {
-        name:"batiments",
-        active:"batiments",
+        name:"batiment_controls",
+        active:"batiment_controls",
         label:"Batiments",
         display:true,
         icon:"fas fa-warehouse",
@@ -155,7 +155,7 @@ class Menu extends Component {
     if(this.props.user.isOwner){
       return(
         <li className="nav-item" name="filter">
-          <a href="#" className="nav-link" onClick={this.showFilter}>
+          <a className="nav-link" onClick={this.showFilter}>
             <FAFree code="fas fa-layer-group" color="gold"/>
             <span className="link-text">{this.props.getSocieteName(this.props.societeFilter).toUpperCase()}</span>
           </a>
@@ -165,7 +165,7 @@ class Menu extends Component {
       if(this.props.user.isAdmin && this.props.user.visibility == "noidthisisgroupvisibility"){
         return(
           <li className="nav-item" name="filter">
-            <a href="#" className="nav-link" onClick={this.showFilter}>
+            <a className="nav-link" onClick={this.showFilter}>
               <FAFree code="fas fa-layer-group" color="blue"/>
               <span className="link-text">{this.props.getSocieteName(this.props.societeFilter).toUpperCase()}</span>
             </a>
@@ -174,7 +174,7 @@ class Menu extends Component {
       }else{
         return(
           <li className="nav-item" name="filter">
-            <a href="#" className="nav-link">
+            <a className="nav-link">
               <FAFree code="fas fa-layer-group" color="blue"/>
               <span className="link-text">{this.props.getSocieteName(this.props.societeFilter).toUpperCase()}</span>
             </a>

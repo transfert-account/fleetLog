@@ -1,4 +1,4 @@
-import Locations from './locations.js';
+import Locations, { LOCATIONS } from './locations.js';
 import Societes from '../societe/societes.js';
 import Licences from '../licence/licences.js';
 import Entretiens from '../entretien/entretiens';
@@ -113,16 +113,8 @@ export default {
             affectLocationAccidents(location)
             return location;
         },
-        locations(obj, args){
-            let locations = Locations.find().fetch() || {};
-            locations.forEach(l => {
-                affectLocationData(l)
-            });
-            return locations;
-        },
-        buLocations(obj,args,{ user }){
-            let userFull = Meteor.users.findOne({_id:user._id});
-            let locations = Locations.find({societe:userFull.settings.visibility}).fetch() || {};
+        locations(obj, args, {user}){
+            let locations = LOCATIONS(user)
             locations.forEach(l => {
                 affectLocationData(l)
             });

@@ -1,9 +1,8 @@
 import React, { Component, Fragment } from 'react'
-import { Table, Label, Icon, Popup, Button } from 'semantic-ui-react';
+import { Table, Label, Icon } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 
 import ActionsGridCell from '../atoms/ActionsGridCell';
-import DocStateLabel from '../atoms/DocStateLabel';
 
 import { withRouter } from 'react-router-dom';
 
@@ -64,6 +63,7 @@ class EntretienRow extends Component {
         return (
             <Fragment>
                 <Table.Row>
+                    <Table.Cell collapsing textAlign="center">{this.props.entretien.societe.name}</Table.Cell>
                     <Table.Cell collapsing textAlign="center">{this.props.entretien.vehicle.registration}</Table.Cell>
                     <Table.Cell collapsing textAlign="right">{this.getEntretienType()}</Table.Cell>
                     <Table.Cell collapsing>{this.getEntretienOrigin()}</Table.Cell>

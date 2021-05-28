@@ -1,4 +1,4 @@
-import Vehicles from '../vehicle/vehicles';
+import Vehicles, { VEHICLES } from '../vehicle/vehicles';
 import Societes from '../societe/societes.js';
 import Brands from '../brand/brands.js';
 import Models from '../model/models.js';
@@ -45,7 +45,7 @@ const affectVehicleData = vehicle => {
 
 export default {
     Query : {
-        ctrlStats(obj,{ctrlType},args){
+        ctrlStats(obj,{ctrlType,societe},{user}){
             let ctrls = [];
             if(ctrlType == "obli"){
                 ctrls = Functions.getObli().map(o=>{return({
@@ -70,8 +70,11 @@ export default {
                     late:0
                 })});
             }
-            let vs = Vehicles.find().fetch();
-            vs.forEach(v=>{//Pour chaque véhicule
+            let vehicles = VEHICLES(user);
+            if(societe != "noidthisisgroupvisibility"){
+                vehicles = vehicles.filter(v=>v.societe == societe)
+            }
+            vehicles.forEach(v=>{//Pour chaque véhicule
                 v.ctrls = (ctrlType == "obli" ? v.obli : v.prev)
                 ctrls.forEach(o=>{//Pour chaque contrôle existant
                     if(v.ctrls.filter(vo=>vo.key == o.control.key).length == 0){
@@ -114,16 +117,16 @@ export default {
             })
             return ctrls;
         },
-        vehiclesByControl(obj,{key},args){
+        vehiclesByControl(obj,{key},{user}){
             let res = {control:{},lastOccurrence:"",vehiclesOccurrences:[]}
             if(key[0] == "o"){
                 res.control = Functions.getObli().filter(c=>c.key == key)[0]
-                res.vehiclesOccurrences = Vehicles.find({obli:{$elemMatch:{key:key}}}).fetch();
+                res.vehiclesOccurrences = VEHICLES(user).filter(v=>v.obli.includes(v.key==key))
                 res.vehiclesOccurrences.forEach(v=>affectVehicleData(v))
                 res.vehiclesOccurrences = res.vehiclesOccurrences.map(v=>{return({vehicle:v,lastOccurrence:v.obli.filter(o=>o.key == key)[0].lastOccurrence,entretien:v.obli.filter(o=>o.key == key)[0].entretien})})
             }else{
                 res.control = Functions.getPrev().filter(c=>c.key == key)[0]
-                res.vehiclesOccurrences = Vehicles.find({prev:{$elemMatch:{key:key}}}).fetch();
+                res.vehiclesOccurrences = VEHICLES(user).filter(v=>v.prev.includes(v.key==key))
                 res.vehiclesOccurrences.forEach(v=>affectVehicleData(v))
                 res.vehiclesOccurrences = res.vehiclesOccurrences.map(v=>{return({vehicle:v,lastOccurrence:v.prev.filter(o=>o.key == key)[0].lastOccurrence,entretien:v.prev.filter(o=>o.key == key)[0].entretien})})
             }

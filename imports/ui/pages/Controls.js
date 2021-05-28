@@ -5,6 +5,7 @@ import EntretienMenu from '../molecules/EntretienMenu';
 import ActionsGridCell from '../atoms/ActionsGridCell';
 import { gql } from 'apollo-server-express';
 import moment from 'moment';
+import Societes from '../../startup/api/societe/societes';
 
 export class Controls extends Component {
 
@@ -14,8 +15,8 @@ export class Controls extends Component {
         ],
         ctrlStats:[],
         ctrlStatsQuery : gql`
-            query ctrlStats($ctrlType:String!){
-                ctrlStats(ctrlType:$ctrlType){
+            query ctrlStats($ctrlType:String!,$societe:String!){
+                ctrlStats(ctrlType:$ctrlType,societe:$societe){
                     control{
                         key
                         name
@@ -46,7 +47,8 @@ export class Controls extends Component {
         this.props.client.query({
             query:this.state.ctrlStatsQuery,
             variables:{
-                ctrlType:this.props.ctrlType
+                ctrlType:this.props.ctrlType,
+                societe:this.props.societeFilter
             },
             fetchPolicy:'network-only'
         }).then(({data})=>{
