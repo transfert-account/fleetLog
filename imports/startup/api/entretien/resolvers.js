@@ -141,8 +141,9 @@ export default {
     Query : {
         entretiens(obj, args,{user}){
             let entretiens = ENTRETIENS(user);
-            entretiens.forEach((e,i) => {
+            entretiens.forEach(e => {
                 affectEntretienData(e);
+                affectUserData(e);
             });
             return entretiens;
         },
@@ -170,7 +171,8 @@ export default {
         },
         entretien(obj, {_id},{user}){
             let entretien = Entretiens.findOne({_id:new Mongo.ObjectID(_id)});
-            affectEntretienFullData(entretien)            
+            affectEntretienFullData(entretien)
+            affectUserData(entretien)
             return entretien;
         }
     },
@@ -185,6 +187,8 @@ export default {
                     type:"cura",
                     originNature:nature,
                     originControl:null,
+                    occurenceDate:"",
+                    kmAtFinish:0,
                     vehicle:vehicle,
                     piecesQty:JSON.parse(pieces),
                     status:0,
@@ -211,6 +215,8 @@ export default {
                     type:(control[0]=="o" ? "obli" : "prev"),
                     originNature:null,
                     originControl:control,
+                    occurenceDate:"",
+                    kmAtFinish:0,
                     vehicle:vehicle,
                     piecesQty:[],
                     status:0,
@@ -234,6 +240,140 @@ export default {
                     }
                 )
                 return [{status:true,message:'Création réussie'}];
+            }
+            throw new Error('Unauthorized');
+        },
+        nextStatus1(obj, {_id,affectation,occurenceDate}, {user}){
+            if(user._id){
+                Entretiens.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "status":1,
+                            "user":affectation,
+                            "occurenceDate":occurenceDate
+                        }
+                    }
+                );
+                Entretiens.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $push: {
+                            "notes": {
+                                _id: new Mongo.ObjectID(),
+                                text:"Status de l'entretien modifié de [En attente] à [Affecté]",
+                                date:moment().format('DD/MM/YYYY HH:mm:ss')
+                            }
+                        }
+                    }
+                );
+                return [{status:true,message:'Entretien affecté'}];
+            }
+            throw new Error('Unauthorized');
+        },
+        nextStatus2(obj, {_id,time,kmAtFinish}, {user}){
+            if(user._id){
+                let entretien = Entretiens.findOne({_id:new Mongo.ObjectID(_id)})
+                let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(entretien.vehicle)});
+                if(vehicle.kms[vehicle.kms.length-1].kmValue > kmAtFinish){
+                    return [{status:false,message:'Kilométrage du dernier relevé plus élevé'}];
+                }
+                if(moment(vehicle.kms[vehicle.kms.length-1].reportDate, "DD/MM/YYYY").diff(moment(entretien.occurenceDate,"DD/MM/YYYY"),'days')>0){
+                    return [{status:false,message:'Date du dernier relevé plus récente'}];
+                }
+                Entretiens.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "status":2,
+                            "time":time,
+                            "kmAtFinish":kmAtFinish
+                        }
+                    }
+                );
+                Vehicles.update(
+                    {
+                        _id: new Mongo.ObjectID(entretien.vehicle)
+                    }, {
+                        $set: {
+                            "lastKmUpdate":entretien.occurenceDate,
+                            "km":kmAtFinish
+                        }
+                    }   
+                )
+                Vehicles.update(
+                    {
+                        _id:new Mongo.ObjectID(entretien.vehicle)
+                    },{
+                        $push: {
+                            "kms": {
+                                _id: new Mongo.ObjectID(),
+                                reportDate:entretien.occurenceDate,
+                                kmValue:kmAtFinish
+                            }
+                        }
+                    }
+                )
+                Entretiens.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $push: {
+                            "notes": {
+                                _id: new Mongo.ObjectID(),
+                                text:"Status de l'entretien modifié de [Affecté] à [Réalisé]",
+                                date:moment().format('DD/MM/YYYY HH:mm:ss')
+                            }
+                        }
+                    }
+                );
+                return [{status:true,message:'Entretien réalisé, kilométrage du véhicule mis à jour'}];
+            }
+            throw new Error('Unauthorized');
+        },
+        nextStatus3(obj, {_id}, {user}){
+            if(user._id){
+                Entretiens.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "status":3
+                        }
+                    }
+                );
+                Entretiens.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $push: {
+                            "notes": {
+                                _id: new Mongo.ObjectID(),
+                                text:"Status de l'entretien modifié de [Réalisé] à [Clos]",
+                                date:moment().format('DD/MM/YYYY HH:mm:ss')
+                            }
+                        }
+                    }
+                );
+                let entretien = Entretiens.findOne({_id:new Mongo.ObjectID(_id)})
+                if(entretien.originControl != null){
+                    let cs = (entretien.originControl[0] == "o" ? Functions.getObli() : Functions.getPrev())
+                    Vehicles.update(
+                        {
+                            _id: new Mongo.ObjectID(entretien.vehicle),
+                            [(entretien.originControl[0] == "o" ? "obli" : "prev")+".key"]: entretien.originControl
+                        }, {
+                            $set: {
+                                [(entretien.originControl[0] == "o" ? "obli" : "prev")+".$.lastOccurrence"]: (cs.filter(c=>c.key == entretien.originControl)[0].unit == "km" ? entretien.kmAtFinish : entretien.occurenceDate),
+                                [(entretien.originControl[0] == "o" ? "obli" : "prev")+".$.entretien"]:""
+                            }
+                        }
+                    )
+                }
+                return [{status:true,message:'Entretien clos, échéance de contrôle du véhicule mis à jour'}];
             }
             throw new Error('Unauthorized');
         },
@@ -303,7 +443,7 @@ export default {
                             }
                         }
                     }
-                ); 
+                );
                 return [{status:true,message:'Note sauvegardée'}];
             }
             throw new Error('Unauthorized');
@@ -343,22 +483,6 @@ export default {
             }
             throw new Error('Unauthorized');
         },
-        editInfos(obj, {_id,time,status},{user}){
-            if(user._id){
-                Entretiens.update(
-                    {
-                        _id: new Mongo.ObjectID(_id)
-                    }, {
-                        $set: {
-                            "time":time,
-                            "status":status
-                        }
-                    }
-                ); 
-                return [{status:true,message:'Informations sauvegardées'}];
-            }
-            throw new Error('Unauthorized');
-        },
         editPieces(obj, {_id,pieces},{user}){
             if(user._id){
                 Entretiens.update(
@@ -381,6 +505,7 @@ export default {
                         _id: new Mongo.ObjectID(_id)
                     }, {
                         $set: {
+                            "status":1,
                             "user":user._id,
                             "occurenceDate":occurenceDate
                         }
@@ -392,17 +517,23 @@ export default {
         },
         release(obj, {_id},{user}){
             if(user._id){
-                Entretiens.update(
-                    {
-                        _id: new Mongo.ObjectID(_id)
-                    }, {
-                        $set: {
-                            "user":"",
-                            "occurenceDate":""
+                let entretien = Entretiens.findOne({_id:new Mongo.ObjectID(_id)})
+                if(entretien.status >= 2){
+                    return [{status:false,message:'Impossible de relacher un entretien déjà réalisé'}];
+                }else{
+                    Entretiens.update(
+                        {
+                            _id: new Mongo.ObjectID(_id)
+                        }, {
+                            $set: {
+                                "status":0,
+                                "user":"",
+                                "occurenceDate":""
+                            }
                         }
-                    }
-                ); 
-                return [{status:true,message:'Entretien relaché'}];
+                    ); 
+                    return [{status:true,message:'Entretien relaché'}];
+                }
             }
             throw new Error('Unauthorized');
         },

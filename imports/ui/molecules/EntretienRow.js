@@ -9,6 +9,7 @@ import { withRouter } from 'react-router-dom';
 class EntretienRow extends Component {
 
     state={
+        status:[{status:0,label:"En attente",color:"blue"},{status:1,label:"Affecté",color:"blue"},{status:2,label:"Réalisé",color:"green"},{status:3,label:"Clos",color:"grey"}],
         rowActions:[
             {color:"blue",click:()=>{this.navigateToEntretien()},icon:"arrow right",tooltip:"Voir l'entretien"},
         ]
@@ -57,6 +58,26 @@ class EntretienRow extends Component {
             return this.props.entretien.originControl.name
         }
     }
+    getEntretienAffectation = () => {
+        if(this.props.entretien.user._id != null){
+            return (
+                <Fragment>
+                    <Table.Cell collapsing textAlign="center">{this.props.entretien.user.lastname + " " + this.props.entretien.user.firstname}</Table.Cell>
+                    <Table.Cell collapsing textAlign="center">{this.props.entretien.occurenceDate}</Table.Cell>
+                </Fragment>
+            )
+        }else{
+            return <Table.Cell collapsing colSpan="2" textAlign="center">Non affecté</Table.Cell>
+        }
+    }
+    getEntretienStatus = () => {
+        let s = this.state.status.filter(s=>s.status == this.props.entretien.status)[0];
+        return(
+            <Label size="large" style={{margin:"0",placeSelf:"center"}} color={s.color}>
+                {s.label}
+            </Label>
+        )
+    }
     
     /*COMPONENTS LIFECYCLE*/
     render() {
@@ -65,9 +86,11 @@ class EntretienRow extends Component {
                 <Table.Row>
                     <Table.Cell collapsing textAlign="center">{this.props.entretien.societe.name}</Table.Cell>
                     <Table.Cell collapsing textAlign="center">{this.props.entretien.vehicle.registration}</Table.Cell>
-                    <Table.Cell collapsing textAlign="right">{this.getEntretienType()}</Table.Cell>
+                    <Table.Cell collapsing textAlign="center">{this.getEntretienType()}</Table.Cell>
                     <Table.Cell collapsing>{this.getEntretienOrigin()}</Table.Cell>
                     <Table.Cell>{this.props.entretien.notes[0].text}</Table.Cell>
+                    <Table.Cell collapsing textAlign="center">{this.getEntretienStatus()}</Table.Cell>
+                    {this.getEntretienAffectation()}
                     <ActionsGridCell actions={this.state.rowActions}/>
                 </Table.Row>
             </Fragment>

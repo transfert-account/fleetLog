@@ -202,6 +202,7 @@ export class Control extends Component {
                         </Table.Header>
                         <Table.Body>
                             {this.state.vehiclesRaw.sort((a,b)=>{if(this.state.controlRaw.unit == "km"){return b.echeance.value - a.echeance.value}else{return a.echeance.value - b.echeance.value}}).map(v=>{
+                                console.log(v.entretien)
                                 return(
                                     <Table.Row key={v.registration}>
                                         <Table.Cell collapsing textAlign="right">
@@ -214,8 +215,8 @@ export class Control extends Component {
                                         </Table.Cell>
                                         <Table.Cell textAlign="center">{this.getEcheanceCell(v)}</Table.Cell>
                                         <Table.Cell collapsing textAlign="center">
-                                            <Popup trigger={<Button icon disabled={v.entretien != null} onClick={()=>this.addEntretien(v.vehicle._id)} icon="calendar outline"/>}>Créer l'entretien</Popup>
-                                            <Popup trigger={<Button color="blue" disabled={v.entretien == null} icon onClick={()=>this.props.history.push("/entretien/"+v.entretien)} icon="wrench" style={{marginLeft:"32px"}}/>}>Voir l'entretien</Popup>
+                                            <Popup trigger={<Button icon disabled={v.entretien != null && v.entretien != ""} onClick={()=>this.addEntretien(v.vehicle._id)} icon="calendar outline"/>}>Créer l'entretien</Popup>
+                                            <Popup trigger={<Button color="blue" disabled={v.entretien == null || v.entretien == ""} icon onClick={()=>this.props.history.push("/entretien/"+v.entretien)} icon="wrench" style={{marginLeft:"32px"}}/>}>Voir l'entretien</Popup>
                                             <Popup trigger={<Button color="blue" icon onClick={()=>this.props.history.push("/parc/vehicle/"+v.vehicle._id)} icon="car"/>}>Voir le véhicule</Popup>
                                         </Table.Cell>
                                     </Table.Row>

@@ -1,9 +1,10 @@
 import React, { Component, Fragment } from 'react'
-import { Loader, Table, Button, Icon, Segment, Form, Message, Modal, Input, Dropdown, Menu, Label, Header, TextArea, Popup } from 'semantic-ui-react';
+import { Loader, Table, Button, Icon, Segment, Form, Message, Modal, Input, Dropdown, Menu, Label, Header, TextArea, Popup, Step } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 import BigIconButton from '../elements/BigIconButton';
 import FAFree from '../elements/FAFree';
 import FileManagementPanel from '../atoms/FileManagementPanel';
+import UserPicker from '../atoms/UserPicker';
 import ModalDatePicker from '../atoms/ModalDatePicker'
 import { withRouter } from 'react-router-dom';
 import { gql } from 'apollo-server-express';
@@ -12,15 +13,15 @@ import _ from 'lodash';
 class Entretien extends Component {
     
     state={
-        editing:false,
         activePanel:"infos",
         filterAddPiece:"",
         entretienRaw:null,
         newPiece:"",
-        newDesc:"",
         newPrice:"",
-        newTitle:"",
-        newTime:0,
+        newKmAtFinish:"0",
+        newOccurenceDate:"",
+        newUser:"",
+        newTime:"",
         newPieces:[],
         piecesRaw:[],
         newAffectDate:"",
@@ -39,7 +40,7 @@ class Entretien extends Component {
         newFicheInter:null,
         _id:this.props.match.params._id,
         loadingEntretien:true,
-        status:[{status:0,label:"Ouvert"},{status:1,label:"En cours"},{status:2,label:"Réalisé"},{status:3,label:"Fermé"}],
+        status:[{status:0,icon:"calendar outline",label:"En attente",color:"blue"},{status:1,icon:"calendar outline",label:"Affecté",color:"blue"},{status:2,icon:"wrench",label:"Réalisé",color:"green"},{status:3,icon:"archive",label:"Clos",color:"grey"}],
         entretienQuery : gql`
             query entretien($_id:String!){
                 entretien(_id:$_id){
@@ -81,6 +82,7 @@ class Entretien extends Component {
                         date
                     }
                     time
+                    kmAtFinish
                     piecesQty{
                         piece{
                             _id
@@ -103,11 +105,38 @@ class Entretien extends Component {
                         mimetype
                         storageDate
                     }
+                    occurenceDate
                     status
                     archived
                     user{
                         _id
+                        firstname
+                        lastname
                     }
+                }
+            }
+        `,
+        nextStatus1Query : gql`
+            mutation nextStatus1($_id:String!,$affectation:String!,$occurenceDate:String!){
+                nextStatus1(_id:$_id,affectation:$affectation,occurenceDate:$occurenceDate){
+                    status
+                    message
+                }
+            }
+        `,
+        nextStatus2Query : gql`
+            mutation nextStatus2($_id:String!,$time:Float!,$kmAtFinish:Int!){
+                nextStatus2(_id:$_id,time:$time,kmAtFinish:$kmAtFinish){
+                    status
+                    message
+                }
+            }
+        `,
+        nextStatus3Query : gql`
+            mutation nextStatus3($_id:String!){
+                nextStatus3(_id:$_id){
+                    status
+                    message
                 }
             }
         `,
@@ -152,8 +181,8 @@ class Entretien extends Component {
             }
         `,
         editInfosQuery : gql`
-            mutation editInfos($_id:String!,$time:Float!,$status:Int!){
-                editInfos(_id:$_id,time:$time,status:$status){
+            mutation editInfos($_id:String!,$time:Float!,$status:Int!,$affectation:String!,$occurenceDate:String!){
+                editInfos(_id:$_id,time:$time,status:$status,affectation:$affectation,occurenceDate:$occurenceDate){
                     status
                     message
                 }
@@ -217,6 +246,17 @@ class Entretien extends Component {
     closeAddPiece = () => {
         this.setState({
             openAddPiece: false
+        })
+    }
+    showNextStatus = () => {
+        this.setState({
+            activePanel:"infos",
+            openNextStatus: true
+        })
+    }
+    closeNextStatus = () => {
+        this.setState({
+            openNextStatus: false
         })
     }
     showAddNote = () => {
@@ -284,6 +324,7 @@ class Entretien extends Component {
         });
     }
     handleChangeStatus = (e, { value }) => this.setState({ newStatus:value })
+    handleChangeUser = (e, { value }) => this.setState({ newUser:value })
     handleInputFile = (type,e) => {
         if(e.target.validity.valid ){
             this.setState({
@@ -304,12 +345,7 @@ class Entretien extends Component {
         });
         this.editDesc();
     }
-    handleEditTitle = (e,{value}) => {
-        this.setState({
-            newTitle:value
-        });
-        this.editTitle();
-    }
+
     handleInputFile = (type,e) => {
         if(e.target.validity.valid ){
             this.setState({
@@ -329,8 +365,8 @@ class Entretien extends Component {
         }).then(({data})=>{
             this.setState({
                 entretienRaw:data.entretien,
-                newTime:data.entretien.time,
-                newStatus:data.entretien.status,
+                newOccurenceDate:data.entretien.occurenceDate,
+                newUser:(data.entretien.user._id == null ? "" : data.entretien.user._id),
                 loadingEntretien:false
             })
         })
@@ -345,17 +381,63 @@ class Entretien extends Component {
             })
         })
     }
-    saveEdit = () => {
-        this.setState({editing:false})
+    nextStatus1 = () => {
+        if(this.state.newUser == "" || this.state.newOccurenceDate == ""){
+            this.props.toast({message:"Infomations manquantes pour le changement de status",type:"error"});
+        }else{
+            this.closeNextStatus()
+            this.props.client.mutate({
+                mutation:this.state.nextStatus1Query,
+                variables:{
+                    _id:this.state.entretienRaw._id,
+                    affectation:this.state.newUser,
+                    occurenceDate:this.state.newOccurenceDate
+                }
+            }).then(({data})=>{
+                data.nextStatus1.map(qrm=>{
+                    if(qrm.status){
+                        this.props.toast({message:qrm.message,type:"success"});
+                        this.loadEntretien();
+                    }else{
+                        this.props.toast({message:qrm.message,type:"error"});
+                    }
+                })
+            })
+        }
+    }
+    nextStatus2 = () => {
+        if(this.state.newTime == "" || this.state.newKmAtFinish == ""){
+            this.props.toast({message:"Infomations manquantes pour le changement de status",type:"error"});
+        }else{
+            this.closeNextStatus()
+            this.props.client.mutate({
+                mutation:this.state.nextStatus2Query,
+                variables:{
+                    _id:this.state.entretienRaw._id,
+                    time:parseFloat(this.state.newTime),
+                    kmAtFinish:parseInt(this.state.newKmAtFinish)
+                }
+            }).then(({data})=>{
+                data.nextStatus2.map(qrm=>{
+                    if(qrm.status){
+                        this.props.toast({message:qrm.message,type:"success"});
+                        this.loadEntretien();
+                    }else{
+                        this.props.toast({message:qrm.message,type:"error"});
+                    }
+                })
+            })
+        }
+    }
+    nextStatus3 = () => {
+        this.closeNextStatus()
         this.props.client.mutate({
-            mutation:this.state.editInfosQuery,
+            mutation:this.state.nextStatus3Query,
             variables:{
-                _id:this.state.entretienRaw._id,
-                time:parseFloat(this.state.newTime),
-                status:parseInt(this.state.newStatus)
+                _id:this.state.entretienRaw._id
             }
         }).then(({data})=>{
-            data.editInfos.map(qrm=>{
+            data.nextStatus3.map(qrm=>{
                 if(qrm.status){
                     this.props.toast({message:qrm.message,type:"success"});
                     this.loadEntretien();
@@ -534,33 +616,35 @@ class Entretien extends Component {
         return this.state.status.filter(s=>s.status == this.state.entretienRaw.status)[0].label
     }
     getInfosPanel = () => {
-        if(this.state.editing){
-            return (
-                <Segment style={{margin:"0",gridRowEnd:"span 2",padding:"auto",placeSelf:"stretch",display:"grid",gridTemplateRows:"auto auto 1fr auto"}}>
-                    <Form>
-                        <Form.Field><label>Temps passé (en heures)</label>
-                            <Input defaultValue={this.state.entretienRaw.time} name="newTime" onChange={this.handleChange}/>
-                        </Form.Field>
-                        <Form.Field><label>Status de l'entretien</label>
-                            <Dropdown defaultValue={this.state.entretienRaw.status} onChange={this.handleChangeStatus} fluid selection options={this.state.status.map(s=>{return{key:s.status,text:s.label,value:s.status}})}/>
-                        </Form.Field>
-                    </Form>
-                    <div style={{display:"flex",justifyContent:"center",placeSelf:"center",gridRowStart:"4"}}>
-                        <Button size="huge" color="red" icon labelPosition="left" onClick={()=>this.setState({editing:false})}>Annuler<Icon name='cancel' /></Button>
-                        <Button size="huge" color="green" icon labelPosition="left" onClick={this.saveEdit}>Valider<Icon name='check' /></Button>
-                    </div>
-                </Segment>
-            )
-        }else{
-            return (
-                <Segment style={{margin:"0",gridRowEnd:"span 2",padding:"auto",placeSelf:"stretch"}}>
+        return (
+            <div style={{padding:"auto",gridRowEnd:"span 2",placeSelf:"stretch"}}>
+                <Segment attached='top'>
                     <div className="formBoard displaying">
-                        <div className="labelBoard">Temps sur l'entretien :</div><div className="valueBoard">{this.state.entretienRaw.time + " heures"}</div>
-                        <div className="labelBoard">Status de l'entretien :</div><div className="valueBoard">{this.getStatusLabel()}</div>
+                        <div className="labelBoard">Affectation :</div><div className="valueBoard">{this.state.entretienRaw.user._id != null ? this.state.entretienRaw.user.firstname + " " +this.state.entretienRaw.user.lastname : "Non affecté"}</div>
+                        <div className="labelBoard">Date d'intervention :</div><div className="valueBoard">{this.state.entretienRaw.occurenceDate ? this.state.entretienRaw.occurenceDate : "Aucune date détérminée"}</div>
+                        <div className="labelBoard">Temps sur l'entretien :</div><div className="valueBoard">{this.state.entretienRaw.status >= 2 ? this.state.entretienRaw.time + " heure(s)" : "Indisponible avant réalisation"}</div>
+                        <div className="labelBoard">Kilométrage lors de la réalisation:</div><div className="valueBoard">{this.state.entretienRaw.status >= 2 ? this.state.entretienRaw.kmAtFinish + " km": "Indisponible avant réalisation"}</div>
                     </div>
                 </Segment>
-            )
-        }
+                {this.getSteps()}
+            </div>
+        )
+    }
+    getSteps = () => {
+        return (
+            <Step.Group attached='bottom' widths="4">
+                {this.state.status.map(s=>{
+                    return (
+                        <Step key={s.status} active={s.status <= this.state.entretienRaw.status} completed={s.status <= this.state.entretienRaw.status}>
+                            <Icon name={s.icon} />
+                            <Step.Content>
+                                <Step.Title>{s.label}</Step.Title>
+                            </Step.Content>
+                        </Step>
+                    )
+                })}
+            </Step.Group>
+        )
     }
     getPieceIcon = () => {
         if(this.state.newPieceType=="pie"){
@@ -628,7 +712,7 @@ class Entretien extends Component {
             content = "Contrôle " + this.getTypeLabel()
         }
         return (
-            <Message style={{margin:"0",gridRowStart:"1",gridColumnStart:"3"}} icon='clipboard check' header={header} content={content}/>
+            <Message style={{margin:"0",gridRowStart:"1",gridColumnStart:"2"}} icon='clipboard check' header={header} content={content}/>
         );
     }
     getTypeLabel = () => {
@@ -751,6 +835,71 @@ class Entretien extends Component {
             return this.getDocsPanel()
         }
     }
+    getNextStatusModalContent = () => {
+        if(this.state.entretienRaw.status == 0){
+            return (
+                <Fragment>
+                    <Modal.Header>
+                        Status : En attente vers Affecté
+                    </Modal.Header>
+                    <Modal.Content>
+                        <Form style={{display:"grid",gridTemplateColumns:"1fr 1fr",gridTemplateRows:"auto auto 1fr auto",height:"100%"}} className="formBoard editing">
+                            <Form.Field><label>Affectation</label>
+                                <UserPicker defaultValue={this.state.entretienRaw.user._id} onChange={this.handleChangeUser}/>
+                            </Form.Field>
+                            <Form.Field><label>Date d'intervention</label>
+                                <Input onChange={this.handleChange} value={this.state.newOccurenceDate} onFocus={()=>{this.showDatePicker("newOccurenceDate")}} name="newOccurenceDate" icon={<Icon onClick={()=>this.setState({newOccurenceDate:""})} name='cancel' link/>}/>
+                            </Form.Field>
+                        </Form>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <Button color="grey" onClick={this.closeNextStatus}>Annuler</Button>
+                        <Button color="blue" onClick={this.nextStatus1}>Confimer</Button>
+                    </Modal.Actions>
+                </Fragment>
+            )
+        }
+        if(this.state.entretienRaw.status == 1){
+            return (
+                <Fragment>
+                    <Modal.Header>
+                        Status : Affecté vers Réalisé
+                    </Modal.Header>
+                    <Modal.Content>
+                        <Form style={{display:"grid",gridTemplateColumns:"1fr 1fr",gridTemplateRows:"auto auto 1fr auto",height:"100%"}} className="formBoard editing">
+                            <Form.Field><label>Temps passé (en heures)</label>
+                                <Input name="newTime" onChange={this.handleChange}/>
+                            </Form.Field>
+                            <Form.Field><label>Kilométrage lors de réalisation</label>
+                                <Input name="newKmAtFinish" onChange={this.handleChange}/>
+                            </Form.Field>
+                        </Form>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <Button color="grey" onClick={this.closeNextStatus}>Annuler</Button>
+                        <Button color="blue" onClick={this.nextStatus2}>Confimer</Button>
+                    </Modal.Actions>
+                </Fragment>
+            )
+        }
+        if(this.state.entretienRaw.status == 2){
+            return (
+                <Fragment>
+                    <Modal.Header>
+                        Status : Réalisé vers Clos
+                    </Modal.Header>
+                    <Modal.Content>
+                        Cet entretien est-t-il réelement terminé ?
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <Button color="grey" onClick={this.closeNextStatus}>Annuler</Button>
+                        <Button color="blue" onClick={this.nextStatus3}>Confimer</Button>
+                    </Modal.Actions>
+                </Fragment>
+            )
+        }
+    }
+
     /*COMPONENTS LIFECYCLE*/
     componentDidMount = () => {
         this.loadAllPieces();
@@ -768,29 +917,30 @@ class Entretien extends Component {
             return (
                 <Fragment>
                     <div style={{display:"grid",height:"100%",gridGap:"32px",gridTemplateColumns:"1fr 2fr",gridTemplateRows:"auto 1fr",gridTemplateRows:"auto 1fr"}}>
-                        <div style={{display:"grid",gridGap:"32px",gridTemplateColumns:"auto auto 1fr auto",gridColumnEnd:"span 2"}}>
+                        <div style={{display:"grid",gridGap:"32px",gridTemplateColumns:"auto 1fr auto auto",gridColumnEnd:"span 2"}}>
                             <BigIconButton icon="angle double left" color="black" onClick={()=>{this.props.history.push("/entretien/entretiens");}} tooltip="Retour au tableau des entretiens"/>
-                            <Message style={{margin:"0",gridRowStart:"1",gridColumnStart:"2",cursor:"pointer"}} onClick={()=>{this.props.history.push("/parc/vehicle/"+this.state.entretienRaw.vehicle._id)}} icon>
+                            {this.getOverviewMessage()}
+                            <Message style={{margin:"0",gridRowStart:"1",gridColumnStart:"3",cursor:"pointer"}} onClick={()=>{this.props.history.push("/parc/vehicle/"+this.state.entretienRaw.vehicle._id)}} icon>
                                 <Icon name="truck"/>
                                 <Message.Content>
                                     <Message.Header style={{color:"#2185d0"}}>{this.state.entretienRaw.vehicle.registration}</Message.Header>
                                     {this.state.entretienRaw.vehicle.brand.name + " - " + this.state.entretienRaw.vehicle.model.name}
                                 </Message.Content>
                             </Message>
-                            {this.getOverviewMessage()}
                             <div style={{display:"flex"}}>
-                                <BigIconButton icon="edit" color="blue" onClick={()=>{this.setState({editing:true,activePanel:"infos"})}} tooltip="Editer les infos de l'entretien"/>
+                                <BigIconButton disabled={this.state.entretienRaw.status == 3} icon="double angle right" onClick={this.showNextStatus} tooltip="Modifier le status" spacedFromNext/>
+                                {/*<BigIconButton icon="edit" color="blue" onClick={()=>{this.setState({editing:true,activePanel:"infos"})}} tooltip="Editer les infos de l'entretien"/>*/}
                                 <BigIconButton icon="cart" color="blue" onClick={this.showAddPiece} tooltip="Ajouter une piece"/>
                                 <BigIconButton icon="chat" color="blue" onClick={this.showAddNote} tooltip="Ajouter une note" spacedFromNext/>
-                                <BigIconButton icon="folder open" color="purple" onClick={()=>this.setState({activePanel:"docs"})} tooltip="Documents"/>
-                                {this.getArchiveButton()}
+                                <BigIconButton icon="folder open" color="purple" onClick={()=>this.setState({activePanel:"docs"})} tooltip="Documents" spacedFromNext/>
+                                {/*this.getArchiveButton()*/}
                                 {this.getDeleteButton()}
                             </div>
                         </div>
-                        <div style={{placeSelf:"stretch",gridColumnEnd:"span 2",display:"grid",gridRowStart:"2",gridTemplateColumns:"auto 1fr",gridTemplateRows:"auto 1fr",gridGap:"64px"}}>
+                        <div style={{placeSelf:"stretch",gridColumnEnd:"span 2",display:"grid",gridRowStart:"2",gridTemplateColumns:"auto 1fr",gridTemplateRows:"auto 1fr auto",gridGap:"64px"}}>
                             <div style={{display:"flex",flexDirection:"column",justifyContent:"start",placeSelf:"stretch"}}>
                                 <Menu size='big' pointing vertical style={{gridColumnStart:"1"}}>
-                                    <Menu.Item color="blue" name='Informations' active={this.state.activePanel == 'infos'} onClick={()=>{this.setState({activePanel:"infos"})}} />
+                                    <Menu.Item color="blue" name='Informations' active={this.state.activePanel == 'infos'} onClick={()=>{this.setState({activePanel:"infos"})}} />                                    
                                     <Menu.Item color="blue" active={this.state.activePanel == 'pieces'} onClick={()=>{this.setState({activePanel:"pieces"})}}><Label color='grey'>{this.state.entretienRaw.piecesQty.length}</Label>Pièces</Menu.Item>
                                     <Menu.Item color="blue" active={this.state.activePanel == 'notes'} onClick={()=>{this.setState({activePanel:"notes"})}}><Label color='grey'>{this.state.entretienRaw.notes.length}</Label>Notes</Menu.Item>
                                     <Menu.Item color="purple" name='Documents' active={this.state.activePanel == 'docs'} onClick={()=>{this.setState({activePanel:"docs"})}} />
@@ -860,6 +1010,9 @@ class Entretien extends Component {
                             <Button color="grey" onClick={this.closeAddNote}>Annuler</Button>
                             <Button color="blue" onClick={this.addNote}>Ajouter la note</Button>
                         </Modal.Actions>
+                    </Modal>
+                    <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openNextStatus} onClose={this.closeNextStatus} closeIcon>
+                        {this.getNextStatusModalContent()}
                     </Modal>
                     <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openDeleteNote} onClose={this.closeDeleteNote} closeIcon>
                         <Modal.Header>

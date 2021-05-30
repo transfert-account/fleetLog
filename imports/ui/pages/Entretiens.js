@@ -36,7 +36,7 @@ class Entretiens extends Component {
                 {
                     key: 'archivefalse',
                     initial: true,
-                    text: 'Entretiens actuels',
+                    text: 'Entretiens ouverts',
                     value: false,
                     color:"green",
                     click:()=>{this.switchArchiveFilter(false)},
@@ -45,7 +45,7 @@ class Entretiens extends Component {
                 {
                     key: 'archivetrue',
                     initial: false,
-                    text: 'Entretiens archivés',
+                    text: 'Entretiens clos',
                     value: true,
                     color:"orange",
                     click:()=>{this.switchArchiveFilter(true)},
@@ -85,18 +85,16 @@ class Entretiens extends Component {
                     initial: false,
                     text: 'Entretiens curatifs',
                     value: "curative",
-                    color:"orange",
+                    color:"grey",
                     click:()=>{this.setFromControlFilter("curative")},
-                    label: { color: 'orange', empty: true, circular: true }
+                    label: { color: 'grey', empty: true, circular: true }
                 }
             ]
         },
         entretiensRaw:[],
         entretiens : () => {
             let displayed = Array.from(this.state.entretiensRaw);
-            displayed = displayed.filter(e =>
-                e.archived == this.state.archiveFilter
-            );
+            displayed = displayed.filter(e =>this.state.archiveFilter ? e.status == 3 : e.status < 3);
             if(this.props.user.isAdmin && this.props.user.visibility == "noidthisisgroupvisibility" && this.props.societeFilter != "noidthisisgroupvisibility"){
                 displayed = displayed.filter(e =>e.societe._id == this.props.societeFilter);
             }
@@ -114,7 +112,7 @@ class Entretiens extends Component {
                 if(displayed.length == 0){
                     return(
                         <Table.Row key={"none"}>
-                            <Table.Cell width={16} colSpan='14' textAlign="center">
+                            <Table.Cell colSpan='9' textAlign="center">
                             <p>Aucune entretien ne correspond à ce filtre</p>
                             </Table.Cell>
                         </Table.Row>
@@ -124,7 +122,7 @@ class Entretiens extends Component {
             if(displayed.length == 0){
                 return(
                     <Table.Row key={"none"}>
-                        <Table.Cell colSpan='6' textAlign="center">
+                        <Table.Cell colSpan='9' textAlign="center">
                             <p>Aucun entretien</p>
                         </Table.Cell>
                     </Table.Row>
@@ -162,6 +160,8 @@ class Entretiens extends Component {
                             name
                         }
                     }
+                    occurenceDate
+                    status
                     notes{
                         text
                     }
@@ -177,6 +177,8 @@ class Entretiens extends Component {
                     archived
                     user{
                         _id
+                        firstname
+                        lastname
                     }
                 }
             }
@@ -269,6 +271,9 @@ class Entretiens extends Component {
                                 <Table.HeaderCell>Type</Table.HeaderCell>
                                 <Table.HeaderCell>Nature</Table.HeaderCell>
                                 <Table.HeaderCell>Note</Table.HeaderCell>
+                                <Table.HeaderCell>Status</Table.HeaderCell>
+                                <Table.HeaderCell>Affecté à</Table.HeaderCell>
+                                <Table.HeaderCell>Date</Table.HeaderCell>
                                 <Table.HeaderCell collapsing>Actions</Table.HeaderCell>
                             </Table.Row>
                         </Table.Header>

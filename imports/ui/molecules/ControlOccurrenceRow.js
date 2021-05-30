@@ -143,34 +143,37 @@ export class ControlOccurrenceRow extends Component {
     componentDidMount = () => {
     }
 
-    render() {return (
-        <Fragment>
-            <Table.Row key={this.props.c.control.key}>
-                <Table.Cell collapsing textAlign="right">{this.props.c.control.name}</Table.Cell>
-                <Table.Cell collapsing textAlign="center">
-                    <Button.Group>
-                        <Button onClick={()=>this.props.switchControl(false,this.props.c.control.key,false)} color={(this.props.c.selected ? "" : "grey")}>Non éligible</Button>
-                        <Button onClick={()=>this.props.switchControl(true,this.props.c.control.key,false)} color={(this.props.c.selected ? "green" : "")}>Éligible</Button>
-                    </Button.Group>
-                </Table.Cell>
-                <Table.Cell collapsing textAlign="center">{this.props.c.control.frequency + " " + this.formatUnit(this.props.c.control.unit)}</Table.Cell>
-                <Table.Cell collapsing textAlign="center">{(this.props.c.lastOccurrence == "none" || !this.props.c.selected ? "-" : this.props.c.lastOccurrence + " " + (this.props.c.control.unit == "km" ? "km" : ""))}</Table.Cell>
-                {this.getEcheanceCell(this.props.c)}
-                <Table.Cell collapsing textAlign="center">
-                    <Popup trigger={<Button disabled={!this.props.c.selected || this.props.c.entretien != null} icon onClick={()=>this.addEntretien(this.props.c.control.key)} icon="alternate calendar outline"/>}>
-                        Créer l'entretien
-                    </Popup>
-                    <Popup trigger={<Button style={{marginLeft:"32px"}} disabled={!this.props.c.selected || this.props.c.entretien == null} color="blue" icon onClick={()=>this.props.history.push("/entretien/"+this.props.c.entretien)} icon="wrench"/>}>
-                        Voir l'entretien
-                    </Popup>
-                    <Popup trigger={<Button disabled={!this.props.c.selected} color="blue" icon onClick={()=>this.props.history.push("/entretien/controls/"+this.props.c.control.key)} icon="clipboard check"/>}>
-                        Voir le contrôle
-                    </Popup>
-                </Table.Cell>
-            </Table.Row>
-            <ModalDatePicker onSelectDatePicker={this.onSelectDatePicker} closeDatePicker={this.closeDatePicker} open={this.state.openDatePicker}/>
-        </Fragment>
-    )}
+    render() {
+        console.log(this.props.c.entretien)
+        return (
+            <Fragment>
+                <Table.Row key={this.props.c.control.key}>
+                    <Table.Cell collapsing textAlign="right">{this.props.c.control.name}</Table.Cell>
+                    <Table.Cell collapsing textAlign="center">
+                        <Button.Group>
+                            <Button onClick={()=>this.props.switchControl(false,this.props.c.control.key,false)} color={(this.props.c.selected ? "" : "grey")}>Non éligible</Button>
+                            <Button onClick={()=>this.props.switchControl(true,this.props.c.control.key,false)} color={(this.props.c.selected ? "green" : "")}>Éligible</Button>
+                        </Button.Group>
+                    </Table.Cell>
+                    <Table.Cell collapsing textAlign="center">{this.props.c.control.frequency + " " + this.formatUnit(this.props.c.control.unit)}</Table.Cell>
+                    <Table.Cell collapsing textAlign="center">{(this.props.c.lastOccurrence == "none" || !this.props.c.selected ? "-" : this.props.c.lastOccurrence + " " + (this.props.c.control.unit == "km" ? "km" : ""))}</Table.Cell>
+                    {this.getEcheanceCell(this.props.c)}
+                    <Table.Cell collapsing textAlign="center">
+                        <Popup trigger={<Button disabled={!this.props.c.selected || this.props.c.entretien != null} icon onClick={()=>this.addEntretien(this.props.c.control.key)} icon="alternate calendar outline"/>}>
+                            Créer l'entretien
+                        </Popup>
+                        <Popup trigger={<Button style={{marginLeft:"32px"}} disabled={!this.props.c.selected || this.props.c.entretien == null} color="blue" icon onClick={()=>this.props.history.push("/entretien/"+this.props.c.entretien)} icon="wrench"/>}>
+                            Voir l'entretien
+                        </Popup>
+                        <Popup trigger={<Button disabled={!this.props.c.selected} color="blue" icon onClick={()=>this.props.history.push("/entretien/controls/"+this.props.c.control.key)} icon="clipboard check"/>}>
+                            Voir le contrôle
+                        </Popup>
+                    </Table.Cell>
+                </Table.Row>
+                <ModalDatePicker onSelectDatePicker={this.onSelectDatePicker} closeDatePicker={this.closeDatePicker} open={this.state.openDatePicker}/>
+            </Fragment>
+        )
+    }
 }
 const withUserContext = WrappedComponent => props => (
   <UserContext.Consumer>

@@ -89,6 +89,7 @@ class Vehicle extends Component {
         openDisableControl:false,
         controlToDisable:"",
         datePickerTarget:"",
+        entretiensStatus:[{status:0,label:"En attente",color:"blue"},{status:1,label:"Affecté",color:"blue"},{status:2,label:"Réalisé",color:"green"},{status:3,label:"Clos",color:"grey"}],
         formats:[{triKey:"CPT",label:"Comptant"},{triKey:"CRC",label:"Crédit Classique"},{triKey:"CRB",label:"Crédit Bail"}],
         newDateReport:new Date().getDate().toString().padStart(2, '0')+"/"+parseInt(new Date().getMonth()+1).toString().padStart(2, '0')+"/"+new Date().getFullYear().toString().padStart(4, '0'),
         _id:this.props.match.params._id,
@@ -236,6 +237,28 @@ class Vehicle extends Component {
                         constatSent
                         archived
                         status
+                    }
+                    entretiens{
+                        _id
+                        type
+                        originControl{
+                            key
+                            name
+                        }
+                        originNature{
+                            _id
+                            name
+                        }
+                        status
+                        archived
+                        time
+                        occurenceDate
+                        kmAtFinish
+                        user{
+                            _id
+                            firstname
+                            lastname
+                        }
                     }
                     obli{
                         control{
@@ -1428,6 +1451,9 @@ class Vehicle extends Component {
         if(this.state.activePanel == "prev"){
             return this.getPrevPanel()
         }
+        if(this.state.activePanel == "entretiens"){
+            return this.getEntretiensPanel()
+        }
     }
     getIdentPanel = () => {
         if(this.state.editingIdent){
@@ -1459,9 +1485,9 @@ class Vehicle extends Component {
                         <Form.Field><label>Couleur</label>
                             <ColorPicker defaultValue={this.state.vehicle.color._id} onChange={this.handleChangeColor}/>
                         </Form.Field>
-                        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gridColumnEnd:"span 2",gridRowStart:"7",placeSelf:"stretch",gridGap:"24px"}}>
-                            <Button style={{placeSelf:"center stretch",gridColumnStart:"1"}} color="red" icon labelPosition='right' onClick={this.closeEditIdent}>Annuler<Icon name='cancel'/></Button>
-                            <Button style={{placeSelf:"center stretch",gridColumnStart:"2"}} color="green" icon labelPosition='right' onClick={this.saveEditIdent}>Sauvegarder<Icon name='check'/></Button>
+                        <div style={{display:"flex",justifyContent:"center",placeSelf:"stretch",gridRowStart:"7",gridColumnEnd:"span 2"}}>
+                            <Button size="huge" color="red" icon labelPosition="left" onClick={this.closeEditIdent}>Annuler<Icon name='cancel' /></Button>
+                            <Button size="huge" color="green" icon labelPosition="left" onClick={this.saveEditIdent}>Valider<Icon name='check' /></Button>
                         </div>
                     </Form>
                 </Segment>
@@ -1554,7 +1580,7 @@ class Vehicle extends Component {
         if(this.state.editingFinances || !this.state.vehicle.financialInfosComplete){
             return (
                 <Segment style={{padding:"auto",placeSelf:"stretch"}}>
-                    <Form className="formBoard" style={{display:"grid",gridTemplateColumn:"1fr 1fr"}}>
+                    <Form style={{display:"grid",gridTemplateColumns:"1fr 1fr",gridTemplateRows:"auto auto auto auto 1fr auto",height:"100%"}} className="formBoard editing">
                         <Form.Field><label>Montant de l'assurance</label>
                             <Input defaultValue={this.state.vehicle.insurancePaid} onChange={this.handleChange} name="newInsurancePaid"/>
                         </Form.Field>
@@ -1579,8 +1605,10 @@ class Vehicle extends Component {
                         <Form.Field><label>Type de financement</label>
                             <PayementFormatPicker defaultValue={this.state.vehicle.payementFormat} change={this.handleChangePayementFormat}/>
                         </Form.Field>
-                        <Button style={{placeSelf:"center stretch",gridColumnStart:"1"}} color="red" icon labelPosition='right' onClick={this.closeEditFinances}>Annuler<Icon name='cancel'/></Button>
-                        <Button style={{placeSelf:"center stretch",gridColumnStart:"2"}} color="green" icon labelPosition='right' onClick={this.saveEditFinances}>Sauvegarder<Icon name='check'/></Button>
+                        <div style={{display:"flex",justifyContent:"center",placeSelf:"stretch",gridRowStart:"6",gridColumnEnd:"span 2"}}>
+                            <Button size="huge" color="red" icon labelPosition="left" onClick={this.closeEditFinances}>Annuler<Icon name='cancel' /></Button>
+                            <Button size="huge" color="green" icon labelPosition="left" onClick={this.saveEditFinances}>Valider<Icon name='check' /></Button>
+                        </div>
                     </Form>
                 </Segment>
             )
@@ -1613,7 +1641,7 @@ class Vehicle extends Component {
         }
     }
     getHistoriquePanel = () => {
-        if(this.state.vehicle.brokenHistory.length != 0 && this.state.vehicle.brokenHistory[0]._id == "noid"){
+        if(this.state.vehicle.brokenHistory.length == 0){
             return(
                 <div style={{display:"flex",flexDirection:"column",placeSelf:"stretch"}}>
                     <Segment style={{display:"grid",gridTemplateColumns:"1fr",gridTemplateRows:"1fr",cursor:"pointer"}}>
@@ -1628,7 +1656,7 @@ class Vehicle extends Component {
                         return (
                             <Segment
                                 key={b._id}
-                                onClick={()=>{this.props.history.push("/accident/"+a._id)}}
+                                onClick={()=>{this.props.history.push("/accident/"+b._id)}}
                                 style={{display:"grid",gridTemplateColumns:"auto 1fr auto",marginBottom:"12px",marginTop:"0",padding:"8px 16px",gridTemplateRows:"auto auto",cursor:"pointer"}}
                             >
                                 <FAFree code="far fa-comment" style={{gridRowEnd:"span 2",gridColumnStart:"1",placeSelf:"center",marginRight:"16px",fontSize:"2em"}}/>
@@ -1704,12 +1732,132 @@ class Vehicle extends Component {
             </div>
         )
     }
+    getEntretiensPanel = () => {
+        if(this.state.vehicle.entretiens.length == 0){
+            return(
+                <div style={{display:"flex",flexDirection:"column",placeSelf:"stretch"}}>
+                    <Segment style={{display:"grid",gridTemplateColumns:"1fr",gridTemplateRows:"1fr",cursor:"pointer"}}>
+                        <Header style={{margin:"48px",placeSelf:"center"}} as='h2'>Il n'y aucun entretien pour ce véhicule</Header>
+                    </Segment>
+                </div>
+            )
+        }else{
+            return(
+                <div style={{display:"flex",flexDirection:"column",placeSelf:"stretch"}}>
+                    {this.state.vehicle.entretiens.sort((a,b)=>a.status-b.status).map(e=>{
+                        return (
+                            <Segment
+                                key={e._id}
+                                onClick={()=>{this.props.history.push("/entretien/"+e._id)}}
+                                style={{display:"grid",gridTemplateColumns:"128px 128px 1fr auto",marginBottom:"12px",marginTop:"0",padding:"12px 24px",cursor:"pointer",gridGap:"32px"}}
+                            >
+                                <div style={{gridColumnStart:"1",display:"grid",gridTemplateRows:"auto 1fr",gridGap:"4px",placeSelf:"center stretch"}}>
+                                    <Header color="blue" style={{margin:"0",placeSelf:"center"}} as='a'>{this.getEntretienOrigin(e)}</Header>
+                                    {this.getEntretienType(e)}
+                                </div>
+                                {this.getEntretienStatus(e)}
+                                {this.getEntretienInfos(e)}
+                                <div style={{gridColumnStart:"4",placeSelf:"center"}}><p>Cliquez pour y accéder</p></div>
+                            </Segment>
+                        )
+                    })}
+                </div>
+            )
+        }
+    }
+    getEntretienOrigin = entretien => {
+        if(entretien.originNature != null){
+            return entretien.originNature.name
+        }else{
+            return entretien.originControl.name
+        }
+    }
+    getEntretienType = entretien => {
+        if(entretien.type == "obli"){
+            return(
+                <Label style={{placeSelf:"center"}} image>
+                    <Icon style={{margin:"0"}} name='clipboard check'/>
+                    <Label.Detail>OBLIGATOIRE</Label.Detail>
+                </Label>
+            )
+        }else{
+            if(entretien.type == "prev"){
+                return(
+                    <Label style={{placeSelf:"center"}} image>
+                        <Icon style={{margin:"0"}} name='clipboard check'/>
+                        <Label.Detail>PRÉVENTIF</Label.Detail>
+                    </Label>
+                )
+            }else{
+                if(entretien.type == "cura"){
+                    return(
+                        <Label color="grey" style={{placeSelf:"center"}} image>
+                            <Icon style={{margin:"0"}} name='wrench'/>
+                            <Label.Detail>CURATIF</Label.Detail>
+                        </Label>
+                    )
+                }
+            }
+        }
+    }
+    getEntretienStatus = entretien => {
+        let s = this.state.entretiensStatus.filter(s=>s.status == entretien.status)[0];
+        return(
+            <Label size="big" style={{margin:"0",placeSelf:"center"}} color={s.color}>
+                {s.label}
+            </Label>
+        )
+    }
+    getEntretienInfos = entretien => {
+        if(entretien.status == 0){
+            return (
+                <div style={{gridColumnStart:"3",display:"grid",gridTemplateColumns:"auto 1fr",gridGap:"0 8px",placeSelf:"center start"}}>
+                    <p style={{margin:"0",placeSelf:"center start",gridColumnStart:"1"}}>En attente de pris en charge</p>
+                    <p style={{margin:"0",placeSelf:"center start",gridColumnStart:"1"}}>Date de réalisation à détérminer</p>
+                </div>
+            )
+        }
+        if(entretien.status == 1){
+            return (
+                <div style={{gridColumnStart:"3",display:"grid",gridTemplateColumns:"auto 1fr",gridGap:"0 8px",placeSelf:"center start"}}>
+                    <p style={{margin:"0",placeSelf:"center end",gridColumnStart:"1"}}>Pris en charge par :</p>
+                    <p style={{margin:"0",placeSelf:"center start",gridColumnStart:"2"}}>{entretien.user.firstname + " " + entretien.user.lastname}</p>
+                    <p style={{margin:"0",placeSelf:"center end",gridColumnStart:"1"}}>Réalisation prévu le :</p>
+                    <p style={{margin:"0",placeSelf:"center start",gridColumnStart:"2"}}>{entretien.occurenceDate}</p>
+                </div>
+            )
+        }
+        if(entretien.status == 2){
+            return (
+                <div style={{gridColumnStart:"3",display:"grid",gridTemplateColumns:"auto 1fr",gridGap:"0 8px",placeSelf:"center start"}}>
+                    <p style={{margin:"0",placeSelf:"center end",gridColumnStart:"1"}}>Réalisé le :</p>
+                    <p style={{margin:"0",placeSelf:"center start",gridColumnStart:"2"}}>{entretien.occurenceDate}</p>
+                    <p style={{margin:"0",placeSelf:"center end",gridColumnStart:"1"}}>Réalisé par :</p>
+                    <p style={{margin:"0",placeSelf:"center start",gridColumnStart:"2"}}>{entretien.user.firstname + " " + entretien.user.lastname}</p>
+                </div>
+            )
+        }
+        if(entretien.status == 3){
+            return (
+                <div style={{gridColumnStart:"3",display:"grid",gridTemplateColumns:"auto 1fr",gridGap:"0 8px",placeSelf:"center start"}}>
+                    <p style={{margin:"0",placeSelf:"center end",gridColumnStart:"1"}}>Réalisé le :</p>
+                    <p style={{margin:"0",placeSelf:"center start",gridColumnStart:"2"}}>{entretien.occurenceDate}</p>
+                    <p style={{margin:"0",placeSelf:"center end",gridColumnStart:"1"}}>Réalisé par :</p>
+                    <p style={{margin:"0",placeSelf:"center start",gridColumnStart:"2"}}>{entretien.user.firstname + " " + entretien.user.lastname}</p>
+                    <p style={{margin:"0",placeSelf:"center end",gridColumnStart:"1"}}>Temps passé :</p>
+                    <p style={{margin:"0",placeSelf:"center start",gridColumnStart:"2"}}>{entretien.time} heures</p>
+                    <p style={{margin:"0",placeSelf:"center end",gridColumnStart:"1"}}>Kilométrage :</p>
+                    <p style={{margin:"0",placeSelf:"center start",gridColumnStart:"2"}}>{entretien.kmAtFinish}</p>
+                </div>
+            )
+        }
+    }
 
     //MESSAGE
     getUncompleteFinancialMessage = () => {
         if(!this.state.vehicle.financialInfosComplete){
             return (
-                <Message onClick={this.showEditFinances} color="red" style={{margin:"0",cursor:"pointer"}} icon='euro' header={"Informations manquantes"} content={"Les informations relatives au financement de ce véhicule sont incomplètes, cliquez pour modifier."} />
+                <Message onClick={this.showEditFinances} color="red" style={{margin:"0",cursor:"pointer"}} icon='euro' header={"Informations manquantes"} content={"Les informations relatives au financement de ce véhicule sont incomplètes, cliquez pour les modifier."} />
             )
         }
     }
@@ -1777,7 +1925,7 @@ class Vehicle extends Component {
                                 {this.getShareOptions()}
                                 {this.getSellOptions()}
                                 {this.getBrokenOptions()}
-                                <BigIconButton icon="chat" color="blue" onClick={this.showAddHistoryEntry} tooltip="Ajout d'un commentaire à l'historique des pannes" spacedFromPrevious/>
+                                <BigIconButton icon="chat" color="blue" onClick={this.showAddHistoryEntry} tooltip="Ajouter une note à l'historique" spacedFromPrevious/>
                                 <BigIconButton icon="folder" color="purple" onClick={()=>{this.setState({activePanel:"docs"})}} tooltip="Gérer les documents" spacedFromPrevious/>
                                 {this.getSoldDocsOptions()}
                                 {this.getDeleteOptions()}
@@ -1812,8 +1960,9 @@ class Vehicle extends Component {
                                     </Menu.Item>
                                 </Menu>
                                 <Menu size='big' pointing vertical style={{gridColumnStart:"1"}}>
-                                    <Menu.Item color="teal" active={this.state.activePanel == 'pannes'} onClick={()=>{this.setState({activePanel:"pannes"})}}><Label color='grey'>{this.state.vehicle.brokenHistory.length}</Label>Historique des pannes</Menu.Item>
+                                    <Menu.Item color="blue" active={this.state.activePanel == 'entretiens'} onClick={()=>{this.setState({activePanel:"entretiens"})}}><Label color='grey'>{this.state.vehicle.entretiens.length}</Label>Entretiens</Menu.Item>
                                     <Menu.Item color="orange" active={this.state.activePanel == 'accidents'} onClick={()=>{this.setState({activePanel:"accidents"})}}><Label color='grey'>{this.state.vehicle.accidents.length}</Label>Accidents</Menu.Item>
+                                    <Menu.Item color="teal" active={this.state.activePanel == 'pannes'} onClick={()=>{this.setState({activePanel:"pannes"})}}><Label color='grey'>{this.state.vehicle.brokenHistory.length}</Label>Historique</Menu.Item>
                                     <Menu.Item color="purple" name='Documents' active={this.state.activePanel == 'docs'} onClick={()=>{this.setState({activePanel:"docs"})}} />
                                     <Menu.Item color="blue" active={this.state.activePanel == 'kms'} onClick={()=>{this.setState({activePanel:"kms"})}}><Label color='grey'>{this.state.vehicle.kms.length}</Label>Relevés kilométrique</Menu.Item>
                                 </Menu>

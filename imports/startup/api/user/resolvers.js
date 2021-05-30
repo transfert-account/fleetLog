@@ -20,8 +20,26 @@ export default {
             }
             return userFull || {}
         },
-        users(obj, args){
+        allUsers(obj, args){
             let users = Meteor.users.find({}).fetch() || {};
+            users.map(u=>{
+                if(u.visibility != null && u.visibility.length > 0){
+                    u.societe = Societes.findOne({_id:new Mongo.ObjectID(u.visibility)});
+                }else{
+                    u.societe = {_id:""};
+                }
+            })
+            return users
+        },
+        users(obj, args, {user}){
+            let users = [];
+            if(new RegExp("^[0-9a-fA-F]{24}$").test(user.settings.visibility)){
+                let societe = Societes.findOne({_id:new Mongo.ObjectID(user.settings.visibility)})._id._str;
+                users = Meteor.users.find({societe:societe}).fetch() || [];
+            }else{
+                users = Meteor.users.find({}).fetch() || {};
+            }
+            users = Meteor.users.find({}).fetch() || {};
             users.map(u=>{
                 if(u.visibility != null && u.visibility.length > 0){
                     u.societe = Societes.findOne({_id:new Mongo.ObjectID(u.visibility)});

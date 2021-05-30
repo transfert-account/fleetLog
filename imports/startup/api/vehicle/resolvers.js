@@ -11,6 +11,7 @@ import Organisms from '../organism/organisms.js';
 import PayementTimes from '../payementTime/payementTimes';
 import Colors from '../color/colors.js';
 import VehicleArchiveJustifications from '../vehicleArchiveJustification/vehicleArchiveJustifications';
+import InterventionNature from '../interventionNature/interventionNatures';
 import Documents from '../document/documents';
 import Energies from '../energy/energies'
 import Functions from '../common/functions';
@@ -36,12 +37,40 @@ const affectVehicleControls = vehicle => {
     })
 }
 
+const affectEntretienData = e => {
+    try{
+        if(e.originNature != null){
+            e.originNature = InterventionNature.findOne({_id:new Mongo.ObjectID(e.originNature)});
+        }else{e.originNature = null;}
+        if(e.originControl != null){
+            if(e.originControl[0] == "o"){
+                e.originControl = Functions.getObli().filter(c=>c.key == e.originControl)[0];
+            }else{
+                e.originControl = Functions.prev().filter(c=>c.key == e.originControl)[0];
+            }
+        }else{
+            e.originControl = null;
+        }
+        if(e.user != ""){
+            e.user = Meteor.users.findOne({_id:e.user});
+        }
+    }catch(err){
+        console.log(err)
+    }
+}
+
+const affectVehicleEntretiens = vehicle => {
+    let entretiens = Entretiens.find({vehicle:vehicle._id._str}).fetch() || []
+    entretiens.map(e=>affectEntretienData(e))
+    vehicle.entretiens = entretiens
+}
+
 const affectVehicleData = vehicle => {
     try{
         vehicle.lastKmUpdate = vehicle.kms[vehicle.kms.length-1].reportDate
         vehicle.km = vehicle.kms[vehicle.kms.length-1].kmValue
         if(vehicle.brokenHistory == null || vehicle.brokenHistory.length == 0){
-            vehicle.brokenHistory = [{content:"Aucun commentaire",date:"-",statut:true,_id:"noid"}];
+            vehicle.brokenHistory = [];
         }
         if(vehicle.payementFormat == "CRB"){
             vehicle.property = false
@@ -194,6 +223,7 @@ export default {
             affectVehicleData(vehicle)
             affectVehicleControls(vehicle)
             affectVehicleAccidents(vehicle)
+            affectVehicleEntretiens(vehicle)
             return vehicle;
         },
         vehicles(obj, args, { user }){
@@ -407,6 +437,17 @@ export default {
                             }
                         }
                     }
+                )
+                let v = Vehicles.findOne({_id:new Mongo.ObjectID(vehicle)})
+                Vehicles.update(
+                    {
+                        _id: new Mongo.ObjectID(vehicle)
+                    }, {
+                        $set: {
+                            "lastKmUpdate":v.kms[v.kms.length-1].date,
+                            "km":v.kms[v.kms.length-1].kmValue
+                        }
+                    }   
                 )
                 return [{status:true,message:'Relevé supprimé'}];
             }

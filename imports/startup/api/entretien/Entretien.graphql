@@ -9,6 +9,7 @@ type Entretien{
     archived:Boolean!,
     ficheInter:Document
     status:Int!
+    kmAtFinish:Int
     time:Float!
     notes:[Note]!
     user:User
@@ -39,13 +40,16 @@ extend type Mutation{
     release(_id:String!): [QueryResultMessage]
     createEntretien(vehicle:String!,nature:String!,pieces:String!): [QueryResultComplex]
     createEntretienFromControl(vehicle:String!,control:String!): [QueryResultMessage]
+    nextStatus1(_id:String!,affectation:String!,occurenceDate:String!): [QueryResultMessage]
+    nextStatus2(_id:String!,time:Float!,kmAtFinish:Int!): [QueryResultMessage]
+    nextStatus3(_id:String!): [QueryResultMessage]
     deleteEntretien(_id:String!): [QueryResultMessage]
     archiveEntretien(_id:String!,archived:Boolean!): [QueryResultMessage]
     disArchiveEntretien(_id:String!,archived:Boolean!): [QueryResultMessage]
     addNote(_id:String!,note:String!): [QueryResultMessage]
     addPieceToEntretien(_id:String!,piece:String!): [QueryResultMessage]
     deleteNote(entretien:String!,_id:String!): [QueryResultMessage]
-    editInfos(_id:String!,time:Float!,status:Int!): [QueryResultMessage]
+    editInfos(_id:String!,time:Float!,status:Int!,affectation:String!,occurenceDate:String!): [QueryResultMessage]
     editPieces(_id:String!,pieces:String!): [QueryResultMessage]
     uploadEntretienDocument(_id:String!,file:Upload!,type:String,size:Int!):[QueryResultMessage]
 }

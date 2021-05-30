@@ -121,12 +121,12 @@ export default {
             let res = {control:{},lastOccurrence:"",vehiclesOccurrences:[]}
             if(key[0] == "o"){
                 res.control = Functions.getObli().filter(c=>c.key == key)[0]
-                res.vehiclesOccurrences = VEHICLES(user).filter(v=>v.obli.includes(v.key==key))
+                res.vehiclesOccurrences = VEHICLES(user).filter(v=>v.obli.filter(c=>c.key == key).length > 0)
                 res.vehiclesOccurrences.forEach(v=>affectVehicleData(v))
                 res.vehiclesOccurrences = res.vehiclesOccurrences.map(v=>{return({vehicle:v,lastOccurrence:v.obli.filter(o=>o.key == key)[0].lastOccurrence,entretien:v.obli.filter(o=>o.key == key)[0].entretien})})
             }else{
                 res.control = Functions.getPrev().filter(c=>c.key == key)[0]
-                res.vehiclesOccurrences = VEHICLES(user).filter(v=>v.prev.includes(v.key==key))
+                res.vehiclesOccurrences = VEHICLES(user).filter(v=>v.prev.filter(c=>c.key == key).length > 0)
                 res.vehiclesOccurrences.forEach(v=>affectVehicleData(v))
                 res.vehiclesOccurrences = res.vehiclesOccurrences.map(v=>{return({vehicle:v,lastOccurrence:v.prev.filter(o=>o.key == key)[0].lastOccurrence,entretien:v.prev.filter(o=>o.key == key)[0].entretien})})
             }

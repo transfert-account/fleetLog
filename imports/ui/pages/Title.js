@@ -51,7 +51,7 @@ export class Title extends Component {
     }
 
     render() {return (
-      <div className="title">
+      <div className="wgtitle">
         <p className="text">WG PARC MANAGER</p>
         <div className="tiles">
           {this.state.tiles.map(t=><TitleTile tile={t}/>)}

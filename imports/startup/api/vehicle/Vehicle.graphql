@@ -45,6 +45,7 @@ type Vehicle{
     financialInfosComplete:Boolean
     obli:[ControlOccurrence]
     prev:[ControlOccurrence]
+    entretiens:[Entretien]
 }
 
 type ControlOccurrence{

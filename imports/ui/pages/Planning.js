@@ -402,7 +402,7 @@ class Planning extends Component {
         <Table color="orange" celled selectable compact>
           <Table.Header>
             <Table.Row textAlign='center'>
-              <Table.HeaderCell>Societe</Table.HeaderCell>
+              <Table.HeaderCell>Propriétaire</Table.HeaderCell>
               <Table.HeaderCell>Véhicule</Table.HeaderCell>
               <Table.HeaderCell>Type</Table.HeaderCell>
               <Table.HeaderCell>Entretien</Table.HeaderCell>

@@ -27,6 +27,7 @@ type QueryResultComplex{
 
 type Query{
     user: User
+    allUsers : [User]
     users : [User]
 }
 

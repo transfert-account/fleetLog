@@ -10,9 +10,9 @@ import 'moment/locale/fr';
 export class Accounts extends Component {
 
   state = {
-    usersQuery:gql`
-      query Users{
-        users{
+    allUsersQuery:gql`
+      query allUsers{
+        allUsers{
           _id
           email
           isAdmin
@@ -133,11 +133,11 @@ export class Accounts extends Component {
 
   loadAccounts = () => {
     this.props.client.query({
-      query: this.state.usersQuery,
+      query: this.state.allUsersQuery,
       fetchPolicy:"network-only"
     }).then(({data}) => {
       this.setState({
-        users:data.users
+        users:data.allUsers
       })
     })
   }
