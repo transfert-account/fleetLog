@@ -1,0 +1,13 @@
+type LocationArchiveJustification{
+    _id:String!
+    justification:String
+}
+
+extend type Query{
+    locationArchiveJustifications : [LocationArchiveJustification]
+}
+
+extend type Mutation{
+    addLocationArchiveJustification(justification:String!): [QueryResultMessage]
+    deleteLocationArchiveJustification(_id:String!): [QueryResultMessage]
+}

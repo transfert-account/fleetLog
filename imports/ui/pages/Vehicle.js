@@ -1676,7 +1676,7 @@ class Vehicle extends Component {
         if(this.state.vehicle.accidents.length == 0){
             return(
                 <div style={{display:"flex",flexDirection:"column",placeSelf:"stretch"}}>
-                    <Segment style={{display:"grid",gridTemplateColumns:"1fr",gridTemplateRows:"1fr",cursor:"pointer"}}>
+                    <Segment style={{display:"grid",gridTemplateColumns:"1fr",gridTemplateRows:"1fr"}}>
                         <Header style={{margin:"48px",placeSelf:"center"}} as='h2'>Il n'y aucun accident pour ce véhicule</Header>
                     </Segment>
                 </div>
@@ -1744,7 +1744,13 @@ class Vehicle extends Component {
         }else{
             return(
                 <div style={{display:"flex",flexDirection:"column",placeSelf:"stretch"}}>
-                    {this.state.vehicle.entretiens.sort((a,b)=>a.status-b.status).map(e=>{
+                    {this.state.vehicle.entretiens.sort((a,b)=>{
+                        if(a.status <= 2){
+                            return a.status-b.status
+                        }else{
+                            return b.kmAtFinish - a.kmAtFinish
+                        }
+                    }).map(e=>{
                         return (
                             <Segment
                                 key={e._id}
@@ -1967,7 +1973,7 @@ class Vehicle extends Component {
                                     <Menu.Item color="blue" active={this.state.activePanel == 'kms'} onClick={()=>{this.setState({activePanel:"kms"})}}><Label color='grey'>{this.state.vehicle.kms.length}</Label>Relevés kilométrique</Menu.Item>
                                 </Menu>
                             </div>
-                            <div style={{placeSelf:"stretch",display:"grid",placeSelf:"stretch",gridRowStart:"1",gridColumnStart:"2"}}>
+                            <div style={{placeSelf:"stretch",display:"grid",placeSelf:"stretch",gridRowStart:"1",gridColumnStart:"2",paddingRight:"32px",overflowY:"scroll"}}>
                                 {this.getActivePanel()}
                             </div>
                         </div>

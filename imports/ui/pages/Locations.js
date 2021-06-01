@@ -277,8 +277,6 @@ class Locations extends Component {
                     reason
                     reparation
                     archived
-                    archiveReason
-                    archiveDate
                     cg{
                         _id
                     }

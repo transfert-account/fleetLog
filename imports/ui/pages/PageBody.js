@@ -20,6 +20,8 @@ import Controls from './Controls';
 import Control from './Control';
 import Curatif from './Curatif';
 
+import Pieces from './Pieces';
+
 import Licences from './Licences';
 
 import Planning from './Planning';
@@ -38,32 +40,26 @@ import BatimentControls from './BatimentControls';
 import Compte from './Compte';
 import Accounts from './Accounts';
 import Content from './Content';
-import Pieces from './Pieces';
-import Patchnotes from './Patchnotes';
 import Storage from './Storage';
 import Logs from './Logs';
 
 import Title from '../pages/Title';
 
+/* MOBILE */
 
-class ProtectedRoutes extends Component {
-  render() {
-    const { component: Component, ...props } = this.props
-    return (
-      this.props.user && this.props.user.isAdmin ?
-      <Fragment>
-        <Route exact path='/administration/accounts' component={withNavbar(Accounts)}/>
-        <Route exact path='/administration/content' component={withNavbar(Content)}/>
-        <Route exact path='/administration/pieces' component={withNavbar(Pieces)}/>
-        <Route exact path='/administration/patchnotes' component={withNavbar(Patchnotes)}/>
-        <Route exact path='/administration/storage' component={withNavbar(Storage)}/>
-        <Route exact path='/administration/logs' component={withNavbar(Logs)}/>
-      </Fragment>
-      :
-      <Redirect from='*' to={'/home'}/>
-    )
-  }
-}
+import MobileLayout from '../mobile_pages/MobileLayout';
+
+import M_Entretiens from '../mobile_pages/M_Entretiens';
+import M_Entretien from '../mobile_pages/M_Entretien';
+
+import M_Controls from '../mobile_pages/M_Controls';
+import M_Control from '../mobile_pages/M_Control';
+import M_Curatif from '../mobile_pages/M_Curatif';
+
+import M_Pieces from '../mobile_pages/M_Pieces';
+
+import M_Planning from '../mobile_pages/M_Planning';
+import M_Menu from '../mobile_pages/M_Menu';
 
 class PageBody extends Component {
 
@@ -72,8 +68,8 @@ class PageBody extends Component {
       if(this.props.user._id == null || this.props.user._id == undefined){
         return(
           <Switch>
-            <Route exact path='/' component={Home}/>
-            <Redirect from='*' to={'/'}/>
+            <Route exact path='/home' component={Home}/>
+            <Redirect from='*' to={'/home'}/>
           </Switch>
         );
       }else{//DESKTOP
@@ -113,7 +109,11 @@ class PageBody extends Component {
 
             <Route exact path='/compte' component={withNavbar(Compte)}/>
             
-            <ProtectedRoutes />  
+            
+            {(this.props.user && this.props.user.isAdmin ? <Route exact path='/administration/accounts' component={withNavbar(Accounts)}/>:"")}
+            {(this.props.user && this.props.user.isAdmin ? <Route exact path='/administration/content' component={withNavbar(Content)}/>:"")}
+            {(this.props.user && this.props.user.isAdmin ? <Route exact path='/administration/storage' component={withNavbar(Storage)}/>:"")}
+            {(this.props.user && this.props.user.isAdmin ? <Route exact path='/administration/logs' component={withNavbar(Logs)}/>:"")}
             
             <Redirect from='*' to={'/home'}/>
           </Switch>
@@ -123,17 +123,27 @@ class PageBody extends Component {
       if(this.props.user._id == null || this.props.user._id == undefined){
         return(
           <Switch>
-            <Route exact path='/' component={Home}/>
-            <Redirect from='*' to={'/'}/>
+            <Route exact path='/home' component={Home}/>
+            <Redirect from='*' to={'/home'}/>
           </Switch>
         )
       }else{
         return(
           <Switch>
-            <Route exact path='/entretien/entretiens' component={withoutNavbar(Entretiens)}/>
-            <Route exact path='/entretien/:_id' component={withoutNavbar(Entretien)}/>
+            <Route exact path='/home' component={withoutNavbar(M_Menu)}/>
+
+            <Route exact path='/entretien/controls/obli' component={withoutNavbar(()=><M_Controls ctrlType={"obli"}/>)}/>
+            <Route exact path='/entretien/controls/prev' component={withoutNavbar(()=><M_Controls ctrlType={"prev"}/>)}/>
+            <Route exact path='/entretien/controls/curatif' component={withoutNavbar(M_Curatif)}/>
+            <Route exact path='/entretien/controls/:key' component={withoutNavbar(M_Control)}/>
+            <Route exact path='/entretien/pieces' component={withoutNavbar(M_Pieces)}/>
+
+            <Route exact path='/entretien/entretiens' component={withoutNavbar(M_Entretiens)}/>
+            <Route exact path='/entretien/:_id' component={withoutNavbar(M_Entretien)}/>
+
+            <Route exact path='/planning/:y/:m' component={withoutNavbar(M_Planning)}/>
   
-            <Redirect from='*' to={'/entretien/entretiens'}/>
+            <Redirect from='*' to={'/home'}/>
           </Switch>
         )  
       }
@@ -144,7 +154,7 @@ class PageBody extends Component {
 const withNavbar = Component => props => (
   <Fragment>
     <Navbar/>
-    <div id="pagebody" style={{
+    <div id="desktop" className="pagebody" style={{
       width:"calc(100vw - 6rem)",
       margin:"0 0 0 6rem",
       padding:"32px 48px",
@@ -160,9 +170,9 @@ const withNavbar = Component => props => (
 
 const withoutNavbar = Component => props => (
   <Fragment>
-    <div id="pagebody" style={{width:"100vw",margin:"0",padding:"2rem",display:"grid",backgroundRepeat:"no-repeat",backgroundAttachment:"fixed",minHeight:"100vh"}}>
+    <MobileLayout>
       <Component {...props}/>
-    </div>
+    </MobileLayout>
   </Fragment>
 )
 

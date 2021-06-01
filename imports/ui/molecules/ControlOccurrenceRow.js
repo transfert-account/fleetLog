@@ -159,10 +159,10 @@ export class ControlOccurrenceRow extends Component {
                     <Table.Cell collapsing textAlign="center">{(this.props.c.lastOccurrence == "none" || !this.props.c.selected ? "-" : this.props.c.lastOccurrence + " " + (this.props.c.control.unit == "km" ? "km" : ""))}</Table.Cell>
                     {this.getEcheanceCell(this.props.c)}
                     <Table.Cell collapsing textAlign="center">
-                        <Popup trigger={<Button disabled={!this.props.c.selected || this.props.c.entretien != null} icon onClick={()=>this.addEntretien(this.props.c.control.key)} icon="alternate calendar outline"/>}>
+                        <Popup trigger={<Button disabled={!this.props.c.selected || this.props.c.entretien != null && this.props.c.entretien != ""} icon onClick={()=>this.addEntretien(this.props.c.control.key)} icon="alternate calendar outline"/>}>
                             Créer l'entretien
                         </Popup>
-                        <Popup trigger={<Button style={{marginLeft:"32px"}} disabled={!this.props.c.selected || this.props.c.entretien == null} color="blue" icon onClick={()=>this.props.history.push("/entretien/"+this.props.c.entretien)} icon="wrench"/>}>
+                        <Popup trigger={<Button style={{marginLeft:"32px"}} disabled={!this.props.c.selected || this.props.c.entretien == null || this.props.c.entretien == ""} color="blue" icon onClick={()=>this.props.history.push("/entretien/"+this.props.c.entretien)} icon="wrench"/>}>
                             Voir l'entretien
                         </Popup>
                         <Popup trigger={<Button disabled={!this.props.c.selected} color="blue" icon onClick={()=>this.props.history.push("/entretien/controls/"+this.props.c.control.key)} icon="clipboard check"/>}>

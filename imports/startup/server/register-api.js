@@ -48,6 +48,9 @@ import PayementTimeResolvers from '../api/payementTime/resolvers.js';
 import VehicleArchiveJustificationSchema from '../api/vehicleArchiveJustification/VehicleArchiveJustification.graphql';
 import VehicleArchiveJustificationResolvers from '../api/vehicleArchiveJustification/resolvers.js';
 
+import LocationArchiveJustificationSchema from '../api/locationArchiveJustification/LocationArchiveJustification.graphql';
+import LocationArchiveJustificationResolvers from '../api/locationArchiveJustification/resolvers.js';
+
 import ColorSchema from '../api/color/Color.graphql';
 import ColorResolvers from '../api/color/resolvers.js';
 
@@ -99,7 +102,7 @@ import InterventionNatureResolvers from '../api/interventionNature/resolvers.js'
 import LogSchema from '../api/log/Log.graphql';
 import LogResolvers from '../api/log/resolvers.js';
 
-// #0531
+// #0533
 
 const typeDefs = [
     UserSchema,
@@ -117,6 +120,7 @@ const typeDefs = [
     OrganismSchema,
     PayementTimeSchema,
     VehicleArchiveJustificationSchema,
+    LocationArchiveJustificationSchema,
     ColorSchema,
     DashboardSchema,
     DocumentSchema,
@@ -151,6 +155,7 @@ const resolvers = merge(
     OrganismResolvers,
     PayementTimeResolvers,
     VehicleArchiveJustificationResolvers,
+    LocationArchiveJustificationResolvers,
     ColorResolvers,
     DashboardResolvers,
     DocumentResolvers,

@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import { } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
+import { withRouter } from 'react-router-dom';
 import FAFree from '../elements/FAFree';
 
-export class TitleTile extends Component {
+class TitleTile extends Component {
 
     state={}
     
@@ -33,4 +34,4 @@ const withUserContext = WrappedComponent => props => (
       {ctx => <WrappedComponent {...ctx} {...props}/>}
   </UserContext.Consumer>
 )
-export default wrappedInUserContext = withUserContext(TitleTile);
+export default wrappedInUserContext = withRouter(withUserContext(TitleTile));

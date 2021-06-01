@@ -19,7 +19,7 @@ export class Vehicles extends Component {
     }
 
     render() {return (
-        <div style={{display:"grid",gridTemplateColumns:"auto auto auto",gridGap:"32px"}}>
+        <div style={Object.assign({display:"grid",gridTemplateColumns:"auto auto auto",gridGap:"32px",marginBottom:"16px"},this.props.style)}>
             <Menu style={{cursor:"pointer",margin:"0"}} icon='labeled'>
                 <Menu.Item color="blue" name='entretiens' active={this.props.active == "entretiens"} onClick={()=>{this.props.history.push("/entretien/entretiens")}}><Icon name='calendar alternate outline'/>Entretiens</Menu.Item>
             </Menu>

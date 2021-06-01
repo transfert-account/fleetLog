@@ -4,6 +4,7 @@ import Licences from '../licence/licences.js';
 import Entretiens from '../entretien/entretiens';
 import Accidents from '../accident/accidents';
 import Fournisseurs from '../fournisseur/fournisseurs';
+import LocationArchiveJustifications from '../locationArchiveJustification/locationArchiveJustifications';
 import Volumes from '../volume/volumes.js';
 import Brands from '../brand/brands.js';
 import Models from '../model/models.js';
@@ -56,6 +57,11 @@ const affectLocationData = location => {
         location.societe = Societes.findOne({_id:new Mongo.ObjectID(location.societe)});
     }else{
         location.societe = {_id:""};
+    }
+    if(location.archived && location.archiveJustification.length > 0){
+        location.archiveJustification = LocationArchiveJustifications.findOne({_id:new Mongo.ObjectID(location.archiveJustification)});
+    }else{
+        location.archiveJustification = {_id:""};
     }
     if(location.cg != null && location.cg.length > 0){
         location.cg = Documents.findOne({_id:new Mongo.ObjectID(location.cg)});
@@ -256,11 +262,9 @@ export default {
         deleteLocation(obj, {_id},{user}){
             if(user._id){
                 let nL = Licences.find({vehicle:_id}).fetch().length
-                let nE = Entretiens.find({vehicle:_id}).fetch().length
-                if(nL + nE + nQ > 0){
+                if(nL > 0){
                     let qrm = [];
                     if(nL > 0){qrm.push({status:false,message:'Suppresion impossible, ' + nL + ' licence(s) liée(s)'})}
-                    if(nE > 0){qrm.push({status:false,message:'Suppresion impossible, ' + nE + ' entretien(s) lié(s)'})}
                     return qrm;
                 }else{
                     Locations.remove({
@@ -271,10 +275,8 @@ export default {
             }
             throw new Error('Unauthorized');
         },
-        archiveLocation(obj, {_id,archiveReason},{user}){
-            if(archiveReason == ""){
-                archiveReason = "Aucune données"
-            }
+        archiveLocation(obj, {_id,archiveJustification},{user}){
+
             if(user._id){
                 Locations.update(
                     {
@@ -282,7 +284,7 @@ export default {
                     }, {
                         $set: {
                             "archived":true,
-                            "archiveReason":archiveReason,
+                            "archiveJustification":archiveJustification,
                             "archiveDate": new Date().getDate().toString().padStart(2,0) + '/' + parseInt(new Date().getMonth()+1).toString().padStart(2,0) + '/' + new Date().getFullYear()
                         }
                     }   

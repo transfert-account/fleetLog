@@ -11,6 +11,7 @@ import EnergyPicker from '../atoms/EnergyPicker';
 import OrganismPicker from '../atoms/OrganismPicker';
 import PayementTimePicker from '../atoms/PayementTimePicker';
 import VehicleArchiveJustificationsPicker from '../atoms/VehicleArchiveJustificationsPicker';
+import LocationArchiveJustificationsPicker from '../atoms/LocationArchiveJustificationsPicker';
 
 import AccCharacteristicPicker from '../atoms/AccCharacteristicPicker';
 import AccPlacePicker from '../atoms/AccPlacePicker';
@@ -38,6 +39,7 @@ class Content extends Component {
         newOrganism:"",
         newPayementTime:"",
         newArchiveVehicleJustifications:"",
+        newArchiveLocationJustifications:"",
         selectedSocieteName:"",
         openHexColorPicker:false,
         needToRefreshSocietes:false,
@@ -48,6 +50,7 @@ class Content extends Component {
         needToRefreshPayementTimes:false,
         needToRefreshColors:false,
         needToRefreshVehicleArchiveJustifications:false,
+        needToRefreshLocationArchiveJustifications:false,
         needToRefreshAccCharacteristics:false,
         needToRefreshAccWeathers:false,
         needToRefreshAccTrackStates:false,
@@ -201,6 +204,22 @@ class Content extends Component {
         deleteVehicleArchiveJustificationQuery : gql`
             mutation deleteVehicleArchiveJustification($_id:String!){
                 deleteVehicleArchiveJustification(_id:$_id){
+                    status
+                    message
+                }
+            }
+        `,
+        addLocationArchiveJustificationQuery : gql`
+            mutation addLocationArchiveJustification($justification:String!){
+                addLocationArchiveJustification(justification:$justification){
+                    status
+                    message
+                }
+            }
+        `,
+        deleteLocationArchiveJustificationQuery : gql`
+            mutation deleteLocationArchiveJustification($_id:String!){
+                deleteLocationArchiveJustification(_id:$_id){
                     status
                     message
                 }
@@ -979,6 +998,74 @@ class Content extends Component {
         })
     }
 
+    //Justification Archivage Locations
+    handleChangeLocationArchiveJustification = (e, { value }) => this.setState({ selectedLocationArchiveJustification:value })
+    showAddLocationArchiveJustification = () => {
+        this.setState({
+            openAddLocationArchiveJustification:true
+        })
+    }
+    showDelLocationArchiveJustification = () => {
+        this.setState({
+            openDelLocationArchiveJustification:true
+        })
+    }
+    closeAddLocationArchiveJustification = () => {
+        this.setState({
+            openAddLocationArchiveJustification:false
+        })
+    }
+    closeDelLocationArchiveJustification = () => {
+        this.setState({
+            openDelLocationArchiveJustification:false
+        })
+    }
+    addLocationArchiveJustification = () => {
+        this.closeAddLocationArchiveJustification()
+        this.props.client.mutate({
+            mutation:this.state.addLocationArchiveJustificationQuery,
+            variables:{
+                justification:this.state.newLocationArchiveJustification
+            }
+        }).then(({data})=>{
+            data.addLocationArchiveJustification.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.setState({
+                        needToRefreshLocationArchiveJustifications:true
+                    })
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    deleteLocationArchiveJustification = () => {
+        this.closeDelLocationArchiveJustification()
+        this.props.client.mutate({
+            mutation:this.state.deleteLocationArchiveJustificationQuery,
+            variables:{
+                _id:this.state.selectedLocationArchiveJustification
+            }
+        }).then(({data})=>{
+            data.deleteLocationArchiveJustification.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.setState({
+                        needToRefreshLocationArchiveJustifications:true
+                    })
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    didRefreshLocationArchiveJustifications = () => {
+        this.setState({
+            needToRefreshLocationArchiveJustifications:false
+        })
+    }
+
     //Characteristiques d'accident
     handleChangeAccCharacteristic = (e, { value }) => this.setState({ selectedAccCharacteristic:value })
     showAddAccCharacteristic = () => {
@@ -1390,247 +1477,257 @@ class Content extends Component {
     render() {
         return (
             <Fragment>
-                <div>
+                <div style={{height:"100%",display:"grid"}}>
                     <div style={{display:"flex",marginBottom:"32px",justifyContent:"space-between"}}>
                         <AdministrationMenu active="contenu"/>
                     </div>
-                    <Table celled compact="very">
-                        <Table.Header>
-                            <Table.Row>
-                                <Table.HeaderCell textAlign="center">Contenu</Table.HeaderCell>
-                                <Table.HeaderCell textAlign="center">Valeurs existantes</Table.HeaderCell>
-                                <Table.HeaderCell textAlign="center">Actions</Table.HeaderCell>
-                            </Table.Row>
-                        </Table.Header>
-                        <Table.Body>
-                            <Table.Row>
-                                <Table.Cell>
-                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
-                                        <Icon name='sitemap' />
-                                        <Header.Content>Sociétés du groupe</Header.Content>
-                                    </Header>
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <SocietePicker didRefresh={this.didRefreshSocietes} needToRefresh={this.state.needToRefreshSocietes} groupAppears={false} onChange={this.handleChangeSociete} value={this.state.selectedSociete} />
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <Button style={{margin:"4px 16px"}} color="green" onClick={this.showEditSociete} icon labelPosition='right'>Renommer<Icon name='edit'/></Button>
-                                    <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddSociete} icon labelPosition='right'>Ajouter<Icon name='plus'/></Button>
-                                    <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelSociete} icon labelPosition='right'>Supprimer<Icon name='trash'/></Button>
-                                </Table.Cell>
-                            </Table.Row>
-                            <Table.Row>
-                                <Table.Cell>
-                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
-                                        <Icon name='expand arrows alternate' />
-                                        <Header.Content>Volumes des véhicules</Header.Content>
-                                    </Header>
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <VolumePicker didRefresh={this.didRefreshVolumes} needToRefresh={this.state.needToRefreshVolumes} onChange={this.handleChangeVolume} value={this.state.selectedVolume} />
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddVolume} icon labelPosition='right'>Ajouter<Icon name='plus'/></Button>
-                                    <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelVolume} icon labelPosition='right'>Supprimer<Icon name='trash'/></Button>
-                                </Table.Cell>
-                            </Table.Row>
-                            <Table.Row>
-                                <Table.Cell>
-                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
-                                        <Icon name='tag' />
-                                        <Header.Content>Marque des véhicules</Header.Content>
-                                    </Header>
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <BrandPicker didRefresh={this.didRefreshBrands} needToRefresh={this.state.needToRefreshBrands} onChange={this.handleChangeBrand} value={this.state.selectedBrand} />
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddBrand} icon labelPosition='right'>Ajouter<Icon name='plus'/></Button>
-                                    <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelBrand} icon labelPosition='right'>Supprimer<Icon name='trash'/></Button>
-                                </Table.Cell>
-                            </Table.Row>
-                            <Table.Row>
-                                <Table.Cell>
-                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
-                                        <Icon name='truck' />
-                                        <Header.Content>Modèle des véhicules</Header.Content>
-                                    </Header>
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <ModelPicker didRefresh={this.didRefreshModels} needToRefresh={this.state.needToRefreshModels} onChange={this.handleChangeModel} value={this.state.selectedModel} />
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddModel} icon labelPosition='right'>Ajouter<Icon name='plus'/></Button>
-                                    <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelModel} icon labelPosition='right'>Supprimer<Icon name='trash'/></Button>
-                                </Table.Cell>
-                            </Table.Row>
-                            <Table.Row>
-                                <Table.Cell>
-                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
-                                        <Icon name='bolt' />
-                                        <Header.Content>Type d'énergies des véhicules</Header.Content>
-                                    </Header>
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <EnergyPicker didRefresh={this.didRefreshEnergies} needToRefresh={this.state.needToRefreshEnergies} onChange={this.handleChangeEnergy} value={this.state.selectedEnergy} />
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddEnergy} icon labelPosition='right'>Ajouter<Icon name='plus'/></Button>
-                                    <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelEnergy} icon labelPosition='right'>Supprimer<Icon name='trash'/></Button>
-                                </Table.Cell>
-                            </Table.Row>
-                            <Table.Row>
-                                <Table.Cell>
-                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
-                                        <Icon name='credit card' />
-                                        <Header.Content>Organisme de financement</Header.Content>
-                                    </Header>
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <OrganismPicker didRefresh={this.didRefreshOrganisms} needToRefresh={this.state.needToRefreshOrganisms} onChange={this.handleChangeOrganism} value={this.state.selectedOrganism} />
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddOrganism} icon labelPosition='right'>Ajouter<Icon name='plus'/></Button>
-                                    <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelOrganism} icon labelPosition='right'>Supprimer<Icon name='trash'/></Button>
-                                </Table.Cell>
-                            </Table.Row>
-                            <Table.Row>
-                                <Table.Cell>
-                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
-                                        <Icon name='calendar alternate outline'/>
-                                        <Header.Content>Durée de financement</Header.Content>
-                                    </Header>
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <PayementTimePicker didRefresh={this.didRefreshPayementTimes} needToRefresh={this.state.needToRefreshPayementTimes} onChange={this.handleChangePayementTime} value={this.state.selectedPayementTime} />
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddPayementTime} icon labelPosition='right'>Ajouter<Icon name='plus'/></Button>
-                                    <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelPayementTime} icon labelPosition='right'>Supprimer<Icon name='trash'/></Button>
-                                </Table.Cell>
-                            </Table.Row>
-                            <Table.Row>
-                                <Table.Cell>
-                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
-                                        <Icon name='paint brush' />
-                                        <Header.Content>Couleurs des véhicules</Header.Content>
-                                    </Header>
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <ColorPicker didRefresh={this.didRefreshColors} needToRefresh={this.state.needToRefreshColors} onChange={this.handleChangeColor} value={this.state.selectedColor} />
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddColor} icon labelPosition='right'>Ajouter<Icon name='plus'/></Button>
-                                    <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelColor} icon labelPosition='right'>Supprimer<Icon name='trash'/></Button>
-                                </Table.Cell>
-                            </Table.Row>
-                            <Table.Row>
-                                <Table.Cell>
-                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
-                                        <Icon name='archive'/>
-                                        <Header.Content>Justifications d'archivage de véhicules</Header.Content>
-                                    </Header>
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <VehicleArchiveJustificationsPicker didRefresh={this.didRefreshVehicleArchiveJustifications} needToRefresh={this.state.needToRefreshVehicleArchiveJustifications} onChange={this.handleChangeVehicleArchiveJustification} value={this.state.selectedVehicleArchiveJustification} />
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddVehicleArchiveJustification} icon labelPosition='right'>Ajouter<Icon name='plus'/></Button>
-                                    <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelVehicleArchiveJustification} icon labelPosition='right'>Supprimer<Icon name='trash'/></Button>
-                                </Table.Cell>
-                            </Table.Row>
-                            <Table.Row>
-                                <Table.Cell>
-                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
-                                        <Icon name='fire'/>
-                                        <Header.Content>Characteristiques d'accident</Header.Content>
-                                    </Header>
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <AccCharacteristicPicker didRefresh={this.didRefreshAccCharacteristics} needToRefresh={this.state.needToRefreshAccCharacteristics} onChange={this.handleChangeAccCharacteristic} value={this.state.selectedAccCharacteristic} />
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddAccCharacteristic} icon labelPosition='right'>Ajouter<Icon name='plus'/></Button>
-                                    <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelAccCharacteristic} icon labelPosition='right'>Supprimer<Icon name='trash'/></Button>
-                                </Table.Cell>
-                            </Table.Row>
-                            <Table.Row>
-                                <Table.Cell>
-                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
-                                        <Icon name='fire'/>
-                                        <Header.Content>Conditions météorologique d'accident</Header.Content>
-                                    </Header>
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <AccWeatherPicker didRefresh={this.didRefreshAccWeathers} needToRefresh={this.state.needToRefreshAccWeathers} onChange={this.handleChangeAccWeather} value={this.state.selectedAccWeather} />
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddAccWeather} icon labelPosition='right'>Ajouter<Icon name='plus'/></Button>
-                                    <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelAccWeather} icon labelPosition='right'>Supprimer<Icon name='trash'/></Button>
-                                </Table.Cell>
-                            </Table.Row>
-                            <Table.Row>
-                                <Table.Cell>
-                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
-                                        <Icon name='fire'/>
-                                        <Header.Content>Lieu d'accident</Header.Content>
-                                    </Header>
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <AccPlacePicker didRefresh={this.didRefreshAccPlaces} needToRefresh={this.state.needToRefreshAccPlaces} onChange={this.handleChangeAccPlace} value={this.state.selectedAccPlace} />
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddAccPlace} icon labelPosition='right'>Ajouter<Icon name='plus'/></Button>
-                                    <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelAccPlace} icon labelPosition='right'>Supprimer<Icon name='trash'/></Button>
-                                </Table.Cell>
-                            </Table.Row>
-                            <Table.Row>
-                                <Table.Cell>
-                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
-                                        <Icon name='fire'/>
-                                        <Header.Content>État de la chaussée lors d'accident</Header.Content>
-                                    </Header>
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <AccTrackStatePicker didRefresh={this.didRefreshAccTrackStates} needToRefresh={this.state.needToRefreshAccTrackStates} onChange={this.handleChangeAccTrackState} value={this.state.selectedAccTrackState} />
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddAccTrackState} icon labelPosition='right'>Ajouter<Icon name='plus'/></Button>
-                                    <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelAccTrackState} icon labelPosition='right'>Supprimer<Icon name='trash'/></Button>
-                                </Table.Cell>
-                            </Table.Row>
-                            <Table.Row>
-                                <Table.Cell>
-                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
-                                        <Icon name='fire'/>
-                                        <Header.Content>Profil de la route lors d'accident</Header.Content>
-                                    </Header>
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <AccRoadProfilePicker didRefresh={this.didRefreshAccRoadProfiles} needToRefresh={this.state.needToRefreshAccRoadProfiles} onChange={this.handleChangeAccRoadProfile} value={this.state.selectedAccRoadProfile} />
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddAccRoadProfile} icon labelPosition='right'>Ajouter<Icon name='plus'/></Button>
-                                    <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelAccRoadProfile} icon labelPosition='right'>Supprimer<Icon name='trash'/></Button>
-                                </Table.Cell>
-                            </Table.Row>
-                            <Table.Row>
-                                <Table.Cell>
-                                    <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
-                                        <Icon name='clipboard check'/>
-                                        <Header.Content>Nature d'intervention</Header.Content>
-                                    </Header>
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <InterventionNaturePicker didRefresh={this.didRefreshInterventionNature} needToRefresh={this.state.needToRefreshInterventionNatures} onChange={this.handleChangeInterventionNature} value={this.state.selectedInterventionNature} />
-                                </Table.Cell>
-                                <Table.Cell textAlign="center">
-                                    <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddInterventionNature} icon labelPosition='right'>Ajouter<Icon name='plus'/></Button>
-                                    <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelInterventionNature} icon labelPosition='right'>Supprimer<Icon name='trash'/></Button>
-                                </Table.Cell>
-                            </Table.Row>
-                        </Table.Body>
-                    </Table>
+                    <div className="content_container">
+                        <Header dividing as="h2">Vehicles</Header>
+                        <div className="content_row">
+                            <div>
+                                <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
+                                    <Icon name='sitemap' />
+                                    <Header.Content>Sociétés du groupe</Header.Content>
+                                </Header>
+                            </div>
+                            <div textAlign="center">
+                                <SocietePicker didRefresh={this.didRefreshSocietes} needToRefresh={this.state.needToRefreshSocietes} groupAppears={false} onChange={this.handleChangeSociete} value={this.state.selectedSociete} />
+                            </div>
+                            <div textAlign="center">
+                                <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddSociete} icon><Icon name='plus'/></Button>
+                                <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelSociete} icon><Icon name='trash'/></Button>
+                                <Button style={{margin:"4px 16px"}} color="green" onClick={this.showEditSociete} icon><Icon name='edit'/></Button>
+                            </div>
+                        </div>
+                        <div className="content_row">
+                            <div>
+                                <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
+                                    <Icon name='expand arrows alternate' />
+                                    <Header.Content>Volumes des véhicules</Header.Content>
+                                </Header>
+                            </div>
+                            <div textAlign="center">
+                                <VolumePicker didRefresh={this.didRefreshVolumes} needToRefresh={this.state.needToRefreshVolumes} onChange={this.handleChangeVolume} value={this.state.selectedVolume} />
+                            </div>
+                            <div textAlign="center">
+                                <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddVolume} icon><Icon name='plus'/></Button>
+                                <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelVolume} icon><Icon name='trash'/></Button>
+                            </div>
+                        </div>
+                        <div className="content_row">
+                            <div>
+                                <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
+                                    <Icon name='tag' />
+                                    <Header.Content>Marque des véhicules</Header.Content>
+                                </Header>
+                            </div>
+                            <div textAlign="center">
+                                <BrandPicker didRefresh={this.didRefreshBrands} needToRefresh={this.state.needToRefreshBrands} onChange={this.handleChangeBrand} value={this.state.selectedBrand} />
+                            </div>
+                            <div textAlign="center">
+                                <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddBrand} icon><Icon name='plus'/></Button>
+                                <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelBrand} icon><Icon name='trash'/></Button>
+                            </div>
+                        </div>
+                        <div className="content_row">
+                            <div>
+                                <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
+                                    <Icon name='truck' />
+                                    <Header.Content>Modèle des véhicules</Header.Content>
+                                </Header>
+                            </div>
+                            <div textAlign="center">
+                                <ModelPicker didRefresh={this.didRefreshModels} needToRefresh={this.state.needToRefreshModels} onChange={this.handleChangeModel} value={this.state.selectedModel} />
+                            </div>
+                            <div textAlign="center">
+                                <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddModel} icon><Icon name='plus'/></Button>
+                                <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelModel} icon><Icon name='trash'/></Button>
+                            </div>
+                        </div>
+                        <div className="content_row">
+                            <div>
+                                <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
+                                    <Icon name='bolt' />
+                                    <Header.Content>Type d'énergies des véhicules</Header.Content>
+                                </Header>
+                            </div>
+                            <div textAlign="center">
+                                <EnergyPicker didRefresh={this.didRefreshEnergies} needToRefresh={this.state.needToRefreshEnergies} onChange={this.handleChangeEnergy} value={this.state.selectedEnergy} />
+                            </div>
+                            <div textAlign="center">
+                                <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddEnergy} icon><Icon name='plus'/></Button>
+                                <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelEnergy} icon><Icon name='trash'/></Button>
+                            </div>
+                        </div>
+                        <div className="content_row">
+                            <div>
+                                <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
+                                    <Icon name='credit card' />
+                                    <Header.Content>Organisme de financement</Header.Content>
+                                </Header>
+                            </div>
+                            <div textAlign="center">
+                                <OrganismPicker didRefresh={this.didRefreshOrganisms} needToRefresh={this.state.needToRefreshOrganisms} onChange={this.handleChangeOrganism} value={this.state.selectedOrganism} />
+                            </div>
+                            <div textAlign="center">
+                                <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddOrganism} icon><Icon name='plus'/></Button>
+                                <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelOrganism} icon><Icon name='trash'/></Button>
+                            </div>
+                        </div>
+                        <div className="content_row">
+                            <div>
+                                <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
+                                    <Icon name='calendar alternate outline'/>
+                                    <Header.Content>Durée de financement</Header.Content>
+                                </Header>
+                            </div>
+                            <div textAlign="center">
+                                <PayementTimePicker didRefresh={this.didRefreshPayementTimes} needToRefresh={this.state.needToRefreshPayementTimes} onChange={this.handleChangePayementTime} value={this.state.selectedPayementTime} />
+                            </div>
+                            <div textAlign="center">
+                                <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddPayementTime} icon><Icon name='plus'/></Button>
+                                <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelPayementTime} icon><Icon name='trash'/></Button>
+                            </div>
+                        </div>
+                        <div className="content_row">
+                            <div>
+                                <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
+                                    <Icon name='paint brush' />
+                                    <Header.Content>Couleurs des véhicules</Header.Content>
+                                </Header>
+                            </div>
+                            <div textAlign="center">
+                                <ColorPicker didRefresh={this.didRefreshColors} needToRefresh={this.state.needToRefreshColors} onChange={this.handleChangeColor} value={this.state.selectedColor} />
+                            </div>
+                            <div textAlign="center">
+                                <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddColor} icon><Icon name='plus'/></Button>
+                                <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelColor} icon><Icon name='trash'/></Button>
+                            </div>
+                        </div>
+                        <Header dividing as="h2">Justificaion d'archivage</Header>
+                        <div className="content_row">
+                            <div>
+                                <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
+                                    <Icon name='archive'/>
+                                    <Header.Content>Justifications d'archivage de véhicules</Header.Content>
+                                </Header>
+                            </div>
+                            <div textAlign="center">
+                                <VehicleArchiveJustificationsPicker didRefresh={this.didRefreshVehicleArchiveJustifications} needToRefresh={this.state.needToRefreshVehicleArchiveJustifications} onChange={this.handleChangeVehicleArchiveJustification} value={this.state.selectedVehicleArchiveJustification} />
+                            </div>
+                            <div textAlign="center">
+                                <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddVehicleArchiveJustification} icon><Icon name='plus'/></Button>
+                                <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelVehicleArchiveJustification} icon><Icon name='trash'/></Button>
+                            </div>
+                        </div>
+                        <div className="content_row">
+                            <div>
+                                <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
+                                    <Icon name='archive'/>
+                                    <Header.Content>Justifications d'archivage de location</Header.Content>
+                                </Header>
+                            </div>
+                            <div textAlign="center">
+                                <LocationArchiveJustificationsPicker didRefresh={this.didRefreshLocationArchiveJustifications} needToRefresh={this.state.needToRefreshLocationArchiveJustifications} onChange={this.handleChangeLocationArchiveJustification} value={this.state.selectedLocationArchiveJustification} />
+                            </div>
+                            <div textAlign="center">
+                                <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddLocationArchiveJustification} icon><Icon name='plus'/></Button>
+                                <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelLocationArchiveJustification} icon><Icon name='trash'/></Button>
+                            </div>
+                        </div>
+                        <Header dividing as="h2">Accidents</Header>
+                        <div className="content_row">
+                            <div>
+                                <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
+                                    <Icon name='fire'/>
+                                    <Header.Content>Characteristiques d'accident</Header.Content>
+                                </Header>
+                            </div>
+                            <div textAlign="center">
+                                <AccCharacteristicPicker didRefresh={this.didRefreshAccCharacteristics} needToRefresh={this.state.needToRefreshAccCharacteristics} onChange={this.handleChangeAccCharacteristic} value={this.state.selectedAccCharacteristic} />
+                            </div>
+                            <div textAlign="center">
+                                <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddAccCharacteristic} icon><Icon name='plus'/></Button>
+                                <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelAccCharacteristic} icon><Icon name='trash'/></Button>
+                            </div>
+                        </div>
+                        <div className="content_row">
+                            <div>
+                                <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
+                                    <Icon name='fire'/>
+                                    <Header.Content>Conditions météorologique d'accident</Header.Content>
+                                </Header>
+                            </div>
+                            <div textAlign="center">
+                                <AccWeatherPicker didRefresh={this.didRefreshAccWeathers} needToRefresh={this.state.needToRefreshAccWeathers} onChange={this.handleChangeAccWeather} value={this.state.selectedAccWeather} />
+                            </div>
+                            <div textAlign="center">
+                                <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddAccWeather} icon><Icon name='plus'/></Button>
+                                <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelAccWeather} icon><Icon name='trash'/></Button>
+                            </div>
+                        </div>
+                        <div className="content_row">
+                            <div>
+                                <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
+                                    <Icon name='fire'/>
+                                    <Header.Content>Lieu d'accident</Header.Content>
+                                </Header>
+                            </div>
+                            <div textAlign="center">
+                                <AccPlacePicker didRefresh={this.didRefreshAccPlaces} needToRefresh={this.state.needToRefreshAccPlaces} onChange={this.handleChangeAccPlace} value={this.state.selectedAccPlace} />
+                            </div>
+                            <div textAlign="center">
+                                <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddAccPlace} icon><Icon name='plus'/></Button>
+                                <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelAccPlace} icon><Icon name='trash'/></Button>
+                            </div>
+                        </div>
+                        <div className="content_row">
+                            <div>
+                                <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
+                                    <Icon name='fire'/>
+                                    <Header.Content>État de la chaussée lors d'accident</Header.Content>
+                                </Header>
+                            </div>
+                            <div textAlign="center">
+                                <AccTrackStatePicker didRefresh={this.didRefreshAccTrackStates} needToRefresh={this.state.needToRefreshAccTrackStates} onChange={this.handleChangeAccTrackState} value={this.state.selectedAccTrackState} />
+                            </div>
+                            <div textAlign="center">
+                                <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddAccTrackState} icon><Icon name='plus'/></Button>
+                                <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelAccTrackState} icon><Icon name='trash'/></Button>
+                            </div>
+                        </div>
+                        <div className="content_row">
+                            <div>
+                                <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
+                                    <Icon name='fire'/>
+                                    <Header.Content>Profil de la route lors d'accident</Header.Content>
+                                </Header>
+                            </div>
+                            <div textAlign="center">
+                                <AccRoadProfilePicker didRefresh={this.didRefreshAccRoadProfiles} needToRefresh={this.state.needToRefreshAccRoadProfiles} onChange={this.handleChangeAccRoadProfile} value={this.state.selectedAccRoadProfile} />
+                            </div>
+                            <div textAlign="center">
+                                <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddAccRoadProfile} icon><Icon name='plus'/></Button>
+                                <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelAccRoadProfile} icon><Icon name='trash'/></Button>
+                            </div>
+                        </div>
+                        <Header dividing as="h2">Entretiens</Header>
+                        <div className="content_row">
+                            <div>
+                                <Header style={{gridColumnStart:"2",placeSelf:"center"}} as="h4">
+                                    <Icon name='clipboard check'/>
+                                    <Header.Content>Nature d'intervention</Header.Content>
+                                </Header>
+                            </div>
+                            <div textAlign="center">
+                                <InterventionNaturePicker didRefresh={this.didRefreshInterventionNature} needToRefresh={this.state.needToRefreshInterventionNatures} onChange={this.handleChangeInterventionNature} value={this.state.selectedInterventionNature} />
+                            </div>
+                            <div textAlign="center">
+                                <Button style={{margin:"4px 16px"}} color="blue" onClick={this.showAddInterventionNature} icon><Icon name='plus'/></Button>
+                                <Button style={{margin:"4px 16px"}} color="red" onClick={this.showDelInterventionNature} icon><Icon name='trash'/></Button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {/* SOCIETE */}
@@ -1872,7 +1969,7 @@ class Content extends Component {
                 </Modal>
                 <HexColorPicker hex={"#"+this.state.newColorHex} open={this.state.openHexColorPicker} close={this.closeHexColorPicker} onSelect={this.selectHexColor}/>
 
-                {/* JUSTIFICATION ARCHIVAGE */}
+                {/* JUSTIFICATION ARCHIVAGE VEHICLE */}
                 <Modal size="mini" closeOnDimmerClick={false} open={this.state.openAddVehicleArchiveJustification} onClose={this.closeAddVehicleArchiveJustification} closeIcon>
                     <Modal.Header>
                         Ajout de la justification
@@ -1897,6 +1994,34 @@ class Content extends Component {
                     <Modal.Actions>
                         <Button color="black" onClick={this.closeAddVehicleArchiveJustification}>Annuler</Button>
                         <Button color="red" onClick={this.deleteVehicleArchiveJustification}>Supprimer</Button>
+                    </Modal.Actions>
+                </Modal>
+
+                {/* JUSTIFICATION ARCHIVAGE LOCATION */}
+                <Modal size="mini" closeOnDimmerClick={false} open={this.state.openAddLocationArchiveJustification} onClose={this.closeAddLocationArchiveJustification} closeIcon>
+                    <Modal.Header>
+                        Ajout de la justification
+                    </Modal.Header>
+                    <Modal.Content style={{textAlign:"center"}}>
+                        <Form style={{display:"grid",gridTemplateColumns:"1fr",gridGap:"16px"}}>
+                            <Form.Field style={{placeSelf:"stretch"}}>
+                                <label>Justification</label>
+                                <input onChange={this.handleChange} name="newLocationArchiveJustification"/>
+                            </Form.Field>
+                        </Form>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <Button color="black" onClick={this.closeAddLocationArchiveJustification}>Annuler</Button>
+                        <Button color="green" onClick={this.addLocationArchiveJustification}>Créer</Button>
+                    </Modal.Actions>
+                </Modal>
+                <Modal closeOnDimmerClick={false} open={this.state.openDelLocationArchiveJustification} onClose={this.closeDelLocationArchiveJustification} closeIcon>
+                    <Modal.Header>
+                        Suppression de la justification
+                    </Modal.Header>
+                    <Modal.Actions>
+                        <Button color="black" onClick={this.closeAddLocationArchiveJustification}>Annuler</Button>
+                        <Button color="red" onClick={this.deleteLocationArchiveJustification}>Supprimer</Button>
                     </Modal.Actions>
                 </Modal>
             

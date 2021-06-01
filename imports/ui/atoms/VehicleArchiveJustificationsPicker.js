@@ -4,7 +4,7 @@ import { Dropdown } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 import { gql } from 'apollo-server-express'
 
-class PayementTimePicker extends Component {
+class VehicleArchiveJustificationPicker extends Component {
 
     state = {
         value:"",
@@ -56,4 +56,4 @@ const withUserContext = WrappedComponent => props => (
     </UserContext.Consumer>
 )
 
-export default wrappedInUserContext = withUserContext(PayementTimePicker);
+export default wrappedInUserContext = withUserContext(VehicleArchiveJustificationPicker);

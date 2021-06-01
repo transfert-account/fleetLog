@@ -25,7 +25,7 @@ type Location{
     reason:String
     reparation:Float
     archived:Boolean
-    archiveReason:String
+    archiveJustification:LocationArchiveJustification
     archiveDate:String
     returned:Boolean
     accidents:[Accident]
@@ -41,7 +41,7 @@ extend type Mutation{
     editLocationIdent(_id:String!,societe:String!,registration:String!,firstRegistrationDate:String!,brand:String!,model:String!,energy:String!,volume:String!,payload:Float!,color:String!): [QueryResultMessage]
     editLocationFinances(_id:String!,fournisseur:String!,insurancePaid:Float!,price:Float!,startDate:String!,endDate:String!,reason:String!): [QueryResultMessage]
     updateLocKm(_id:String!,date:String!,kmValue:Int!):[QueryResultMessage]
-    archiveLocation(_id:String!,archiveReason:String!):[QueryResultMessage]
+    archiveLocation(_id:String!,archiveJustification:String!):[QueryResultMessage]
     unArchiveLocation(_id:String!):[QueryResultMessage]
     deleteLocKm(location:String!,_id:String!):[QueryResultMessage]
     deleteLocation(_id:String!):[QueryResultMessage]
