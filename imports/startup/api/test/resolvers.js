@@ -6,7 +6,9 @@ import Entretiens from '../entretien/entretiens';
 import Batiments from '../batimentControl/batimentControls';
 import Accidents from '../accident/accidents';
 import Energies from '../energy/energies';
+import Functions from '../common/functions';
 import { createHmac } from 'crypto'
+import moment from 'moment'
 
 import { Mongo } from 'meteor/mongo';
 
@@ -25,7 +27,10 @@ export default {
                         },
                         {multi:true}
                     );*/
-                    Batiments.remove({});
+                    //Batiments.remove({});
+
+
+
 
                     //OLD
                     /*let accs = Accidents.find({}).fetch();

@@ -3,6 +3,8 @@ type Control{
     name:String!
     unit:String!
     frequency:String!
+    alert:String!
+    alertUnit:String!
 }
 
 type ControlStats{

@@ -61,6 +61,7 @@ export class ControlOccurrenceRow extends Component {
     }
     /*CONTENT GETTERS*/
     formatUnit = u => {
+        if(u=="d")return"jours"
         if(u=="m")return"mois"
         if(u=="y")return"ans"
         if(u=="km")return"km"
@@ -126,7 +127,6 @@ export class ControlOccurrenceRow extends Component {
         }
     }
     getTimeFromNow = (time) => {
-        
         let days = moment(time, "DD/MM/YYYY").diff(moment(),'days')
         if(days > 0){
             if(days > 25){
@@ -144,7 +144,6 @@ export class ControlOccurrenceRow extends Component {
     }
 
     render() {
-        console.log(this.props.c.entretien)
         return (
             <Fragment>
                 <Table.Row key={this.props.c.control.key}>
@@ -156,6 +155,7 @@ export class ControlOccurrenceRow extends Component {
                         </Button.Group>
                     </Table.Cell>
                     <Table.Cell collapsing textAlign="center">{this.props.c.control.frequency + " " + this.formatUnit(this.props.c.control.unit)}</Table.Cell>
+                    <Table.Cell collapsing textAlign="center">{this.props.c.control.alert + " " + this.formatUnit(this.props.c.control.alertUnit)}</Table.Cell>
                     <Table.Cell collapsing textAlign="center">{(this.props.c.lastOccurrence == "none" || !this.props.c.selected ? "-" : this.props.c.lastOccurrence + " " + (this.props.c.control.unit == "km" ? "km" : ""))}</Table.Cell>
                     {this.getEcheanceCell(this.props.c)}
                     <Table.Cell collapsing textAlign="center">

@@ -266,6 +266,8 @@ class Vehicle extends Component {
                             name
                             unit
                             frequency
+                            alert
+                            alertUnit
                         }
                         selected
                         entretien
@@ -277,6 +279,8 @@ class Vehicle extends Component {
                             name
                             unit
                             frequency
+                            alert
+                            alertUnit
                         }
                         selected
                         entretien
@@ -1519,6 +1523,7 @@ class Vehicle extends Component {
                             <Table.HeaderCell textAlign="center">Nom du contrôle</Table.HeaderCell>
                             <Table.HeaderCell textAlign="center">Éligibilité</Table.HeaderCell>
                             <Table.HeaderCell textAlign="center">Fréquence</Table.HeaderCell>
+                            <Table.HeaderCell textAlign="center">Seuil d'alerte</Table.HeaderCell>
                             <Table.HeaderCell textAlign="center">Dernier contrôle</Table.HeaderCell>
                             <Table.HeaderCell textAlign="center">Échéance</Table.HeaderCell>
                             <Table.HeaderCell textAlign="center">Actions</Table.HeaderCell>

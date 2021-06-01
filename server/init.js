@@ -4,6 +4,7 @@ import { Meteor } from 'meteor/meteor';
 import { SyncedCron } from 'meteor/littledata:synced-cron';
 import Entretiens from '../imports/startup/api/entretien/entretiens';
 import Vehicles from '../imports/startup/api/vehicle/vehicles';
+import Functions from '../imports/startup/api/common/functions';
 
 
 Accounts.onCreateUser(function(options, user) {    
@@ -33,81 +34,69 @@ let entretiensCreationFromControlAlertStep = {
         return parser.recur().on(3).hour();
     },
     job : () => {
-        //let controls = Equipements.find().fetch()
-        let controls = [];
-        controls.forEach(c=>{
-            c.equipementDescription = EquipementDescriptions.findOne({_id:new Mongo.ObjectID(c.equipementDescription)})
-            c.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(c.vehicle)})
-        })
-        controls.map(c=>{
-            let nextControl = 0;
-            let alertStep = 0;
-            let creationNeeded = false;
-            if(c.equipementDescription.unitType == "t"){
-                if(c.equipementDescription.controlPeriodUnit == "y"){
-                    nextControl = moment(c.lastControl,"DD/MM/YYYY").add(c.equipementDescription.controlPeriodValue,"Y");
-                }
-                if(c.equipementDescription.controlPeriodUnit == "m"){
-                    nextControl = moment(c.lastControl,"DD/MM/YYYY").add(c.equipementDescription.controlPeriodValue,'M');
-                }
-                if(c.equipementDescription.alertStepUnit == "y"){
-                    alertStep = moment(c.lastControl,"DD/MM/YYYY").add(c.equipementDescription.alertStepValue,"Y");
-                }
-                if(c.equipementDescription.alertStepUnit == "m"){
-                    alertStep = moment(c.lastControl,"DD/MM/YYYY").add(c.equipementDescription.alertStepValue,'M');
-                }
-                if(moment(alertStep, "DD/MM/YYYY").diff(moment())<0 || moment(nextControl, "DD/MM/YYYY").diff(moment())<0){
-                    creationNeeded = true
-                }
+        let vehicles = Vehicles.find().fetch().map(v=>({_id:v._id,km:v.km,cs_merged:v.obli.concat(v.prev)}));
+        vehicles.map(v=>{v.cs_merged.map(cs=>{
+            if(cs.key[0] == "o"){
+                cs.control = Functions.getObli().filter(c=>c.key == cs.key)[0]
+            }else{
+                cs.control = Functions.getPrev().filter(c=>c.key == cs.key)[0]
             }
-            if(c.equipementDescription.unitType == "d"){
-                nextControl = (parseInt(c.lastControl) + parseInt(c.equipementDescription.controlPeriodValue)) - parseInt(c.vehicle.km)
-                if(nextControl<c.equipementDescription.alertStepValue || nextControl<0){
-                    creationNeeded = true
-                }
-            }
-            if(creationNeeded){
-                if(c.entretienCreated == false){
-                    let e = {} /*Equipements.findOne({_id:c._id})*/
-                    let ed = {} /*EquipementDescriptions.findOne({_id:new Mongo.ObjectID(e.equipementDescription)})*/
-                    let v = Vehicles.findOne({_id:new Mongo.ObjectID(e.vehicle)});
-                    let entretienId = new Mongo.ObjectID();
-                    try {
-                        Entretiens.insert({
-                            _id:entretienId,
-                            piece:"",
-                            title:"Contrôle : " + ed.name + " sur " + v.registration,
-                            description:"Entretien généré automatiquement par le contrôle lié au véhicule " + v.registration,
-                            vehicle:e.vehicle,
-                            ficheInter:"",
-                            archived:false,
-                            occurenceDate:"",
-                            user:"",
-                            time:0,
-                            status:1,
-                            societe:v.societe,
-                            fromControl:true,
-                            control:c._id._str
-                        });
-                        /*Equipements.update(
-                            {
-                                _id:c._id
-                            },{
-                                $set: {
-                                    entretien:entretienId._str,
-                                    entretienCreated:true
-                                }
-                            }
-                        );*/
-                    } catch (error) {
-                        console.log(error)
+        })})
+        vehicles.map(v=>{v.cs_merged.map(cs=>{
+            cs.creationNeeded = false;
+            if(cs.entretien == null || cs.entretien == ""){
+                if(cs.lastOccurrence != "none" && cs.lastOccurrence != ""){
+                    if(cs.control.unit == "km"){//DISTANCE
+                        if(parseInt(v.km) > parseInt(cs.lastOccurrence) + parseInt(cs.control.frequency) - parseInt(cs.control.alert)){
+                            cs.creationNeeded = true
+                        }
+                    }else{//TIME
+                        if(cs.control.unit == "m"){cs.control.unit = "M"}
+                        if(cs.control.alertUnit == "m"){cs.control.alertUnit = "M"}
+                        if(moment().isAfter(moment(cs.lastOccurrence,"DD/MM/YYYY").add(cs.control.frequency,cs.control.unit).subtract(cs.control.alert,cs.control.alertUnit))){
+                            cs.creationNeeded = true
+                        }
                     }
                 }
             }
-        })
+        })})
+        vehicles.map(v=>{v.cs_merged.filter(cs=>cs.creationNeeded).map(cs=>{
+            let entretienId = new Mongo.ObjectID()
+            let vehicle = Vehicles.findOne({_id:v._id})
+            Entretiens.insert({
+                _id:entretienId,
+                societe:vehicle.societe,
+                type:(cs.control.key[0]=="o" ? "obli" : "prev"),
+                originNature:null,
+                originControl:cs.control.key,
+                occurenceDate:"",
+                kmAtFinish:0,
+                vehicle:vehicle._id._str,
+                piecesQty:[],
+                status:0,
+                time:0,
+                notes:[{
+                    _id:new Mongo.ObjectID(),
+                    text:"Entretien généré automatique par le contrôle " + cs.control.name + " lié au véhicule " + vehicle.registration + " (" + moment().format('DD/MM/YYYY HH:mm:ss') + ")" ,
+                    date:moment().format('DD/MM/YYYY HH:mm:ss')
+                }],
+                archived:false,
+                user:"",
+            });
+            Vehicles.update(
+                {
+                    _id: vehicle._id,
+                    [(cs.control.key[0] == "o" ? "obli" : "prev")+".key"]: cs.control.key
+                }, {
+                    $set: {
+                        [(cs.control.key[0] == "o" ? "obli" : "prev")+".$.entretien"]: entretienId._str
+                    }
+                }
+            )
+        })})
     }
 }
-//SyncedCron.add(entretiensCreationFromControlAlertStep);
+SyncedCron.add(entretiensCreationFromControlAlertStep);
 
-//SyncedCron.config({logger:()=>{}});
-//SyncedCron.start();
+SyncedCron.config({logger:()=>{}});
+SyncedCron.start();
