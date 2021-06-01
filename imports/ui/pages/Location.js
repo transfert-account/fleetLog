@@ -1582,15 +1582,7 @@ class Location extends Component {
                     </Table.Cell>
                 </Table.Row>
             ))
-        },
-        updateControlQuery : gql`
-            mutation updateControl($_id:String!,$key:String!,$value:Boolean!){
-                updateControl(_id:$_id,key:$key,value:$value){
-                    status
-                    message
-                }
-            }
-        `
+        }
     }
 
     /*SHOW AND HIDE MODALS*/

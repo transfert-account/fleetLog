@@ -9,11 +9,20 @@ export class ControlOccurrenceRow extends Component {
 
     state={
         openDatePicker:false,
+        openLastOccurence : false,
         newLastControlDate:"",
         newLastControlKm:"",
         createEntretienFromControlQuery: gql`
             mutation createEntretienFromControl($vehicle:String!,$control:String!){
                 createEntretienFromControl(vehicle:$vehicle,control:$control){
+                    status
+                    message
+                }
+            }
+        `,
+        updateControlLastOccurrenceQuery: gql`
+            mutation updateControlLastOccurrence($_id:String!,$key:String!,$lastOccurrence:String!){
+                updateControlLastOccurrence(_id:$_id,key:$key,lastOccurrence:$lastOccurrence){
                     status
                     message
                 }
@@ -28,6 +37,16 @@ export class ControlOccurrenceRow extends Component {
     closeDatePicker = () => {
         this.setState({openDatePicker:false,datePickerTarget:""})
     }
+    showLastOccurence = () => {
+        this.setState({
+            openLastOccurence : true
+        })
+    }
+    closeLastOccurence = () => {
+        this.setState({
+            openLastOccurence : false
+        })
+    }
     /*CHANGE HANDLERS*/
     handleChange = e =>{
         this.setState({
@@ -41,6 +60,26 @@ export class ControlOccurrenceRow extends Component {
     }
     /*FILTERS HANDLERS*/
     /*DB READ AND WRITE*/
+    updateLastOccurence = () => {
+        this.props.client.mutate({
+            mutation:this.state.updateControlLastOccurrenceQuery,
+            variables:{
+                _id:this.props.vehicle._id,
+                key:this.props.c.control.key,
+                lastOccurrence:(this.state.newLastControlDate != "" ? this.state.newLastControlDate : this.state.newLastControlKm)
+            }
+        }).then(({data})=>{
+            data.updateControlLastOccurrence.map(qrm=>{
+                if(qrm.status){
+                    this.props.toast({message:qrm.message,type:"success"});
+                    this.closeLastOccurence();
+                    this.props.loadVehicle();
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
     addEntretien = v => {
         this.props.client.mutate({
             mutation:this.state.createEntretienFromControlQuery,
@@ -159,17 +198,41 @@ export class ControlOccurrenceRow extends Component {
                     <Table.Cell collapsing textAlign="center">{(this.props.c.lastOccurrence == "none" || !this.props.c.selected ? "-" : this.props.c.lastOccurrence + " " + (this.props.c.control.unit == "km" ? "km" : ""))}</Table.Cell>
                     {this.getEcheanceCell(this.props.c)}
                     <Table.Cell collapsing textAlign="center">
-                        <Popup trigger={<Button disabled={!this.props.c.selected || this.props.c.entretien != null && this.props.c.entretien != ""} icon onClick={()=>this.addEntretien(this.props.c.control.key)} icon="alternate calendar outline"/>}>
+                        <Popup position='top center' trigger={<Button disabled={!this.props.c.selected || this.props.c.entretien != null && this.props.c.entretien != ""} icon onClick={()=>this.addEntretien(this.props.c.control.key)} icon="calendar plus outline"/>}>
                             Créer l'entretien
                         </Popup>
-                        <Popup trigger={<Button style={{marginLeft:"32px"}} disabled={!this.props.c.selected || this.props.c.entretien == null || this.props.c.entretien == ""} color="blue" icon onClick={()=>this.props.history.push("/entretien/"+this.props.c.entretien)} icon="wrench"/>}>
+                        <Popup position='top center' trigger={<Button style={{marginLeft:"24px"}} icon onClick={this.showLastOccurence} icon="edit"/>}>
+                            Modifier le dernier contrôle manuellement
+                        </Popup>
+                        <Popup position='top center' trigger={<Button style={{marginLeft:"24px"}} disabled={!this.props.c.selected || this.props.c.entretien == null || this.props.c.entretien == ""} color="blue" icon onClick={()=>this.props.history.push("/entretien/"+this.props.c.entretien)} icon="wrench"/>}>
                             Voir l'entretien
                         </Popup>
-                        <Popup trigger={<Button disabled={!this.props.c.selected} color="blue" icon onClick={()=>this.props.history.push("/entretien/controls/"+this.props.c.control.key)} icon="clipboard check"/>}>
+                        <Popup position='top center' trigger={<Button disabled={!this.props.c.selected} color="blue" icon onClick={()=>this.props.history.push("/entretien/controls/"+this.props.c.control.key)} icon="clipboard check"/>}>
                             Voir le contrôle
                         </Popup>
                     </Table.Cell>
                 </Table.Row>
+                <Modal open={this.state.openLastOccurence} onClose={this.closeLastOccurence} closeIcon>
+                    <Modal.Header>
+                        Mise à jour de la dernière réalisation du controle : {this.props.c.control.name}
+                    </Modal.Header>
+                    <Modal.Content style={{textAlign:"center"}}>
+                        <Form style={{display:"grid",gridTemplateRows:"1fr",gridTemplateColumns:"1fr",gridGap:"16px"}}>
+                            <Form.Field className={(this.props.c.control.unit != "km" ? "" : "hide")}>
+                                <label>Dernier controle (date)</label>
+                                <input onChange={this.handleChange} value={this.state.newLastControlDate} onFocus={()=>{this.showDatePicker("newLastControlDate")}} placeholder="Date du dernier contrôle"/>
+                            </Form.Field>
+                            <Form.Field className={(this.props.c.control.unit != "km" ? "hide" : "")}>
+                                <label>Kilométrage au dernier controle</label>
+                                <input onChange={this.handleChange} value={this.state.newLastControlKm} name="newLastControlKm" placeholder="Kilométrage au dernier contrôle"/>
+                            </Form.Field>
+                        </Form>
+                    </Modal.Content>
+                    <Modal.Actions>
+                        <Button color="black" onClick={this.closeLastOccurence}>Annuler</Button>
+                        <Button color="blue" onClick={this.updateLastOccurence}>Mettre à jour</Button>
+                    </Modal.Actions>
+                </Modal>
                 <ModalDatePicker onSelectDatePicker={this.onSelectDatePicker} closeDatePicker={this.closeDatePicker} open={this.state.openDatePicker}/>
             </Fragment>
         )

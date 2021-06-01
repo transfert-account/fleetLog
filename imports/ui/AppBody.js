@@ -21,8 +21,7 @@ class AppBody extends Component{
 
     logout = () => {
         Meteor.logout();
-        this.props.client.cache.reset();
-        this.props.history.push("/")
+        this.props.logoutPurge();
     }
 
     render(){

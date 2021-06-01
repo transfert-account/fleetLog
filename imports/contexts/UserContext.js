@@ -93,13 +93,47 @@ class Provider extends Component {
             query:this.state.userQuery,
             fetchPolicy:'network-only'
         }).then(({data})=>{
-            if(data.user._id != this.state.user._id){
+            this.props.client.query({
+                query:this.state.userQuery,
+                fetchPolicy:'network-only'
+            }).then(({data})=>{
+                if(data.user._id != this.state.user._id){
+                    this.setState({
+                        societeFilter : data.user.visibility,
+                        user:data.user,
+                        users:data.users
+                    })
+                }
+            })
+        })
+    }
+
+    loadUser = () => {
+        if(Meteor.user()){
+            this.props.client.query({
+                query:this.state.userQuery,
+                fetchPolicy:'network-only'
+            }).then(({data})=>{
                 this.setState({
                     societeFilter : data.user.visibility,
                     user:data.user,
                     users:data.users
-                })
-            }
+                },()=>this.props.history.push("/home"))
+            })
+        }else{
+            this.logoutPurge()
+        }
+    }
+
+    logoutPurge = () => {
+        this.setState({
+            societeFilter :"",
+            user:{},
+            users:[]
+        },()=>{
+            this.props.client.cache.reset();
+            this.props.client.resetStore();
+            this.props.history.push("/");
         })
     }
 
@@ -147,9 +181,11 @@ class Provider extends Component {
                 history: this.props.history,
                 getSocieteName: this.getSocieteName,
                 reloadUser: this.reloadUser,
+                loadUser: this.loadUser,
                 forceReloadUser: this.forceReloadUser,
                 setSocieteFilter: this.setSocieteFilter,
                 loadSocietes: this.loadSocietes,
+                logoutPurge: this.logoutPurge,
                 societeFilter: this.state.societeFilter,
                 toast: this.toast
             }}>

@@ -201,27 +201,34 @@ export class Control extends Component {
                             </Table.Row>
                         </Table.Header>
                         <Table.Body>
-                            {this.state.vehiclesRaw.sort((a,b)=>{if(this.state.controlRaw.unit == "km"){return b.echeance.value - a.echeance.value}else{return a.echeance.value - b.echeance.value}}).map(v=>{
-                                console.log(v.entretien)
-                                return(
-                                    <Table.Row key={v.registration}>
-                                        <Table.Cell collapsing textAlign="right">
-                                            {this.getSocieteCell(v.vehicle)}
-                                        </Table.Cell>
-                                        <Table.Cell collapsing textAlign="center">
-                                            <b>{v.vehicle.registration}</b>
-                                            <br/>
-                                            {v.vehicle.brand.name + " - " + v.vehicle.model.name + " (" + v.vehicle.energy.name + ")"}
-                                        </Table.Cell>
-                                        <Table.Cell textAlign="center">{this.getEcheanceCell(v)}</Table.Cell>
-                                        <Table.Cell collapsing textAlign="center">
-                                            <Popup trigger={<Button icon disabled={v.entretien != null && v.entretien != ""} onClick={()=>this.addEntretien(v.vehicle._id)} icon="calendar outline"/>}>Créer l'entretien</Popup>
-                                            <Popup trigger={<Button color="blue" disabled={v.entretien == null || v.entretien == ""} icon onClick={()=>this.props.history.push("/entretien/"+v.entretien)} icon="wrench" style={{marginLeft:"32px"}}/>}>Voir l'entretien</Popup>
-                                            <Popup trigger={<Button color="blue" icon onClick={()=>this.props.history.push("/parc/vehicle/"+v.vehicle._id)} icon="car"/>}>Voir le véhicule</Popup>
-                                        </Table.Cell>
-                                    </Table.Row>
-                                )
-                            })}
+                            {(this.state.vehiclesRaw.length == 0 ?
+                                <Table.Row>
+                                    <Table.Cell colSpan="4" collapsing textAlign="right">
+                                        <p>Aucun véhicule éligible au contrôle </p>
+                                    </Table.Cell>
+                                </Table.Row>
+                                :
+                                this.state.vehiclesRaw.sort((a,b)=>{if(this.state.controlRaw.unit == "km"){return b.echeance.value - a.echeance.value}else{return a.echeance.value - b.echeance.value}}).map(v=>{
+                                    return(
+                                        <Table.Row key={v.registration}>
+                                            <Table.Cell collapsing textAlign="right">
+                                                {this.getSocieteCell(v.vehicle)}
+                                            </Table.Cell>
+                                            <Table.Cell collapsing textAlign="center">
+                                                <b>{v.vehicle.registration}</b>
+                                                <br/>
+                                                {v.vehicle.brand.name + " - " + v.vehicle.model.name + " (" + v.vehicle.energy.name + ")"}
+                                            </Table.Cell>
+                                            <Table.Cell textAlign="center">{this.getEcheanceCell(v)}</Table.Cell>
+                                            <Table.Cell collapsing textAlign="center">
+                                                <Popup trigger={<Button icon disabled={v.entretien != null && v.entretien != ""} onClick={()=>this.addEntretien(v.vehicle._id)} icon="calendar outline"/>}>Créer l'entretien</Popup>
+                                                <Popup trigger={<Button color="blue" disabled={v.entretien == null || v.entretien == ""} icon onClick={()=>this.props.history.push("/entretien/"+v.entretien)} icon="wrench" style={{marginLeft:"32px"}}/>}>Voir l'entretien</Popup>
+                                                <Popup trigger={<Button color="blue" icon onClick={()=>this.props.history.push("/parc/vehicle/"+v.vehicle._id)} icon="car"/>}>Voir le véhicule</Popup>
+                                            </Table.Cell>
+                                        </Table.Row>
+                                    )
+                                })
+                            )}
                         </Table.Body>
                     </Table>
                 </div>

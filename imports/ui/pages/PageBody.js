@@ -65,11 +65,11 @@ class PageBody extends Component {
 
   render = () =>{
     if(isBrowser){
-      if(this.props.user._id == null || this.props.user._id == undefined){
+      if(!(Meteor.userId() && this.props.user._id != null && this.props.user._id != undefined)){
         return(
           <Switch>
-            <Route exact path='/home' component={Home}/>
-            <Redirect from='*' to={'/home'}/>
+            <Route exact path='/' component={Home}/>
+            <Redirect from='*' to={'/'}/>
           </Switch>
         );
       }else{//DESKTOP

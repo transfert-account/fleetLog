@@ -88,6 +88,7 @@ export default {
           }
         },
         async storedObjects(obj, args, { user }){
+          console.log(user)
           if(user._id){
             return await new Promise(async (resolve,reject)=>{
               let data = await Functions.getStoredObjectsList()

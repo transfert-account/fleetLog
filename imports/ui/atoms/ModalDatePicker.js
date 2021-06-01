@@ -89,7 +89,7 @@ export class ModalDatePicker extends Component {
       yearsAvailable.push(y)
     }
     return(
-      <div className="datePickerYearsLayout">
+      <div className="datePickerYearsLayout raised">
         <div className="yearDPTile scroll" onClick={this.scrollYearsUp}>
           <Icon name="angle up"/>
         </div>
@@ -119,7 +119,7 @@ export class ModalDatePicker extends Component {
       {i:11,label:"Décembre"}
     ];
     return(
-      <div className="datePickerMonthsLayout">
+      <div className="datePickerMonthsLayout raised">
         {months.map(m=>
           <div key={m.i} className={"monthDPTile"+(m.i == this.state.dMonth ? " selected" : "")} onClick={()=>{this.setMonth(m.i)}}>{m.label}</div>
         )}

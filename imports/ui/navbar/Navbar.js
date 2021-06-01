@@ -123,8 +123,7 @@ class Menu extends Component {
 
   logout = () => {
     Meteor.logout();
-    this.props.client.resetStore();
-    this.props.history.push("/")
+    this.props.logoutPurge();
   }
 
   getMenuItemsList = () =>{

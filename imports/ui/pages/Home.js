@@ -66,18 +66,12 @@ export class Home extends Component {
                 this.props.client.cache.reset();
                 this.props.reloadUser()
               }else{
-                this.props.toast({
-                  message: error.reason,
-                  type: "error"
-                });
+                this.props.toast({message: error.reason,type: "error"});
               }
             }
           );
         }else{
-          this.props.toast({
-            message: error.reason,
-            type: "error"
-          });
+          this.props.toast({message: error.reason,type: "error"});
         }
     })
   }
@@ -87,8 +81,7 @@ export class Home extends Component {
     Meteor.loginWithPassword(this.state.email, this.state.pass,
       error=>{
         if(!error){
-          this.props.client.cache.reset();
-          this.props.reloadUser()
+          this.props.loadUser();
         }else{
           this.props.toast({
             message: error.reason,
