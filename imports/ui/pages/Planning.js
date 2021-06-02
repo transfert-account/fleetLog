@@ -452,9 +452,9 @@ class Planning extends Component {
   render() {
     return (
       <Fragment>
-        <div style={{display:"grid",gridTemplateColumns:"auto 1fr",gridTemplateRows:"auto 1fr",gridGap:"32px",height:"100%"}}>
+        <div style={{display:"grid",gridTemplateColumns:"auto 1fr",gridTemplateRows:"auto 1fr",gridGap:"64px",height:"100%"}}>
           <Calendar didRefreshMonth={this.didRefreshMonth} needToRefreshMonth={this.state.needToRefreshMonth} selectDate={this.selectDate} month={this.state.month} year={this.state.year}/>
-          <Segment style={{gridRowEnd:"span 2",display:"grid",gridGap:"20px",gridTemplateRows:"auto minmax(0,1fr)"}}>
+          <div style={{gridRowEnd:"span 2",display:"grid",gridGap:"20px",gridTemplateRows:"auto minmax(0,1fr)"}}>
             <Menu size="massive" widths={3} pointing secondary>
               <Menu.Item color="blue" name='selectedDay' active={this.state.activeItem === 'selectedDay'} onClick={()=>this.setState({activeItem:"selectedDay"})}>
                 {this.state.selectedDate.format("DD/MM/YYYY")}
@@ -469,10 +469,10 @@ class Planning extends Component {
                 {this.getUnaffectedLabel()}
               </Menu.Item>
             </Menu>
-            <div style={{display:"block",overflowY:"scroll"}}>
+            <div style={{display:"block",paddingRight:"16px",overflowY:"scroll"}}>
               {this.getSideTable()}
             </div>
-          </Segment>
+          </div>
         </div>
         <Modal size="mini" closeOnDimmerClick={false} open={this.state.openAffectToMe} onClose={this.closeAffectToMe} closeIcon>
           <Modal.Header>

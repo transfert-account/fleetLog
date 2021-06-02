@@ -1,6 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import { UserContext } from '../../contexts/UserContext';
-import { Button, Icon, Header, Message, Table, Modal, Form, Input, Dropdown } from 'semantic-ui-react';
+import { Button, Icon, Header, Message, Table, Modal, Form, Input, Dropdown, Segment } from 'semantic-ui-react';
+
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 import ExportMenu from '../molecules/ExportMenu';
 import CustomFilterSegment from '../molecules/CustomFilterSegment';
@@ -17,49 +19,17 @@ export class ExportEntretiens extends Component {
 
     state = {
         step:"filters",
-        entretiensQuery : gql`
-            query entretiens{
-                entretiens{
+        entretiensFullQuery : gql`
+            query entretiensFull{
+                entretiensFull{
                     _id
-                    description
-                    archived
-                    title
-                    fromControl
-                    control{
-                        _id
-                        equipementDescription{
-                            _id
-                            name
-                        }
-                    }
                     societe{
                         _id
-                        trikey
                         name
-                    }
-                    commandes{
-                        _id
-                        piece{
-                            _id
-                            name
-                            type
-                        }
-                        entretien
-                        status
-                        price
-                    }
-                    ficheInter{
-                        _id
                     }
                     vehicle{
                         _id
-                        societe{
-                            _id
-                            trikey
-                            name
-                        }
                         registration
-                        firstRegistrationDate
                         km
                         brand{
                             _id
@@ -69,23 +39,60 @@ export class ExportEntretiens extends Component {
                             _id
                             name
                         }
-                        volume{
-                            _id
-                            meterCube
-                        }
-                        payload
-                        color{
+                        energy{
                             _id
                             name
-                            hex
                         }
-                        insurancePaid
-                        property
                         shared
                         sharedTo{
                             _id
                             name
                         }
+                    }
+                    type
+                    originNature{
+                        _id
+                        name
+                    }
+                    originControl{
+                        key
+                        name
+                    }
+                    notes{
+                        _id
+                        text
+                        date
+                    }
+                    time
+                    kmAtFinish
+                    piecesQty{
+                        piece{
+                            _id
+                            type
+                            brand
+                            reference
+                            prixHT
+                            name
+                        }
+                        qty
+                    }
+                    ficheInter{
+                        _id
+                        name
+                        size
+                        path
+                        originalFilename
+                        ext
+                        type
+                        mimetype
+                        storageDate
+                    }
+                    occurenceDate
+                    status
+                    user{
+                        _id
+                        firstname
+                        lastname
                     }
                 }
             }
@@ -98,90 +105,81 @@ export class ExportEntretiens extends Component {
         newTemplateName:"",
 
         //===ENTRETIENS FILTERS===
-        archiveFilterE:false,
-        docsFilterE:"all",
-        orderStatusFilterE:"all",
-        fromControlFilterE:"all",
-        filtersE:[
+        docsFilter:"all",
+        statusFilter:"all",
+        originFilter:"all",
+        filters:[
             {
-                infos:"ordersFilterInfosE",
-                filter:"orderStatusFilterE"
+                infos:"statusFilterInfos",
+                filter:"statusFilter"
             },{
-                infos:"fromControlFilterInfosE",
-                filter:"fromControlFilterE"
+                infos:"originFilterInfos",
+                filter:"originFilter"
             },{
-                infos:"docsFilterInfosE",
-                filter:"docsFilterE"
-            },{
-                infos:"archiveFilterInfosE",
-                filter:"archiveFilterE"
+                infos:"docsFilterInfos",
+                filter:"docsFilter"
             }
         ],
-        ordersFilterInfosE:{
-            icon:"shipping fast",            
+        statusFilterInfos:{
+            icon:"tasks",            
             options:[
                 {
-                    key: 'orderall',
+                    key: 'statusall',
                     initial: true,
                     text: 'Tous les entretiens',
                     value: "all",
                     color:"",
-                    click:()=>{this.setOrderStatusFilterE("all")},
+                    click:()=>{this.setStatusFilter("all")},
                     label: { color: '', empty: true, circular: true },
                 },
                 {
-                    key: 'orderready',
+                    key: 'statusopen',
                     initial: false,
-                    text: 'Entretiens prêts',
-                    value: "ready",
+                    text: 'Status : Ouvert (non clos)',
+                    value: "open",
+                    color:"blue",
+                    click:()=>{this.setStatusFilter("open")},
+                    label: { color: 'blue', empty: true, circular: true }
+                },
+                {
+                    key: 'statuswaiting',
+                    initial: false,
+                    text: 'Status : En attente',
+                    value: "waiting",
+                    color:"blue",
+                    click:()=>{this.setStatusFilter("waiting")},
+                    label: { color: 'blue', empty: true, circular: true }
+                },
+                {
+                    key: 'statusaffected',
+                    initial: false,
+                    text: 'Status : Affecté',
+                    value: "affected",
+                    color:"blue",
+                    click:()=>{this.setStatusFilter("affected")},
+                    label: { color: 'blue', empty: true, circular: true }
+                },
+                {
+                    key: 'statusdone',
+                    initial: false,
+                    text: 'Status : Réalisé',
+                    value: "done",
                     color:"green",
-                    click:()=>{this.setOrderStatusFilterE("ready")},
+                    click:()=>{this.setStatusFilter("done")},
                     label: { color: 'green', empty: true, circular: true }
                 },
                 {
-                    key: 'orderwaiting',
+                    key: 'statusclosed',
                     initial: false,
-                    text: 'Commandes en livraison',
-                    value: "waiting",
-                    color:"orange",
-                    click:()=>{this.setOrderStatusFilterE("waiting")},
-                    label: { color: 'orange', empty: true, circular: true }
-                },
-                {
-                    key: 'ordertodo',
-                    initial: false,
-                    text: 'Commandes à passer',
-                    value: "toDo",
-                    color:"red",
-                    click:()=>{this.setOrderStatusFilterE("toDo")},
-                    label: { color: 'red', empty: true, circular: true }
+                    text: 'Status : Clos',
+                    value: "closed",
+                    color:"grey",
+                    click:()=>{this.setStatusFilter("closed")},
+                    label: { color: 'grey', empty: true, circular: true }
                 }
             ]
         },
-        docsFilterInfosE:{
-            icon:"folder open outline",            
-            options:[
-                {
-                    key: 'docsall',
-                    initial: true,
-                    text: 'Tous les entretiens',
-                    value: "all",
-                    color:"",
-                    click:()=>{this.setDocsFilterE("all")},
-                    label: { color: '', empty: true, circular: true },
-                },
-                {
-                    key: 'docsmissing',
-                    initial: false,
-                    text: 'Documents manquants',
-                    value: "missingDocs",
-                    color:"red",
-                    click:()=>{this.setDocsFilterE("missingDocs")},
-                    label: { color: 'red', empty: true, circular: true }
-                }
-            ]
-        },
-        fromControlFilterInfosE:{
+        originFilterInfos:{
             icon:"clipboard check",            
             options:[
                 {
@@ -190,15 +188,31 @@ export class ExportEntretiens extends Component {
                     text: 'Tous les entretiens',
                     value: "all",
                     color:"",
-                    click:()=>{this.setFromControlFilterE("all")},
+                    click:()=>{this.setOriginFilter("all")},
                     label: { color: '', empty: true, circular: true },
+                },{
+                    key: 'mandatoryAndPreventive',
+                    initial: false,
+                    text: 'Entretiens provenant de contrôles',
+                    value: "mandatoryAndPreventive",
+                    color:"blue",
+                    click:()=>{this.setOriginFilter("mandatoryAndPreventive")},
+                    label: { color: 'blue', empty: true, circular: true }
+                },{
+                    key: 'mandatory',
+                    initial: false,
+                    text: 'Entretiens provenant de contrôles obligatoires',
+                    value: "mandatory",
+                    color:"blue",
+                    click:()=>{this.setOriginFilter("mandatory")},
+                    label: { color: 'blue', empty: true, circular: true }
                 },{
                     key: 'preventive',
                     initial: false,
-                    text: 'Entretiens préventifs',
+                    text: 'Entretiens provenant de contrôles préventifs',
                     value: "preventive",
                     color:"blue",
-                    click:()=>{this.setFromControlFilterE("preventive")},
+                    click:()=>{this.setOriginFilter("preventive")},
                     label: { color: 'blue', empty: true, circular: true }
                 },{
                     key: 'curative',
@@ -206,51 +220,52 @@ export class ExportEntretiens extends Component {
                     text: 'Entretiens curatifs',
                     value: "curative",
                     color:"orange",
-                    click:()=>{this.setFromControlFilterE("curative")},
+                    click:()=>{this.setOriginFilter("curative")},
                     label: { color: 'orange', empty: true, circular: true }
                 }
             ]
         },
-        archiveFilterInfosE:{
-            icon:"archive",            
+        docsFilterInfos:{
+            icon:"folder open outline",            
             options:[
                 {
-                    key: 'archivefalse',
+                    key: 'docsall',
                     initial: true,
-                    text: 'Entretiens actuels',
-                    value: false,
-                    color:"green",
-                    click:()=>{this.switchArchiveFilterE(false)},
-                    label: { color: 'green', empty: true, circular: true },
+                    text: 'Tous les entretiens',
+                    value: "all",
+                    color:"",
+                    click:()=>{this.setDocsFilter("all")},
+                    label: { color: '', empty: true, circular: true },
                 },
                 {
-                    key: 'archivetrue',
+                    key: 'docsmissing',
                     initial: false,
-                    text: 'Entretiens archivés',
-                    value: true,
-                    color:"orange",
-                    click:()=>{this.switchArchiveFilterE(true)},
-                    label: { color: 'orange', empty: true, circular: true },
+                    text: 'Documents manquants',
+                    value: "missingDocs",
+                    color:"red",
+                    click:()=>{this.setDocsFilter("missingDocs")},
+                    label: { color: 'red', empty: true, circular: true }
                 }
             ]
         },
+        selectedColumns:[],
         availableColumns:[
             {key:"soc",active:false,colOrder:-1,label:"Propriétaire",access:(e)=>e.societe.name},
-            {key:"ope",active:false,colOrder:-1,label:"Opérationnel à",access:(e)=>{
-                if(e.vehicle.shared){
-                    return(e.vehicle.sharedTo.name)
-                }else{
-                    return(e.vehicle.societe.name)
-                }
-            }},
+            {key:"ope",active:false,colOrder:-1,label:"Opérationnel à",access:(e)=>(e.vehicle.shared ? e.vehicle.sharedTo.name : e.vehicle.societe.name)},
             {key:"reg",active:false,colOrder:-1,label:"Immatriculation",access:(e)=>e.vehicle.registration},
             {key:"brd",active:false,colOrder:-1,label:"Marque du véhicule",access:(e)=>e.vehicle.brand.name},
             {key:"mod",active:false,colOrder:-1,label:"Modèle du véhicule",access:(e)=>e.vehicle.model.name},
+            {key:"erg",active:false,colOrder:-1,label:"Energie",access:(e)=>e.vehicle.energy.name},
             {key:"kms",active:false,colOrder:-1,label:"Kilométrage",access:(e)=>e.vehicle.km},
-            {key:"typ",active:false,colOrder:-1,label:"Type",access:(e)=>(e.fromControl ? "PRÉVENTIF" : "CURATIF")},
-            {key:"ctr",active:false,colOrder:-1,label:"Nom du contrôle",access:(e)=>(e.fromControl ? e.control.equipementDescription.name : "-")},
-            {key:"ttl",active:false,colOrder:-1,label:"Titre",access:(e)=>e.title},
-            {key:"arc",active:false,colOrder:-1,label:"Archivé",access:(e)=>e.archived}
+            {key:"typ",active:false,colOrder:-1,label:"Type",access:(e)=>e.type},
+            {key:"sta",active:false,colOrder:-1,label:"Status",access:(e)=>e.status},
+            {key:"org",active:false,colOrder:-1,label:"Origine",access:(e)=>(e.originNature._id ? originNature.name : originControl.name)},
+            {key:"tim",active:false,colOrder:-1,label:"Temps passé",access:(e)=>e.time},
+            {key:"kaf",active:false,colOrder:-1,label:"Kilométrage à la réalisation",access:(e)=>e.kmAtFinish},
+            {key:"cst",active:false,colOrder:-1,label:"Coût des pièces",access:(e)=>e.piecesQty.reduce((a,b)=>a + (b.piece.prixHT*b.qty),0)},
+            {key:"fin",active:false,colOrder:-1,label:"Fiche d'intervention",access:(e)=>(e.ficheInter._id ? "OUI":"NON")},
+            {key:"dat",active:false,colOrder:-1,label:"Date de réalisation",access:(e)=>e.occurenceDate},
+            {key:"usr",active:false,colOrder:-1,label:"Affecté à",access:(e)=>(e.user._id ? e.user.lastname + " " + e.user.firstname : "")}
         ],
         addExportTemplateQuery : gql`
             mutation addExportTemplate($name:String!,$type:String!,$scope:String!,$columns:String!){
@@ -281,7 +296,7 @@ export class ExportEntretiens extends Component {
         let exp = [];
         this.state.entretiensFiltered.map(v=>{
             let aEntretien = {};
-            this.state.availableColumns.filter(c=>c.active).sort((a,b)=>a.colOrder-b.colOrder).map(c=>{
+            this.state.selectedColumns.sort((a,b)=>a.colOrder-b.colOrder).map(c=>{
                 aEntretien[c.label] = c.access(v);
             })
             exp.push(aEntretien)
@@ -314,6 +329,38 @@ export class ExportEntretiens extends Component {
           [e.target.name]:e.target.value
         });
     }
+    handleDragEnd = result => {
+        const { destination, source, draggableId} = result;
+        let cols = Array.from(this.state.availableColumns)
+        let moving = cols.filter(c=>c.key == draggableId)[0]
+        let scols = []
+        if(
+            !destination ||
+            destination.droppableId == source.droppableId && destination.index == source.index ||
+            destination.droppableId == source.droppableId && moving.active == false
+        ){return}
+        if(destination.droppableId != source.droppableId){
+            if(moving.active){
+                moving.active = false;
+                moving.colOrder = - 1;
+                cols.filter(c=>c.active).sort((a,b)=>a-b).forEach((c,i)=>{c.colOrder = i})
+            }else{
+                moving.active = true;
+                moving.colOrder = cols.filter(c=>c.active).length - 1;
+            }
+        }
+        if(moving.active && destination.index != source.index){
+            scols = Array.from(this.state.selectedColumns)
+            if(destination.droppableId == source.droppableId){
+                scols.splice(source.index,1)
+            }
+            scols.splice(destination.index,0,moving)
+            scols = scols.map((c,i)=>Object.assign(c,{colOrder:i}))
+        }else{
+            scols = cols.filter(c=>c.active)
+        }
+        this.setState({availableColumns:cols,selectedColumns:scols})
+    }
     onTemplateSelected = (e, { value }) => {
         let selectedTemplate = this.state.exportTemplatesRaw.filter(et=>et._id == value)[0];
         selectedTemplate.columns = selectedTemplate.columns.map(et=>{return({key:et.key,colOrder:et.colOrder,label:this.state.availableColumns.filter(c=>c.key == et.key)[0].label})})
@@ -325,61 +372,28 @@ export class ExportEntretiens extends Component {
     setStep = step => {
         this.setState({step:step})
     }
-    selectColumn = key => {
-        let cols = this.state.availableColumns
-        cols.filter(c=>c.key == key)[0].active = true;
-        cols.filter(c=>c.key == key)[0].colOrder = cols.filter(c=>c.active).length - 1;
-        this.setState({availableColumns:cols})
-    }
-    unselectColumn = key => {
-        let cols = this.state.availableColumns
-        cols.filter(c=>c.key == key)[0].active = false;
-        cols.filter(c=>c.key == key)[0].colOrder = - 1;
-        cols.filter(c=>c.active).sort((a,b)=>a-b).forEach((c,i)=>{c.colOrder = i})
-        this.setState({availableColumns:cols})
-    }
-    columnUp = key => {
-        let cols = this.state.availableColumns
-        let newI = cols.filter(c=>c.key == key)[0].colOrder - 1;
-        cols.filter(c=>c.colOrder == newI)[0].colOrder = cols.filter(c=>c.key == key)[0].colOrder
-        cols.filter(c=>c.key == key)[0].colOrder = newI
-        this.setState({availableColumns:cols})
-    }
-    columnDown = key => {
-        let cols = this.state.availableColumns
-        let newI = cols.filter(c=>c.key == key)[0].colOrder + 1;
-        cols.filter(c=>c.colOrder == newI)[0].colOrder = cols.filter(c=>c.key == key)[0].colOrder
-        cols.filter(c=>c.key == key)[0].colOrder = newI
-        this.setState({availableColumns:cols})
-    }
     //===ENTRETIENS FILTERS===
-    switchArchiveFilterE = value => {
+    setStatusFilter = value => {
         this.setState({
-            archiveFilterE:value
+            statusFilter:value
         })
         this.loadEntretiens();
     }
-    setOrderStatusFilterE = value => {
+    setDocsFilter = value => {
         this.setState({
-            orderStatusFilterE:value
+            docsFilter:value
         })
         this.loadEntretiens();
     }
-    setDocsFilterE = value => {
+    setOriginFilter = value => {
         this.setState({
-            docsFilterE:value
+            originFilter:value
         })
         this.loadEntretiens();
     }
-    setFromControlFilterE = value => {
-        this.setState({
-            fromControlFilterE:value
-        })
-        this.loadEntretiens();
-    }
-    resetAllE = () => {
+    resetAll = () => {
         let filterNewValues = {};
-        this.state.filtersE.forEach(f=>{
+        this.state.filters.forEach(f=>{
             filterNewValues[f.filter] = this.state[f.infos].options.filter(o=>o.initial)[0].value
         })
         this.setState(filterNewValues);
@@ -389,10 +403,10 @@ export class ExportEntretiens extends Component {
     /*DB READ AND WRITE*/
     loadEntretiens = () => {
         this.props.client.query({
-            query:this.state.entretiensQuery,
+            query:this.state.entretiensFullQuery,
             fetchPolicy:"network-only"
         }).then(({data})=>{
-            let entretiens = data.entretiens;
+            let entretiens = data.entretiensFull;
             if(!this.props.user.isAdmin || this.props.user.visibility != "noidthisisgroupvisibility" || this.props.societeFilter != "noidthisisgroupvisibility"){
                 entretiens = entretiens.filter(e =>{
                     return (e.vehicle.societe._id == this.props.societeFilter || e.vehicle.sharedTo._id == this.props.societeFilter)
@@ -408,40 +422,25 @@ export class ExportEntretiens extends Component {
     applyEntretiensFilter = () => {
         let entretiensFiltered = JSON.parse(JSON.stringify(this.state.entretiensRaw));
         if(entretiensFiltered.length != 0){
-            entretiensFiltered = entretiensFiltered.filter(e =>
-                e.archived == this.state.archiveFilterE
-            );
-            if(this.state.orderStatusFilterE != "all"){
-                if(this.state.orderStatusFilterE == "ready"){
-                    entretiensFiltered = entretiensFiltered.filter(e =>{
-                        if(e.commandes.filter(c=>c.status != 3).length == 0){
-                            return true;
-                        }else{
-                            return false;
-                        }
-                    })  
+            if(this.state.statusFilter != "all"){
+                if(this.state.statusFilter == "waiting"){
+                    entretiensFiltered = entretiensFiltered.filter(e =>{return e.status == 0})  
                 }
-                if(this.state.orderStatusFilterE == "waiting"){
-                    entretiensFiltered = entretiensFiltered.filter(e =>{
-                        if(e.commandes.filter(c=>c.status == 2).length > 0){
-                            return true;
-                        }else{
-                            return false;
-                        }
-                    })
+                if(this.state.statusFilter == "open"){
+                    entretiensFiltered = entretiensFiltered.filter(e =>{return e.status < 3})
                 }
-                if(this.state.orderStatusFilterE == "toDo"){
-                    entretiensFiltered = entretiensFiltered.filter(e =>{
-                        if(e.commandes.filter(c=>c.status == 1).length > 0){
-                            return true;
-                        }else{
-                            return false;
-                        }
-                    })
+                if(this.state.statusFilter == "affected"){
+                    entretiensFiltered = entretiensFiltered.filter(e =>{return e.status == 1})
+                }
+                if(this.state.statusFilter == "done"){
+                    entretiensFiltered = entretiensFiltered.filter(e =>{return e.status == 2})
+                }
+                if(this.state.statusFilter == "closed"){
+                    entretiensFiltered = entretiensFiltered.filter(e =>{return e.status == 3})
                 }
             }
             entretiensFiltered = entretiensFiltered.filter(e =>{
-                if(this.state.docsFilterE == "all"){
+                if(this.state.docsFilter == "all"){
                     return true
                 }else{
                     if(e.ficheInter._id == ""){
@@ -452,22 +451,20 @@ export class ExportEntretiens extends Component {
                 }}
             )
             entretiensFiltered = entretiensFiltered.filter(e =>{
-                if(this.state.fromControlFilterE == "all"){
+                if(this.state.originFilter == "all"){
                     return true
                 }else{
-                    if(this.state.fromControlFilterE == "preventive"){
-                        if(e.fromControl){
-                            return true
-                        }else{
-                            return false
-                        }
+                    if(this.state.originFilter == "mandatory"){
+                        return e.type == "obli"
                     }
-                    if(this.state.fromControlFilterE == "curative"){
-                        if(e.fromControl){
-                            return false
-                        }else{
-                            return true
-                        }
+                    if(this.state.originFilter == "mandatoryAndPreventive"){
+                        return e.type == "obli" || e.type == "prev"
+                    }
+                    if(this.state.originFilter == "preventive"){
+                        return e.type == "prev"
+                    }
+                    if(this.state.originFilter == "curative"){
+                        return e.type == "cura"
                     }
                 }}
             )
@@ -491,7 +488,7 @@ export class ExportEntretiens extends Component {
         })
     }
     saveExportTemplate = () => {
-        let columns = this.state.availableColumns.filter(x=>x.active).sort((a,b)=> a.colOrder - b.colOrder).map(c=>{return({colOrder:c.colOrder,key:c.key})});
+        let columns = this.state.selectedColumns.sort((a,b)=> a.colOrder - b.colOrder).map(c=>{return({colOrder:c.colOrder,key:c.key})});
         this.props.client.mutate({
             mutation:this.state.addExportTemplateQuery,
             variables:{
@@ -522,7 +519,7 @@ export class ExportEntretiens extends Component {
             availableColumns.filter(ac=>ac.key == sc.key)[0].active = true
             availableColumns.filter(ac=>ac.key == sc.key)[0].colOrder = sc.colOrder
         })
-        this.setState({openLoadExportTemplate:false,availableColumns:availableColumns})
+        this.setState({openLoadExportTemplate:false,availableColumns:availableColumns,selectedColumns:availableColumns.filter(c=>c.active)})
     }
     
     /*CONTENT GETTERS*/
@@ -530,28 +527,35 @@ export class ExportEntretiens extends Component {
         return (
             <div style={{margin:"0",display:"grid",gridTemplateRows:"auto 1fr"}}>
                 <Header as="h2" textAlign="center">Colonnes disponibles</Header>
-                <div style={{placeSelf:"stretch",overflowY:"scroll"}}>
-                    <Table striped celled color="red" compact="very">
-                        <Table.Header>
-                            <Table.Row>
-                                <Table.HeaderCell textAlign="center">Colonne</Table.HeaderCell>
-                                <Table.HeaderCell textAlign="center">Actions</Table.HeaderCell>
-                            </Table.Row>
-                        </Table.Header>
-                        <Table.Body>
-                            {this.state.availableColumns.filter(x=>!x.active).map(c=>{
+                <Droppable droppableId="availableList">
+                    {(provided)=>(
+                        <div
+                            style={{placeSelf:"stretch",overflowY:"scroll",paddingRight:"16px"}}
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                        >
+                            {this.state.availableColumns.filter(x=>!x.active).map((c,i)=>{
                                 return(
-                                    <Table.Row>
-                                        <Table.Cell>{c.label}</Table.Cell>
-                                        <Table.Cell collapsing textAlign="center">
-                                            <Button color="green" size="small" icon="plus" onClick={()=>this.selectColumn(c.key)}/>
-                                        </Table.Cell>
-                                    </Table.Row>
+                                    <Draggable key={c.key} draggableId={c.key} index={i}>
+                                        {(provided)=>(
+                                            <div
+                                                style={{justifySelf:"stretch"}}
+                                                {...provided.draggableProps}
+                                                {...provided.dragHandleProps}
+                                                ref={provided.innerRef}
+                                            >
+                                                <Segment style={{marginBottom:"12px"}}>
+                                                    <p>{c.label}</p>
+                                                </Segment>
+                                            </div>
+                                        )}
+                                    </Draggable>
                                 )
                             })}
-                        </Table.Body>
-                    </Table>
-                </div>
+                            {provided.placeholder}
+                        </div>
+                    )}
+                </Droppable>
             </div>
         )
     }
@@ -559,32 +563,36 @@ export class ExportEntretiens extends Component {
         return (
             <div style={{margin:"0",display:"grid",gridTemplateRows:"auto 1fr"}}>
                 <Header as="h2" textAlign="center">Colonnes selectionnées</Header>
-                <div style={{placeSelf:"stretch",overflowY:"scroll"}}>
-                    <Table striped celled color="green" compact="very">
-                        <Table.Header>
-                            <Table.Row>
-                                <Table.HeaderCell textAlign="center">Ordre</Table.HeaderCell>
-                                <Table.HeaderCell textAlign="center">Colonne</Table.HeaderCell>
-                                <Table.HeaderCell textAlign="center">Actions</Table.HeaderCell>
-                            </Table.Row>
-                        </Table.Header>
-                        <Table.Body>
-                            {this.state.availableColumns.filter(x=>x.active).sort((a,b)=> a.colOrder - b.colOrder).map((c,i)=>{
+                <Droppable droppableId="selectedList">
+                    {(provided)=>(
+                        <div
+                            style={{placeSelf:"stretch",overflowY:"scroll",paddingRight:"16px"}}
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                        >
+                            {this.state.selectedColumns.sort((a,b)=> a.colOrder - b.colOrder).map((c,i)=>{
                                 return(
-                                    <Table.Row>
-                                        <Table.Cell textAlign="center">#{c.colOrder+1}</Table.Cell>
-                                        <Table.Cell>{c.label}</Table.Cell>
-                                        <Table.Cell collapsing textAlign="center">
-                                            <Button color="blue" size="small" icon="arrow up" onClick={()=>this.columnUp(c.key)} disabled={i == 0}/>
-                                            <Button color="blue" size="small" icon="arrow down" onClick={()=>this.columnDown(c.key)} disabled={i == this.state.availableColumns.filter(x=>x.active).length-1}/>
-                                            <Button color="red" size="small" icon="cancel" style={{marginLeft:"12px"}} onClick={()=>this.unselectColumn(c.key)}/>
-                                        </Table.Cell>
-                                    </Table.Row>
+                                    <Draggable key={c.key} draggableId={c.key} index={i}>
+                                        {(provided)=>(
+                                            <div
+                                                style={{justifySelf:"stretch"}}
+                                                {...provided.draggableProps}
+                                                {...provided.dragHandleProps}
+                                                ref={provided.innerRef}
+                                            >
+                                                <Segment.Group style={{marginBottom:"12px",display:"grid",gridTemplateColumns:"40px 1fr"}} horizontal>
+                                                    <Segment color="grey"><p>{c.colOrder}</p></Segment>
+                                                    <Segment color="green"><p>{c.label}</p></Segment>
+                                                </Segment.Group>
+                                            </div>
+                                        )}
+                                    </Draggable>
                                 )
                             })}
-                        </Table.Body>
-                    </Table>
-                </div>
+                            {provided.placeholder}
+                        </div>
+                    )}
+                </Droppable>
             </div>
         )
     }
@@ -592,8 +600,8 @@ export class ExportEntretiens extends Component {
         if(this.state.step == "filters"){
             return(
                 <div style={{display:"grid",gridTemplateRows:"auto 1fr auto",gridGap:"24px",placeSelf:"stretch",gridColumnEnd:"span 3"}}>
-                    <CustomFilterSegment resetAll={this.resetAllE} style={{placeSelf:"stretch",gridRowStart:"1"}}>
-                        {this.state.filtersE.map(f=>{
+                    <CustomFilterSegment resetAll={this.resetAll} style={{placeSelf:"stretch",gridRowStart:"1"}}>
+                        {this.state.filters.map(f=>{
                             return(
                                 <CustomFilter key={f.infos} infos={this.state[f.infos]} active={this.state[f.filter]}/>
                             )
@@ -601,13 +609,14 @@ export class ExportEntretiens extends Component {
                     </CustomFilterSegment>
                     <div>
                         <p style={{fontSize:"1.4rem"}}>Les entretiens exportés dans le fichier Excel répondront à ces critères :</p>
-                        {this.state.filtersE.map(f=>{
+                        {this.state.filters.map(f=>{
                             return(
                                 <Message
                                     key={this.state[f["infos"]].icon+"key"}
-                                    color={this.state[f["infos"]].options.filter(o=>o.value == this.state[f["filter"]])[0].color}>
-                                        <Icon size="big" name={this.state[f["infos"]].icon}/>
-                                        <strong>{this.state[f["infos"]].options.filter(o=>o.value == this.state[f["filter"]])[0].text}</strong>
+                                    color={this.state[f["infos"]].options.filter(o=>o.value == this.state[f["filter"]])[0].color}
+                                >
+                                    <Icon size="big" name={this.state[f["infos"]].icon}/>
+                                    <strong>{this.state[f["infos"]].options.filter(o=>o.value == this.state[f["filter"]])[0].text}</strong>
                                 </Message>
                             )
                         })}
@@ -628,9 +637,11 @@ export class ExportEntretiens extends Component {
         if(this.state.step == "columns"){
             return(
                 <div style={{display:"grid",gridTemplateColumns:"1fr auto 1fr",gridTemplateRows:"minmax(0,1fr) auto",gridGap:"24px",placeSelf:"stretch",gridColumnEnd:"span 3"}}>
-                    {this.getAvailableTable()}
-                    <Icon name="arrows alternate horizontal" size="huge" disabled style={{marginTop:"64px"}}/>
-                    {this.getSelectedTable()}
+                    <DragDropContext onDragEnd={this.handleDragEnd}>
+                        {this.getAvailableTable()}
+                        <Icon name="arrows alternate horizontal" size="huge" disabled style={{placeSelf:"center"}}/>
+                        {this.getSelectedTable()}
+                    </DragDropContext>
                     <div style={{gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"auto 1fr auto",gridGap:"16px"}}>
                         <Button icon="angle double left" labelPosition="left" size="big" style={{justifySelf:"center",gridColumnStart:"1"}} disabled={this.state.entretiensFiltered.length == 0} onClick={()=>this.setStep("filters")} content="Retour aux filtres"/>
                         <Message icon style={{margin:"0"}}>

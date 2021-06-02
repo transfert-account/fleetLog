@@ -29,6 +29,7 @@ type Note{
 
 extend type Query{
     entretiens : [Entretien]
+    entretiensFull : [Entretien]
     entretien(_id:String!) : Entretien
     unaffectedEntretiens : [Entretien]
     entretiensOfTheDay(date:String!) : [Entretien]

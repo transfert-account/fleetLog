@@ -1,6 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import { UserContext } from '../../contexts/UserContext';
-import { Button, Icon, Header, Message, Table, Modal, Form, Input, Dropdown } from 'semantic-ui-react';
+import { Button, Icon, Header, Message, Table, Modal, Form, Input, Dropdown, Segment } from 'semantic-ui-react';
+
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 import ExportMenu from '../molecules/ExportMenu';
 import CustomFilterSegment from '../molecules/CustomFilterSegment';
@@ -76,6 +78,7 @@ export class ExportSinistres extends Component {
         openLoadExportTemplate:false,
         openSaveExportTemplate:false,
         newTemplateName:"",
+
         //===ACCIDENTS FILTERS===
         constatFilter:"all",
         statusFilter:"all",
@@ -269,6 +272,7 @@ export class ExportSinistres extends Component {
                 }
             ]
         },
+        selectedColumns:[],
         availableColumns:[
             {key:"soc",active:false,colOrder:-1,label:"Propriétaire",access:(a)=>a.vehicle.societe.name},
             {key:"ope",active:false,colOrder:-1,label:"Opérationnel à",access:(a)=>{
@@ -338,7 +342,7 @@ export class ExportSinistres extends Component {
         let exp = [];
         this.state.accidentsFiltered.map(v=>{
             let aAccident = {};
-            this.state.availableColumns.filter(c=>c.active).sort((a,b)=>a.colOrder-b.colOrder).map(c=>{
+            this.state.selectedColumns.sort((a,b)=>a.colOrder-b.colOrder).map(c=>{
                 aAccident[c.label] = c.access(v);
             })
             exp.push(aAccident)
@@ -371,6 +375,38 @@ export class ExportSinistres extends Component {
           [e.target.name]:e.target.value
         });
     }
+    handleDragEnd = result => {
+        const { destination, source, draggableId} = result;
+        let cols = Array.from(this.state.availableColumns)
+        let moving = cols.filter(c=>c.key == draggableId)[0]
+        let scols = []
+        if(
+            !destination ||
+            destination.droppableId == source.droppableId && destination.index == source.index ||
+            destination.droppableId == source.droppableId && moving.active == false
+        ){return}
+        if(destination.droppableId != source.droppableId){
+            if(moving.active){
+                moving.active = false;
+                moving.colOrder = - 1;
+                cols.filter(c=>c.active).sort((a,b)=>a-b).forEach((c,i)=>{c.colOrder = i})
+            }else{
+                moving.active = true;
+                moving.colOrder = cols.filter(c=>c.active).length - 1;
+            }
+        }
+        if(moving.active && destination.index != source.index){
+            scols = Array.from(this.state.selectedColumns)
+            if(destination.droppableId == source.droppableId){
+                scols.splice(source.index,1)
+            }
+            scols.splice(destination.index,0,moving)
+            scols = scols.map((c,i)=>Object.assign(c,{colOrder:i}))
+        }else{
+            scols = cols.filter(c=>c.active)
+        }
+        this.setState({availableColumns:cols,selectedColumns:scols})
+    }
     onTemplateSelected = (e, { value }) => {
         let selectedTemplate = this.state.exportTemplatesRaw.filter(et=>et._id == value)[0];
         selectedTemplate.columns = selectedTemplate.columns.map(et=>{return({key:et.key,colOrder:et.colOrder,label:this.state.availableColumns.filter(c=>c.key == et.key)[0].label})})
@@ -381,33 +417,6 @@ export class ExportSinistres extends Component {
     }
     setStep = step => {
         this.setState({step:step})
-    }
-    selectColumn = key => {
-        let cols = this.state.availableColumns
-        cols.filter(c=>c.key == key)[0].active = true;
-        cols.filter(c=>c.key == key)[0].colOrder = cols.filter(c=>c.active).length - 1;
-        this.setState({availableColumns:cols})
-    }
-    unselectColumn = key => {
-        let cols = this.state.availableColumns
-        cols.filter(c=>c.key == key)[0].active = false;
-        cols.filter(c=>c.key == key)[0].colOrder = - 1;
-        cols.filter(c=>c.active).sort((a,b)=>a-b).forEach((c,i)=>{c.colOrder = i})
-        this.setState({availableColumns:cols})
-    }
-    columnUp = key => {
-        let cols = this.state.availableColumns
-        let newI = cols.filter(c=>c.key == key)[0].colOrder - 1;
-        cols.filter(c=>c.colOrder == newI)[0].colOrder = cols.filter(c=>c.key == key)[0].colOrder
-        cols.filter(c=>c.key == key)[0].colOrder = newI
-        this.setState({availableColumns:cols})
-    }
-    columnDown = key => {
-        let cols = this.state.availableColumns
-        let newI = cols.filter(c=>c.key == key)[0].colOrder + 1;
-        cols.filter(c=>c.colOrder == newI)[0].colOrder = cols.filter(c=>c.key == key)[0].colOrder
-        cols.filter(c=>c.key == key)[0].colOrder = newI
-        this.setState({availableColumns:cols})
     }
     //===ACCIDENTS FILTERS===
     switchConstatFilter = value => {
@@ -508,7 +517,7 @@ export class ExportSinistres extends Component {
         })
     }
     saveExportTemplate = () => {
-        let columns = this.state.availableColumns.filter(x=>x.active).sort((a,b)=> a.colOrder - b.colOrder).map(c=>{return({colOrder:c.colOrder,key:c.key})});
+        let columns = this.state.selectedColumns.sort((a,b)=> a.colOrder - b.colOrder).map(c=>{return({colOrder:c.colOrder,key:c.key})});
         this.props.client.mutate({
             mutation:this.state.addExportTemplateQuery,
             variables:{
@@ -539,7 +548,7 @@ export class ExportSinistres extends Component {
             availableColumns.filter(ac=>ac.key == sc.key)[0].active = true
             availableColumns.filter(ac=>ac.key == sc.key)[0].colOrder = sc.colOrder
         })
-        this.setState({openLoadExportTemplate:false,availableColumns:availableColumns})
+        this.setState({openLoadExportTemplate:false,availableColumns:availableColumns,selectedColumns:availableColumns.filter(c=>c.active)})
     }
     
     /*CONTENT GETTERS*/
@@ -547,28 +556,35 @@ export class ExportSinistres extends Component {
         return (
             <div style={{margin:"0",display:"grid",gridTemplateRows:"auto 1fr"}}>
                 <Header as="h2" textAlign="center">Colonnes disponibles</Header>
-                <div style={{placeSelf:"stretch",overflowY:"scroll"}}>
-                    <Table striped celled color="red" compact="very">
-                        <Table.Header>
-                            <Table.Row>
-                                <Table.HeaderCell textAlign="center">Colonne</Table.HeaderCell>
-                                <Table.HeaderCell textAlign="center">Actions</Table.HeaderCell>
-                            </Table.Row>
-                        </Table.Header>
-                        <Table.Body>
-                            {this.state.availableColumns.filter(x=>!x.active).map(c=>{
+                <Droppable droppableId="availableList">
+                    {(provided)=>(
+                        <div
+                            style={{placeSelf:"stretch",overflowY:"scroll",paddingRight:"16px"}}
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                        >
+                            {this.state.availableColumns.filter(x=>!x.active).map((c,i)=>{
                                 return(
-                                    <Table.Row>
-                                        <Table.Cell>{c.label}</Table.Cell>
-                                        <Table.Cell collapsing textAlign="center">
-                                            <Button color="green" size="small" icon="plus" onClick={()=>this.selectColumn(c.key)}/>
-                                        </Table.Cell>
-                                    </Table.Row>
+                                    <Draggable key={c.key} draggableId={c.key} index={i}>
+                                        {(provided)=>(
+                                            <div
+                                                style={{justifySelf:"stretch"}}
+                                                {...provided.draggableProps}
+                                                {...provided.dragHandleProps}
+                                                ref={provided.innerRef}
+                                            >
+                                                <Segment style={{marginBottom:"12px"}}>
+                                                    <p>{c.label}</p>
+                                                </Segment>
+                                            </div>
+                                        )}
+                                    </Draggable>
                                 )
                             })}
-                        </Table.Body>
-                    </Table>
-                </div>
+                            {provided.placeholder}
+                        </div>
+                    )}
+                </Droppable>
             </div>
         )
     }
@@ -576,32 +592,36 @@ export class ExportSinistres extends Component {
         return (
             <div style={{margin:"0",display:"grid",gridTemplateRows:"auto 1fr"}}>
                 <Header as="h2" textAlign="center">Colonnes selectionnées</Header>
-                <div style={{placeSelf:"stretch",overflowY:"scroll"}}>
-                    <Table striped celled color="green" compact="very">
-                        <Table.Header>
-                            <Table.Row>
-                                <Table.HeaderCell textAlign="center">Ordre</Table.HeaderCell>
-                                <Table.HeaderCell textAlign="center">Colonne</Table.HeaderCell>
-                                <Table.HeaderCell textAlign="center">Actions</Table.HeaderCell>
-                            </Table.Row>
-                        </Table.Header>
-                        <Table.Body>
-                            {this.state.availableColumns.filter(x=>x.active).sort((a,b)=> a.colOrder - b.colOrder).map((c,i)=>{
+                <Droppable droppableId="selectedList">
+                    {(provided)=>(
+                        <div
+                            style={{placeSelf:"stretch",overflowY:"scroll",paddingRight:"16px"}}
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                        >
+                            {this.state.selectedColumns.sort((a,b)=> a.colOrder - b.colOrder).map((c,i)=>{
                                 return(
-                                    <Table.Row>
-                                        <Table.Cell textAlign="center">#{c.colOrder+1}</Table.Cell>
-                                        <Table.Cell>{c.label}</Table.Cell>
-                                        <Table.Cell collapsing textAlign="center">
-                                            <Button color="blue" size="small" icon="arrow up" onClick={()=>this.columnUp(c.key)} disabled={i == 0}/>
-                                            <Button color="blue" size="small" icon="arrow down" onClick={()=>this.columnDown(c.key)} disabled={i == this.state.availableColumns.filter(x=>x.active).length-1}/>
-                                            <Button color="red" size="small" icon="cancel" style={{marginLeft:"12px"}} onClick={()=>this.unselectColumn(c.key)}/>
-                                        </Table.Cell>
-                                    </Table.Row>
+                                    <Draggable key={c.key} draggableId={c.key} index={i}>
+                                        {(provided)=>(
+                                            <div
+                                                style={{justifySelf:"stretch"}}
+                                                {...provided.draggableProps}
+                                                {...provided.dragHandleProps}
+                                                ref={provided.innerRef}
+                                            >
+                                                <Segment.Group style={{marginBottom:"12px",display:"grid",gridTemplateColumns:"40px 1fr"}} horizontal>
+                                                    <Segment color="grey"><p>{c.colOrder}</p></Segment>
+                                                    <Segment color="green"><p>{c.label}</p></Segment>
+                                                </Segment.Group>
+                                            </div>
+                                        )}
+                                    </Draggable>
                                 )
                             })}
-                        </Table.Body>
-                    </Table>
-                </div>
+                            {provided.placeholder}
+                        </div>
+                    )}
+                </Droppable>
             </div>
         )
     }
@@ -645,9 +665,11 @@ export class ExportSinistres extends Component {
         if(this.state.step == "columns"){
             return(
                 <div style={{display:"grid",gridTemplateColumns:"1fr auto 1fr",gridTemplateRows:"minmax(0,1fr) auto",gridGap:"24px",placeSelf:"stretch",gridColumnEnd:"span 3"}}>
-                    {this.getAvailableTable()}
-                    <Icon name="arrows alternate horizontal" size="huge" disabled style={{marginTop:"64px"}}/>
-                    {this.getSelectedTable()}
+                    <DragDropContext onDragEnd={this.handleDragEnd}>
+                        {this.getAvailableTable()}
+                        <Icon name="arrows alternate horizontal" size="huge" disabled style={{placeSelf:"center"}}/>
+                        {this.getSelectedTable()}
+                    </DragDropContext>
                     <div style={{gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"auto 1fr auto",gridGap:"16px"}}>
                         <Button icon="angle double left" labelPosition="left" size="big" style={{justifySelf:"center",gridColumnStart:"1"}} disabled={this.state.accidentsFiltered.length == 0} onClick={()=>this.setStep("filters")} content="Retour aux filtres"/>
                         <Message icon style={{margin:"0"}}>

@@ -18,7 +18,7 @@ export default {
             if(user._id){
                 try{
                     //NEW
-                    /*Vehicles.update(
+                    Vehicles.update(
                         {},{
                             $set:{
                                 obli:[],
@@ -26,8 +26,8 @@ export default {
                             }
                         },
                         {multi:true}
-                    );*/
-                    //Batiments.remove({});
+                    );
+                    Batiments.remove({});
 
 
 

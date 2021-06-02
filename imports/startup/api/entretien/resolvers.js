@@ -147,6 +147,14 @@ export default {
             });
             return entretiens;
         },
+        entretiensFull(obj, args,{user}){
+            let entretiens = ENTRETIENS(user);
+            entretiens.forEach(e => {
+                affectEntretienFullData(e);
+                affectUserData(e);
+            });
+            return entretiens;
+        },
         entretiensOfTheDay(obj, {date},{user}){
             let entretiens = ENTRETIENS(user).filter(e=>moment(e.occurenceDate,"DD/MM/YYYY").isSame(moment(date,"DD/MM/YYYY"), 'day'))
             entretiens.forEach((e,i) => {

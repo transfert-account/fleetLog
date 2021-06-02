@@ -1,6 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import { UserContext } from '../../contexts/UserContext';
-import { Button, Icon, Header, Message, Table, Modal, Form, Input, Dropdown } from 'semantic-ui-react';
+import { Button, Icon, Header, Message, Table, Modal, Form, Input, Dropdown, Segment } from 'semantic-ui-react';
+
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 import ExportMenu from '../molecules/ExportMenu';
 import CustomFilterSegment from '../molecules/CustomFilterSegment';
@@ -80,27 +82,27 @@ export class ExportVehicles extends Component {
         openSaveExportTemplate:false,
         newTemplateName:"",
         //===VEHICLES FILTERS===
-        archiveFilterV:false,
-        reportLateFilterV:"all",
-        docsFilterV:"all",
-        financeFilterV:"all",
-        sharedFilterV:false,
-        filtersV:[
+        archiveFilter:false,
+        reportLateFilter:"all",
+        docsFilter:"all",
+        financeFilter:"all",
+        sharedFilter:false,
+        filters:[
             {
                 infos:"financeFilterInfosV",
-                filter:"financeFilterV"
+                filter:"financeFilter"
             },{
                 infos:"sharedFilterInfosV",
-                filter:"sharedFilterV"
+                filter:"sharedFilter"
             },{
                 infos:"reportLateFilterInfosV",
-                filter:"reportLateFilterV"
+                filter:"reportLateFilter"
             },{
                 infos:"docsFilterInfosV",
-                filter:"docsFilterV"
+                filter:"docsFilter"
             },{
                 infos:"archiveFilterInfosV",
-                filter:"archiveFilterV"
+                filter:"archiveFilter"
             }
         ],
         financeFilterInfosV:{
@@ -112,7 +114,7 @@ export class ExportVehicles extends Component {
                     text: 'Tous les véhicules',
                     value: "all",
                     color:"",
-                    click:()=>{this.setFinanceFilterV("all")},
+                    click:()=>{this.setFinanceFilter("all")},
                     label: { color: '', empty: true, circular: true },
                 },
                 {
@@ -121,7 +123,7 @@ export class ExportVehicles extends Component {
                     text: 'Infos de financement manquantes',
                     value: "missing",
                     color:"red",
-                    click:()=>{this.setFinanceFilterV("missing")},
+                    click:()=>{this.setFinanceFilter("missing")},
                     label: { color: 'red', empty: true, circular: true },
                 },
                 {
@@ -130,7 +132,7 @@ export class ExportVehicles extends Component {
                     text: 'Infos de financement complètes',
                     value: "complete",
                     color:"blue",
-                    click:()=>{this.setFinanceFilterV("complete")},
+                    click:()=>{this.setFinanceFilter("complete")},
                     label: { color: 'blue', empty: true, circular: true },
                 }
             ]
@@ -144,7 +146,7 @@ export class ExportVehicles extends Component {
                     text: 'Tous les véhicules',
                     value: false,
                     color:"",
-                    click:()=>{this.setSharedFilterV(false)},
+                    click:()=>{this.setSharedFilter(false)},
                     label: { color: '', empty: true, circular: true },
                 },
                 {
@@ -153,7 +155,7 @@ export class ExportVehicles extends Component {
                     text: 'Véhicules en prêt',
                     value: true,
                     color:"teal",
-                    click:()=>{this.setSharedFilterV(true)},
+                    click:()=>{this.setSharedFilter(true)},
                     label: { color: 'teal', empty: true, circular: true }
                 }
             ]
@@ -167,7 +169,7 @@ export class ExportVehicles extends Component {
                     text: 'Tous les véhicules',
                     value: "all",
                     color:"",
-                    click:()=>{this.setReportLateFilterV("all")},
+                    click:()=>{this.setReportLateFilter("all")},
                     label: { color: '', empty: true, circular: true },
                 },
                 {
@@ -176,7 +178,7 @@ export class ExportVehicles extends Component {
                     text: 'Relevé > 9 jours',
                     value: "2w",
                     color:"orange",
-                    click:()=>{this.setReportLateFilterV("2w")},
+                    click:()=>{this.setReportLateFilter("2w")},
                     label: { color: 'orange', empty: true, circular: true },
                 },
                 {
@@ -185,7 +187,7 @@ export class ExportVehicles extends Component {
                     text: 'Relevé > 14 jours',
                     value: "4w",
                     color:"red",
-                    click:()=>{this.setReportLateFilterV("4w")},
+                    click:()=>{this.setReportLateFilter("4w")},
                     label: { color: 'red', empty: true, circular: true }
                 }
             ]
@@ -199,7 +201,7 @@ export class ExportVehicles extends Component {
                     text: 'Tous les véhicules',
                     value: "all",
                     color:"",
-                    click:()=>{this.setDocsFilterV("all")},
+                    click:()=>{this.setDocsFilter("all")},
                     label: { color: '', empty: true, circular: true },
                 },
                 {
@@ -208,7 +210,7 @@ export class ExportVehicles extends Component {
                     text: 'Documents manquants',
                     value: "missingDocs",
                     color:"red",
-                    click:()=>{this.setDocsFilterV("missingDocs")},
+                    click:()=>{this.setDocsFilter("missingDocs")},
                     label: { color: 'red', empty: true, circular: true }
                 }
             ]
@@ -222,7 +224,7 @@ export class ExportVehicles extends Component {
                     text: 'Véhicules actuels',
                     value: false,
                     color:"green",
-                    click:()=>{this.switchArchiveFilterV(false)},
+                    click:()=>{this.switchArchiveFilter(false)},
                     label: { color: 'green', empty: true, circular: true },
                 },
                 {
@@ -231,11 +233,12 @@ export class ExportVehicles extends Component {
                     text: 'Véhicules archivés',
                     value: true,
                     color:"orange",
-                    click:()=>{this.switchArchiveFilterV(true)},
+                    click:()=>{this.switchArchiveFilter(true)},
                     label: { color: 'orange', empty: true, circular: true },
                 }
             ]
         },
+        selectedColumns:[],
         availableColumns:[
             {key:"soc",active:false,colOrder:-1,label:"Propriétaire",access:(v)=>v.societe.name},
             {key:"ope",active:false,colOrder:-1,label:"Opérationnel à",access:(v)=>{
@@ -303,7 +306,7 @@ export class ExportVehicles extends Component {
         let exp = [];
         this.state.vehiclesFiltered.map(v=>{
             let aVehicle = {};
-            this.state.availableColumns.filter(c=>c.active).sort((a,b)=>a.colOrder-b.colOrder).map(c=>{
+            this.state.selectedColumns.sort((a,b)=>a.colOrder-b.colOrder).map(c=>{
                 aVehicle[c.label] = c.access(v);
             })
             exp.push(aVehicle)
@@ -336,6 +339,38 @@ export class ExportVehicles extends Component {
           [e.target.name]:e.target.value
         });
     }
+    handleDragEnd = result => {
+        const { destination, source, draggableId} = result;
+        let cols = Array.from(this.state.availableColumns)
+        let moving = cols.filter(c=>c.key == draggableId)[0]
+        let scols = []
+        if(
+            !destination ||
+            destination.droppableId == source.droppableId && destination.index == source.index ||
+            destination.droppableId == source.droppableId && moving.active == false
+        ){return}
+        if(destination.droppableId != source.droppableId){
+            if(moving.active){
+                moving.active = false;
+                moving.colOrder = - 1;
+                cols.filter(c=>c.active).sort((a,b)=>a-b).forEach((c,i)=>{c.colOrder = i})
+            }else{
+                moving.active = true;
+                moving.colOrder = cols.filter(c=>c.active).length - 1;
+            }
+        }
+        if(moving.active && destination.index != source.index){
+            scols = Array.from(this.state.selectedColumns)
+            if(destination.droppableId == source.droppableId){
+                scols.splice(source.index,1)
+            }
+            scols.splice(destination.index,0,moving)
+            scols = scols.map((c,i)=>Object.assign(c,{colOrder:i}))
+        }else{
+            scols = cols.filter(c=>c.active)
+        }
+        this.setState({availableColumns:cols,selectedColumns:scols})
+    }
     onTemplateSelected = (e, { value }) => {
         let selectedTemplate = this.state.exportTemplatesRaw.filter(et=>et._id == value)[0];
         selectedTemplate.columns = selectedTemplate.columns.map(et=>{return({key:et.key,colOrder:et.colOrder,label:this.state.availableColumns.filter(c=>c.key == et.key)[0].label})})
@@ -347,67 +382,40 @@ export class ExportVehicles extends Component {
     setStep = step => {
         this.setState({step:step})
     }
-    selectColumn = key => {
-        let cols = this.state.availableColumns
-        cols.filter(c=>c.key == key)[0].active = true;
-        cols.filter(c=>c.key == key)[0].colOrder = cols.filter(c=>c.active).length - 1;
-        this.setState({availableColumns:cols})
-    }
-    unselectColumn = key => {
-        let cols = this.state.availableColumns
-        cols.filter(c=>c.key == key)[0].active = false;
-        cols.filter(c=>c.key == key)[0].colOrder = - 1;
-        cols.filter(c=>c.active).sort((a,b)=>a-b).forEach((c,i)=>{c.colOrder = i})
-        this.setState({availableColumns:cols})
-    }
-    columnUp = key => {
-        let cols = this.state.availableColumns
-        let newI = cols.filter(c=>c.key == key)[0].colOrder - 1;
-        cols.filter(c=>c.colOrder == newI)[0].colOrder = cols.filter(c=>c.key == key)[0].colOrder
-        cols.filter(c=>c.key == key)[0].colOrder = newI
-        this.setState({availableColumns:cols})
-    }
-    columnDown = key => {
-        let cols = this.state.availableColumns
-        let newI = cols.filter(c=>c.key == key)[0].colOrder + 1;
-        cols.filter(c=>c.colOrder == newI)[0].colOrder = cols.filter(c=>c.key == key)[0].colOrder
-        cols.filter(c=>c.key == key)[0].colOrder = newI
-        this.setState({availableColumns:cols})
-    }
     //===VEHICLES FILTERS===
-    switchArchiveFilterV = value => {
+    switchArchiveFilter = value => {
         this.setState({
-            archiveFilterV:value
+            archiveFilter:value
         })
         this.loadVehicles();
     }
-    setFinanceFilterV = value => {
+    setFinanceFilter = value => {
         this.setState({
-            financeFilterV:value
+            financeFilter:value
         })
         this.loadVehicles();
     }
-    setReportLateFilterV = value => {
+    setReportLateFilter = value => {
         this.setState({
-            reportLateFilterV:value
+            reportLateFilter:value
         })
         this.loadVehicles();
     }
-    setDocsFilterV = value => {
+    setDocsFilter = value => {
         this.setState({
-            docsFilterV:value
+            docsFilter:value
         })
         this.loadVehicles();
     }
-    setSharedFilterV = value => {
+    setSharedFilter = value => {
         this.setState({
-            sharedFilterV:value
+            sharedFilter:value
         })
         this.loadVehicles();
     }
-    resetAllV = () => {
+    resetAll = () => {
         let filterNewValues = {};
-        this.state.filtersV.forEach(f=>{
+        this.state.filters.forEach(f=>{
             filterNewValues[f.filter] = this.state[f.infos].options.filter(o=>o.initial)[0].value
         })
         this.setState(filterNewValues);
@@ -437,17 +445,17 @@ export class ExportVehicles extends Component {
         let vehiclesFiltered = JSON.parse(JSON.stringify(this.state.vehiclesRaw));
         if(vehiclesFiltered.length != 0){
             vehiclesFiltered = vehiclesFiltered.filter(v =>
-                v.archived == this.state.archiveFilterV
+                v.archived == this.state.archiveFilter
             );
-            if(this.state.sharedFilterV){
+            if(this.state.sharedFilter){
                 vehiclesFiltered = vehiclesFiltered.filter(v => v.shared);
             }
             vehiclesFiltered = vehiclesFiltered.filter(v =>{
-                if(this.state.financeFilterV != "all"){
-                    if(this.state.financeFilterV == "missing"){
+                if(this.state.financeFilter != "all"){
+                    if(this.state.financeFilter == "missing"){
                         return !v.financialInfosComplete
                     }
-                    if(this.state.financeFilterV == "complete"){
+                    if(this.state.financeFilter == "complete"){
                         return v.financialInfosComplete
                     }
                 }else{
@@ -455,7 +463,7 @@ export class ExportVehicles extends Component {
                 }
             });
             vehiclesFiltered = vehiclesFiltered.filter(v =>{
-                if(this.state.docsFilterV == "all"){return true}else{
+                if(this.state.docsFilter == "all"){return true}else{
                     if(v.cg._id == "" || v.cv._id == ""){
                         return true
                     }else{
@@ -464,11 +472,11 @@ export class ExportVehicles extends Component {
                 }}
             )
             vehiclesFiltered = vehiclesFiltered.filter(v =>{
-                if(this.state.reportLateFilterV == "all"){
+                if(this.state.reportLateFilter == "all"){
                     return true
                 }else{
                     let days = parseInt(moment().diff(moment(v.lastKmUpdate, "DD/MM/YYYY"),'days'));
-                    if(this.state.reportLateFilterV == "2w"){
+                    if(this.state.reportLateFilter == "2w"){
                         if(days >= 9){
                             return true
                         }else{
@@ -503,7 +511,7 @@ export class ExportVehicles extends Component {
         })
     }
     saveExportTemplate = () => {
-        let columns = this.state.availableColumns.filter(x=>x.active).sort((a,b)=> a.colOrder - b.colOrder).map(c=>{return({colOrder:c.colOrder,key:c.key})});
+        let columns = this.state.selectedColumns.sort((a,b)=> a.colOrder - b.colOrder).map(c=>{return({colOrder:c.colOrder,key:c.key})});
         this.props.client.mutate({
             mutation:this.state.addExportTemplateQuery,
             variables:{
@@ -534,7 +542,7 @@ export class ExportVehicles extends Component {
             availableColumns.filter(ac=>ac.key == sc.key)[0].active = true
             availableColumns.filter(ac=>ac.key == sc.key)[0].colOrder = sc.colOrder
         })
-        this.setState({openLoadExportTemplate:false,availableColumns:availableColumns})
+        this.setState({openLoadExportTemplate:false,availableColumns:availableColumns,selectedColumns:availableColumns.filter(c=>c.active)})
     }
     
     /*CONTENT GETTERS*/
@@ -542,28 +550,35 @@ export class ExportVehicles extends Component {
         return (
             <div style={{margin:"0",display:"grid",gridTemplateRows:"auto 1fr"}}>
                 <Header as="h2" textAlign="center">Colonnes disponibles</Header>
-                <div style={{placeSelf:"stretch",overflowY:"scroll"}}>
-                    <Table striped celled color="red" compact="very">
-                        <Table.Header>
-                            <Table.Row>
-                                <Table.HeaderCell textAlign="center">Colonne</Table.HeaderCell>
-                                <Table.HeaderCell textAlign="center">Actions</Table.HeaderCell>
-                            </Table.Row>
-                        </Table.Header>
-                        <Table.Body>
-                            {this.state.availableColumns.filter(x=>!x.active).map(c=>{
+                <Droppable droppableId="availableList">
+                    {(provided)=>(
+                        <div
+                            style={{placeSelf:"stretch",overflowY:"scroll",paddingRight:"16px"}}
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                        >
+                            {this.state.availableColumns.filter(x=>!x.active).map((c,i)=>{
                                 return(
-                                    <Table.Row>
-                                        <Table.Cell>{c.label}</Table.Cell>
-                                        <Table.Cell collapsing textAlign="center">
-                                            <Button color="green" size="small" icon="plus" onClick={()=>this.selectColumn(c.key)}/>
-                                        </Table.Cell>
-                                    </Table.Row>
+                                    <Draggable key={c.key} draggableId={c.key} index={i}>
+                                        {(provided)=>(
+                                            <div
+                                                style={{justifySelf:"stretch"}}
+                                                {...provided.draggableProps}
+                                                {...provided.dragHandleProps}
+                                                ref={provided.innerRef}
+                                            >
+                                                <Segment style={{marginBottom:"12px"}}>
+                                                    <p>{c.label}</p>
+                                                </Segment>
+                                            </div>
+                                        )}
+                                    </Draggable>
                                 )
                             })}
-                        </Table.Body>
-                    </Table>
-                </div>
+                            {provided.placeholder}
+                        </div>
+                    )}
+                </Droppable>
             </div>
         )
     }
@@ -571,32 +586,36 @@ export class ExportVehicles extends Component {
         return (
             <div style={{margin:"0",display:"grid",gridTemplateRows:"auto 1fr"}}>
                 <Header as="h2" textAlign="center">Colonnes selectionnées</Header>
-                <div style={{placeSelf:"stretch",overflowY:"scroll"}}>
-                    <Table striped celled color="green" compact="very">
-                        <Table.Header>
-                            <Table.Row>
-                                <Table.HeaderCell textAlign="center">Ordre</Table.HeaderCell>
-                                <Table.HeaderCell textAlign="center">Colonne</Table.HeaderCell>
-                                <Table.HeaderCell textAlign="center">Actions</Table.HeaderCell>
-                            </Table.Row>
-                        </Table.Header>
-                        <Table.Body>
-                            {this.state.availableColumns.filter(x=>x.active).sort((a,b)=> a.colOrder - b.colOrder).map((c,i)=>{
+                <Droppable droppableId="selectedList">
+                    {(provided)=>(
+                        <div
+                            style={{placeSelf:"stretch",overflowY:"scroll",paddingRight:"16px"}}
+                            ref={provided.innerRef}
+                            {...provided.droppableProps}
+                        >
+                            {this.state.selectedColumns.sort((a,b)=> a.colOrder - b.colOrder).map((c,i)=>{
                                 return(
-                                    <Table.Row>
-                                        <Table.Cell textAlign="center">#{c.colOrder+1}</Table.Cell>
-                                        <Table.Cell>{c.label}</Table.Cell>
-                                        <Table.Cell collapsing textAlign="center">
-                                            <Button color="blue" size="small" icon="arrow up" onClick={()=>this.columnUp(c.key)} disabled={i == 0}/>
-                                            <Button color="blue" size="small" icon="arrow down" onClick={()=>this.columnDown(c.key)} disabled={i == this.state.availableColumns.filter(x=>x.active).length-1}/>
-                                            <Button color="red" size="small" icon="cancel" style={{marginLeft:"12px"}} onClick={()=>this.unselectColumn(c.key)}/>
-                                        </Table.Cell>
-                                    </Table.Row>
+                                    <Draggable key={c.key} draggableId={c.key} index={i}>
+                                        {(provided)=>(
+                                            <div
+                                                style={{justifySelf:"stretch"}}
+                                                {...provided.draggableProps}
+                                                {...provided.dragHandleProps}
+                                                ref={provided.innerRef}
+                                            >
+                                                <Segment.Group style={{marginBottom:"12px",display:"grid",gridTemplateColumns:"40px 1fr"}} horizontal>
+                                                    <Segment color="grey"><p>{c.colOrder}</p></Segment>
+                                                    <Segment color="green"><p>{c.label}</p></Segment>
+                                                </Segment.Group>
+                                            </div>
+                                        )}
+                                    </Draggable>
                                 )
                             })}
-                        </Table.Body>
-                    </Table>
-                </div>
+                            {provided.placeholder}
+                        </div>
+                    )}
+                </Droppable>
             </div>
         )
     }
@@ -604,8 +623,8 @@ export class ExportVehicles extends Component {
         if(this.state.step == "filters"){
             return(
                 <div style={{display:"grid",gridTemplateRows:"auto 1fr auto",gridGap:"24px",placeSelf:"stretch",gridColumnEnd:"span 3"}}>
-                    <CustomFilterSegment resetAll={this.resetAllV} style={{placeSelf:"stretch",gridRowStart:"1"}}>
-                        {this.state.filtersV.map(f=>{
+                    <CustomFilterSegment resetAll={this.resetAll} style={{placeSelf:"stretch",gridRowStart:"1"}}>
+                        {this.state.filters.map(f=>{
                             return(
                                 <CustomFilter key={f.infos} infos={this.state[f.infos]} active={this.state[f.filter]}/>
                             )
@@ -613,7 +632,7 @@ export class ExportVehicles extends Component {
                     </CustomFilterSegment>
                     <div>
                         <p style={{fontSize:"1.4rem"}}>Les véhicules exportés dans le fichier Excel répondront à ces critères :</p>
-                        {this.state.filtersV.map(f=>{
+                        {this.state.filters.map(f=>{
                             return(
                                 <Message
                                     key={this.state[f["infos"]].icon+"key"}
@@ -640,9 +659,11 @@ export class ExportVehicles extends Component {
         if(this.state.step == "columns"){
             return(
                 <div style={{display:"grid",gridTemplateColumns:"1fr auto 1fr",gridTemplateRows:"minmax(0,1fr) auto",gridGap:"24px",placeSelf:"stretch",gridColumnEnd:"span 3"}}>
-                    {this.getAvailableTable()}
-                    <Icon name="arrows alternate horizontal" size="huge" disabled style={{marginTop:"64px"}}/>
-                    {this.getSelectedTable()}
+                    <DragDropContext onDragEnd={this.handleDragEnd}>
+                        {this.getAvailableTable()}
+                        <Icon name="arrows alternate horizontal" size="huge" disabled style={{marginTop:"64px"}}/>
+                        {this.getSelectedTable()}
+                    </DragDropContext>
                     <div style={{gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"auto 1fr auto",gridGap:"16px"}}>
                         <Button icon="angle double left" labelPosition="left" size="big" style={{justifySelf:"center",gridColumnStart:"1"}} disabled={this.state.vehiclesFiltered.length == 0} onClick={()=>this.setStep("filters")} content="Retour aux filtres"/>
                         <Message icon style={{gridColumnStart:"2",margin:"0"}}>
