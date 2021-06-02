@@ -2064,8 +2064,8 @@ class Vehicle extends Component {
                         </Modal.Header>
                         <Modal.Content>
                             <Message color="red">
-                                Une occurence est déjà enregistré pour ce contrôle sur ce véhicule.
-                                Rendre le véhicule inéligible au contrôle aura pour effet de supprimer toutes informations concernant les précedents contrôles réalisés.
+                                Attention ! Une occurence est déjà enregistré pour ce contrôle sur ce véhicule.
+                                Confirmer provoquera la suppression des informations du dernier controle.
                             </Message>
                         </Modal.Content>
                         <Modal.Actions>

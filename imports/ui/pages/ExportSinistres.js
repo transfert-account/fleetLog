@@ -651,7 +651,7 @@ export class ExportSinistres extends Component {
                     </div>
                     <div style={{display:"grid",gridTemplateColumns:"1fr auto",gridGap:"16px"}}>
                         <Message icon style={{gridColumnStart:"1",margin:"0"}}>
-                            <Icon name='wrench'/>
+                            <Icon name='fire'/>
                             <Message.Content>
                                 <Message.Header>{this.state.accidentsFiltered.length} accidents chargés et filtrés</Message.Header>
                                 sur un total de {this.state.accidentsRaw.length} accidents

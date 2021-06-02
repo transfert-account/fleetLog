@@ -7,24 +7,24 @@ const bound = Meteor.bindEnvironment((callback) => {callback();});
 
 export default {
     getObli : () => [
-        {name:"Technique",key:"o1",unit:"km",frequency:"10000",alertUnit:"km",alert:"100"},
-        {name:"Hayon",key:"o2",unit:"m",frequency:"6",alertUnit:"d",alert:"21"},
-        {name:"Tachymètre",key:"o3",unit:"y",frequency:"4",alertUnit:"m",alert:"3"},
-        {name:"Po... TBD",key:"o4",unit:"km",frequency:"10000",alertUnit:"km",alert:"100"}
+        {name:"Technique",key:"o1",unit:"y",frequency:"2",alertUnit:"m",alert:"2"},
+        {name:"Hayon",key:"o2",unit:"m",frequency:"6",alertUnit:"m",alert:"1"},
+        {name:"Tachymètre",key:"o3",unit:"y",frequency:"2",alertUnit:"m",alert:"2"},
+        {name:"Pollution",key:"o4",unit:"y",frequency:"2",alertUnit:"m",alert:"2"}
     ],
     getPrev : () => [
-        {name:"Essuie glaces",key:"p1",unit:"km",frequency:"10000",alertUnit:"km",alert:"100"},
-        {name:"Batterie",key:"p2",unit:"m",frequency:"6",alertUnit:"km",alert:"100"},
-        {name:"Plaque",key:"p3",unit:"y",frequency:"4",alertUnit:"km",alert:"100"},
-        {name:"Disque",key:"p4",unit:"km",frequency:"10000",alertUnit:"km",alert:"100"},
-        {name:"Pneumatiques",key:"p5",unit:"km",frequency:"10000",alertUnit:"km",alert:"100"},
-        {name:"Bougies",key:"p6",unit:"km",frequency:"10000",alertUnit:"km",alert:"100"},
-        {name:"Ammortisseurs",key:"p7",unit:"km",frequency:"10000",alertUnit:"km",alert:"100"},
-        {name:"Filtre habitacle",key:"p8",unit:"km",frequency:"10000",alertUnit:"km",alert:"100"},
-        {name:"Filtre gazoil",key:"p9",unit:"km",frequency:"10000",alertUnit:"km",alert:"100"},
-        {name:"Filtre à air",key:"p10",unit:"km",frequency:"10000",alertUnit:"km",alert:"100"},
-        {name:"Filtre à huile",key:"p11",unit:"km",frequency:"10000",alertUnit:"km",alert:"100"},
-        {name:"Liquide de frein",key:"p12",unit:"km",frequency:"10000",alertUnit:"km",alert:"100"}
+        {name:"Essuie glaces",key:"p1",unit:"m",frequency:"6",alertUnit:"1",alert:"1"},
+        {name:"Batterie",key:"p2",unit:"y",frequency:"4",alertUnit:"m",alert:"4"},
+        {name:"Plaque",key:"p3",unit:"km",frequency:"40000",alertUnit:"km",alert:"4000"},
+        {name:"Disque",key:"p4",unit:"km",frequency:"80000",alertUnit:"km",alert:"8000"},
+        {name:"Pneumatiques (!)",key:"p5",unit:"km",frequency:"20000",alertUnit:"km",alert:"2000"},
+        {name:"Bougies",key:"p6",unit:"km",frequency:"60000",alertUnit:"km",alert:"6000"},
+        {name:"Ammortisseurs",key:"p7",unit:"km",frequency:"80000",alertUnit:"km",alert:"8000"},
+        {name:"Filtre habitacle",key:"p8",unit:"km",frequency:"40000",alertUnit:"km",alert:"4000"},
+        {name:"Filtre gazoil",key:"p9",unit:"km",frequency:"40000",alertUnit:"km",alert:"4000"},
+        {name:"Filtre à air",key:"p10",unit:"km",frequency:"40000",alertUnit:"km",alert:"4000"},
+        {name:"Filtre à huile",key:"p11",unit:"km",frequency:"30000",alertUnit:"km",alert:"3000"},
+        {name:"Liquide de frein",key:"p12",unit:"y",frequency:"2",alertUnit:"m",alert:"2"}
     ],
     getSignedDocumentDownloadLink: async (_id) => {
         return new Promise((resolve, reject) => {

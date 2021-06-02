@@ -1,6 +1,6 @@
 import Vehicles from '../vehicle/vehicles';
 import Locations from '../location/locations';
-import VehicleArchiveJustifications from '../vehicleArchiveJustification/vehicleArchiveJustifications';
+import ExportTemplates from '../exportTemplate/ExportTemplates';
 import Licences from '../licence/licences';
 import Entretiens from '../entretien/entretiens';
 import Batiments from '../batimentControl/batimentControls';
@@ -27,8 +27,13 @@ export default {
                         },
                         {multi:true}
                     );
-                    Batiments.remove({});
-
+                    Entretiens.remove({});
+                    Locations.update({},{$set:{archiveJustification:""}});
+                    ExportTemplates.remove({type:"entretien"})
+                    let cs = ["batiments","equipements","equipementDescription","commandes"];
+                    cs.map(c=> {
+                        new Mongo.Collection(c).remove({})
+                    })
 
 
 

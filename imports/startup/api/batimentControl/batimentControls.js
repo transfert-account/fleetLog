@@ -2,7 +2,7 @@ import { Mongo } from 'meteor/mongo';
 import Societes from '../societe/societes';
 
 export const BatimentControls = new Mongo.Collection("batimentControls");
-export const Batiments = new Mongo.Collection("batiments");//TO DELETE ONCE EMPTY IN PROD
+
 
 export const BATIMENT_CONTROLS = user =>{
     if(new RegExp("^[0-9a-fA-F]{24}$").test(user.settings.visibility)){

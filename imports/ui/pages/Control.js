@@ -189,7 +189,7 @@ export class Control extends Component {
             <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto 1fr auto",gridTemplateColumns:"auto auto 1fr"}}>
                 <EntretienMenu active={(this.props.match.params.key[0] == "o" ? "obli" : "prev")}/>
                 <BigIconButton icon="angle double left" color="black" onClick={()=>{this.props.history.push("/entretien/controls/"+(this.props.match.params.key[0] == "o" ? "obli" : "prev"));}} tooltip={"Retour aux contrôles" + (this.props.match.params.key[0] == "o" ? " obligatoires" : " préventifs")}/>
-                <Message style={{margin:"0"}} icon='wrench' header={this.state.controlRaw.name} content={"à éffectuer tous les " + this.state.controlRaw.frequency + " " + this.formatUnit(this.state.controlRaw.unit)} />
+                <Message style={{margin:"0"}} icon='wrench' header={this.state.controlRaw.name} content={"à effectuer tous les " + this.state.controlRaw.frequency + " " + this.formatUnit(this.state.controlRaw.unit)} />
                 <div style={{gridRowStart:"2",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                     <Table compact celled>
                         <Table.Header>
