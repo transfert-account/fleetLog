@@ -19,7 +19,7 @@
     "babel-plugin-import-graphql": "^2.6.2",
     "bcrypt": "^3.0.8",
     "body-parser": "^1.18.3",
-    "chart.js": "^2.9.3",
+    "chart.js": "^2.9.4",
     "chroma-js": "^2.0.3",
     "cors": "^2.8.5",
     "coverflow-react": "^0.1.28",
