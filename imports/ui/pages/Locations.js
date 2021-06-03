@@ -346,7 +346,7 @@ class Locations extends Component {
         this.setState({
             archiveFilter:v
         })
-        this.loadVehicles();
+        this.loadLocations();
     }
     setReportLateFilter = value => {
         this.setState({

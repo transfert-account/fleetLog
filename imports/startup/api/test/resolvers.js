@@ -17,8 +17,9 @@ export default {
         testThis(obj, args,{user}){
             if(user._id){
                 try{
+                    Locations.update({},{$set:{archiveJustification:""}});
                     //NEW
-                    Vehicles.update(
+                    /*Vehicles.update(
                         {},{
                             $set:{
                                 obli:[],
@@ -28,12 +29,11 @@ export default {
                         {multi:true}
                     );
                     Entretiens.remove({});
-                    Locations.update({},{$set:{archiveJustification:""}});
                     ExportTemplates.remove({type:"entretien"})
                     let cs = ["batiments","equipements","equipementDescription","commandes"];
                     cs.map(c=> {
                         new Mongo.Collection(c).remove({})
-                    })
+                    })*/
 
 
 

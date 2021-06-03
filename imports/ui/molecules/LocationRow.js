@@ -93,7 +93,7 @@ class LocationRow extends Component {
                     {this.getLastReportCell()}
                     {this.getDescCell()}
                     <Table.Cell textAlign="center">{this.props.rental.volume.meterCube+" m²"}</Table.Cell>
-                    <Table.Cell textAlign="center">{this.props.rental.payload} t.</Table.Cell>
+                    <Table.Cell textAlign="center">{this.props.rental.payload} kg</Table.Cell>
                     {this.getEndDateLabel()}
                     <Table.Cell textAlign="center">{this.props.rental.fournisseur.name}</Table.Cell>
                     {this.getDocsStates()}

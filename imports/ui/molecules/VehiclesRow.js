@@ -179,7 +179,7 @@ class VehiclesRow extends Component {
                     {this.getLastReportCell()}
                     {this.getDescCell()}
                     {this.getVolumeCell()}
-                    <Table.Cell textAlign="center">{this.props.vehicle.payload} t.</Table.Cell>
+                    <Table.Cell textAlign="center">{this.props.vehicle.payload} kg</Table.Cell>
                     {this.getFinancialInfosCompleteCell()}
                     {this.getPayementProgress()}
                     {this.getDocsStates()}
@@ -196,7 +196,7 @@ class VehiclesRow extends Component {
                     {this.getLastReportCell()}
                     {this.getLoaderCell()}
                     {this.getLoaderCell()}
-                    <Table.Cell textAlign="center">{this.props.vehicle.payload} t.</Table.Cell>
+                    <Table.Cell textAlign="center">{this.props.vehicle.payload} kg</Table.Cell>
                     {this.getLoaderCell()}
                     {this.getLoaderCell()}
                     {this.getLoaderCell()}

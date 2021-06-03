@@ -120,11 +120,15 @@ export default {
             return location;
         },
         locations(obj, args, {user}){
-            let locations = LOCATIONS(user)
-            locations.forEach(l => {
-                affectLocationData(l)
-            });
-            return locations;
+            try {
+                let locations = LOCATIONS(user)
+                locations.forEach(l => {
+                    affectLocationData(l)
+                });
+                return locations;
+            } catch (error) {
+                console.log(error)
+            }
         }
     },
     Mutation:{
