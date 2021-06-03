@@ -58,7 +58,7 @@ const affectLocationData = location => {
     }else{
         location.societe = {_id:""};
     }
-    if(location.archived && location.archiveJustification.length > 0){
+    if(location.archived && location.archiveJustification != null && location.archiveJustification.length > 0){
         location.archiveJustification = LocationArchiveJustifications.findOne({_id:new Mongo.ObjectID(location.archiveJustification)});
     }else{
         location.archiveJustification = {_id:""};
