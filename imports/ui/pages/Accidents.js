@@ -826,12 +826,12 @@ class Accidents extends Component {
   }
   goToYear = (m,y) => {
     this.setState({selectedMonth:m,selectedYear:y,loadAccidentsReduceOfYear:true,loadingMonth:true});
-    this.loadAgglomeratedAccidents(m);
+    this.loadAgglomeratedAccidents(m,y);
     this.loadAccidentsReduceOfYear(y);
   }
   goToMonth = m => {
     this.setState({selectedMonth:m,loadingMonth:true});
-    this.loadAgglomeratedAccidents(m);
+    this.loadAgglomeratedAccidents(m,this.state.selectedYear);
   }
   /*FILTERS HANDLERS*/
   handleFilter = e =>{
@@ -897,11 +897,11 @@ class Accidents extends Component {
         })
     })
   }
-  loadAgglomeratedAccidents = m => {
+  loadAgglomeratedAccidents = (m,y) => {
     this.props.client.query({
         query:this.state.accidentsByMonthByVehicleQuery,
         variables:{
-          year:this.state.selectedYear,
+          year:y,
           month:m
         },
         fetchPolicy:"network-only"
@@ -939,7 +939,7 @@ class Accidents extends Component {
         if(qrm.status){
           this.props.toast({message:qrm.message,type:"success"});
           this.loadAccidents();
-          this.loadAgglomeratedAccidents(this.state.selectedMonth);
+          this.loadAgglomeratedAccidents(this.state.selectedMonth,this.state.selectedYear);
           this.loadAccidentsReduceOfYear(this.state.selectedYear);
         }else{
           this.props.toast({message:qrm.message,type:"error"});
@@ -994,7 +994,7 @@ class Accidents extends Component {
   /*COMPONENTS LIFECYCLE*/
   componentDidMount = () => {
     this.loadAccidents();
-    this.loadAgglomeratedAccidents(this.state.selectedMonth);
+    this.loadAgglomeratedAccidents(this.state.selectedMonth,this.state.selectedYear);
     this.loadAccidentsReduceOfYear(this.state.selectedYear);
   }
   render() {
@@ -1008,7 +1008,7 @@ class Accidents extends Component {
           <Popup position="bottom center" trigger={
               <Button size="big" onClick={()=>{
                 this.setState({activePanel:"byMonth"});
-                this.loadAgglomeratedAccidents(this.state.selectedMonth);
+                this.loadAgglomeratedAccidents(this.state.selectedMonth,this.state.selectedYear);
                 this.loadAccidentsReduceOfYear(this.state.selectedYear);
               }} icon="calendar alternate outline"/>
           }>Accidents par véhicules agglomérés par mois</Popup>
