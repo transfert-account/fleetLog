@@ -1,11 +1,35 @@
+import Societes from '../societe/societes.js';
+import Vehicles, { VEHICLES } from '../vehicle/vehicles.js';
+import Locations from '../location/locations.js';
+import Entretiens from '../entretien/entretiens';
+import Accidents from '../accident/accidents.js';
+import Licences from '../licence/licences';
+
+import Documents from '../document/documents';
+
+import Brands from '../brand/brands.js';
+import Models from '../model/models.js';
+import Energies from '../energy/energies'
+import Volumes from '../volume/volumes.js';
+import Colors from '../color/colors.js';
+import Organisms from '../organism/organisms.js';
+import PayementTimes from '../payementTime/payementTimes';
+
+import VehicleArchiveJustifications from '../vehicleArchiveJustification/vehicleArchiveJustifications';
+import InterventionNature from '../interventionNature/interventionNatures';
+
 import AWS from 'aws-sdk';
 import moment from 'moment';
-import Documents from '../document/documents';
 import { Mongo } from 'meteor/mongo';
+import Functions from '../common/functions';
+
 
 const bound = Meteor.bindEnvironment((callback) => {callback();});
 
 export default {
+    ////////////////////////////////////
+    ///////// CONTROLS GETTER //////////
+    ////////////////////////////////////
     getObli : () => [
         {name:"Technique",key:"o1",unit:"y",frequency:"2",alertUnit:"m",alert:"2"},
         {name:"Hayon",key:"o2",unit:"m",frequency:"6",alertUnit:"m",alert:"1"},
@@ -26,6 +50,317 @@ export default {
         {name:"Filtre à huile",key:"p11",unit:"km",frequency:"30000",alertUnit:"km",alert:"3000"},
         {name:"Liquide de frein",key:"p12",unit:"y",frequency:"2",alertUnit:"m",alert:"2"}
     ],
+
+    ////////////////////////////////////
+    //// SINGLE DATA ASKER BY ID ///////
+    ////////////////////////////////////
+
+    //ACCIDENTS
+    ACCIDENT_REQUEST_VEHICLE_ROW_DATA : accident => {
+        REQUEST_VEHICLE_ROW_DATA(accident,"vehicle")
+    },
+    ACCIDENT_REQUEST_VEHICLE_FULL_DATA : accident => {
+        REQUEST_VEHICLE_FULL_DATA(accident,"vehicle")
+    },
+
+    ////////////////////////////////////
+    /////// MULTIPLE DATA ASKER ////////
+    ////////////////////////////////////
+
+    //VEHICULE
+    VEHICLE_REQUEST_ACCIDENT_LIST : vehicle => {
+        vehicle.accidents = Accidents.find({vehicle:vehicle._id._str}).fetch()
+    },
+    VEHICLE_REQUEST_ACCIDENT_LIST_IN_MONTH : (vehicle,month,year) => {
+        let acs = []
+        acs  = Accidents.find({vehicle:vehicle._id._str}).fetch();
+        acs = acs.filter(a=>parseInt(a.occurenceDate.split("/")[1]) == month && parseInt(a.occurenceDate.split("/")[2]) == year)
+        /*if(acs.length > 0){
+            console.log(vehicle.registration + " " + month.month.name + " " + acs.length)
+            console.log(acs.map(a=>a.occurenceDate))
+        }*/
+        return acs;
+    },
+
+    ////////////////////////////////////
+    /////////// DATA REQUEST ///////////
+    ////////////////////////////////////
+
+    //VEHICLE
+    REQUEST_VEHICLE_ROW_DATA : (obj,prop) => {
+        let v = Vehicles.findOne({_id:new Mongo.ObjectID(obj[prop])})
+        obj[prop] = AFFECT_VEHICLE_ROW_DATA(v)
+    },
+    REQUEST_VEHICLE_FULL_DATA : (obj,prop) => {
+        let v = Vehicles.findOne({_id:new Mongo.ObjectID(obj[prop])})
+        obj[prop] = AFFECT_VEHICLE_FULL_DATA(v)
+    },
+    //ACCIDENT
+    REQUEST_ACCIDENT_ROW_DATA : (obj,prop) => {
+        let v = Vehicles.findOne({_id:new Mongo.ObjectID(obj[prop])})
+        obj[prop] = AFFECT_ACCIDENT_ROW_DATA(v)
+    },
+    REQUEST_ACCIDENT_FULL_DATA : (obj,prop) => {
+        let v = Vehicles.findOne({_id:new Mongo.ObjectID(obj[prop])})
+        obj[prop] = AFFECT_ACCIDENT_FULL_DATA(v)
+    },
+    
+    ////////////////////////////////////
+    /////////// DATA AFFECT ////////////
+    ////////////////////////////////////
+
+    //VEHICLE
+    AFFECT_VEHICLE_MINIMAL_DATA : vehicle => {
+        try{
+            vehicle.lastKmUpdate = vehicle.kms[vehicle.kms.length-1].reportDate
+            vehicle.km = vehicle.kms[vehicle.kms.length-1].kmValue
+            if(vehicle.societe != null && vehicle.societe.length > 0){
+                vehicle.societe = Societes.findOne({_id:new Mongo.ObjectID(vehicle.societe)});
+            }else{
+                vehicle.societe = {_id:""};
+            }
+            if(vehicle.shared){
+                vehicle.sharedTo = Societes.findOne({_id:new Mongo.ObjectID(vehicle.sharedTo)});
+            }else{
+                vehicle.sharedTo = {_id:""};
+            }
+        }catch(e){
+            console.error(e)
+        }
+    },
+    AFFECT_VEHICLE_ROW_DATA : vehicle => {
+        try{
+            vehicle.lastKmUpdate = vehicle.kms[vehicle.kms.length-1].reportDate
+            vehicle.km = vehicle.kms[vehicle.kms.length-1].kmValue
+            if(vehicle.societe != null && vehicle.societe.length > 0){
+                vehicle.societe = Societes.findOne({_id:new Mongo.ObjectID(vehicle.societe)});
+            }else{
+                vehicle.societe = {_id:""};
+            }
+            if(vehicle.shared){
+                vehicle.sharedTo = Societes.findOne({_id:new Mongo.ObjectID(vehicle.sharedTo)});
+            }else{
+                vehicle.sharedTo = {_id:""};
+            }
+            if(vehicle.brand != null && vehicle.brand.length > 0){
+                vehicle.brand = Brands.findOne({_id:new Mongo.ObjectID(vehicle.brand)});
+            }else{
+                vehicle.brand = {_id:""};
+            }
+            if(vehicle.model != null && vehicle.model.length > 0){
+                vehicle.model = Models.findOne({_id:new Mongo.ObjectID(vehicle.model)});
+            }else{
+                vehicle.model = {_id:""};
+            }
+            if(vehicle.color != null && vehicle.color.length > 0){
+                vehicle.color = Colors.findOne({_id:new Mongo.ObjectID(vehicle.color)});
+            }else{
+                vehicle.color = {_id:""};
+            }
+            if(vehicle.volume != null && vehicle.volume.length > 0){
+                vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(vehicle.volume)});
+            }else{
+                vehicle.volume = {_id:""};
+            }
+            if(vehicle.energy != null && vehicle.energy.length > 0){
+                vehicle.energy = Energies.findOne({_id:new Mongo.ObjectID(vehicle.energy)});
+            }else{
+                vehicle.energy = {_id:""};
+            }
+            if(vehicle.cg != null && vehicle.cg.length > 0){
+                vehicle.cg = Documents.findOne({_id:new Mongo.ObjectID(vehicle.cg)});
+            }else{
+                vehicle.cg = {_id:""};
+            }
+            if(vehicle.cv != null && vehicle.cv.length > 0){
+                vehicle.cv = Documents.findOne({_id:new Mongo.ObjectID(vehicle.cv)});
+            }else{
+                vehicle.cv = {_id:""};
+            }
+            if(vehicle.crf != null && vehicle.crf.length > 0){
+                vehicle.crf = Documents.findOne({_id:new Mongo.ObjectID(vehicle.crf)});
+            }else{
+                vehicle.crf = {_id:""};
+            }
+            if(vehicle.ida != null && vehicle.ida.length > 0){
+                vehicle.ida = Documents.findOne({_id:new Mongo.ObjectID(vehicle.ida)});
+            }else{
+                vehicle.ida = {_id:""};
+            }
+            if(vehicle.scg != null && vehicle.scg.length > 0){
+                vehicle.scg = Documents.findOne({_id:new Mongo.ObjectID(vehicle.scg)});
+            }else{
+                vehicle.scg = {_id:""};
+            }
+        }catch(e){
+            console.error(e)
+        }
+    },
+    AFFECT_VEHICLE_FULL_DATA : vehicle => {
+        try{
+            vehicle.lastKmUpdate = vehicle.kms[vehicle.kms.length-1].reportDate
+            vehicle.km = vehicle.kms[vehicle.kms.length-1].kmValue
+            if(vehicle.brokenHistory == null || vehicle.brokenHistory.length == 0){
+                vehicle.brokenHistory = [];
+            }
+            if(vehicle.payementFormat == "CRB"){
+                vehicle.property = false
+            }else{
+                vehicle.property = true
+            }
+            if(vehicle.societe != null && vehicle.societe.length > 0){
+                vehicle.societe = Societes.findOne({_id:new Mongo.ObjectID(vehicle.societe)});
+            }else{
+                vehicle.societe = {_id:""};
+            }
+            if(vehicle.shared){
+                vehicle.sharedTo = Societes.findOne({_id:new Mongo.ObjectID(vehicle.sharedTo)});
+            }else{
+                vehicle.sharedTo = {_id:""};
+            }
+            if(vehicle.brand != null && vehicle.brand.length > 0){
+                vehicle.brand = Brands.findOne({_id:new Mongo.ObjectID(vehicle.brand)});
+            }else{
+                vehicle.brand = {_id:""};
+            }
+            if(vehicle.model != null && vehicle.model.length > 0){
+                vehicle.model = Models.findOne({_id:new Mongo.ObjectID(vehicle.model)});
+            }else{
+                vehicle.model = {_id:""};
+            }
+            if(vehicle.payementOrg != null && vehicle.payementOrg.length > 0){
+                vehicle.payementOrg = Organisms.findOne({_id:new Mongo.ObjectID(vehicle.payementOrg)});
+            }else{
+                vehicle.payementOrg = {_id:""};
+            }
+            if(vehicle.color != null && vehicle.color.length > 0){
+                vehicle.color = Colors.findOne({_id:new Mongo.ObjectID(vehicle.color)});
+            }else{
+                vehicle.color = {_id:""};
+            }
+            if(vehicle.volume != null && vehicle.volume.length > 0){
+                vehicle.volume = Volumes.findOne({_id:new Mongo.ObjectID(vehicle.volume)});
+            }else{
+                vehicle.volume = {_id:""};
+            }
+            if(vehicle.energy != null && vehicle.energy.length > 0){
+                vehicle.energy = Energies.findOne({_id:new Mongo.ObjectID(vehicle.energy)});
+            }else{
+                vehicle.energy = {_id:""};
+            }
+            if(vehicle.payementTime != null && vehicle.payementTime.length > 0){
+                vehicle.payementTime = PayementTimes.findOne({_id:new Mongo.ObjectID(vehicle.payementTime)});
+            }else{
+                vehicle.payementTime = {_id:""};
+            }
+            if(vehicle.archived && vehicle.archiveJustification.length > 0){
+                vehicle.archiveJustification = VehicleArchiveJustifications.findOne({_id:new Mongo.ObjectID(vehicle.archiveJustification)});
+            }else{
+                vehicle.archiveJustification = {_id:""};
+            }
+            if(vehicle.cg != null && vehicle.cg.length > 0){
+                vehicle.cg = Documents.findOne({_id:new Mongo.ObjectID(vehicle.cg)});
+            }else{
+                vehicle.cg = {_id:""};
+            }
+            if(vehicle.cv != null && vehicle.cv.length > 0){
+                vehicle.cv = Documents.findOne({_id:new Mongo.ObjectID(vehicle.cv)});
+            }else{
+                vehicle.cv = {_id:""};
+            }
+            if(vehicle.crf != null && vehicle.crf.length > 0){
+                vehicle.crf = Documents.findOne({_id:new Mongo.ObjectID(vehicle.crf)});
+            }else{
+                vehicle.crf = {_id:""};
+            }
+            if(vehicle.ida != null && vehicle.ida.length > 0){
+                vehicle.ida = Documents.findOne({_id:new Mongo.ObjectID(vehicle.ida)});
+            }else{
+                vehicle.ida = {_id:""};
+            }
+            if(vehicle.scg != null && vehicle.scg.length > 0){
+                vehicle.scg = Documents.findOne({_id:new Mongo.ObjectID(vehicle.scg)});
+            }else{
+                vehicle.scg = {_id:""};
+            }
+            if(
+                parseInt(vehicle.purchasePrice) > 0 &&
+                parseInt(vehicle.insurancePaid) > 0 &&
+                vehicle.payementBeginDate != "" &&
+                vehicle.payementEndDate != "" &&
+                vehicle.payementTime != "" &&
+                parseInt(vehicle.monthlyPayement) > 0 &&
+                vehicle.payementOrg != "" &&
+                vehicle.payementFormat != ""
+            ){
+                vehicle.financialInfosComplete = true;
+            }else{
+                vehicle.financialInfosComplete = false;
+            }
+        }catch(e){
+            console.error(e)
+        }
+    },
+    
+    //ACCIDENT
+    AFFECT_ACCIDENT_ROW_DATA : accident => {
+        if(accident.societe != null && accident.societe.length > 0){
+            accident.societe = Societes.findOne({_id:new Mongo.ObjectID(accident.societe)});
+        }else{
+            accident.societe = {_id:""};
+        }
+        if(accident.constat != null && accident.constat.length > 0){
+            accident.constat = Documents.findOne({_id:new Mongo.ObjectID(accident.constat)});
+        }else{
+            accident.constat = {_id:""};
+        }
+        if(accident.rapportExp != null && accident.rapportExp.length > 0){
+            accident.rapportExp = Documents.findOne({_id:new Mongo.ObjectID(accident.rapportExp)});
+        }else{
+            accident.rapportExp = {_id:""};
+        }
+        if(accident.facture != null && accident.facture.length > 0){
+            accident.facture = Documents.findOne({_id:new Mongo.ObjectID(accident.facture)});
+        }else{
+            accident.facture = {_id:""};
+        }
+        if(accident.questionary != null && accident.questionary.length > 0){
+            accident.questionary = Documents.findOne({_id:new Mongo.ObjectID(accident.questionary)});
+        }else{
+            accident.questionary = {_id:""};
+        }
+    },
+    AFFECT_ACCIDENT_FULL_DATA : accident => {
+        if(accident.societe != null && accident.societe.length > 0){
+            accident.societe = Societes.findOne({_id:new Mongo.ObjectID(accident.societe)});
+        }else{
+            accident.societe = {_id:""};
+        }
+        if(accident.constat != null && accident.constat.length > 0){
+            accident.constat = Documents.findOne({_id:new Mongo.ObjectID(accident.constat)});
+        }else{
+            accident.constat = {_id:""};
+        }
+        if(accident.rapportExp != null && accident.rapportExp.length > 0){
+            accident.rapportExp = Documents.findOne({_id:new Mongo.ObjectID(accident.rapportExp)});
+        }else{
+            accident.rapportExp = {_id:""};
+        }
+        if(accident.facture != null && accident.facture.length > 0){
+            accident.facture = Documents.findOne({_id:new Mongo.ObjectID(accident.facture)});
+        }else{
+            accident.facture = {_id:""};
+        }
+        if(accident.questionary != null && accident.questionary.length > 0){
+            accident.questionary = Documents.findOne({_id:new Mongo.ObjectID(accident.questionary)});
+        }else{
+            accident.questionary = {_id:""};
+        }
+    },
+
+    ////////////////////////////////////
+    //////// AMAZON S3 RELATED /////////
+    ////////////////////////////////////
     getSignedDocumentDownloadLink: async (_id) => {
         return new Promise((resolve, reject) => {
             try{

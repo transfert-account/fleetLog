@@ -32,9 +32,17 @@ type Field{
     answer:String
 }
 
+type AccidentsOfMonth{
+    monthIndex:Int!
+    nAccident:Int!
+}
+
 extend type Query{
     accident(_id:String!) : Accident
     accidents : [Accident]
+    vehiclesByAccidents : [Vehicle]
+    accidentsByMonthByVehicle (year:Int!,month:Int!): [Vehicle]
+    accidentsReduceOfYear (year:Int!):[AccidentsOfMonth]
 }
 
 extend type Mutation{

@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import { Table, Label, Progress, Popup } from 'semantic-ui-react';
+import { Table, Label, Popup } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 
 import ActionsGridCell from '../atoms/ActionsGridCell';
@@ -59,7 +59,7 @@ class AccidentRow extends Component {
         }else{
             if(val == 0){color="red"}
         }
-        return <Progress style={{margin:"0"}} color={color} value={val} total={24} progress="ratio"/>
+        return <Label style={{margin:"0"}} color={color}>{val}/24</Label>
     }
     getStatusLabel = () => {
         if(this.props.accident.status){

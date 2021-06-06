@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Input, Button, Table, Modal, Form } from 'semantic-ui-react';
+import { Input, Button, Table, Modal, Form, Segment, Popup, Menu, Label } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 
 import CustomFilterSegment from '../molecules/CustomFilterSegment';
@@ -12,10 +12,15 @@ import ModalDatePicker from '../atoms/ModalDatePicker';
 import CustomFilter from '../atoms/CustomFilter';
 
 import { gql } from 'apollo-server-express';
+import moment from 'moment';
 
 class Accidents extends Component {
 
   state={
+    loading:true,
+    selectedMonth:parseInt(moment().format("MM")),
+    selectedYear:parseInt(moment().format("YYYY")),
+    activePanel:"byMonth",
     accidentFilter:"",
     newVehicle:"",
     openDatePicker:false,
@@ -269,8 +274,147 @@ class Accidents extends Component {
     },
     openAddAccident:false,
     accidentsRaw:[],
-    vehicleAgglomeratedAccidents : () => {
+    accidentsAgglomeratedRaw:[],
+    accidents : () => {
       let displayed = Array.from(JSON.parse(JSON.stringify(this.state.accidentsRaw)));
+      if(this.props.user.isAdmin && this.props.user.visibility == "noidthisisgroupvisibility" && this.props.societeFilter != "noidthisisgroupvisibility"){
+        displayed = displayed.filter(a =>
+            a.societe._id == this.props.societeFilter
+        );
+      }
+      //ARCHIVE FILTER
+      displayed.forEach(vehicle => {
+        let accs = vehicle.accidents;
+        accs = accs.filter(a=>a.archived == this.state.archiveFilter)
+      });
+      //DOCS FILTER
+      displayed.forEach(vehicle => {
+        let accs = vehicle.accidents;
+        if(this.state.docsFilter == "all"){return true}else{
+          accs = accs.filter(a =>{
+            if(a.rapportExp._id == "" || a.constat._id == "" || a.facture._id == ""){
+              return true
+            }else{
+              return false
+            }
+          })
+        }
+        vehicle.accidents = accs;
+      });
+      //MISSING INFOS FILTER
+      displayed.forEach(vehicle => {
+        let accs = vehicle.accidents;
+        if(this.state.missingInfosFilter == "all"){return true}else{
+          accs = accs.filter(a=>{
+            let totUndef = 0;
+            if(a.reglementAssureur == "" || a.reglementAssureur == -1){totUndef++}
+            if(a.chargeSinistre == "" || a.chargeSinistre == -1){totUndef++}
+            if(a.montantInterne == "" || a.montantInterne == -1){totUndef++}
+            if(a.dateExpert == ""){totUndef++}
+            if(a.dateTravaux == ""){totUndef++}
+            if(this.state.missingInfosFilter == "full"){
+              return totUndef == 0;
+            }
+            if(this.state.missingInfosFilter == "some"){
+              return totUndef != 0
+            }
+          })
+        }
+        vehicle.accidents = accs;
+      });
+      //ANSWERS FILTER
+      displayed.forEach(vehicle => {
+        let accs = vehicle.accidents;
+        if(this.state.answersFilter == "all"){return true}else{
+          accs = accs.filter(a=>{
+            if(this.state.answersFilter == "full"){
+              return a.answers.filter(a=>a.status == "validated").length == 8;
+            }
+            if(this.state.answersFilter == "some"){
+              return a.answers.filter(a=>a.status == "validated").length != 8;
+            }
+          })
+        }
+        vehicle.accidents = accs;
+      });
+      //CONSTAT SENT
+      displayed.forEach(vehicle => {
+        let accs = vehicle.accidents;
+        if(this.state.constatSentFilter == "all"){return true}else{
+          accs = accs.filter(a =>{
+            if(a.constatSent){
+              return false
+            }else{
+              return true
+            }
+          });
+        }
+        vehicle.accidents = accs;
+      });
+      //RESPONSABILITE SENT
+      displayed.forEach(vehicle => {
+        let accs = vehicle.accidents;
+        if(this.state.responsabiliteFilter == "all"){return true}else{
+          accs = accs.filter(a =>{
+            if(this.state.responsabiliteFilter == "full"){
+              return a.responsabilite == 100;
+            }
+            if(this.state.responsabiliteFilter == "half"){
+              return a.responsabilite == 50;
+            }
+            if(this.state.responsabiliteFilter == "zero"){
+              return a.responsabilite == 0;
+            }
+            if(this.state.responsabiliteFilter == "todo"){
+              return a.responsabilite == -1;
+            }
+            return true;
+          });
+        }
+        vehicle.accidents = accs;
+      });
+      //STATUS SENT
+      displayed.forEach(vehicle => {
+        let accs = vehicle.accidents;
+        if(this.state.statusFilter == "all"){return true}else{
+          accs = accs.filter(a =>{
+            if(this.state.statusFilter == "true"){
+              return a.status == true;
+            }
+            if(this.state.statusFilter == "false"){
+              return a.status == false;
+            }
+          });
+        }
+        vehicle.accidents = accs;
+      });
+      if(this.state.accidentFilter.length>0){
+        displayed = displayed.filter(v =>
+          v.registration.toLowerCase().includes(this.state.accidentFilter.toLowerCase())
+        );
+      }
+      displayed = displayed.filter(v => v.accidents.length > 0);
+      if(displayed.length == 0){
+        return(
+          <Table>
+            <Table.Body>
+              <Table.Row key={"none"}>
+                <Table.Cell colSpan='10' textAlign="center">
+                  <p>Aucun accident ne correspond à ce filtre</p>
+                </Table.Cell>
+              </Table.Row>
+            </Table.Body>
+          </Table>
+        )
+      }
+      return displayed.map(v =>{
+        return(
+          <VehicleAgglomeratedAccidentsRow archiveFilter={this.state.archiveFilter} docsFilter={this.state.docsFilter} constatSentFilter={this.state.constatSentFilter} archiveFilter={this.state.archiveFilter} loadAccidents={this.loadAccidents} key={v._id} vehicle={v}/>
+        )
+      })
+    },
+    byMonthAccidents : () => {
+      let displayed = Array.from(this.state.accidentsAgglomeratedRaw);
       if(this.props.user.isAdmin && this.props.user.visibility == "noidthisisgroupvisibility" && this.props.societeFilter != "noidthisisgroupvisibility"){
         displayed = displayed.filter(a =>
             a.societe._id == this.props.societeFilter
@@ -514,9 +658,9 @@ class Accidents extends Component {
         }
       }
     `,
-    vehiclesByAccidentsQuery: gql`
-      query vehiclesByAccidents{
-        vehiclesByAccidents{
+    accidentsByMonthByVehicleQuery: gql`
+      query accidentsByMonthByVehicle($year:Int!,$month:Int!){
+        accidentsByMonthByVehicle(year:$year,month:$month){
           _id
           societe{
             _id
@@ -624,7 +768,30 @@ class Accidents extends Component {
           }
         }
       }
-    `
+    `,
+    accidentsReduceOfYearQuery: gql`
+      query accidentsReduceOfYear($year:Int!){
+        accidentsReduceOfYear(year:$year){
+          monthIndex
+          nAccident
+        }
+      }
+    `,
+    monthRaw:[
+      {name:"Janvier",nAccident:0},
+      {name:"Février",nAccident:0},
+      {name:"Mars",nAccident:0},
+      {name:"Avril",nAccident:0},
+      {name:"Mai",nAccident:0},
+      {name:"Juin",nAccident:0},
+      {name:"Juillet",nAccident:0},
+      {name:"Août",nAccident:0},
+      {name:"Septembre",nAccident:0},
+      {name:"Octobre",nAccident:0},
+      {name:"Novembre",nAccident:0},
+      {name:"Decembre",nAccident:0}
+    ],
+    months : () => this.state.monthRaw.map((m,i)=>{return {month:{name:m.name,nAccident:m.nAccident,label:parseInt(i+1).toString().padStart(2,"0")+"/"+this.state.selectedYear,month:i+1,year:this.state.selectedYear}}})
   }
   /*SHOW AND HIDE MODALS*/
   showAddAccident = () => {
@@ -656,6 +823,15 @@ class Accidents extends Component {
     this.setState({
       [this.state.datePickerTarget]:date.getDate().toString().padStart(2, '0')+"/"+parseInt(date.getMonth()+1).toString().padStart(2, '0')+"/"+date.getFullYear().toString().padStart(4, '0')
     })
+  }
+  goToYear = (m,y) => {
+    this.setState({selectedMonth:m,selectedYear:y,loadAccidentsReduceOfYear:true,loadingMonth:true});
+    this.loadAgglomeratedAccidents(m);
+    this.loadAccidentsReduceOfYear(y);
+  }
+  goToMonth = m => {
+    this.setState({selectedMonth:m,loadingMonth:true});
+    this.loadAgglomeratedAccidents(m);
   }
   /*FILTERS HANDLERS*/
   handleFilter = e =>{
@@ -721,6 +897,35 @@ class Accidents extends Component {
         })
     })
   }
+  loadAgglomeratedAccidents = m => {
+    this.props.client.query({
+        query:this.state.accidentsByMonthByVehicleQuery,
+        variables:{
+          year:this.state.selectedYear,
+          month:m
+        },
+        fetchPolicy:"network-only"
+    }).then(({data})=>{
+        this.setState({
+          loadingMonth:false,
+          accidentsAgglomeratedRaw:data.accidentsByMonthByVehicle
+        })
+    })
+  }
+  loadAccidentsReduceOfYear = y => {
+    this.props.client.query({
+        query:this.state.accidentsReduceOfYearQuery,
+        variables:{
+          year:y,
+        },
+        fetchPolicy:"network-only"
+    }).then(({data})=>{
+        this.setState({
+          loadingAccidentsReduce:false,
+          monthRaw:this.state.monthRaw.map((m,i)=>({name:m.name,nAccident:data.accidentsReduceOfYear.filter(n=>n.monthIndex == parseInt(i+1))[0].nAccident}))
+        })
+    })
+  }
   addAccident = () => {
     this.closeAddAccident()
     this.props.client.mutate({
@@ -734,6 +939,8 @@ class Accidents extends Component {
         if(qrm.status){
           this.props.toast({message:qrm.message,type:"success"});
           this.loadAccidents();
+          this.loadAgglomeratedAccidents(this.state.selectedMonth);
+          this.loadAccidentsReduceOfYear(this.state.selectedYear);
         }else{
           this.props.toast({message:qrm.message,type:"error"});
         }
@@ -741,9 +948,54 @@ class Accidents extends Component {
     })
   }
   /*CONTENT GETTERS*/
+  getActivePanel = () => {
+    if(this.state.activePanel == "all"){
+      return this.state.accidents()
+    }
+    if(this.state.activePanel == "byMonth"){
+      return this.getByMonthPanel()
+    }
+  }
+  getByMonthPanel = () => {
+    return (
+      <div style={{display :"grid",gridTemplateColumns:"auto 1fr",gridTemplateRows:"auto 1fr",gridGap:"32px"}}>
+        <div style={{gridColumnStart:"1",placeSelf:"stretch",display:"grid"}}>
+          <Button style={{placeSelf:"stretch"}} content={"Année " + parseInt(this.state.selectedYear - 1).toString()} onClick={()=>this.goToYear(12,this.state.selectedYear-1)}/>
+          <Menu size='big' pointing vertical style={{placeSelf:"stretch"}}>
+            {this.state.months().map(m=>{
+              return(
+                parseInt(moment().format("MM")) >= m.month.month && parseInt(moment().format("YYYY")) == m.month.year || parseInt(moment().format("YYYY")) >  m.month.year ?
+                  <Menu.Item 
+                    key={m.month.month+m.month.year} 
+                    color="blue"
+                    active={this.state.selectedMonth == m.month.month}
+                    onClick={()=>{this.goToMonth(m.month.month)}}
+                  >
+                    {m.month.name + " " + m.month.year}
+                    <Label color={m.month.nAccident == 0 ? "grey" : "orange"}>{m.month.nAccident}</Label>
+                  </Menu.Item>
+                :
+                  ""
+              )}
+            )}
+          </Menu>
+          {(this.state.selectedYear < parseInt(moment().format("YYYY")) ?
+              <Button style={{placeSelf:"stretch"}} content={"Année " + parseInt(this.state.selectedYear + 1).toString()} onClick={()=>this.goToYear(1,this.state.selectedYear+1)}/>
+              :
+              ""
+          )}
+        </div>
+        <div style={{gridColumnStart:"2",gridRowEnd:"span 2"}}>
+          {(this.state.loadingMonth ? "Chargement" : this.state.byMonthAccidents())}
+        </div>
+      </div>
+    )
+  }
   /*COMPONENTS LIFECYCLE*/
   componentDidMount = () => {
     this.loadAccidents();
+    this.loadAgglomeratedAccidents(this.state.selectedMonth);
+    this.loadAccidentsReduceOfYear(this.state.selectedYear);
   }
   render() {
     return (
@@ -752,7 +1004,19 @@ class Accidents extends Component {
         <div style={{display:"flex",justifyContent:"flex-end"}}>
             <BigIconButton icon="plus" color="blue" onClick={this.showAddAccident} tooltip="Nouvel accident"/>
         </div>
-        <CustomFilterSegment resetAll={this.resetAll} style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3"}}>
+        <Segment style={{placeSelf:"stretch",gridRowStart:"2",margin:"0"}}>
+          <Popup position="bottom center" trigger={
+              <Button size="big" onClick={()=>{
+                this.setState({activePanel:"byMonth"});
+                this.loadAgglomeratedAccidents(this.state.selectedMonth);
+                this.loadAccidentsReduceOfYear(this.state.selectedYear);
+              }} icon="calendar alternate outline"/>
+          }>Accidents par véhicules agglomérés par mois</Popup>
+          <Popup position="bottom center" trigger={
+              <Button size="big" onClick={()=>this.setState({activePanel:"all"})} icon="list"/>
+          }>Accidents par véhicules</Popup>
+        </Segment>
+        <CustomFilterSegment resetAll={this.resetAll} style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 2"}}>
           <CustomFilter infos={this.state.archiveFilterInfos} active={this.state.archiveFilter} />
           <CustomFilter infos={this.state.missingInfosFilterInfos} active={this.state.missingInfosFilter} />
           <CustomFilter infos={this.state.answersFilterInfos} active={this.state.answersFilter} />
@@ -762,7 +1026,7 @@ class Accidents extends Component {
           <CustomFilter infos={this.state.docsFilterInfos} active={this.state.docsFilter} />
         </CustomFilterSegment>
         <div style={{gridRowStart:"3",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
-          {this.state.vehicleAgglomeratedAccidents()}
+          {this.getActivePanel()}
         </div>
         <Modal closeOnDimmerClick={false} open={this.state.openAddAccident} onClose={this.closeAddAccident} closeIcon>
             <Modal.Header>

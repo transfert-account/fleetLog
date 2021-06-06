@@ -87,7 +87,6 @@ extend type Query{
     vehicles : [Vehicle]
     vehiclesEmpty : [Vehicle]
     vehiclesEquipedByControls : [Vehicle]
-    vehiclesByAccidents : [Vehicle]
     massKmUpdateVehiclesValidation(jsonFromExcelFile:String!):MassKmUpdateVehiclesIdentityReport
 }
 

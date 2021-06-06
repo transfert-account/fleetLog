@@ -1,6 +1,6 @@
 import Accidents, { ACCIDENTS } from './accidents.js';
-import Vehicles from '../vehicle/vehicles.js';
-import Locations from '../location/locations.js';
+import Vehicles, { VEHICLES } from '../vehicle/vehicles.js';
+import Locations, { LOCATIONS } from '../location/locations.js';
 import Societes from '../societe/societes';
 import Models from '../model/models';
 import Brands from '../brand/brands';
@@ -15,40 +15,6 @@ const affectData = a => {
         a.societe = Societes.findOne({_id:new Mongo.ObjectID(a.societe)});
     }else{
         a.societe = {_id:""};
-    }
-    if(a.vehicle != null && a.vehicle.length > 0){
-        let v = Vehicles.findOne({_id:new Mongo.ObjectID(a.vehicle)});
-        if(v == null || v == undefined){
-            v = Locations.findOne({_id:new Mongo.ObjectID(a.vehicle)});
-        }
-        a.vehicle = v;
-        if(a.vehicle.brand != null && a.vehicle.brand.length > 0){
-            a.vehicle.brand = Brands.findOne({_id:new Mongo.ObjectID(a.vehicle.brand)});
-        }else{
-            a.vehicle.brand = {_id:""};
-        }
-        if(a.vehicle.model != null && a.vehicle.model.length > 0){
-            a.vehicle.model = Models.findOne({_id:new Mongo.ObjectID(a.vehicle.model)});
-        }else{
-            a.vehicle.model = {_id:""};
-        }
-        if(a.vehicle.energy != null && a.vehicle.energy.length > 0){
-            a.vehicle.energy = Energies.findOne({_id:new Mongo.ObjectID(a.vehicle.energy)});
-        }else{
-            a.vehicle.energy = {_id:""};
-        }
-        if(a.vehicle.societe != null && a.vehicle.societe.length > 0){
-            a.vehicle.societe = Societes.findOne({_id:new Mongo.ObjectID(a.vehicle.societe)});
-        }else{
-            a.vehicle.societe = {_id:""};
-        }
-        if(a.vehicle.shared && a.vehicle.sharedTo != null && a.vehicle.sharedTo.length > 0){
-            a.vehicle.sharedTo = Societes.findOne({_id:new Mongo.ObjectID(a.vehicle.sharedTo)});
-        }else{
-            a.vehicle.sharedTo = {_id:""};
-        }
-    }else{
-        a.vehicle = {_id:""};
     }
     if(a.constat != null && a.constat.length > 0){
         a.constat = Documents.findOne({_id:new Mongo.ObjectID(a.constat)});
@@ -72,17 +38,178 @@ const affectData = a => {
     }
 }
 
+const affectVehicleAccidentsOfMonth = (vehicle,month,year) => {
+    vehicle.accidents = Accidents.find({vehicle:vehicle._id._str}).fetch() || [];
+    vehicle.accidents = vehicle.accidents.filter(a=>{
+        return parseInt(a.occurenceDate.split("/")[1]) == month && parseInt(a.occurenceDate.split("/")[2]) == year
+    })
+    vehicle.accidents.forEach(a => {
+        if(a.rapportExp != null && a.rapportExp.length > 0){
+            a.rapportExp = Documents.findOne({_id:new Mongo.ObjectID(a.rapportExp)});
+        }else{
+            a.rapportExp = {_id:""};
+        }
+        if(a.constat != null && a.constat.length > 0){
+            a.constat = Documents.findOne({_id:new Mongo.ObjectID(a.constat)});
+        }else{
+            a.constat = {_id:""};
+        }
+        if(a.facture != null && a.facture.length > 0){
+            a.facture = Documents.findOne({_id:new Mongo.ObjectID(a.facture)});
+        }else{
+            a.facture = {_id:""};
+        }
+        if(a.questionary != null && a.questionary.length > 0){
+            a.questionary = Documents.findOne({_id:new Mongo.ObjectID(a.questionary)});
+        }else{
+            a.questionary = {_id:""};
+        }
+    });
+}
+
+const affectVehicleAccidents = vehicle => {
+    vehicle.accidents = Accidents.find({vehicle:vehicle._id._str}).fetch() || [];
+    vehicle.accidents.forEach(a => {
+        if(a.rapportExp != null && a.rapportExp.length > 0){
+            a.rapportExp = Documents.findOne({_id:new Mongo.ObjectID(a.rapportExp)});
+        }else{
+            a.rapportExp = {_id:""};
+        }
+        if(a.constat != null && a.constat.length > 0){
+            a.constat = Documents.findOne({_id:new Mongo.ObjectID(a.constat)});
+        }else{
+            a.constat = {_id:""};
+        }
+        if(a.facture != null && a.facture.length > 0){
+            a.facture = Documents.findOne({_id:new Mongo.ObjectID(a.facture)});
+        }else{
+            a.facture = {_id:""};
+        }
+        if(a.questionary != null && a.questionary.length > 0){
+            a.questionary = Documents.findOne({_id:new Mongo.ObjectID(a.questionary)});
+        }else{
+            a.questionary = {_id:""};
+        }
+    });
+}
+
+const affectVehicleData = vehicle => {
+    try{
+        vehicle.lastKmUpdate = vehicle.kms[vehicle.kms.length-1].reportDate
+        vehicle.km = vehicle.kms[vehicle.kms.length-1].kmValue
+        if(vehicle.societe != null && vehicle.societe.length > 0){
+            vehicle.societe = Societes.findOne({_id:new Mongo.ObjectID(vehicle.societe)});
+        }else{
+            vehicle.societe = {_id:""};
+        }
+        if(vehicle.shared){
+            vehicle.sharedTo = Societes.findOne({_id:new Mongo.ObjectID(vehicle.sharedTo)});
+        }else{
+            vehicle.sharedTo = {_id:""};
+        }
+        if(vehicle.brand != null && vehicle.brand.length > 0){
+            vehicle.brand = Brands.findOne({_id:new Mongo.ObjectID(vehicle.brand)});
+        }else{
+            vehicle.brand = {_id:""};
+        }
+        if(vehicle.model != null && vehicle.model.length > 0){
+            vehicle.model = Models.findOne({_id:new Mongo.ObjectID(vehicle.model)});
+        }else{
+            vehicle.model = {_id:""};
+        }
+        if(vehicle.energy != null && vehicle.energy.length > 0){
+            vehicle.energy = Energies.findOne({_id:new Mongo.ObjectID(vehicle.energy)});
+        }else{
+            vehicle.energy = {_id:""};
+        }
+        if(vehicle.archived && vehicle.archiveJustification.length > 0){
+            vehicle.archiveJustification = VehicleArchiveJustifications.findOne({_id:new Mongo.ObjectID(vehicle.archiveJustification)});
+        }else{
+            vehicle.archiveJustification = {_id:""};
+        }
+        if(
+            parseInt(vehicle.purchasePrice) > 0 &&
+            parseInt(vehicle.insurancePaid) > 0 &&
+            vehicle.payementBeginDate != "" &&
+            vehicle.payementEndDate != "" &&
+            vehicle.payementTime != "" &&
+            parseInt(vehicle.monthlyPayement) > 0 &&
+            vehicle.payementOrg != "" &&
+            vehicle.payementFormat != ""
+        ){
+            vehicle.financialInfosComplete = true;
+        }else{
+            vehicle.financialInfosComplete = false;
+        }
+    }catch(e){
+        console.error(e)
+    }
+}
+
+//creer des fx pour chaque affectation vehicule / non vehicule from acc + acc from vehicle avec fourchette de date (mm/yyyy)
+
 export default {
     Query : {
         accident(obj, { _id }, {user}){
             let a = Accidents.findOne({_id:new Mongo.ObjectID(_id)});
             affectData(a);
+            a.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(a.vehicle)})
+            affectVehicleData(a.vehicle)
             return a;
         },
         accidents(obj, args, {user}){
             let accidents = ACCIDENTS(user);
             accidents.map(a=>affectData(a))
             return accidents;
+        },
+        accidentsByMonthByVehicle (obj, { year,month }, {user}) {
+            try {
+                let vehicles = VEHICLES(user)
+                let locations = LOCATIONS(user)
+                vehicles.forEach(v=>affectVehicleData(v));
+                locations.forEach(v=>affectVehicleData(v));
+                let allV = vehicles.concat(locations);
+                allV.forEach(v=>{
+                    affectVehicleAccidentsOfMonth(v,month,year);
+                });
+                return allV;
+            } catch (error) {
+                console.log(error)
+            }
+        },
+        accidentsReduceOfYear(obj, {year}, { user }){
+            try {
+                let acs = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Decembre"].map((m,i)=>{
+                    return {monthIndex:parseInt(i+1),nAccident:0}
+                })
+                let allV = VEHICLES(user).concat(LOCATIONS(user));
+                allV.forEach(v=>{
+                    affectVehicleAccidents(v);
+                });
+                acs = acs.map(m=>{
+                    return {monthIndex:m.monthIndex,nAccident:allV.reduce((a,b)=>{
+                        return a + b.accidents.filter(a=>{  
+                            return parseInt(a.occurenceDate.split("/")[1]) == m.monthIndex && parseInt(a.occurenceDate.split("/")[2]) == year
+                        }).length
+                    },0)}
+                })
+                return acs;
+            } catch (error) {
+                console.log(error)
+            }
+        },
+        vehiclesByAccidents(obj, args, { user }){
+            let vehicles = VEHICLES(user);
+            let locations = LOCATIONS(user);
+            let allV = vehicles.concat(locations);
+            allV.forEach(v => {
+                affectVehicleAccidents(v)
+            });
+            allV = allV.filter(v=>v.accidents.length>0);
+            allV.forEach(v => {
+                affectVehicleData(v)
+            });
+            return allV;
         },
     },
     Mutation:{

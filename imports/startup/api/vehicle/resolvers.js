@@ -251,19 +251,6 @@ export default {
             });
             return vehicles;
         },
-        vehiclesByAccidents(obj, args, { user }){
-            let vehicles = VEHICLES(user);
-            let locations = Locations.find().fetch() || {};
-            let allV = vehicles.concat(locations);
-            allV.forEach(v => {
-                affectVehicleAccidents(v)
-            });
-            allV = allV.filter(v=>v.accidents.length>0);
-            allV.forEach(v => {
-                affectVehicleData(v)
-            });
-            return allV;
-        },
         massKmUpdateVehiclesValidation(obj, {jsonFromExcelFile}){
             let requiredVehicles = JSON.parse(jsonFromExcelFile);
             requiredVehicles.forEach(v=>{

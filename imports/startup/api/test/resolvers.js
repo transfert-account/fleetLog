@@ -17,7 +17,6 @@ export default {
         testThis(obj, args,{user}){
             if(user._id){
                 try{
-                    Locations.update({},{$set:{archiveJustification:""}});
                     //NEW
                     /*Vehicles.update(
                         {},{
@@ -28,6 +27,7 @@ export default {
                         },
                         {multi:true}
                     );
+                    Locations.update({},{$set:{archiveJustification:""}});
                     Entretiens.remove({});
                     ExportTemplates.remove({type:"entretien"})
                     let cs = ["batiments","equipements","equipementDescription","commandes"];
