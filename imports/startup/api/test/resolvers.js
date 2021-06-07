@@ -17,6 +17,19 @@ export default {
         testThis(obj, args,{user}){
             if(user._id){
                 try{
+                    let as = Accidents.find({}).fetch();
+                    as.forEach(a=>{
+                        Accidents.update(
+                            {
+                                _id: a._id
+                            },{
+                                $set:{
+                                    occurenceMonth:parseInt(a.occurenceDate.split("/")[1]),
+                                    occurenceYear:parseInt(a.occurenceDate.split("/")[2]),
+                                }
+                            }
+                        );
+                    })
                     //NEW
                     /*Vehicles.update(
                         {},{

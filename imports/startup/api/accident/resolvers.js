@@ -39,10 +39,7 @@ const affectData = a => {
 }
 
 const affectVehicleAccidentsOfMonth = (vehicle,month,year) => {
-    vehicle.accidents = Accidents.find({vehicle:vehicle._id._str}).fetch() || [];
-    vehicle.accidents = vehicle.accidents.filter(a=>{
-        return parseInt(a.occurenceDate.split("/")[1]) == month && parseInt(a.occurenceDate.split("/")[2]) == year
-    })
+    vehicle.accidents = Accidents.find({vehicle:vehicle._id._str,occurenceMonth:month,occurenceYear:year}).fetch() || [];
     vehicle.accidents.forEach(a => {
         if(a.rapportExp != null && a.rapportExp.length > 0){
             a.rapportExp = Documents.findOne({_id:new Mongo.ObjectID(a.rapportExp)});
@@ -146,8 +143,6 @@ const affectVehicleData = vehicle => {
     }
 }
 
-//creer des fx pour chaque affectation vehicule / non vehicule from acc + acc from vehicle avec fourchette de date (mm/yyyy)
-
 export default {
     Query : {
         accident(obj, { _id }, {user}){
@@ -225,6 +220,8 @@ export default {
                     societe:v.societe,
                     vehicle:vehicle,
                     occurenceDate:occurenceDate,
+                    occurenceMonth:parseInt(occurenceDate.split("/")[1]),
+                    occurenceYear:parseInt(occurenceDate.split("/")[2]),
                     driver:"",
                     description:"",
                     dateExpert:"",

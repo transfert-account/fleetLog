@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Input, Button, Table, Modal, Form, Segment, Popup, Menu, Label } from 'semantic-ui-react';
 import { UserContext } from '../../contexts/UserContext';
 
@@ -407,11 +407,13 @@ class Accidents extends Component {
           </Table>
         )
       }
-      return displayed.map(v =>{
-        return(
-          <VehicleAgglomeratedAccidentsRow archiveFilter={this.state.archiveFilter} docsFilter={this.state.docsFilter} constatSentFilter={this.state.constatSentFilter} archiveFilter={this.state.archiveFilter} loadAccidents={this.loadAccidents} key={v._id} vehicle={v}/>
-        )
-      })
+      return (
+        displayed.map(v =>{
+          return(
+            <VehicleAgglomeratedAccidentsRow archiveFilter={this.state.archiveFilter} docsFilter={this.state.docsFilter} constatSentFilter={this.state.constatSentFilter} archiveFilter={this.state.archiveFilter} loadAccidents={this.loadAccidents} key={v._id} vehicle={v}/>
+          )
+        })
+      )
     },
     byMonthAccidents : () => {
       let displayed = Array.from(this.state.accidentsAgglomeratedRaw);
@@ -950,44 +952,56 @@ class Accidents extends Component {
   /*CONTENT GETTERS*/
   getActivePanel = () => {
     if(this.state.activePanel == "all"){
-      return this.state.accidents()
+      return this.getAccidentsListPanel()
     }
     if(this.state.activePanel == "byMonth"){
       return this.getByMonthPanel()
     }
   }
+  getTimeNavigationMenu = () => {
+    return (
+      <div style={{gridColumnStart:"1",gridColumnEnd:"span 2",placeSelf:"stretch",display:"grid"}}>
+        <Button style={{placeSelf:"stretch"}} content={"Année " + parseInt(this.state.selectedYear - 1).toString()} onClick={()=>this.goToYear(12,this.state.selectedYear-1)}/>
+        <Menu size='big' pointing vertical style={{placeSelf:"stretch"}}>
+          {this.state.months().map(m=>{
+            return(
+              parseInt(moment().format("MM")) >= m.month.month && parseInt(moment().format("YYYY")) == m.month.year || parseInt(moment().format("YYYY")) >  m.month.year ?
+                <Menu.Item 
+                  key={m.month.month+m.month.year} 
+                  color="blue"
+                  active={this.state.selectedMonth == m.month.month}
+                  onClick={()=>{this.goToMonth(m.month.month)}}
+                >
+                  {m.month.name + " " + m.month.year}
+                  <Label color={m.month.nAccident == 0 ? "grey" : "orange"}>{m.month.nAccident}</Label>
+                </Menu.Item>
+              :
+                ""
+            )}
+          )}
+        </Menu>
+        {(this.state.selectedYear < parseInt(moment().format("YYYY")) ?
+            <Button style={{placeSelf:"stretch"}} content={"Année " + parseInt(this.state.selectedYear + 1).toString()} onClick={()=>this.goToYear(1,this.state.selectedYear+1)}/>
+            :
+            ""
+        )}
+      </div>
+    )
+  }
   getByMonthPanel = () => {
     return (
-      <div style={{display :"grid",gridTemplateColumns:"auto 1fr",gridTemplateRows:"auto 1fr",gridGap:"32px"}}>
-        <div style={{gridColumnStart:"1",placeSelf:"stretch",display:"grid"}}>
-          <Button style={{placeSelf:"stretch"}} content={"Année " + parseInt(this.state.selectedYear - 1).toString()} onClick={()=>this.goToYear(12,this.state.selectedYear-1)}/>
-          <Menu size='big' pointing vertical style={{placeSelf:"stretch"}}>
-            {this.state.months().map(m=>{
-              return(
-                parseInt(moment().format("MM")) >= m.month.month && parseInt(moment().format("YYYY")) == m.month.year || parseInt(moment().format("YYYY")) >  m.month.year ?
-                  <Menu.Item 
-                    key={m.month.month+m.month.year} 
-                    color="blue"
-                    active={this.state.selectedMonth == m.month.month}
-                    onClick={()=>{this.goToMonth(m.month.month)}}
-                  >
-                    {m.month.name + " " + m.month.year}
-                    <Label color={m.month.nAccident == 0 ? "grey" : "orange"}>{m.month.nAccident}</Label>
-                  </Menu.Item>
-                :
-                  ""
-              )}
-            )}
-          </Menu>
-          {(this.state.selectedYear < parseInt(moment().format("YYYY")) ?
-              <Button style={{placeSelf:"stretch"}} content={"Année " + parseInt(this.state.selectedYear + 1).toString()} onClick={()=>this.goToYear(1,this.state.selectedYear+1)}/>
-              :
-              ""
-          )}
-        </div>
-        <div style={{gridColumnStart:"2",gridRowEnd:"span 2"}}>
+      <Fragment>
+        {this.getTimeNavigationMenu()}
+        <div style={{gridColumnStart:"3",gridRowEnd:"span 2",gridColumnEnd:"span 2",placeSelf:"stretch",overflowY:"auto",paddingRight:"32px"}}>
           {(this.state.loadingMonth ? "Chargement" : this.state.byMonthAccidents())}
         </div>
+      </Fragment>
+    )
+  }
+  getAccidentsListPanel = () => {
+    return(
+      <div style={{gridColumnEnd:"span 4",gridRowEnd:"span 2",placeSelf:"stretch",overflowY:"auto",paddingRight:"32px"}}>
+        {this.state.accidents()}
       </div>
     )
   }
@@ -999,8 +1013,8 @@ class Accidents extends Component {
   }
   render() {
     return (
-      <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto auto 1fr",gridTemplateColumns:"auto 1fr auto"}}>
-        <Input style={{justifySelf:"stretch",gridColumnEnd:"span 2"}} name="accidentFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher une immatriculation' />
+      <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px 32px",gridTemplateRows:"auto auto auto 1fr",gridTemplateColumns:"auto auto 1fr auto"}}>
+        <Input style={{justifySelf:"stretch",gridColumnEnd:"span 3"}} name="accidentFilter" onChange={this.handleFilter} icon='search' placeholder='Rechercher une immatriculation' />
         <div style={{display:"flex",justifyContent:"flex-end"}}>
             <BigIconButton icon="plus" color="blue" onClick={this.showAddAccident} tooltip="Nouvel accident"/>
         </div>
@@ -1016,7 +1030,7 @@ class Accidents extends Component {
               <Button size="big" onClick={()=>this.setState({activePanel:"all"})} icon="list"/>
           }>Accidents par véhicules</Popup>
         </Segment>
-        <CustomFilterSegment resetAll={this.resetAll} style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 2"}}>
+        <CustomFilterSegment resetAll={this.resetAll} style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 3"}}>
           <CustomFilter infos={this.state.archiveFilterInfos} active={this.state.archiveFilter} />
           <CustomFilter infos={this.state.missingInfosFilterInfos} active={this.state.missingInfosFilter} />
           <CustomFilter infos={this.state.answersFilterInfos} active={this.state.answersFilter} />
@@ -1025,9 +1039,7 @@ class Accidents extends Component {
           <CustomFilter infos={this.state.statusFilterInfos} active={this.state.statusFilter} />
           <CustomFilter infos={this.state.docsFilterInfos} active={this.state.docsFilter} />
         </CustomFilterSegment>
-        <div style={{gridRowStart:"3",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
-          {this.getActivePanel()}
-        </div>
+        {this.getActivePanel()}
         <Modal closeOnDimmerClick={false} open={this.state.openAddAccident} onClose={this.closeAddAccident} closeIcon>
             <Modal.Header>
               Création du rapport d'accident
