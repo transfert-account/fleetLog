@@ -79,30 +79,47 @@ export class ControlsAdmin extends Component {
     /*FILTERS HANDLERS*/
     /*DB READ AND WRITE*/
     addControl = () => {
-        console.log(this.state.newFirstFrequency)
-        this.props.client.mutate({
-            mutation:this.state.addControlQuery,
-            variables:{
-                name:this.state.newName,
-                firstIsDifferent:this.state.newFirstIsDifferent,
-                firstFrequency:parseInt(this.state.newFirstFrequency),
-                frequency:parseInt(this.state.newFrequency),
-                unit:this.state.newUnit,
-                alert:parseInt(this.state.newAlert),
-                alertUnit:this.state.newAlertUnit,
-                ctrlType:this.state.newCtrlType,
+        if(
+            this.state.newName.length == 0 ||
+            this.state.newFrequency.length == 0 ||
+            this.state.newUnit.length == 0 ||
+            this.state.newAlert.length == 0 ||
+            this.state.newAlertUnit.length == 0 ||
+            this.state.newCtrlType.length == 0
+        ){
+            this.props.toast({message:"Des informations nécessaire à la création du contrôle manquent.",type:"error"});
+        }else{
+            if(
+                this.state.newFirstIsDifferent == 0 &&
+                this.state.newFirstFrequency.length == 0
+            ){
+                this.props.toast({message:"Des informations nécessaire à la création du contrôle manquent.",type:"error"});
+            }else{
+                this.props.client.mutate({
+                    mutation:this.state.addControlQuery,
+                    variables:{
+                        name:this.state.newName,
+                        firstIsDifferent:this.state.newFirstIsDifferent,
+                        firstFrequency:parseInt(this.state.newFirstFrequency),
+                        frequency:parseInt(this.state.newFrequency),
+                        unit:this.state.newUnit,
+                        alert:parseInt(this.state.newAlert),
+                        alertUnit:this.state.newAlertUnit,
+                        ctrlType:this.state.newCtrlType,
+                    }
+                }).then(({data})=>{
+                    data.addControl.map(qrm=>{
+                        if(qrm.status){
+                            this.props.toast({message:qrm.message,type:"success"});
+                            this.loadControls(this.state.newCtrlType);
+                            this.setState({openAddControl:false})
+                        }else{
+                            this.props.toast({message:qrm.message,type:"error"});
+                        }
+                    })
+                })
             }
-        }).then(({data})=>{
-            data.addControl.map(qrm=>{
-                if(qrm.status){
-                    this.props.toast({message:qrm.message,type:"success"});
-                    this.loadControls(this.state.newCtrlType);
-                    this.setState({openAddControl:false})
-                }else{
-                    this.props.toast({message:qrm.message,type:"error"});
-                }
-            })
-        })
+        }
     }
     loadControls = ctrlType => {
         this.props.client.query({

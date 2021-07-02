@@ -13,6 +13,7 @@ import moment from 'moment'
 
 import { Mongo } from 'meteor/mongo';
 import { set } from 'lodash';
+import Controls from '../control/controls';
 
 export default {
     Query : {
@@ -20,7 +21,8 @@ export default {
             if(user._id){
                 try{
                     //NEW
-                    Vehicles.update(
+                    Controls.remove({});
+                    /*Vehicles.update(
                         {},
                         {   $set:{
                                 controls:[]
@@ -42,7 +44,7 @@ export default {
                         },
                         {multi:true}
                     );
-                    Entretiens.remove({});
+                    Entretiens.remove({});*/
 
                     /*
                     let as = Accidents.find({}).fetch();
