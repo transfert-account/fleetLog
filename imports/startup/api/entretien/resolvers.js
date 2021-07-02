@@ -10,6 +10,7 @@ import Documents from '../document/documents';
 import Functions from '../common/functions';
 import moment from 'moment';
 import { Mongo } from 'meteor/mongo';
+import Controls from '../control/controls';
 
 const affectEntretienData = e => {
     try{
@@ -43,13 +44,11 @@ const affectEntretienData = e => {
         }
         if(e.originNature != null){
             e.originNature = InterventionNature.findOne({_id:new Mongo.ObjectID(e.originNature)});
-        }else{e.originNature = null;}
+        }else{
+            e.originNature = null;
+        }
         if(e.originControl != null){
-            if(e.originControl[0] == "o"){
-                e.originControl = Functions.getObli().filter(c=>c.key == e.originControl)[0];
-            }else{
-                e.originControl = Functions.prev().filter(c=>c.key == e.originControl)[0];
-            }
+            e.originControl = Controls.findOne({_id:new Mongo.ObjectID(e.originControl)})
         }else{
             e.originControl = null;
         }
@@ -99,10 +98,10 @@ const affectEntretienFullData = e => {
             e.originNature = InterventionNature.findOne({_id:new Mongo.ObjectID(e.originNature)});
         }else{
             e.originNature = null;
-            if(e.originControl[0] == "o"){
-                e.originControl = Functions.getObli().filter(c=>c.key == e.originControl)[0];
+            if(e.originControl != null){
+                e.originControl = Controls.findOne({_id:new Mongo.ObjectID(e.originControl)})
             }else{
-                e.originControl = Functions.getPrev().filter(c=>c.key == e.originControl)[0];
+                e.originControl = null;
             }
         }
         //Societe du controle
@@ -217,10 +216,11 @@ export default {
             if(user._id){
                 let entretienId = new Mongo.ObjectID()
                 let v = Vehicles.findOne({_id:new Mongo.ObjectID(vehicle)});
+                let c = Controls.findOne({_id:new Mongo.ObjectID(control)});
                 Entretiens.insert({
                     _id:entretienId,
                     societe:v.societe,
-                    type:(control[0]=="o" ? "obli" : "prev"),
+                    type:c.ctrlType,
                     originNature:null,
                     originControl:control,
                     occurenceDate:"",
@@ -240,10 +240,10 @@ export default {
                 Vehicles.update(
                     {
                         _id: new Mongo.ObjectID(vehicle),
-                        [(control[0] == "o" ? "obli" : "prev")+".key"]: control
+                        "controls._id": control
                     }, {
                         $set: {
-                            [(control[0] == "o" ? "obli" : "prev")+".$.entretien"]: entretienId._str
+                            "controls.$.entretien": entretienId._str
                         }
                     }
                 )
@@ -284,61 +284,53 @@ export default {
         nextStatus2(obj, {_id,time,kmAtFinish}, {user}){
             if(user._id){
                 let entretien = Entretiens.findOne({_id:new Mongo.ObjectID(_id)})
-                let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(entretien.vehicle)});
-                if(vehicle.kms[vehicle.kms.length-1].kmValue > kmAtFinish){
-                    return [{status:false,message:'Kilométrage du dernier relevé plus élevé'}];
-                }
-                if(moment(vehicle.kms[vehicle.kms.length-1].reportDate, "DD/MM/YYYY").diff(moment(entretien.occurenceDate,"DD/MM/YYYY"),'days')>0){
-                    return [{status:false,message:'Date du dernier relevé plus récente'}];
-                }
-                Entretiens.update(
-                    {
-                        _id: new Mongo.ObjectID(_id)
-                    }, {
-                        $set: {
-                            "status":2,
-                            "time":time,
-                            "kmAtFinish":kmAtFinish
-                        }
-                    }
-                );
-                Vehicles.update(
-                    {
-                        _id: new Mongo.ObjectID(entretien.vehicle)
-                    }, {
-                        $set: {
-                            "lastKmUpdate":entretien.occurenceDate,
-                            "km":kmAtFinish
-                        }
-                    }   
-                )
-                Vehicles.update(
-                    {
-                        _id:new Mongo.ObjectID(entretien.vehicle)
-                    },{
-                        $push: {
-                            "kms": {
-                                _id: new Mongo.ObjectID(),
-                                reportDate:entretien.occurenceDate,
-                                kmValue:kmAtFinish
+                let concistency = Functions.checkKmsConsistency(entretien.vehicle,entretien.occurenceDate,kmAtFinish);                
+                if(concistency.status){
+                    Entretiens.update(
+                        {
+                            _id: new Mongo.ObjectID(_id)
+                        }, {
+                            $set: {
+                                "status":2,
+                                "time":time,
+                                "kmAtFinish":kmAtFinish
                             }
                         }
-                    }
-                )
-                Entretiens.update(
-                    {
-                        _id: new Mongo.ObjectID(_id)
-                    }, {
-                        $push: {
-                            "notes": {
-                                _id: new Mongo.ObjectID(),
-                                text:"Status de l'entretien modifié de [Affecté] à [Réalisé]",
-                                date:moment().format('DD/MM/YYYY HH:mm:ss')
+                    );
+                    Vehicles.update(
+                        {
+                            _id: new Mongo.ObjectID(entretien.vehicle)
+                        }, {
+                            $set: {
+                                "lastKmUpdate":entretien.occurenceDate,
+                                "km":kmAtFinish
+                            },
+                            $push: {
+                                "kms": {
+                                    _id: new Mongo.ObjectID(),
+                                    reportDate:entretien.occurenceDate,
+                                    kmValue:kmAtFinish
+                                }
                             }
                         }
-                    }
-                );
-                return [{status:true,message:'Entretien réalisé, kilométrage du véhicule mis à jour'}];
+                    )
+                    Entretiens.update(
+                        {
+                            _id: new Mongo.ObjectID(_id)
+                        }, {
+                            $push: {
+                                "notes": {
+                                    _id: new Mongo.ObjectID(),
+                                    text:"Status de l'entretien modifié de [Affecté] à [Réalisé]",
+                                    date:moment().format('DD/MM/YYYY HH:mm:ss')
+                                }
+                            }
+                        }
+                    );
+                    return [{status:true,message:'Entretien réalisé, kilométrage du véhicule mis à jour'}];
+                }else{
+                    return concistency;
+                }
             }
             throw new Error('Unauthorized');
         },
@@ -368,15 +360,15 @@ export default {
                 );
                 let entretien = Entretiens.findOne({_id:new Mongo.ObjectID(_id)})
                 if(entretien.originControl != null){
-                    let cs = (entretien.originControl[0] == "o" ? Functions.getObli() : Functions.getPrev())
+                    let ctrl = Controls.findOne({_id:new Mongo.ObjectID(entretien.originControl)})
                     Vehicles.update(
                         {
                             _id: new Mongo.ObjectID(entretien.vehicle),
-                            [(entretien.originControl[0] == "o" ? "obli" : "prev")+".key"]: entretien.originControl
+                            "controls._id": entretien.originControl
                         }, {
                             $set: {
-                                [(entretien.originControl[0] == "o" ? "obli" : "prev")+".$.lastOccurrence"]: (cs.filter(c=>c.key == entretien.originControl)[0].unit == "km" ? entretien.kmAtFinish : entretien.occurenceDate),
-                                [(entretien.originControl[0] == "o" ? "obli" : "prev")+".$.entretien"]:""
+                                "controls.$.lastOccurrence": (ctrl.unit == "km" ? entretien.kmAtFinish : entretien.occurenceDate),
+                                "controls.$.entretien":""
                             }
                         }
                     )
@@ -392,10 +384,10 @@ export default {
                     Vehicles.update(
                         {
                             _id: new Mongo.ObjectID(e.vehicle),
-                            [(e.originControl[0] == "o" ? "obli" : "prev")+".key"]: e.originControl
+                            "controls._id": e.originControl
                         }, {
                             $set: {
-                                [(e.originControl[0] == "o" ? "obli" : "prev")+".$.entretien"]: null
+                                "controls.$.entretien": null
                             }
                         }
                     )

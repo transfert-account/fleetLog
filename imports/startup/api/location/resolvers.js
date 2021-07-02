@@ -215,34 +215,29 @@ export default {
         },
         updateLocKm(obj, {_id,date,kmValue},{user}){
             if(user._id){
-                let location = Locations.findOne({_id:new Mongo.ObjectID(_id)});
-                if(location.kms[location.kms.length-1].kmValue > kmValue){
-                    throw new Error("Kilométrage incohérent");
-                }
-                Locations.update(
-                    {
-                        _id: new Mongo.ObjectID(_id)
-                    }, {
-                        $set: {
-                            "lastKmUpdate":date,
-                            "km":kmValue
-                        }
-                    }   
-                )
-                Locations.update(
-                    {
-                        _id:new Mongo.ObjectID(_id)
-                    },{
-                        $push: {
-                            "kms": {
-                                _id: new Mongo.ObjectID(),
-                                reportDate:date,
-                                kmValue:kmValue
+                let concistency = Functions.checkLocKmsConsistency(_id,date,kmValue);
+                if(concistency.status){
+                    Locations.update(
+                        {
+                            _id: new Mongo.ObjectID(_id)
+                        }, {
+                            $set: {
+                                "lastKmUpdate":date,
+                                "km":kmValue
+                            },
+                            $push: {
+                                "kms": {
+                                    _id: new Mongo.ObjectID(),
+                                    reportDate:date,
+                                    kmValue:kmValue
+                                }
                             }
                         }
-                    }
-                )
-                return [{status:true,message:'Nouveau relevé enregsitré'}];
+                    )
+                    return [{status:true,message:'Nouveau relevé enregsitré'}];
+                }else{
+                    return concistency;
+                }
             }
             throw new Error('Unauthorized');
         },

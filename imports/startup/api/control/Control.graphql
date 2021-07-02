@@ -1,10 +1,13 @@
 type Control{
-    key:String!
+    _id:String!
     name:String!
+    firstIsDifferent:String!
+    firstFrequency:Int!
+    frequency:Int!
     unit:String!
-    frequency:String!
-    alert:String!
+    alert:Int!
     alertUnit:String!
+    ctrlType:String!
 }
 
 type ControlStats{
@@ -12,7 +15,6 @@ type ControlStats{
     affected:Int!
     unaffected:Int!
     total:Int!
-    noOccurrence:Int!
     inTime:Int!
     soon:Int!
     late:Int!
@@ -24,6 +26,11 @@ type ControlAndVehiculesEquiped{
 }
 
 type VehicleAndOccurrence{
+    nextOccurrence:String
+    label:String
+    color:String
+    timing:String
+
     lastOccurrence:String
     entretien:String
     vehicle: Vehicle
@@ -31,5 +38,11 @@ type VehicleAndOccurrence{
 
 extend type Query{
     ctrlStats(ctrlType:String!,societe:String!) : [ControlStats]
-    vehiclesByControl(key:String!) : ControlAndVehiculesEquiped
+    vehiclesByControl(_id:String!) : ControlAndVehiculesEquiped
+    controls(ctrlType:String!) : [Control]
+}
+
+extend type Mutation{
+    addControl(name:String!,firstIsDifferent:Boolean!,firstFrequency:Int!,frequency:Int!,unit:String!,alert:Int!,alertUnit:String!,ctrlType:String!) : [QueryResultMessage]
+    deleteControl(_id:String!) : [QueryResultMessage]
 }

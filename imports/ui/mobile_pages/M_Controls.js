@@ -26,7 +26,6 @@ export class Controls extends Component {
                     affected
                     unaffected
                     total
-                    noOccurrence
                     inTime
                     soon
                     late
@@ -84,7 +83,6 @@ export class Controls extends Component {
                             <Table.HeaderCell collapsing textAlign="center">A temps</Table.HeaderCell>
                             <Table.HeaderCell collapsing textAlign="center">Limite</Table.HeaderCell>
                             <Table.HeaderCell collapsing textAlign="center">En retard</Table.HeaderCell>
-                            <Table.HeaderCell collapsing textAlign="center">Jamais fait</Table.HeaderCell>
                             <Table.HeaderCell collapsing textAlign="center">Actions</Table.HeaderCell>
                         </Table.Row>
                     </Table.Header>
@@ -108,9 +106,6 @@ export class Controls extends Component {
                                     </Table.Cell>
                                     <Table.Cell textAlign="center">
                                         <Label color={(c.late == 0 ? "" : "red")}>{c.late}</Label>
-                                    </Table.Cell>
-                                    <Table.Cell textAlign="center">
-                                        <Label color={(c.noOccurrence == 0 ? "" : "grey")}>{c.noOccurrence}</Label>
                                     </Table.Cell>
                                     <ActionsGridCell actions={this.state.rowActions(c)}/>
                                 </Table.Row>

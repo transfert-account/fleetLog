@@ -107,9 +107,9 @@ export class Curatif extends Component {
         newVehicle:v
       })
     }
-    handleChangeInterventionNature = v => {
+    handleChangeInterventionNature = (e,{value}) => {
       this.setState({
-        newNature:v
+        newNature:value
       })
     }
     handleChange = e =>{

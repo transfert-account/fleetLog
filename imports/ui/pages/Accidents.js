@@ -286,6 +286,7 @@ class Accidents extends Component {
       displayed.forEach(vehicle => {
         let accs = vehicle.accidents;
         accs = accs.filter(a=>a.archived == this.state.archiveFilter)
+        vehicle.accidents = accs;
       });
       //DOCS FILTER
       displayed.forEach(vehicle => {
@@ -416,7 +417,7 @@ class Accidents extends Component {
       )
     },
     byMonthAccidents : () => {
-      let displayed = Array.from(this.state.accidentsAgglomeratedRaw);
+      let displayed = Array.from(JSON.parse(JSON.stringify(this.state.accidentsAgglomeratedRaw)));
       if(this.props.user.isAdmin && this.props.user.visibility == "noidthisisgroupvisibility" && this.props.societeFilter != "noidthisisgroupvisibility"){
         displayed = displayed.filter(a =>
             a.societe._id == this.props.societeFilter
@@ -425,7 +426,8 @@ class Accidents extends Component {
       //ARCHIVE FILTER
       displayed.forEach(vehicle => {
         let accs = vehicle.accidents;
-        accs = accs.filter(a=>a.archived == this.state.archiveFilter)
+        accs = accs.filter(a=>{return a.archived == this.state.archiveFilter})
+        vehicle.accidents = accs;
       });
       //DOCS FILTER
       displayed.forEach(vehicle => {

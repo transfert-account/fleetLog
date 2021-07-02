@@ -242,7 +242,7 @@ class Vehicle extends Component {
                         _id
                         type
                         originControl{
-                            key
+                            _id
                             name
                         }
                         originNature{
@@ -260,28 +260,22 @@ class Vehicle extends Component {
                             lastname
                         }
                     }
-                    obli{
+                    controls{
                         control{
-                            key
+                            _id
                             name
+                            firstIsDifferent
+                            firstFrequency
                             unit
                             frequency
                             alert
                             alertUnit
+                            ctrlType
                         }
-                        selected
-                        entretien
-                        lastOccurrence
-                    }
-                    prev{
-                        control{
-                            key
-                            name
-                            unit
-                            frequency
-                            alert
-                            alertUnit
-                        }
+                        nextOccurrence
+                        label
+                        color
+                        timing
                         selected
                         entretien
                         lastOccurrence
@@ -443,12 +437,12 @@ class Vehicle extends Component {
                     </Table.Row>
                 )
             }
-            return this.state.vehicle.kms.map((k,i) =>(
+            return Array.from(this.state.vehicle.kms).reverse().map((k,i) =>(
                 <Table.Row key={k.reportDate+"-"+k.kmValue}>
                     <Table.Cell>{k.reportDate}</Table.Cell>
                     <Table.Cell>{k.kmValue}</Table.Cell>
                     <Table.Cell>
-                        {this.state.vehicle.kms.length - 1 == i && this.state.vehicle.kms.length != 1 ? 
+                        {i == 0 && this.state.vehicle.kms.length != 1 ? 
                                 <Button circular style={{color:"#e74c3c"}} inverted icon icon='cancel' onClick={()=>{this.showDeleteKm(k._id)}}/>
                             :
                                 ""
@@ -458,8 +452,8 @@ class Vehicle extends Component {
             ))
         },
         updateControlQuery : gql`
-            mutation updateControl($_id:String!,$key:String!,$value:Boolean!){
-                updateControl(_id:$_id,key:$key,value:$value){
+            mutation updateControl($_id:String!,$vehicle:String!,$value:Boolean!){
+                updateControl(_id:$_id,vehicle:$vehicle,value:$value){
                     status
                     message
                 }
@@ -700,15 +694,15 @@ class Vehicle extends Component {
     /*FILTERS HANDLERS*/
     /*DB READ AND WRITE*/
     switchControl = (v,c,confirm) => {
-        if(this.state.obli.concat(this.state.prev).filter(x=>x.control.key == c)[0].selected != v){
-            if(this.state.obli.concat(this.state.prev).filter(x=>x.control.key == c)[0].lastOccurrence != "none" && !confirm && !v){
+        if(this.state.obli.concat(this.state.prev).filter(x=>x.control._id == c)[0].selected != v){
+            if(this.state.obli.concat(this.state.prev).filter(x=>x.control._id == c)[0].lastOccurrence != "none" && !confirm && !v){
                 this.showDisableControl(c)
             }
             this.props.client.mutate({
                 mutation:this.state.updateControlQuery,
                 variables:{
-                    _id:this.state.vehicle._id,
-                    key:c,
+                    _id:c,
+                    vehicle:this.state.vehicle._id,
                     value:v
                 }
             }).then(({data})=>{
@@ -838,8 +832,8 @@ class Vehicle extends Component {
         }).then(({data})=>{
             data.vehicle.brokenHistory.reverse();
             this.setState({
-                obli:data.vehicle.obli,
-                prev:data.vehicle.prev,
+                obli:data.vehicle.controls.filter(c=>c.control.ctrlType == "obli"),
+                prev:data.vehicle.controls.filter(c=>c.control.ctrlType == "prev"),
                 vehicle:data.vehicle,
                 newSociete:data.vehicle.societe._id,
                 newRegistration:data.vehicle.registration,
@@ -1468,8 +1462,8 @@ class Vehicle extends Component {
                             <SocietePicker restrictToVisibility defaultValue={this.state.vehicle.societe._id} groupAppears={false} onChange={this.handleChangeSociete}/>
                         </Form.Field>
                         <RegistrationInput onChange={this.handleRegistrationChange} defaultValue={this.state.vehicle.registration} name="newRegistration"/>
-                        <Form.Field><label>1ère immatriculation</label>
-                            <Input defaultValue={this.state.vehicle.firstRegistrationDate} onChange={this.handleChange} name="newFirstRegistrationDate"/>
+                        <Form.Field error={this.state.newFirstRegistrationDate == ""}><label>Date de 1ère immatriculation</label>
+                            <input onChange={this.handleChange} value={this.state.newFirstRegistrationDate} onFocus={()=>{this.showDatePicker("newFirstRegistrationDate")}} name="newFirstRegistrationDate"/>
                         </Form.Field>
                         <Form.Field><label>Énergie</label>
                             <EnergyPicker defaultValue={this.state.vehicle.energy._id} onChange={this.handleChangeEnergy}/>
@@ -1502,12 +1496,12 @@ class Vehicle extends Component {
                     <div className="formBoard displaying">
                         <div className="labelBoard">Propriétaire :</div><div className="valueBoard">{this.state.vehicle.societe.name}</div>
                         <div className="labelBoard">Immatriculation :</div><div className="valueBoard">{this.state.vehicle.registration}</div>
-                        <div className="labelBoard">1ère immatriculation :</div><div className="valueBoard">{this.state.vehicle.firstRegistrationDate}</div>
+                        <div className="labelBoard">Date de 1ère immatriculation :</div><div className="valueBoard">{this.state.vehicle.firstRegistrationDate}</div>
                         <div className="labelBoard">Énergie :</div><div className="valueBoard">{this.state.vehicle.energy.name}</div>
                         <div className="labelBoard">Marque :</div><div className="valueBoard">{this.state.vehicle.brand.name}</div>
                         <div className="labelBoard">Modèle :</div><div className="valueBoard">{this.state.vehicle.model.name}</div>
                         <div className="labelBoard">Volume :</div><div className="valueBoard">{this.state.vehicle.volume.meterCube+" m²"}</div>
-                        <div className="labelBoard">Charge utile :</div><div className="valueBoard">{this.state.vehicle.payload+" t."}</div>
+                        <div className="labelBoard">Charge utile :</div><div className="valueBoard">{this.state.vehicle.payload+" kg"}</div>
                         <div className="labelBoard">Couleur :</div><div className="valueBoard">{this.state.vehicle.color.name}</div>
                     </div>
                 </Segment>
@@ -1532,12 +1526,8 @@ class Vehicle extends Component {
                     <Table.Body>
                         {this.state.obli.map(o=>
                             <ControlOccurrenceRow
-                                key={o.control.key}
-                                vehicle={{
-                                    _id:this.state.vehicle._id,
-                                    km:this.state.vehicle.km,
-                                    registration:this.state.vehicle.registration
-                                }}
+                                key={o.control._id}
+                                vehicle={this.state.vehicle}
                                 loadVehicle={this.loadVehicle}
                                 switchControl={this.switchControl}
                                 c={o}
@@ -1557,6 +1547,7 @@ class Vehicle extends Component {
                             <Table.HeaderCell textAlign="center">Nom du contrôle</Table.HeaderCell>
                             <Table.HeaderCell textAlign="center">Éligibilité</Table.HeaderCell>
                             <Table.HeaderCell textAlign="center">Fréquence</Table.HeaderCell>
+                            <Table.HeaderCell textAlign="center">Seuil d'alerte</Table.HeaderCell>
                             <Table.HeaderCell textAlign="center">Dernier contrôle</Table.HeaderCell>
                             <Table.HeaderCell textAlign="center">Échéance</Table.HeaderCell>
                             <Table.HeaderCell textAlign="center">Actions</Table.HeaderCell>
@@ -1565,12 +1556,8 @@ class Vehicle extends Component {
                     <Table.Body>
                         {this.state.prev.map(p=>
                             <ControlOccurrenceRow
-                                key={p.control.key}
-                                vehicle={{
-                                    _id:this.state.vehicle._id,
-                                    km:this.state.vehicle.km,
-                                    registration:this.state.vehicle.registration
-                                }}
+                                key={p.control._id}
+                                vehicle={this.state.vehicle}
                                 loadVehicle={this.loadVehicle}
                                 switchControl={this.switchControl}
                                 c={p}
@@ -1710,13 +1697,13 @@ class Vehicle extends Component {
     }
     getKmReportPanel = () => {
         return (
-            <div style={{padding:"auto",justifySelf:"stretch",display:"grid",gridTemplateColumns:"2fr 3fr",gridGap:"32px"}}>
+            <div style={{padding:"auto",justifySelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr",gridGap:"32px"}}>
                 <Table compact style={{placeSelf:"start"}}>
                     <Table.Header>
                         <Table.Row>
-                            <Table.HeaderCell>Date</Table.HeaderCell>
-                            <Table.HeaderCell>Km</Table.HeaderCell>
-                            <Table.HeaderCell>Suppr.</Table.HeaderCell>
+                            <Table.HeaderCell textAlign="center">Date</Table.HeaderCell>
+                            <Table.HeaderCell textAlign="center" collapsing>Km</Table.HeaderCell>
+                            <Table.HeaderCell textAlign="center" collapsing>Suppr.</Table.HeaderCell>
                         </Table.Row>
                     </Table.Header>
                     <Table.Body>

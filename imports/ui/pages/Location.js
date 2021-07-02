@@ -2427,7 +2427,7 @@ class Location extends Component {
                         <div className="labelBoard">Marque :</div><div className="valueBoard">{this.state.location.brand.name}</div>
                         <div className="labelBoard">Modèle :</div><div className="valueBoard">{this.state.location.model.name}</div>
                         <div className="labelBoard">Volume :</div><div className="valueBoard">{this.state.location.volume.meterCube+" m²"}</div>
-                        <div className="labelBoard">Charge utile :</div><div className="valueBoard">{this.state.location.payload+" t."}</div>
+                        <div className="labelBoard">Charge utile :</div><div className="valueBoard">{this.state.location.payload+" kg"}</div>
                         <div className="labelBoard">Couleur :</div><div className="valueBoard">{this.state.location.color.name}</div>
                     </div>
                 </Segment>

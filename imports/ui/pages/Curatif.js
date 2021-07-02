@@ -107,9 +107,9 @@ export class Curatif extends Component {
         newVehicle:v
       })
     }
-    handleChangeInterventionNature = v => {
+    handleChangeInterventionNature = (e,{value}) => {
       this.setState({
-        newNature:v
+        newNature:value
       })
     }
     handleChange = e =>{
@@ -243,7 +243,7 @@ export class Curatif extends Component {
             </Modal.Description>
           </Modal.Content>
           <Modal.Actions>
-            <Button color="blue" onClick={this.closeAddPiece}>Créer</Button>
+            <Button color="black" onClick={this.closeAddPiece}>Fermer</Button>
           </Modal.Actions>
         </Modal>
       </Fragment>

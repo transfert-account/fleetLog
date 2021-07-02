@@ -81,8 +81,7 @@ export class Pieces extends Component {
                 name:this.state.newPieceName,
                 brand:this.state.newPieceBrand,
                 reference:this.state.newPieceReference,
-                prixHT:parseFloat(this.state.newPiecePrixHT)
-                ,
+                prixHT:parseFloat(this.state.newPiecePrixHT),
                 type:this.state.activeType
             }
         }).then(({data})=>{

@@ -14,25 +14,32 @@ import VehicleArchiveJustifications from '../vehicleArchiveJustification/vehicle
 import InterventionNature from '../interventionNature/interventionNatures';
 import Documents from '../document/documents';
 import Energies from '../energy/energies'
+import Controls from '../control/controls.js';
+
 import Functions from '../common/functions';
 import moment from 'moment';
 import { Mongo } from 'meteor/mongo';
 
 const affectVehicleControls = vehicle => {
-    let oblis = Functions.getObli();
-    let prevs = Functions.getPrev();
-    vehicle.obli = oblis.map(o=>{
-        if(vehicle.obli.filter(oc => oc.key == o.key).length > 0){
-            return {control:o,selected:true,lastOccurrence:vehicle.obli.filter(oc => oc.key == o.key)[0].lastOccurrence,entretien:vehicle.obli.filter(oc => oc.key == o.key)[0].entretien}
+    vehicle.controls = Controls.find().fetch().map(control=>{
+        if(vehicle.controls.filter(co => co._id == control._id).length > 0){
+            let co = vehicle.controls.filter(c => c._id == control._id)[0]
+            let res = Functions.getControlNextOccurrence(vehicle,control,co)
+            return {
+                control:control,
+                selected:true,
+                lastOccurrence:co.lastOccurrence,
+                entretien:co.entretien,
+                nextOccurrence:res.nextOccurrence,
+                label:res.label,
+                color:res.color,
+                timing:res.timing
+            }
         }else{
-            return {control:o,selected:false}
-        }
-    })
-    vehicle.prev = prevs.map(p=>{
-        if(vehicle.prev.filter(pc => pc.key == p.key).length > 0){
-            return {control:p,selected:true,lastOccurrence:vehicle.prev.filter(pc => pc.key == p.key)[0].lastOccurrence,entretien:vehicle.prev.filter(pc => pc.key == p.key)[0].entretien}
-        }else{
-            return {control:p,selected:false}
+            return {
+                control:o,
+                selected:false
+            }
         }
     })
 }
@@ -43,11 +50,7 @@ const affectEntretienData = e => {
             e.originNature = InterventionNature.findOne({_id:new Mongo.ObjectID(e.originNature)});
         }else{e.originNature = null;}
         if(e.originControl != null){
-            if(e.originControl[0] == "o"){
-                e.originControl = Functions.getObli().filter(c=>c.key == e.originControl)[0];
-            }else{
-                e.originControl = Functions.prev().filter(c=>c.key == e.originControl)[0];
-            }
+            e.originControl = Controls.findOne({_id:new Mongo.ObjectID(e.originControl)})
         }else{
             e.originControl = null;
         }
@@ -69,6 +72,7 @@ const affectVehicleData = vehicle => {
     try{
         vehicle.lastKmUpdate = vehicle.kms[vehicle.kms.length-1].reportDate
         vehicle.km = vehicle.kms[vehicle.kms.length-1].kmValue
+        vehicle.kms = Functions.sortKms(vehicle.kms);
         if(vehicle.brokenHistory == null || vehicle.brokenHistory.length == 0){
             vehicle.brokenHistory = [];
         }
@@ -318,8 +322,7 @@ export default {
                     payementTime:"",
                     payementOrg:"",
                     payementFormat:"",
-                    obli:[],
-                    prev:[]
+                    controls:[]
                 });
                 return [{status:true,message:'Création réussie'}];
             }
@@ -381,34 +384,29 @@ export default {
         },
         updateKm(obj, {_id,date,kmValue},{user}){
             if(user._id){
-                let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(_id)});
-                if(vehicle.kms[vehicle.kms.length-1].kmValue > kmValue){
-                    return [{status:false,message:'Kilométrage du dernier relevé plus élevé'}];
-                }
-                Vehicles.update(
-                    {
-                        _id: new Mongo.ObjectID(_id)
-                    }, {
-                        $set: {
-                            "lastKmUpdate":date,
-                            "km":kmValue
-                        }
-                    }   
-                )
-                Vehicles.update(
-                    {
-                        _id:new Mongo.ObjectID(_id)
-                    },{
-                        $push: {
-                            "kms": {
-                                _id: new Mongo.ObjectID(),
-                                reportDate:date,
-                                kmValue:kmValue
+                let concistency = Functions.checkKmsConsistency(_id,date,kmValue);
+                if(concistency.status){
+                    Vehicles.update(
+                        {
+                            _id: new Mongo.ObjectID(_id)
+                        }, {
+                            $set: {
+                                "lastKmUpdate":date,
+                                "km":kmValue
+                            },
+                            $push: {
+                                "kms": {
+                                    _id: new Mongo.ObjectID(),
+                                    reportDate:date,
+                                    kmValue:kmValue
+                                }
                             }
                         }
-                    }
-                )
-                return [{status:true,message:'Nouveau relevé enregsitré'}];
+                    )
+                    return [{status:true,message:'Nouveau relevé enregsitré'}];
+                }else{
+                    return concistency;
+                }
             }
             throw new Error('Unauthorized');
         },
@@ -719,46 +717,31 @@ export default {
             }
             throw new Error('Unauthorized');
         },
-        updateControl(obj, {_id,key,value},{user}){
+        updateControl(obj, {_id,vehicle,value},{user}){
             if(user._id){
-                if(key[0] == "o"){
+                Vehicles.update(
+                    {_id: new Mongo.ObjectID(vehicle)},
+                    {$pull: {controls:{_id:_id}}}
+                )
+                if(value){
                     Vehicles.update(
-                        {_id: new Mongo.ObjectID(_id)},
-                        {$pull: {obli:{key:key}}}
+                        {_id: new Mongo.ObjectID(vehicle)}, 
+                        {$push: {controls:{_id:_id,type:Controls.findOne({_id:new Mongo.ObjectID(_id)}).ctrlType,lastOccurrence:"none",entretien:null}}}
                     )
-                    if(value){
-                        Vehicles.update(
-                            {_id: new Mongo.ObjectID(_id)}, 
-                            {$push: {obli:{key:key,lastOccurrence:"none",entretien:null}}}
-                        )
-                    }
-                    return [{status:true,message:'Liste des contrôles obligatoires mise à jour'}];
                 }
-                if(key[0] == "p"){
-                    Vehicles.update(
-                        {_id: new Mongo.ObjectID(_id)},
-                        {$pull: {prev:{key:key}}}
-                    )
-                    if(value){
-                        Vehicles.update(
-                            {_id: new Mongo.ObjectID(_id)}, 
-                            {$push: {prev:{key:key,lastOccurrence:"none",entretien:null}}}
-                        )
-                    }
-                    return [{status:true,message:'Liste des contrôles préventifs mise à jour'}];
-                }                
+                return [{status:true,message:'Liste des contrôles mise à jour'}];
             }
             throw new Error('Unauthorized');
         },
-        updateControlLastOccurrence(obj, {_id,key,lastOccurrence},{user}){
+        updateControlLastOccurrence(obj, {_id,vehicle,lastOccurrence},{user}){
             if(user._id){
                 Vehicles.update(
                     {
-                        _id: new Mongo.ObjectID(_id),
-                        [(key[0] == "o" ? "obli" : "prev")+".key"]: key
+                        _id: new Mongo.ObjectID(vehicle),
+                        "controls._id": _id
                     }, {
                         $set: {
-                            [(key[0] == "o" ? "obli" : "prev")+".$.lastOccurrence"]: lastOccurrence
+                            "controls.$.lastOccurrence": lastOccurrence
                         }
                     }
                 )
@@ -772,12 +755,10 @@ export default {
                 let date = new Date().getDate().toString().padStart(2,0) + '/' + parseInt(new Date().getMonth()+1).toString().padStart(2,0) + '/' + new Date().getFullYear();
                 let updateSuccess = 0; 
                 massKmUpdateMap = JSON.parse(massKmUpdateMap);
-                let updateTotal = massKmUpdateMap.length;
                 massKmUpdateMap.map(v=>{
                     let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(v._id)});
-                    if(vehicle.kms[vehicle.kms.length-1].kmValue >= v.km){
-                        qrm.push({status:false, message: vehicle.registration+' : kilométrage du dernier relevé identique ou supérieur'});
-                    }else{
+                    let consistency = Functions.checkKmsConsistency(v._id,date,v.km);//vehicle.kms[vehicle.kms.length-1].kmValue >= v.km
+                    if(consistency.status){
                         Vehicles.update(
                             {
                                 _id: new Mongo.ObjectID(v._id)
@@ -785,13 +766,7 @@ export default {
                                 $set: {
                                     "lastKmUpdate":date,
                                     "km":v.km
-                                }
-                            }   
-                        )
-                        Vehicles.update(
-                            {
-                                _id:new Mongo.ObjectID(v._id)
-                            },{
+                                },
                                 $push: {
                                     "kms": {
                                         _id: new Mongo.ObjectID(),
@@ -802,13 +777,11 @@ export default {
                             }
                         )
                         updateSuccess++;
+                    }else{
+                        qrm.push({status:consistency.status,message:vehicle.registration + " : " + consistency.message});
                     }
                 });
-                if(updateSuccess == updateTotal){
-                    qrm.push({status:true,message:"Véhicules mis à jour : " + updateSuccess});
-                }else{
-                    qrm.push({status:true,message:"Véhicules mis à jour : " + updateSuccess});
-                }
+                qrm.push({status:true,message:"Véhicules mis à jour : " + updateSuccess});
                 return qrm;
             }
             throw new Error('Unauthorized');

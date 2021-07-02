@@ -128,10 +128,10 @@ export class Control extends Component {
             </Fragment>
         )
     }
-    getTimeFromNow = (time) => {
+    getTimeFromNow = (control,time) => {
         let days = moment(time, "DD/MM/YYYY").diff(moment(),'days')
         if(days > 0){
-            if(days > 25){
+            if(days > moment.duration(parseInt(control.alert),(control.alertUnit == "m" ? "M" : control.alertUnit)).asDays()){
                 return {sub:time,text: days + " jours restant",color:"green",value:days}
             }else{
                 return {sub:time,text: days + " jours restant",color:"orange",value:days}
@@ -170,7 +170,7 @@ export class Control extends Component {
                         v.echeance = {value:left,text:Math.abs(left).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " " + this.formatUnit("km") + text,color:color}
                     }
                 }else{
-                    let res = this.getTimeFromNow(moment(v.lastOccurrence,"DD/MM/YYYY").add(control.frequency,(control.unit == "m" ? "M" : control.unit)).format("DD/MM/YYYY"))
+                    let res = this.getTimeFromNow(control,moment(v.lastOccurrence,"DD/MM/YYYY").add(control.frequency,(control.unit == "m" ? "M" : control.unit)).format("DD/MM/YYYY"))
                     v.echeance = {value:res.value,text:res.text,color:res.color,sub:res.sub}
                 }
             }

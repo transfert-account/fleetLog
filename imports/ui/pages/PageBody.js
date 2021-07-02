@@ -40,6 +40,8 @@ import BatimentControls from './BatimentControls';
 import Compte from './Compte';
 import Accounts from './Accounts';
 import Content from './Content';
+import ControlsAdmin from './ControlsAdmin';
+import Scripts from './Scripts';
 import Storage from './Storage';
 import Logs from './Logs';
 
@@ -88,7 +90,7 @@ class PageBody extends Component {
             <Route exact path='/entretien/controls/obli' component={withNavbar(()=><Controls ctrlType={"obli"}/>)}/>
             <Route exact path='/entretien/controls/prev' component={withNavbar(()=><Controls ctrlType={"prev"}/>)}/>
             <Route exact path='/entretien/controls/curatif' component={withNavbar(Curatif)}/>
-            <Route exact path='/entretien/controls/:key' component={withNavbar(Control)}/>
+            <Route exact path='/entretien/controls/:_id' component={withNavbar(Control)}/>
             <Route exact path='/entretien/pieces' component={withNavbar(Pieces)}/>
 
             <Route exact path='/entretien/entretiens' component={withNavbar(Entretiens)}/>
@@ -112,6 +114,8 @@ class PageBody extends Component {
             
             {(this.props.user && this.props.user.isAdmin ? <Route exact path='/administration/accounts' component={withNavbar(Accounts)}/>:"")}
             {(this.props.user && this.props.user.isAdmin ? <Route exact path='/administration/content' component={withNavbar(Content)}/>:"")}
+            {(this.props.user && this.props.user.isAdmin ? <Route exact path='/administration/controls' component={withNavbar(ControlsAdmin)}/>:"")}
+            {(this.props.user && this.props.user.isAdmin ? <Route exact path='/administration/scripts' component={withNavbar(Scripts)}/>:"")}
             {(this.props.user && this.props.user.isAdmin ? <Route exact path='/administration/storage' component={withNavbar(Storage)}/>:"")}
             {(this.props.user && this.props.user.isAdmin ? <Route exact path='/administration/logs' component={withNavbar(Logs)}/>:"")}
             
@@ -132,13 +136,12 @@ class PageBody extends Component {
           <Switch>
             <Route exact path='/home' component={withoutNavbar(M_Menu)}/>
 
-            <Route exact path='/entretien/controls/obli' component={withoutNavbar(()=><M_Controls ctrlType={"obli"}/>)}/>
-            <Route exact path='/entretien/controls/prev' component={withoutNavbar(()=><M_Controls ctrlType={"prev"}/>)}/>
+            <Route exact path='/parc/vehicles' component={withNavbar(Vehicles)}/>
+            <Route exact path='/parc/vehicle/:_id' component={withNavbar(Vehicle)}/>
+
             <Route exact path='/entretien/controls/curatif' component={withoutNavbar(M_Curatif)}/>
-            <Route exact path='/entretien/controls/:key' component={withoutNavbar(M_Control)}/>
             <Route exact path='/entretien/pieces' component={withoutNavbar(M_Pieces)}/>
 
-            <Route exact path='/entretien/entretiens' component={withoutNavbar(M_Entretiens)}/>
             <Route exact path='/entretien/:_id' component={withoutNavbar(M_Entretien)}/>
 
             <Route exact path='/planning/:y/:m' component={withoutNavbar(M_Planning)}/>

@@ -11,22 +11,31 @@ export class Controls extends Component {
 
     state={
         rowActions : c => [
-            {color:"blue",click:()=>{this.navigateToControl(c.control.key)},icon:"arrow right",tooltip:"Voir les véhicules concernés"},
+            {color:"blue",click:()=>{this.navigateToControl(c.control._id)},icon:"arrow right",tooltip:"Voir les véhicules concernés"},
+        ],
+        unitsRaw:[
+            {type:"distance",unit:"km",label:"km"},
+            {type:"time",unit:"d",label:"jours"},
+            {type:"time",unit:"m",label:"mois"},
+            {type:"time",unit:"y",label:"ans"}
         ],
         ctrlStats:[],
         ctrlStatsQuery : gql`
             query ctrlStats($ctrlType:String!,$societe:String!){
                 ctrlStats(ctrlType:$ctrlType,societe:$societe){
                     control{
-                        key
+                        _id
                         name
+                        firstIsDifferent
+                        firstFrequency
                         unit
                         frequency
+                        alert
+                        alertUnit
                     }
                     affected
                     unaffected
                     total
-                    noOccurrence
                     inTime
                     soon
                     late
@@ -35,8 +44,8 @@ export class Controls extends Component {
         `
     }
 
-    navigateToControl = key => {
-        this.props.history.push("/entretien/controls/" + key);
+    navigateToControl = _id => {
+        this.props.history.push("/entretien/controls/" + _id);
     }
     
     /*SHOW AND HIDE MODALS*/
@@ -59,11 +68,15 @@ export class Controls extends Component {
     }
 
     /*CONTENT GETTERS*/
-    formatUnit = u => {
-        if(u=="m")return"mois"
-        if(u=="y")return"ans"
-        if(u=="km")return"km"
-        return "unité inconnue"
+    getUnitLabel = unit => {
+        return this.state.unitsRaw.filter(u=>u.unit == unit)[0].label;
+    }
+    getFrequencyLabel = control => {
+        if(control.firstIsDifferent){
+            return (control.firstFrequency + " " + this.getUnitLabel(control.unit) + " puis tous les " + control.frequency + " " + this.getUnitLabel(control.unit))
+        }else{
+            return (control.frequency + " " + this.getUnitLabel(control.unit))
+        }
     }
     /*COMPONENTS LIFECYCLE*/
     componentDidMount = () => {
@@ -79,12 +92,12 @@ export class Controls extends Component {
                         <Table.Row>
                             <Table.HeaderCell textAlign="center">Contrôle</Table.HeaderCell>
                             <Table.HeaderCell textAlign="center">Fréquence</Table.HeaderCell>
+                            <Table.HeaderCell textAlign="center">Seuil d'alerte</Table.HeaderCell>
                             <Table.HeaderCell collapsing textAlign="center">Éligible / Total</Table.HeaderCell>
                             <Table.HeaderCell collapsing textAlign="center">Non éligible / Total</Table.HeaderCell>
                             <Table.HeaderCell collapsing textAlign="center">A temps</Table.HeaderCell>
                             <Table.HeaderCell collapsing textAlign="center">Limite</Table.HeaderCell>
                             <Table.HeaderCell collapsing textAlign="center">En retard</Table.HeaderCell>
-                            <Table.HeaderCell collapsing textAlign="center">Jamais fait</Table.HeaderCell>
                             <Table.HeaderCell collapsing textAlign="center">Actions</Table.HeaderCell>
                         </Table.Row>
                     </Table.Header>
@@ -93,7 +106,8 @@ export class Controls extends Component {
                             return (
                                 <Table.Row key={c.control.name}>
                                     <Table.Cell>{c.control.name}</Table.Cell>
-                                    <Table.Cell textAlign="center">{c.control.frequency + " " + this.formatUnit(c.control.unit)}</Table.Cell>
+                                    <Table.Cell textAlign="center">{this.getFrequencyLabel(c.control)}</Table.Cell>
+                                    <Table.Cell textAlign="center">{c.control.alert + " " + this.getUnitLabel(c.control.alertUnit)}</Table.Cell>
                                     <Table.Cell textAlign="center">
                                         <Label>{c.affected + " / " + c.total}</Label>
                                     </Table.Cell>
@@ -108,9 +122,6 @@ export class Controls extends Component {
                                     </Table.Cell>
                                     <Table.Cell textAlign="center">
                                         <Label color={(c.late == 0 ? "" : "red")}>{c.late}</Label>
-                                    </Table.Cell>
-                                    <Table.Cell textAlign="center">
-                                        <Label color={(c.noOccurrence == 0 ? "" : "grey")}>{c.noOccurrence}</Label>
                                     </Table.Cell>
                                     <ActionsGridCell actions={this.state.rowActions(c)}/>
                                 </Table.Row>

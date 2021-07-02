@@ -73,7 +73,7 @@ class Entretien extends Component {
                         name
                     }
                     originControl{
-                        key
+                        _id
                         name
                     }
                     notes{

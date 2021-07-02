@@ -5,18 +5,46 @@ import Licences from '../licence/licences';
 import Entretiens from '../entretien/entretiens';
 import Batiments from '../batimentControl/batimentControls';
 import Accidents from '../accident/accidents';
+import Pieces from '../piece/pieces';
 import Energies from '../energy/energies';
 import Functions from '../common/functions';
 import { createHmac } from 'crypto'
 import moment from 'moment'
 
 import { Mongo } from 'meteor/mongo';
+import { set } from 'lodash';
 
 export default {
     Query : {
         testThis(obj, args,{user}){
             if(user._id){
                 try{
+                    //NEW
+                    Vehicles.update(
+                        {},
+                        {   $set:{
+                                controls:[]
+                            },
+                            $unset:{
+                                obli:[],
+                                prev:[]
+                            }
+                        },
+                        {multi:true}
+                    );
+                    Pieces.update(
+                        {
+                            brand:null
+                        },{
+                            $set:{
+                                brand:""
+                            }
+                        },
+                        {multi:true}
+                    );
+                    Entretiens.remove({});
+
+                    /*
                     let as = Accidents.find({}).fetch();
                     as.forEach(a=>{
                         Accidents.update(
@@ -30,8 +58,7 @@ export default {
                             }
                         );
                     })
-                    //NEW
-                    /*Vehicles.update(
+                    Vehicles.update(
                         {},{
                             $set:{
                                 obli:[],
@@ -283,7 +310,7 @@ export default {
                             }
                         );
                     })*/
-                    return [{status:true,message:'Empty'}];
+                    return [{status:true,message:'brand null is now empty string and all old controls unaffected and all entretiens deleted'}];
                 }catch(e){
                     throw e;
                     return [{status:false,message:e.message}];

@@ -3,6 +3,7 @@ import Societes from '../societe/societes.js';
 import Brands from '../brand/brands.js';
 import Models from '../model/models.js';
 import Energies from '../energy/energies'
+import Controls from '../control/controls';
 
 import Functions from '../common/functions';
 import { Mongo } from 'meteor/mongo';
@@ -46,91 +47,85 @@ const affectVehicleData = vehicle => {
 export default {
     Query : {
         ctrlStats(obj,{ctrlType,societe},{user}){
-            let ctrls = [];
-            if(ctrlType == "obli"){
-                ctrls = Functions.getObli().map(o=>{return({
-                    control:o,
-                    affected:0,
-                    unaffected:0,
-                    total:0,
-                    noOccurrence:0,
-                    inTime:0,
-                    soon:0,
-                    late:0
-                })});
-            }else{
-                ctrls = Functions.getPrev().map(o=>{return({
-                    control:o,
-                    affected:0,
-                    unaffected:0,
-                    total:0,
-                    noOccurrence:0,
-                    inTime:0,
-                    soon:0,
-                    late:0
-                })});
-            }
+            let controls = Controls.find({ctrlType:ctrlType}).fetch().map(x=>{return({
+                control:x,
+                affected:0,
+                unaffected:0,
+                total:0,
+                inTime:0,
+                soon:0,
+                late:0
+            })});
             let vehicles = VEHICLES(user);
             if(societe != "noidthisisgroupvisibility"){
                 vehicles = vehicles.filter(v=>v.societe == societe)
             }
             vehicles.forEach(v=>{//Pour chaque véhicule
-                v.ctrls = (ctrlType == "obli" ? v.obli : v.prev)
-                ctrls.forEach(o=>{//Pour chaque contrôle existant
-                    if(v.ctrls.filter(vo=>vo.key == o.control.key).length == 0){
-                        o.unaffected++;
+                controls.forEach(c=>{//Pour chaque contrôle existant
+                    if(v.controls.filter(vc=>vc._id == c.control._id).length == 0){
+                        c.unaffected++;
                     }else{
-                        o.affected++;
+                        c.affected++;
                     }
-                    o.total++;
+                    c.total++;
                 })
-                v.ctrls.forEach(o=>{//Pour chaque contrôle affecté au véhicule, ex : o = {key:"p1",lastOccurence:"1250"}
-                    let c = ctrls.filter(oc=>oc.control.key == o.key)[0]//ex : c = {name:"Essuie glaces",key:"p1",unit:"km",frequency:"10000"}
-                    if(o.lastOccurrence == "none"){
-                        c.noOccurrence++;
-                    }else{
-                        if(c.control.unit == "km"){
-                            let left = parseInt(v.km - (parseInt(o.lastOccurrence) + parseInt(c.control.frequency)));
-                            if(left>=0){
-                                c.late++;
-                            }else{
-                                if(left>-2000){
-                                    c.soon++;
-                                }else{
-                                    c.inTime++;
-                                }
-                            }
-                        }else{
-                            let time = moment(o.lastOccurrence,"DD/MM/YYYY").add(c.control.frequency,(c.control.unit == "m" ? "M" : c.control.unit)).format("DD/MM/YYYY")
-                            if(moment(time, "DD/MM/YYYY").diff(moment())){
-                                if(moment(time, "DD/MM/YYYY").diff(moment(),'days') > 25){
-                                    c.inTime++;
-                                }else{
-                                    c.soon++;
-                                }
-                            }else{
-                                c.late++;
-                            }
-                        }
+                v.controls.forEach(o=>{//Pour chaque contrôle affecté au véhicule, ex : o = {_id:"xxxp1",lastOccurence:"1250"}
+                    let c = controls.filter(ctrl=>ctrl.control._id._str == o._id)[0]//ex : c.control = {name:"Essuie glaces",_id:"xxxp1",unit:"km",frequency:"10000"}
+                    if(c != undefined){//Controle absent de la liste, mauvais type
+                        c[Functions.getControlNextOccurrence(v,c.control,o).timing]++;
                     }
                 })
             })
-            return ctrls;
+            return controls;
         },
-        vehiclesByControl(obj,{key},{user}){
+        vehiclesByControl(obj,{_id},{user}){
             let res = {control:{},lastOccurrence:"",vehiclesOccurrences:[]}
-            if(key[0] == "o"){
-                res.control = Functions.getObli().filter(c=>c.key == key)[0]
-                res.vehiclesOccurrences = VEHICLES(user).filter(v=>v.obli.filter(c=>c.key == key).length > 0)
-                res.vehiclesOccurrences.forEach(v=>affectVehicleData(v))
-                res.vehiclesOccurrences = res.vehiclesOccurrences.map(v=>{return({vehicle:v,lastOccurrence:v.obli.filter(o=>o.key == key)[0].lastOccurrence,entretien:v.obli.filter(o=>o.key == key)[0].entretien})})
-            }else{
-                res.control = Functions.getPrev().filter(c=>c.key == key)[0]
-                res.vehiclesOccurrences = VEHICLES(user).filter(v=>v.prev.filter(c=>c.key == key).length > 0)
-                res.vehiclesOccurrences.forEach(v=>affectVehicleData(v))
-                res.vehiclesOccurrences = res.vehiclesOccurrences.map(v=>{return({vehicle:v,lastOccurrence:v.prev.filter(o=>o.key == key)[0].lastOccurrence,entretien:v.prev.filter(o=>o.key == key)[0].entretien})})
-            }
+            res.control = Controls.findOne({_id:new Mongo.ObjectID(_id)})
+            res.vehiclesOccurrences = VEHICLES(user).filter(v=>v.controls.filter(c=>c._id == _id).length > 0)
+            res.vehiclesOccurrences.forEach(v=>{affectVehicleData(v)})
+            res.vehiclesOccurrences = res.vehiclesOccurrences.map(v=>{
+                return({vehicle:v,lastOccurrence:v.controls.filter(c=>c._id == _id)[0].lastOccurrence,entretien:v.controls.filter(c=>c._id == _id)[0].entretien,...Functions.getControlNextOccurrence(v,res.control,v.controls.filter(c=>c._id == _id)[0])})
+            })
             return res;
+        },
+        controls(obj,{ctrlType},{user}){
+            if(user._id){
+                return Controls.find({ctrlType:ctrlType}).fetch()
+            }
+            throw new Error('Unauthorized');
+        }
+    },
+    Mutation : {
+        addControl(obj,{name,firstIsDifferent,firstFrequency,frequency,unit,alert,alertUnit,ctrlType},{user}){
+            if(user._id){
+                Controls.insert({
+                    _id:new Mongo.ObjectID(),
+                    name:name,
+                    firstIsDifferent:firstIsDifferent,
+                    firstFrequency:(firstIsDifferent ? firstFrequency : 0),
+                    frequency:frequency,
+                    unit:unit,
+                    alert:alert,
+                    alertUnit:alertUnit,
+                    ctrlType:ctrlType
+                });
+                return [{status:true,message:'Création du contrôle réussie'}];
+            }
+            throw new Error('Unauthorized');
+        },
+        deleteControl(obj,{_id},{user}){
+            if(user._id){
+                let nV = Vehicles.find({controls:{$elemMatch:{_id:_id}}}).fetch().length
+                if(nV > 0){
+                    let qrm = [];
+                    if(nV > 0){qrm.push({status:false,message:'Suppresion impossible, ' + nV + ' véhicule(s) éligibles lié(s)'})}
+                    return qrm;
+                }else{
+                    Controls.remove({_id:new Mongo.ObjectID(_id)});
+                    return [{status:true,message:'Suppression du contrôle réussie'}];
+                }
+            }
+            throw new Error('Unauthorized');
         }
     }
 }

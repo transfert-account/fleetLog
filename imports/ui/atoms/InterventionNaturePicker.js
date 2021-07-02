@@ -49,7 +49,16 @@ class InterventionNaturePicker extends Component {
 
     render() {
         return (
-            <Dropdown error={this.props.error} size={(this.props.size != null ? this.props.size : "")} style={this.props.style} placeholder="Choisir une nature d'intervention" search selection onChange={this.props.onChange} defaultValue={this.props.defaultValue} options={this.state.interventionNaturesRaw.map(n=>{return{key:n._id,text:n.name,value:n._id}})} onChange={this.setInterventionNature}/>
+            <Dropdown error={this.props.error}
+                size={(this.props.size != null ? this.props.size : "")}
+                style={this.props.style}
+                placeholder="Choisir une nature d'intervention"
+                search
+                selection
+                onChange={this.props.onChange}
+                defaultValue={this.props.defaultValue}
+                options={this.state.interventionNaturesRaw.map(n=>{return{key:n._id,text:n.name,value:n._id}})}
+            />
         )
     }
 }

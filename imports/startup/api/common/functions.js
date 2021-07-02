@@ -18,11 +18,12 @@ import PayementTimes from '../payementTime/payementTimes';
 import VehicleArchiveJustifications from '../vehicleArchiveJustification/vehicleArchiveJustifications';
 import InterventionNature from '../interventionNature/interventionNatures';
 
+import Controls from "../control/controls.js";
+
 import AWS from 'aws-sdk';
 import moment from 'moment';
 import { Mongo } from 'meteor/mongo';
-import Functions from '../common/functions';
-
+import { Component } from 'react';
 
 const bound = Meteor.bindEnvironment((callback) => {callback();});
 
@@ -30,26 +31,123 @@ export default {
     ////////////////////////////////////
     ///////// CONTROLS GETTER //////////
     ////////////////////////////////////
-    getObli : () => [
-        {name:"Technique",key:"o1",unit:"y",frequency:"2",alertUnit:"m",alert:"2"},
-        {name:"Hayon",key:"o2",unit:"m",frequency:"6",alertUnit:"m",alert:"1"},
-        {name:"Tachymètre",key:"o3",unit:"y",frequency:"2",alertUnit:"m",alert:"2"},
-        {name:"Pollution",key:"o4",unit:"y",frequency:"2",alertUnit:"m",alert:"2"}
-    ],
-    getPrev : () => [
-        {name:"Essuie glaces",key:"p1",unit:"m",frequency:"6",alertUnit:"1",alert:"1"},
-        {name:"Batterie",key:"p2",unit:"y",frequency:"4",alertUnit:"m",alert:"4"},
-        {name:"Plaque",key:"p3",unit:"km",frequency:"40000",alertUnit:"km",alert:"4000"},
-        {name:"Disque",key:"p4",unit:"km",frequency:"80000",alertUnit:"km",alert:"8000"},
-        {name:"Pneumatiques (!)",key:"p5",unit:"km",frequency:"20000",alertUnit:"km",alert:"2000"},
-        {name:"Bougies",key:"p6",unit:"km",frequency:"60000",alertUnit:"km",alert:"6000"},
-        {name:"Ammortisseurs",key:"p7",unit:"km",frequency:"80000",alertUnit:"km",alert:"8000"},
-        {name:"Filtre habitacle",key:"p8",unit:"km",frequency:"40000",alertUnit:"km",alert:"4000"},
-        {name:"Filtre gazoil",key:"p9",unit:"km",frequency:"40000",alertUnit:"km",alert:"4000"},
-        {name:"Filtre à air",key:"p10",unit:"km",frequency:"40000",alertUnit:"km",alert:"4000"},
-        {name:"Filtre à huile",key:"p11",unit:"km",frequency:"30000",alertUnit:"km",alert:"3000"},
-        {name:"Liquide de frein",key:"p12",unit:"y",frequency:"2",alertUnit:"m",alert:"2"}
-    ],
+    checkKmsConsistency : (_id,date,value) => {
+        let kms = Vehicles.findOne({_id:new Mongo.ObjectID(_id)}).kms // Recupération de la liste des relevé kilométrique
+        if(kms.filter(k=>k.reportDate == date).length > 0){return [{status:false,message:'Un seul relevé kilométrique seulement par jour'}];}
+        kms.push({new:true,reportDate:date,kmValue:value}); // Ajout du nouveau relevé
+        kms = kms.sort((a,b) => moment(a.reportDate,"DD/MM/YYYY") - moment(b.reportDate,"DD/MM/YYYY")); // Tri des relevé par date
+        let index = kms.map(e => (e.new ? true : false)).indexOf(true); // Récuperation de l'index du nouveau relevé
+        if(kms[index-1].kmValue < kms[index].kmValue && index == kms.length-1){ // Dernier en date
+            return [{status:true,message:'Contrôle de cohérence date/kilométrage ok'}]
+        }else{
+            if(kms[index-1].kmValue < kms[index].kmValue && kms[index+1].kmValue > kms[index].kmValue){ //Placé entre deux date déjà présente
+                return [{status:true,message:'Contrôle de cohérence date/kilométrage ok'}]
+            }
+        }
+        return [{status:false,message:'Echec du contrôle de cohérence date/kilométrage'}];
+    },
+    checkLocKmsConsistency : (_id,date,value) => {
+        let kms = Vehicles.findOne({_id:new Mongo.ObjectID(_id)}).kms // Recupération de la liste des relevé kilométrique
+        if(kms.filter(k=>k.reportDate == date).length > 0){return [{status:false,message:'Un seul relevé kilométrique seulement par jour'}];}
+        kms.push({new:true,reportDate:date,kmValue:value}); // Ajout du nouveau relevé
+        kms = kms.sort((a,b) => moment(a.reportDate,"DD/MM/YYYY") - moment(b.reportDate,"DD/MM/YYYY")); // Tri des relevé par date
+        let index = kms.map(e => (e.new ? true : false)).indexOf(true); // Récuperation de l'index du nouveau relevé
+        if(kms[index-1].kmValue < kms[index].kmValue && index == kms.length-1){ // Dernier en date
+            return [{status:true,message:'Contrôle de cohérence date/kilométrage ok'}]
+        }else{
+            if(kms[index-1].kmValue < kms[index].kmValue && kms[index+1].kmValue > kms[index].kmValue){ //Placé entre deux date déjà présente
+                return [{status:true,message:'Contrôle de cohérence date/kilométrage ok'}]
+            }
+        }
+        return [{status:false,message:'Echec du contrôle de cohérence date/kilométrage'}];
+    },
+    sortKms : kms => {
+        return kms.sort((a,b) => {
+            return moment(a.reportDate,"DD/MM/YYYY") - moment(b.reportDate,"DD/MM/YYYY");
+        });
+    },
+    agglomerateKms : v => {
+        let kms = {};
+        v.kms.forEach(k=>{
+            let d = k.reportDate.split("/");
+            if(kms[d[1]+"/"+d[2]] == undefined){
+                kms[d[1]+"/"+d[2]] = []
+            }
+            kms[d[1]+"/"+d[2]].push(k);
+        })
+        return kms;
+    },
+    getControlNextOccurrence : (v,c,o) => {
+        //v est le véhicule
+        //c est la définition du controle
+        //o est l'occurrence du controle pour ce véhicule
+        let color = "";
+        let label = "";
+        let nextOccurrence = "";
+        let timing = "";
+        let frequency = c.frequency;
+        if(o.lastOccurrence == "none"){//Aucune données concernant un précedent contrôle
+            if(c.firstIsDifferent){
+                frequency = c.firstFrequency
+            }
+            if(c.unit == "km"){
+                o.lastOccurrence = 0;//On part du principe que le dernier contrôle remonte a la mise en circulation du véhicule : 0km au compteur
+            }else{
+                o.lastOccurrence = v.firstRegistrationDate;//On part du principe que le dernier contrôle remonte a la date de mise en circulation du véhicule
+            }
+        }
+        if(c.unit == "km"){
+            if(parseInt(o.lastOccurrence) > parseInt(v.km)){//Kilométrage du contrôle supérieur à celui du véhicule
+                color = "grey"
+                label = "Kilométrage du contrôle supérieur à celui du véhicule"
+                nextOccurrence = "error"
+                timing="error"
+            }else{
+                nextOccurrence = parseInt(parseInt(o.lastOccurrence) + parseInt(frequency)).toString() + " km";
+                let left = parseInt((parseInt(o.lastOccurrence) + parseInt(frequency)) - v.km);
+                if(left<0){
+                    color = "red"
+                    timing = "late"
+                    label = Math.abs(left) + " km de retard"
+                }else{
+                    label = Math.abs(left) + " km restant"
+                    if(left <= c.alert){
+                        color = "orange"
+                        timing = "soon"
+                    }else{
+                        if(left > c.alert){
+                            color = "green"
+                            timing = "inTime"
+                        }else{
+                            color = "grey"
+                            timing = "grey"
+                        }
+                    }
+                }
+            }
+        }else{
+            nextOccurrence = moment(moment(o.lastOccurrence,"DD/MM/YYYY").add(frequency,(c.unit == "m" ? "M" : c.unit))).format("DD/MM/YYYY");
+            let days = moment(moment(o.lastOccurrence,"DD/MM/YYYY").add(frequency,(c.unit == "m" ? "M" : c.unit)).format("DD/MM/YYYY"), "DD/MM/YYYY").diff(moment(),'days')
+            if(days > 0){
+                if(days > moment.duration(parseInt(c.alert),(c.alertUnit == "m" ? "M" : c.alertUnit)).asDays()){
+                    label = Math.abs(days) + " jours restant";
+                    color="green";
+                    timing = "inTime"
+                }else{
+                    label = Math.abs(days) + " jours restant";
+                    color="orange";
+                    timing = "soon"
+                }
+            }else{
+                label = Math.abs(days) + " jours de retard";
+                timing = "late"
+                color="red";
+            }
+        }
+        return {color:color,label:label,nextOccurrence:nextOccurrence,timing:timing}
+    },
+    getObli : () => Controls.find({ctrlType:"obli"}).fetch(),
+    getPrev : () => Controls.find({ctrlType:"prev"}).fetch(),
 
     ////////////////////////////////////
     //// SINGLE DATA ASKER BY ID ///////
@@ -75,10 +173,6 @@ export default {
         let acs = []
         acs  = Accidents.find({vehicle:vehicle._id._str}).fetch();
         acs = acs.filter(a=>parseInt(a.occurenceDate.split("/")[1]) == month && parseInt(a.occurenceDate.split("/")[2]) == year)
-        /*if(acs.length > 0){
-            console.log(vehicle.registration + " " + month.month.name + " " + acs.length)
-            console.log(acs.map(a=>a.occurenceDate))
-        }*/
         return acs;
     },
 

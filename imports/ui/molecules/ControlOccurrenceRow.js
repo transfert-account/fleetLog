@@ -12,6 +12,12 @@ export class ControlOccurrenceRow extends Component {
         openLastOccurence : false,
         newLastControlDate:"",
         newLastControlKm:"",
+        unitsRaw:[
+            {type:"distance",unit:"km",label:"km"},
+            {type:"time",unit:"d",label:"jours"},
+            {type:"time",unit:"m",label:"mois"},
+            {type:"time",unit:"y",label:"ans"}
+        ],
         createEntretienFromControlQuery: gql`
             mutation createEntretienFromControl($vehicle:String!,$control:String!){
                 createEntretienFromControl(vehicle:$vehicle,control:$control){
@@ -21,8 +27,8 @@ export class ControlOccurrenceRow extends Component {
             }
         `,
         updateControlLastOccurrenceQuery: gql`
-            mutation updateControlLastOccurrence($_id:String!,$key:String!,$lastOccurrence:String!){
-                updateControlLastOccurrence(_id:$_id,key:$key,lastOccurrence:$lastOccurrence){
+            mutation updateControlLastOccurrence($_id:String!,$vehicle:String!,$lastOccurrence:String!){
+                updateControlLastOccurrence(_id:$_id,vehicle:$vehicle,lastOccurrence:$lastOccurrence){
                     status
                     message
                 }
@@ -64,8 +70,8 @@ export class ControlOccurrenceRow extends Component {
         this.props.client.mutate({
             mutation:this.state.updateControlLastOccurrenceQuery,
             variables:{
-                _id:this.props.vehicle._id,
-                key:this.props.c.control.key,
+                _id:this.props.c.control._id,
+                vehicle:this.props.vehicle._id,
                 lastOccurrence:(this.state.newLastControlDate != "" ? this.state.newLastControlDate : this.state.newLastControlKm)
             }
         }).then(({data})=>{
@@ -85,7 +91,7 @@ export class ControlOccurrenceRow extends Component {
             mutation:this.state.createEntretienFromControlQuery,
             variables:{
                 vehicle:this.props.vehicle._id,
-                control:this.props.c.control.key
+                control:this.props.c.control._id
             }
         }).then(({data})=>{
             data.createEntretienFromControl.map(qrm=>{
@@ -99,82 +105,24 @@ export class ControlOccurrenceRow extends Component {
         })
     }
     /*CONTENT GETTERS*/
-    formatUnit = u => {
-        if(u=="d")return"jours"
-        if(u=="m")return"mois"
-        if(u=="y")return"ans"
-        if(u=="km")return"km"
-        return "unité inconnue"
+    getUnitLabel = unit => {
+        return this.state.unitsRaw.filter(u=>u.unit == unit)[0].label;
     }
-    getEcheanceCell = c => {
-        let color = "";
-        let text = "";
-        if(!c.selected){
-            return (
-                <Table.Cell textAlign="center">
-                </Table.Cell>
-            )
-        }
-        if(c.lastOccurrence == "none"){
-            return (
-                <Table.Cell textAlign="center">
-                    <Label size="large" color={"grey"}>
-                        Aucun contrôle précedent
-                    </Label>
-                </Table.Cell>
-            )
-        }else{
-            if(parseInt(this.props.c.lastOccurrence) > parseInt(this.props.vehicle.km)){
-                return (
-                    <Table.Cell textAlign="center">
-                        <Label size="large" color={"red"}>
-                            Kilométrage du contrôle supérieur à celui du véhicule
-                        </Label>
-                    </Table.Cell>
-                )
-            }
-            if(this.props.c.control.unit == "km"){
-                let left = parseInt(this.props.vehicle.km - (parseInt(this.props.c.lastOccurrence) + parseInt(this.props.c.control.frequency)));
-                if(left>=0){
-                    color = "red"
-                    text = " de retard"
-                }else{
-                    text = " restant"
-                    if(left>-2000){color = "orange"}else{
-                        if(left<=-2000){color = "green"}else{
-                            color = "grey"
-                        }
-                    }
-                }
-                return (
-                    <Table.Cell textAlign="center">
-                        <Label size="large" color={color}>
-                            {Math.abs(left).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " " + this.formatUnit("km") + text}
-                        </Label>
-                    </Table.Cell>
-                )
-            }else{
-                let res = this.getTimeFromNow(moment(c.lastOccurrence,"DD/MM/YYYY").add(c.control.frequency,(this.props.c.control.unit == "m" ? "M" : this.props.c.control.unit)).format("DD/MM/YYYY"))
-                return (
-                    <Table.Cell textAlign="center">
-                        <Label size="large" color={res.color}>
-                            {res.text}
-                        </Label>
-                    </Table.Cell>
-                )
-            }
-        }
+    getEcheanceCell = () => {
+        return (
+            <Table.Cell textAlign="center">
+                {this.props.c.nextOccurrence}
+                <Label style={{marginLeft:"24px"}} size="large" color={this.props.c.color}>
+                    {this.props.c.label}
+                </Label>
+            </Table.Cell>
+        )
     }
-    getTimeFromNow = (time) => {
-        let days = moment(time, "DD/MM/YYYY").diff(moment(),'days')
-        if(days > 0){
-            if(days > 25){
-                return {text: Math.abs(days) + " jours restant",color:"green"}
-            }else{
-                return {text: Math.abs(days) + " jours restant",color:"orange"}
-            }
+    getFrequencyLabel = () => {
+        if(this.props.c.control.firstIsDifferent){
+            return (this.props.c.control.firstFrequency + " " + this.getUnitLabel(this.props.c.control.unit) + " puis tous les " + this.props.c.control.frequency + " " + this.getUnitLabel(this.props.c.control.unit))
         }else{
-            return {text: Math.abs(days) + " jours de retard",color:"red"}
+            return (this.props.c.control.frequency + " " + this.getUnitLabel(this.props.c.control.unit))
         }
     }
     /*COMPONENTS LIFECYCLE*/
@@ -185,20 +133,20 @@ export class ControlOccurrenceRow extends Component {
     render() {
         return (
             <Fragment>
-                <Table.Row key={this.props.c.control.key}>
+                <Table.Row key={this.props.c.control._id}>
                     <Table.Cell collapsing textAlign="right">{this.props.c.control.name}</Table.Cell>
                     <Table.Cell collapsing textAlign="center">
                         <Button.Group>
-                            <Button onClick={()=>this.props.switchControl(false,this.props.c.control.key,false)} color={(this.props.c.selected ? "" : "grey")}>Non éligible</Button>
-                            <Button onClick={()=>this.props.switchControl(true,this.props.c.control.key,false)} color={(this.props.c.selected ? "green" : "")}>Éligible</Button>
+                            <Button onClick={()=>this.props.switchControl(false,this.props.c.control._id,false)} color={(this.props.c.selected ? "" : "grey")}>Non éligible</Button>
+                            <Button onClick={()=>this.props.switchControl(true,this.props.c.control._id,false)} color={(this.props.c.selected ? "green" : "")}>Éligible</Button>
                         </Button.Group>
                     </Table.Cell>
-                    <Table.Cell collapsing textAlign="center">{this.props.c.control.frequency + " " + this.formatUnit(this.props.c.control.unit)}</Table.Cell>
-                    <Table.Cell collapsing textAlign="center">{this.props.c.control.alert + " " + this.formatUnit(this.props.c.control.alertUnit)}</Table.Cell>
+                    <Table.Cell collapsing textAlign="center">{this.getFrequencyLabel()}</Table.Cell>
+                    <Table.Cell collapsing textAlign="center">{this.props.c.control.alert + " " + this.getUnitLabel(this.props.c.control.alertUnit)}</Table.Cell>
                     <Table.Cell collapsing textAlign="center">{(this.props.c.lastOccurrence == "none" || !this.props.c.selected ? "-" : this.props.c.lastOccurrence + " " + (this.props.c.control.unit == "km" ? "km" : ""))}</Table.Cell>
-                    {this.getEcheanceCell(this.props.c)}
+                    {this.getEcheanceCell()}
                     <Table.Cell collapsing textAlign="center">
-                        <Popup position='top center' trigger={<Button disabled={!this.props.c.selected || this.props.c.entretien != null && this.props.c.entretien != ""} icon onClick={()=>this.addEntretien(this.props.c.control.key)} icon="calendar plus outline"/>}>
+                        <Popup position='top center' trigger={<Button disabled={!this.props.c.selected || this.props.c.entretien != null && this.props.c.entretien != ""} icon onClick={()=>this.addEntretien(this.props.c.control._id)} icon="calendar plus outline"/>}>
                             Créer l'entretien
                         </Popup>
                         <Popup position='top center' trigger={<Button style={{marginLeft:"24px"}} icon onClick={this.showLastOccurence} icon="edit"/>}>
@@ -207,7 +155,7 @@ export class ControlOccurrenceRow extends Component {
                         <Popup position='top center' trigger={<Button style={{marginLeft:"24px"}} disabled={!this.props.c.selected || this.props.c.entretien == null || this.props.c.entretien == ""} color="blue" icon onClick={()=>this.props.history.push("/entretien/"+this.props.c.entretien)} icon="wrench"/>}>
                             Voir l'entretien
                         </Popup>
-                        <Popup position='top center' trigger={<Button disabled={!this.props.c.selected} color="blue" icon onClick={()=>this.props.history.push("/entretien/controls/"+this.props.c.control.key)} icon="clipboard check"/>}>
+                        <Popup position='top center' trigger={<Button disabled={!this.props.c.selected} color="blue" icon onClick={()=>this.props.history.push("/entretien/controls/"+this.props.c.control._id)} icon="clipboard check"/>}>
                             Voir le contrôle
                         </Popup>
                     </Table.Cell>

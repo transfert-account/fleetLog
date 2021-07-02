@@ -11,15 +11,24 @@ export class Control extends Component {
 
     state={
         vehiclesByControlQuery : gql`
-            query vehiclesByControl($key:String!){
-                vehiclesByControl(key:$key){
+            query vehiclesByControl($_id:String!){
+                vehiclesByControl(_id:$_id){
                     control{
-                        key
+                        _id
                         name
+                        firstIsDifferent
+                        firstFrequency
                         unit
                         frequency
+                        alert
+                        alertUnit
+                        ctrlType
                     }
                     vehiclesOccurrences{
+                        nextOccurrence
+                        label
+                        color
+                        timing
                         lastOccurrence
                         entretien
                         vehicle{
@@ -29,6 +38,7 @@ export class Control extends Component {
                                 name
                             }
                             registration
+                            firstRegistrationDate
                             km
                             brand{
                                 _id
@@ -53,7 +63,13 @@ export class Control extends Component {
                 }
             }
         `,
-        vehiclesRaw:[],
+        unitsRaw:[
+            {type:"distance",unit:"km",label:"km"},
+            {type:"time",unit:"d",label:"jours"},
+            {type:"time",unit:"m",label:"mois"},
+            {type:"time",unit:"y",label:"ans"}
+        ],
+        vehiclesOccurrences:[],
         createEntretienFromControlQuery: gql`
             mutation createEntretienFromControl($vehicle:String!,$control:String!){
                 createEntretienFromControl(vehicle:$vehicle,control:$control){
@@ -73,13 +89,13 @@ export class Control extends Component {
         this.props.client.query({
             query:this.state.vehiclesByControlQuery,
             variables:{
-                key:this.props.match.params.key
+                _id:this.props.match.params._id
             },
             fetchPolicy:'network-only'
         }).then(({data})=>{
             this.setState({
                 controlRaw:data.vehiclesByControl.control,
-                vehiclesRaw:this.setEcheanceValues(data.vehiclesByControl.control,data.vehiclesByControl.vehiclesOccurrences)
+                vehiclesOccurrences:data.vehiclesByControl.vehiclesOccurrences
             })
         })
     }
@@ -88,7 +104,7 @@ export class Control extends Component {
             mutation:this.state.createEntretienFromControlQuery,
             variables:{
                 vehicle:v,
-                control:this.props.match.params.key
+                control:this.props.match.params._id
             }
         }).then(({data})=>{
             data.createEntretienFromControl.map(qrm=>{
@@ -112,26 +128,24 @@ export class Control extends Component {
             </Fragment>
         )
     }
-    formatUnit = u => {
-        if(u=="m")return"mois"
-        if(u=="y")return"ans"
-        if(u=="km")return"km"
-        return "unité inconnue"
+    getUnitLabel = unit => {
+        if(unit == "unit"){return "loading ..."}
+        return this.state.unitsRaw.filter(u=>u.unit == unit)[0].label;
     }
     getEcheanceCell = v => {
         return (
-            <Fragment>
-                {v.echeance.sub ? v.echeance.sub : ""}
-                <Label style={{marginLeft:"32px"}} size="large" color={v.echeance.color}>
-                    {v.echeance.text}
+            <Table.Cell textAlign="center">
+                {v.nextOccurrence}
+                <Label style={{marginLeft:"24px"}} size="large" color={v.color}>
+                    {v.label}
                 </Label>
-            </Fragment>
+            </Table.Cell>
         )
     }
-    getTimeFromNow = (time) => {
+    getTimeFromNow = (control,time) => {
         let days = moment(time, "DD/MM/YYYY").diff(moment(),'days')
         if(days > 0){
-            if(days > 25){
+            if(days > moment.duration(parseInt(control.alert),(control.alertUnit == "m" ? "M" : control.alertUnit)).asDays()){
                 return {sub:time,text: days + " jours restant",color:"green",value:days}
             }else{
                 return {sub:time,text: days + " jours restant",color:"orange",value:days}
@@ -140,42 +154,12 @@ export class Control extends Component {
             return {sub:time,text: Math.abs(days) + " jours de retard",color:"red",value:days}
         }
     }
-    setEcheanceValues = (control,vs) => {
-        vs.forEach(v=>{
-            let color = "";
-            let text = "";
-            if(v.lastOccurrence == "none"){
-                v.echeance = {value:"0",text:"Aucun contrôle précedent",color:"grey"}
-            }else{
-                if(control.unit == "km"){
-                    if(parseInt(v.lastOccurrence) > parseInt(v.vehicle.km)){
-                        v.echeance = {value:"1",text:"Kilométrage du contrôle supérieur à celui du véhicule",color:"red"}
-                    }else{
-                        let left = parseInt(v.vehicle.km - (parseInt(v.lastOccurrence) + parseInt(control.frequency)));
-                        if(left>=0){
-                            color = "red"
-                            text = " de retard"
-                        }else{
-                            text = " restant"
-                            if(left>-2000){
-                                color = "orange"
-                            }else{
-                                if(left<=-2000){
-                                    color = "green"
-                                }else{
-                                    color = "grey"
-                                }
-                            }
-                        }
-                        v.echeance = {value:left,text:Math.abs(left).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " " + this.formatUnit("km") + text,color:color}
-                    }
-                }else{
-                    let res = this.getTimeFromNow(moment(v.lastOccurrence,"DD/MM/YYYY").add(control.frequency,(control.unit == "m" ? "M" : control.unit)).format("DD/MM/YYYY"))
-                    v.echeance = {value:res.value,text:res.text,color:res.color,sub:res.sub}
-                }
-            }
-        })
-        return vs;
+    getFrequencyLabel = () => {
+        if(this.state.controlRaw.firstIsDifferent){
+            return "à effectuer au bout de " + (this.state.controlRaw.firstFrequency + " " + this.getUnitLabel(this.state.controlRaw.unit) + " puis tous les " + this.state.controlRaw.frequency + " " + this.getUnitLabel(this.state.controlRaw.unit))
+        }else{
+            return "à effectuer tous les " + (this.state.controlRaw.frequency + " " + this.getUnitLabel(this.state.controlRaw.unit))
+        }
     }
 
     /*COMPONENTS LIFECYCLE*/
@@ -187,9 +171,9 @@ export class Control extends Component {
     render() {
         return (
             <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto 1fr auto",gridTemplateColumns:"auto auto 1fr"}}>
-                <EntretienMenu active={(this.props.match.params.key[0] == "o" ? "obli" : "prev")}/>
-                <BigIconButton icon="angle double left" color="black" onClick={()=>{this.props.history.push("/entretien/controls/"+(this.props.match.params.key[0] == "o" ? "obli" : "prev"));}} tooltip={"Retour aux contrôles" + (this.props.match.params.key[0] == "o" ? " obligatoires" : " préventifs")}/>
-                <Message style={{margin:"0"}} icon='wrench' header={this.state.controlRaw.name} content={"à effectuer tous les " + this.state.controlRaw.frequency + " " + this.formatUnit(this.state.controlRaw.unit)} />
+                <EntretienMenu active={this.props.match.params._id}/>
+                <BigIconButton icon="angle double left" color="black" onClick={()=>{this.props.history.push("/entretien/controls/"+(this.state.controlRaw.ctrlType))}} tooltip={"Retour aux contrôles" + this.props.match.params._id}/>
+                <Message style={{margin:"0"}} icon='wrench' header={this.state.controlRaw.name} content={this.getFrequencyLabel()} />
                 <div style={{gridRowStart:"2",gridColumnEnd:"span 3",display:"block",overflowY:"auto",justifySelf:"stretch"}}>
                     <Table compact celled>
                         <Table.Header>
@@ -201,14 +185,14 @@ export class Control extends Component {
                             </Table.Row>
                         </Table.Header>
                         <Table.Body>
-                            {(this.state.vehiclesRaw.length == 0 ?
+                            {(this.state.vehiclesOccurrences.length == 0 ?
                                 <Table.Row>
                                     <Table.Cell colSpan="4" collapsing textAlign="right">
                                         <p>Aucun véhicule éligible au contrôle </p>
                                     </Table.Cell>
                                 </Table.Row>
                                 :
-                                this.state.vehiclesRaw.sort((a,b)=>{if(this.state.controlRaw.unit == "km"){return b.echeance.value - a.echeance.value}else{return a.echeance.value - b.echeance.value}}).map(v=>{
+                                this.state.vehiclesOccurrences.sort((a,b)=>{if(this.state.controlRaw.unit == "km"){return b.echeance.value - a.echeance.value}else{return a.echeance.value - b.echeance.value}}).map(v=>{
                                     return(
                                         <Table.Row key={v.registration}>
                                             <Table.Cell collapsing textAlign="right">
@@ -219,7 +203,7 @@ export class Control extends Component {
                                                 <br/>
                                                 {v.vehicle.brand.name + " - " + v.vehicle.model.name + " (" + v.vehicle.energy.name + ")"}
                                             </Table.Cell>
-                                            <Table.Cell textAlign="center">{this.getEcheanceCell(v)}</Table.Cell>
+                                            {this.getEcheanceCell(v)}
                                             <Table.Cell collapsing textAlign="center">
                                                 <Popup trigger={<Button icon disabled={v.entretien != null && v.entretien != ""} onClick={()=>this.addEntretien(v.vehicle._id)} icon="calendar outline"/>}>Créer l'entretien</Popup>
                                                 <Popup trigger={<Button color="blue" disabled={v.entretien == null || v.entretien == ""} icon onClick={()=>this.props.history.push("/entretien/"+v.entretien)} icon="wrench" style={{marginLeft:"32px"}}/>}>Voir l'entretien</Popup>

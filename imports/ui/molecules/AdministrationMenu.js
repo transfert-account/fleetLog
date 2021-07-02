@@ -9,6 +9,8 @@ class AdministrationMenu extends Component {
         menuItems : [
             {color:"blue",name:'comptes',uri:"/administration/accounts",icon:"users",label:"Comptes"},
             {color:"blue",name:'contenu',uri:"/administration/content",icon:"copy outline",label:"Contenu"},
+            {color:"blue",name:'controls',uri:"/administration/controls",icon:"clipboard check",label:"Contrôles"},
+            {color:"blue",name:'scripts',uri:"/administration/scripts",icon:"terminal",label:"Scripts"},
             {color:"red",name:'storage',uri:"/administration/storage",icon:"amazon",label:"Storage Management"}
         ]
     }

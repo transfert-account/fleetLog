@@ -5,6 +5,7 @@ import { SyncedCron } from 'meteor/littledata:synced-cron';
 import Entretiens from '../imports/startup/api/entretien/entretiens';
 import Vehicles from '../imports/startup/api/vehicle/vehicles';
 import Functions from '../imports/startup/api/common/functions';
+import Controls from '../imports/startup/api/control/controls';
 
 
 Accounts.onCreateUser(function(options, user) {    
@@ -34,13 +35,9 @@ let entretiensCreationFromControlAlertStep = {
         return parser.recur().on(3).hour();
     },
     job : () => {
-        let vehicles = Vehicles.find().fetch().map(v=>({_id:v._id,km:v.km,cs_merged:v.obli.concat(v.prev)}));
+        let vehicles = Vehicles.find().fetch().map(v=>({_id:v._id,km:v.km,cs:v.controls}));
         vehicles.map(v=>{v.cs_merged.map(cs=>{
-            if(cs.key[0] == "o"){
-                cs.control = Functions.getObli().filter(c=>c.key == cs.key)[0]
-            }else{
-                cs.control = Functions.getPrev().filter(c=>c.key == cs.key)[0]
-            }
+            cs.control = Controls.findOne({_id:new Mongo.ObjectID(cs._id)})
         })})
         vehicles.map(v=>{v.cs_merged.map(cs=>{
             cs.creationNeeded = false;
@@ -86,10 +83,10 @@ let entretiensCreationFromControlAlertStep = {
             Vehicles.update(
                 {
                     _id: vehicle._id,
-                    [(cs.control.key[0] == "o" ? "obli" : "prev")+".key"]: cs.control.key
+                    "controls._id": cs.control._id
                 }, {
                     $set: {
-                        [(cs.control.key[0] == "o" ? "obli" : "prev")+".$.entretien"]: entretienId._str
+                        "controls.$.entretien": entretienId._str
                     }
                 }
             )

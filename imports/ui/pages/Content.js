@@ -1477,7 +1477,7 @@ class Content extends Component {
     render() {
         return (
             <Fragment>
-                <div style={{height:"100%",display:"grid"}}>
+                <div style={{height:"100%",padding:"8px",display:"grid"}}>
                     <div style={{display:"flex",marginBottom:"32px",justifyContent:"space-between"}}>
                         <AdministrationMenu active="contenu"/>
                     </div>
@@ -2188,7 +2188,7 @@ class Content extends Component {
                         Suppression d'une nature d'intervention
                     </Modal.Header>
                     <Modal.Actions>
-                        <Button color="black" onClick={this.closeAddInterventionNature}>Annuler</Button>
+                        <Button color="black" onClick={this.closeDelInterventionNature}>Annuler</Button>
                         <Button color="red" onClick={this.deleteInterventionNature}>Supprimer</Button>
                     </Modal.Actions>
                 </Modal>
