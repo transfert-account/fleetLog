@@ -37,7 +37,7 @@ const affectVehicleControls = vehicle => {
             }
         }else{
             return {
-                control:o,
+                control:control,
                 selected:false
             }
         }
