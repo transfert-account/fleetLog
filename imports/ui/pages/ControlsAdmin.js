@@ -87,13 +87,13 @@ export class ControlsAdmin extends Component {
             this.state.newAlertUnit.length == 0 ||
             this.state.newCtrlType.length == 0
         ){
-            this.props.toast({message:"Des informations nécessaire à la création du contrôle manquent.",type:"error"});
+            this.props.toast({message:"Des informations nécessaire à la création du contrôle manquent",type:"error"});
         }else{
             if(
                 this.state.newFirstIsDifferent == 0 &&
                 this.state.newFirstFrequency.length == 0
             ){
-                this.props.toast({message:"Des informations nécessaire à la création du contrôle manquent.",type:"error"});
+                this.props.toast({message:"Des informations nécessaire à la création du contrôle manquent",type:"error"});
             }else{
                 this.props.client.mutate({
                     mutation:this.state.addControlQuery,
