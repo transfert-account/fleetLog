@@ -440,10 +440,10 @@ class Vehicle extends Component {
             return Array.from(this.state.vehicle.kms).reverse().map((k,i) =>(
                 <Table.Row key={k.reportDate+"-"+k.kmValue}>
                     <Table.Cell>{k.reportDate}</Table.Cell>
-                    <Table.Cell>{k.kmValue}</Table.Cell>
-                    <Table.Cell>
-                        {i == 0 && this.state.vehicle.kms.length != 1 ? 
-                                <Button circular style={{color:"#e74c3c"}} inverted icon icon='cancel' onClick={()=>{this.showDeleteKm(k._id)}}/>
+                    <Table.Cell style={{whiteSpace:"nowrap"}}>{k.kmValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " km"}</Table.Cell>
+                    <Table.Cell textAlign="center">
+                        {this.state.vehicle.kms.length != 1 ? 
+                                <Button circular style={{color:"#e74c3c"}} inverted icon icon='trash' onClick={()=>{this.showDeleteKm(k._id)}}/>
                             :
                                 ""
                         }
@@ -1698,13 +1698,11 @@ class Vehicle extends Component {
     getKmReportPanel = () => {
         return (
             <div style={{padding:"auto",justifySelf:"stretch",display:"grid",gridTemplateColumns:"auto 1fr",gridGap:"32px"}}>
-                <Table compact style={{placeSelf:"start"}}>
+                <Table compact="very" celled striped style={{placeSelf:"start"}}>
                     <Table.Header>
-                        <Table.Row>
-                            <Table.HeaderCell textAlign="center">Date</Table.HeaderCell>
-                            <Table.HeaderCell textAlign="center" collapsing>Km</Table.HeaderCell>
-                            <Table.HeaderCell textAlign="center" collapsing>Suppr.</Table.HeaderCell>
-                        </Table.Row>
+                        <Table.HeaderCell textAlign="center">Date</Table.HeaderCell>
+                        <Table.HeaderCell textAlign="center">Relevé</Table.HeaderCell>
+                        <Table.HeaderCell textAlign="center">Actions</Table.HeaderCell>
                     </Table.Header>
                     <Table.Body>
                         {this.state.kmsReport()}
@@ -1915,7 +1913,7 @@ class Vehicle extends Component {
                         <div style={{display:"grid",gridColumnEnd:"span 2",gridGap:"32px",gridTemplateColumns:"auto 1fr auto auto"}}>
                             <BigIconButton icon="angle double left" color="black" onClick={()=>{this.props.history.push("/parc/vehicles");}} tooltip="Retour au tableau des véhicules"/>
                             <Message style={{margin:"0"}} icon='truck' header={this.state.vehicle.registration} content={this.state.vehicle.brand.name + " - " + this.state.vehicle.model.name} />
-                            <Message style={{margin:"0"}} header={this.state.vehicle.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + "km"} content={"relevé " + moment(this.state.vehicle.lastKmUpdate, "DD/MM/YYYY").fromNow()} />
+                            <Message style={{margin:"0"}} header={this.state.vehicle.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " km"} content={"relevé " + moment(this.state.vehicle.lastKmUpdate, "DD/MM/YYYY").fromNow()} />
                             <div style={{display:"flex",justifyContent:"flex-end"}}>
                                 <BigIconButton icon="dashboard" color="green" onClick={this.showUpdateKm} tooltip="Mise à jour du kilométrage"/>
                                 <BigIconButton icon="edit" color="blue" onClick={this.showEditIdent} tooltip="Édition du paneau identification"/>

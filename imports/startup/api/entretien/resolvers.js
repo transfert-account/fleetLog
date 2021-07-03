@@ -284,8 +284,8 @@ export default {
         nextStatus2(obj, {_id,time,kmAtFinish}, {user}){
             if(user._id){
                 let entretien = Entretiens.findOne({_id:new Mongo.ObjectID(_id)})
-                let concistency = Functions.checkKmsConsistency(entretien.vehicle,entretien.occurenceDate,kmAtFinish);                
-                if(concistency.status){
+                let consistency = Functions.checkKmsConsistency(entretien.vehicle,entretien.occurenceDate,kmAtFinish);                
+                if(consistency[0].status){
                     Entretiens.update(
                         {
                             _id: new Mongo.ObjectID(_id)
@@ -329,7 +329,7 @@ export default {
                     );
                     return [{status:true,message:'Entretien réalisé, kilométrage du véhicule mis à jour'}];
                 }else{
-                    return concistency;
+                    return consistency;
                 }
             }
             throw new Error('Unauthorized');

@@ -215,8 +215,8 @@ export default {
         },
         updateLocKm(obj, {_id,date,kmValue},{user}){
             if(user._id){
-                let concistency = Functions.checkLocKmsConsistency(_id,date,kmValue);
-                if(concistency.status){
+                let consistency = Functions.checkLocKmsConsistency(_id,date,kmValue);
+                if(consistency[0].status){
                     Locations.update(
                         {
                             _id: new Mongo.ObjectID(_id)

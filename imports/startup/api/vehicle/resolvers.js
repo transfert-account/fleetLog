@@ -384,8 +384,8 @@ export default {
         },
         updateKm(obj, {_id,date,kmValue},{user}){
             if(user._id){
-                let concistency = Functions.checkKmsConsistency(_id,date,kmValue);
-                if(concistency.status){
+                let consistency = Functions.checkKmsConsistency(_id,date,kmValue);
+                if(consistency[0].status){
                     Vehicles.update(
                         {
                             _id: new Mongo.ObjectID(_id)
@@ -405,7 +405,7 @@ export default {
                     )
                     return [{status:true,message:'Nouveau relevé enregsitré'}];
                 }else{
-                    return concistency;
+                    return consistency;
                 }
             }
             throw new Error('Unauthorized');
@@ -758,7 +758,7 @@ export default {
                 massKmUpdateMap.map(v=>{
                     let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(v._id)});
                     let consistency = Functions.checkKmsConsistency(v._id,date,v.km);//vehicle.kms[vehicle.kms.length-1].kmValue >= v.km
-                    if(consistency.status){
+                    if(consistency[0].status){
                         Vehicles.update(
                             {
                                 _id: new Mongo.ObjectID(v._id)
