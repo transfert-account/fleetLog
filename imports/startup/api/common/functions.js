@@ -18,18 +18,265 @@ import PayementTimes from '../payementTime/payementTimes';
 import VehicleArchiveJustifications from '../vehicleArchiveJustification/vehicleArchiveJustifications';
 import InterventionNature from '../interventionNature/interventionNatures';
 
+import JobLogs from '../job/jobLogs';
+
 import Controls from "../control/controls.js";
 
 import AWS from 'aws-sdk';
 import moment from 'moment';
 import { Mongo } from 'meteor/mongo';
-import { Component } from 'react';
 
 const bound = Meteor.bindEnvironment((callback) => {callback();});
 
+const msFormat = "DD/MM/YYYYY - HH:mm:ss.SSS"
+
+const createLogBook = (_id,key,timeStart) => {
+    JobLogs.insert({
+        _id:_id,
+        job:key,
+        timeStart:timeStart.format(),
+        timeEnd:null,
+        executionTime:null,
+        logs:[
+            {
+                timestamp:moment().format(msFormat),
+                text:"Début du cron job : [" + key + "]",
+                type:"text"
+            }
+        ]
+    })
+}
+const closeLogBook = (_id,key,timeStart) => {
+    JobLogs.update({
+        _id:_id
+    },{
+        $set:{
+            timeEnd:moment().format(),
+            executionTime:moment().diff(moment(timeStart))
+        },
+        $push:{
+            "logs":
+                {
+                    timestamp:moment().format(msFormat),
+                    text:"Fin du cron job : [" + key + "]",
+                    type:"text"
+                }
+        },
+    })
+}
+
+pushLog = (_id,text,type,options) => {
+    if(type == "text"){
+        JobLogs.update({
+            _id:_id
+        },{
+            $push:{
+                "logs":
+                    {
+                        timestamp:moment().format(msFormat),
+                        text:text,
+                        type:"text"
+                    }
+            },
+        })
+    }
+    if(type=="link"){
+        JobLogs.update({
+            _id:_id
+        },{
+            $push:{
+                "logs":
+                    {
+                        timestamp:moment().format(msFormat),
+                        text:text,
+                        options:JSON.stringify(options),
+                        type:type
+                    }
+            },
+        })
+    }
+}
+pushLogBreakLine = (_id) => {
+    JobLogs.update({
+        _id:_id
+    },{
+        $push:{
+            "logs":
+                {
+                    timestamp:moment().format(msFormat),
+                    text:"",
+                    type:"br"
+                }
+        },
+    })
+}
+
+getControlNextOccurrence = (v,c,o) => {
+    let color = "";
+    let label = "";
+    let nextOccurrence = "";
+    let timing = "";
+    let frequency = c.frequency;
+    if(o.lastOccurrence == "none"){//Aucune données concernant un précedent contrôle
+        if(c.firstIsDifferent){
+            frequency = c.firstFrequency
+        }
+        if(c.unit == "km"){
+            o.lastOccurrence = 0;//On part du principe que le dernier contrôle remonte a la mise en circulation du véhicule : 0km au compteur
+        }else{
+            o.lastOccurrence = v.firstRegistrationDate;//On part du principe que le dernier contrôle remonte a la date de mise en circulation du véhicule
+        }
+    }
+    if(c.unit == "km"){
+        if(parseInt(o.lastOccurrence) > parseInt(v.km)){//Kilométrage du contrôle supérieur à celui du véhicule
+            color = "grey"
+            label = "Kilométrage du contrôle supérieur à celui du véhicule"
+            nextOccurrence = "error"
+            echeance="error"
+            timing="error"
+        }else{
+            nextOccurrence = parseInt(parseInt(o.lastOccurrence) + parseInt(frequency)).toString() + " km";
+            let left = parseInt((parseInt(o.lastOccurrence) + parseInt(frequency)) - v.km);
+            echeance = left;
+            if(left<0){
+                color = "red"
+                timing = "late"
+                label = Math.abs(left) + " km de retard"
+            }else{
+                label = Math.abs(left) + " km restant"
+                if(left <= c.alert){
+                    color = "orange"
+                    timing = "soon"
+                }else{
+                    if(left > c.alert){
+                        color = "green"
+                        timing = "inTime"
+                    }else{
+                        color = "grey"
+                        timing = "grey"
+                    }
+                }
+            }
+        }
+    }else{
+        nextOccurrence = moment(moment(o.lastOccurrence,"DD/MM/YYYY").add(frequency,(c.unit == "m" ? "M" : c.unit))).format("DD/MM/YYYY");
+        let days = moment(moment(o.lastOccurrence,"DD/MM/YYYY").add(frequency,(c.unit == "m" ? "M" : c.unit)).format("DD/MM/YYYY"), "DD/MM/YYYY").diff(moment(),'days')
+        echeance = days;
+        if(days > 0){
+            if(days > moment.duration(parseInt(c.alert),(c.alertUnit == "m" ? "M" : c.alertUnit)).asDays()){
+                label = Math.abs(days) + " jours restant";
+                color="green";
+                timing = "inTime"
+            }else{
+                label = Math.abs(days) + " jours restant";
+                color="orange";
+                timing = "soon"
+            }
+        }else{
+            label = Math.abs(days) + " jours de retard";
+            timing = "late"
+            color="red";
+        }
+    }
+    return {color:color,label:label,echeance:echeance,nextOccurrence:nextOccurrence,timing:timing}
+}
+
 export default {
+    createLogBook:createLogBook,
+    closeLogBook:closeLogBook,
     ////////////////////////////////////
-    ///////// CONTROLS GETTER //////////
+    //////////// CRON JOBS /////////////
+    ////////////////////////////////////
+    entretiensCreationFromControlAlertStep : (key,_id,timeStart) => {
+        try {
+            let vehicles = Vehicles.find().fetch(); // pour chaque vehicule
+            vehicles.forEach(v=>{v.controls.map(cs=>{ // pour chanque controle de chaque vehicules
+                cs.control = Controls.findOne({_id:new Mongo.ObjectID(cs._id)}) // on affecte la definition du controle en remplacement de son _id
+            })})
+            pushLog(_id,vehicles.length + " véhicules à traiter","text",{})
+            pushLogBreakLine(_id)
+            pushLog(_id,"Calcul des échéances ... ","text",{})
+            vehicles.map(v=>{
+                v.brand = Brands.findOne({_id:new Mongo.ObjectID(v.brand)})
+                v.model = Models.findOne({_id:new Mongo.ObjectID(v.model)})
+                pushLogBreakLine(_id)
+                pushLog(_id,"==== " + v.registration + " ==== (" + v.brand.name + " "+ v.model.name + "), éligible à " + v.controls.length + " contrôles","text",{})
+                v.controls.map(cs=>{ // pour chanque controle de chaque vehicules
+                cs.creationNeeded = false;
+                if(cs.entretien == null || cs.entretien == ""){
+                    let next =  getControlNextOccurrence(v,cs.control,cs); // on determine l'echeance du prochain entretien
+                    if(next.timing != "inTime"){
+                        pushLog(_id,"Entretien nécessaire pour : " + cs.control.name + " : " + next.label,"text",{})
+                        cs.creationNeeded = true
+                    }
+                    /*if(cs.lastOccurrence != "none" && cs.lastOccurrence != ""){
+                        if(cs.control.unit == "km"){//DISTANCE
+                            if(parseInt(v.km) > parseInt(cs.lastOccurrence) + parseInt(cs.control.frequency) - parseInt(cs.control.alert)){
+                                pushLog(_id,"Création d'un entretien nécessaire pour le contrôle : " + cs.control.name,"text",{})
+                                cs.creationNeeded = true
+                            }
+                        }else{//TIME
+                            if(cs.control.unit == "m"){cs.control.unit = "M"}
+                            if(cs.control.alertUnit == "m"){cs.control.alertUnit = "M"}
+                            if(moment().isAfter(moment(cs.lastOccurrence,"DD/MM/YYYY").add(cs.control.frequency,cs.control.unit).subtract(cs.control.alert,cs.control.alertUnit))){
+                                pushLog(_id,"Création d'un entretien nécessaire pour le contrôle : " + cs.control.name,"text",{})
+                                cs.creationNeeded = true
+                            }
+                        }
+                    }*/
+                }
+            })})
+            pushLogBreakLine(_id)
+            pushLog(_id,"Création des entretiens ... ","text",{})
+            pushLogBreakLine(_id)
+            vehicles.map(v=>{v.controls.filter(cs=>cs.creationNeeded).map(cs=>{ // pour chaque controle nécessitant la création d'un entretien
+                let entretienId = new Mongo.ObjectID()
+                let vehicle = Vehicles.findOne({_id:v._id})
+                Entretiens.insert({
+                    _id:entretienId,
+                    societe:vehicle.societe,
+                    type:cs.control.ctrlType,
+                    originNature:null,
+                    originControl:cs.control._id._str,
+                    occurenceDate:"",
+                    kmAtFinish:0,
+                    vehicle:vehicle._id._str,
+                    piecesQty:[],
+                    status:0,
+                    time:0,
+                    notes:[{
+                        _id:new Mongo.ObjectID(),
+                        text:"Entretien généré automatique par le contrôle " + cs.control.name + " lié au véhicule " + vehicle.registration + " (" + moment().format('DD/MM/YYYY HH:mm:ss') + ")" ,
+                        date:moment().format('DD/MM/YYYY HH:mm:ss')
+                    }],
+                    archived:false,
+                    user:"",
+                });
+                Vehicles.update(
+                    {
+                        _id: vehicle._id,
+                        "controls._id": cs.control._id._str
+                    }, {
+                        $set: {
+                            "controls.$.entretien": entretienId._str
+                        }
+                    }
+                )
+                pushLog(_id,v.registration + " (" + cs.control.name + ") : entretien créé : ","link",{link:"/entretien/"+entretienId._str,linkLabel:" voir l'entretien"})
+            })})
+            pushLogBreakLine(_id)
+            closeLogBook(_id,key,timeStart)
+        } catch (error) {
+            console.log(error)
+        }
+
+
+
+
+        
+    },
+    ////////////////////////////////////
+    //////////// CHECK KMS /////////////
     ////////////////////////////////////
     checkKmsConsistency : (_id,date,value) => {
         let kms = Vehicles.findOne({_id:new Mongo.ObjectID(_id)}).kms // Recupération de la liste des relevé kilométrique
@@ -66,6 +313,9 @@ export default {
             return moment(a.reportDate,"DD/MM/YYYY") - moment(b.reportDate,"DD/MM/YYYY");
         });
     },
+    ////////////////////////////////////
+    ///////// CONTROLS GETTER //////////
+    ////////////////////////////////////
     agglomerateKms : v => {
         let kms = {};
         v.kms.forEach(k=>{
@@ -77,78 +327,12 @@ export default {
         })
         return kms;
     },
-    getControlNextOccurrence : (v,c,o) => {
-        //v est le véhicule
-        //c est la définition du controle
-        //o est l'occurrence du controle pour ce véhicule
-        let color = "";
-        let label = "";
-        let nextOccurrence = "";
-        let timing = "";
-        let frequency = c.frequency;
-        if(o.lastOccurrence == "none"){//Aucune données concernant un précedent contrôle
-            if(c.firstIsDifferent){
-                frequency = c.firstFrequency
-            }
-            if(c.unit == "km"){
-                o.lastOccurrence = 0;//On part du principe que le dernier contrôle remonte a la mise en circulation du véhicule : 0km au compteur
-            }else{
-                o.lastOccurrence = v.firstRegistrationDate;//On part du principe que le dernier contrôle remonte a la date de mise en circulation du véhicule
-            }
-        }
-        if(c.unit == "km"){
-            if(parseInt(o.lastOccurrence) > parseInt(v.km)){//Kilométrage du contrôle supérieur à celui du véhicule
-                color = "grey"
-                label = "Kilométrage du contrôle supérieur à celui du véhicule"
-                nextOccurrence = "error"
-                timing="error"
-            }else{
-                nextOccurrence = parseInt(parseInt(o.lastOccurrence) + parseInt(frequency)).toString() + " km";
-                let left = parseInt((parseInt(o.lastOccurrence) + parseInt(frequency)) - v.km);
-                if(left<0){
-                    color = "red"
-                    timing = "late"
-                    label = Math.abs(left) + " km de retard"
-                }else{
-                    label = Math.abs(left) + " km restant"
-                    if(left <= c.alert){
-                        color = "orange"
-                        timing = "soon"
-                    }else{
-                        if(left > c.alert){
-                            color = "green"
-                            timing = "inTime"
-                        }else{
-                            color = "grey"
-                            timing = "grey"
-                        }
-                    }
-                }
-            }
-        }else{
-            nextOccurrence = moment(moment(o.lastOccurrence,"DD/MM/YYYY").add(frequency,(c.unit == "m" ? "M" : c.unit))).format("DD/MM/YYYY");
-            let days = moment(moment(o.lastOccurrence,"DD/MM/YYYY").add(frequency,(c.unit == "m" ? "M" : c.unit)).format("DD/MM/YYYY"), "DD/MM/YYYY").diff(moment(),'days')
-            if(days > 0){
-                if(days > moment.duration(parseInt(c.alert),(c.alertUnit == "m" ? "M" : c.alertUnit)).asDays()){
-                    label = Math.abs(days) + " jours restant";
-                    color="green";
-                    timing = "inTime"
-                }else{
-                    label = Math.abs(days) + " jours restant";
-                    color="orange";
-                    timing = "soon"
-                }
-            }else{
-                label = Math.abs(days) + " jours de retard";
-                timing = "late"
-                color="red";
-            }
-        }
-        return {color:color,label:label,nextOccurrence:nextOccurrence,timing:timing}
-    },
+    //v est le véhicule
+    //c est la définition du controle
+    //o est l'occurrence du controle pour ce véhicule
+    getControlNextOccurrence : getControlNextOccurrence,
     getObli : () => Controls.find({ctrlType:"obli"}).fetch(),
     getPrev : () => Controls.find({ctrlType:"prev"}).fetch(),
-
     ////////////////////////////////////
     //// SINGLE DATA ASKER BY ID ///////
     ////////////////////////////////////

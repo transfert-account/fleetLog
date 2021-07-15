@@ -113,6 +113,25 @@ export default {
             }
             throw new Error('Unauthorized');
         },
+        updateControlDefinition(obj,{_id,name,firstIsDifferent,firstFrequency,frequency,unit,alert,alertUnit},{user}){
+            if(user._id){
+                Controls.update({
+                    _id:new Mongo.ObjectID(_id)
+                },{
+                    $set: {
+                        name:name,
+                        firstIsDifferent:firstIsDifferent,
+                        firstFrequency:(firstIsDifferent ? firstFrequency : 0),
+                        frequency:frequency,
+                        unit:unit,
+                        alert:alert,
+                        alertUnit:alertUnit
+                    }
+                });
+                return [{status:true,message:'Mofification du contrôle réussie'}];
+            }
+            throw new Error('Unauthorized');
+        },
         deleteControl(obj,{_id},{user}){
             if(user._id){
                 let nV = Vehicles.find({controls:{$elemMatch:{_id:_id}}}).fetch().length

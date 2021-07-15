@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Modal, Menu, Button, Form, Table, Icon } from 'semantic-ui-react';
 
-import EntretienMenu from '../molecules/EntretienMenu';
+import M_EntretienMenu from '../molecules/M_EntretienMenu';
 import PieceRow from '../molecules/PieceRow'
 
 import { UserContext } from '../../contexts/UserContext';
@@ -117,7 +117,7 @@ export class Pieces extends Component {
         return (
             <Fragment>
                 <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px 32px",gridTemplateRows:"auto auto auto 1fr",gridTemplateColumns:"auto 1fr"}}>
-                    <EntretienMenu active="pieces" style={{gridColumnEnd:"span 2",placeSelf:"start"}}/>
+                    <M_EntretienMenu active="pieces" style={{gridColumnEnd:"span 2",placeSelf:"start"}}/>
                     <Menu size='big' pointing vertical style={{gridColumnStart:"1",placeSelf:"start",margin:"0"}}>
                         {this.state.types.map(t=>{
                             return <Menu.Item key={t.key} color="blue" name={t.name} active={this.state.activeType == t.key} onClick={()=>{this.setState({activeType:t.key})}} icon={t.icon}/>

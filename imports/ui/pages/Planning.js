@@ -54,7 +54,7 @@ class Planning extends Component {
             name
           }
           originControl{
-            key
+            _id
             name
           }
           notes{
@@ -102,7 +102,7 @@ class Planning extends Component {
             name
           }
           originControl{
-            key
+            _id
             name
           }
           notes{
@@ -151,7 +151,7 @@ class Planning extends Component {
             name
           }
           originControl{
-            key
+            _id
             name
           }
           notes{

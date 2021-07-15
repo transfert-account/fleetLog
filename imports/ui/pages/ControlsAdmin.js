@@ -43,7 +43,7 @@ export class ControlsAdmin extends Component {
         newAlertUnit:"",
         newCtrlType:"obli",
         addControlQuery: gql`
-            mutation addControl($name:String!,$firstIsDifferent:Boolean!,$firstFrequency:Int!,$frequency:Int!,$unit:String!,$alert:Int!,$alertUnit:String!,$ctrlType:String!){
+            mutation addControl($name:String!,$firstIsDifferent:Boolean!,$firstFrequency:Int,$frequency:Int!,$unit:String!,$alert:Int!,$alertUnit:String!,$ctrlType:String!){
                 addControl(name:$name,firstIsDifferent:$firstIsDifferent,firstFrequency:$firstFrequency,frequency:$frequency,unit:$unit,alert:$alert,alertUnit:$alertUnit,ctrlType:$ctrlType){
                     status
                     message
@@ -67,7 +67,7 @@ export class ControlsAdmin extends Component {
     }
     
     /*SHOW AND HIDE MODALS*/
-    showAddControl = () => this.setState({openAddControl:true})
+    showAddControl = () => this.setState({openAddControl:true,newName:"",newFrequency:"",newUnit:"",newAlert:"",newAlertUnit:"",newCtrlType:"obli",newFirstIsDifferent:false,newFirstFrequency:"",})
     closeAddControl = () => this.setState({openAddControl:false})
     /*CHANGE HANDLERS*/
     handleChange = e => this.setState({[e.target.name]:e.target.value})
@@ -90,9 +90,7 @@ export class ControlsAdmin extends Component {
             this.props.toast({message:"Des informations nécessaire à la création du contrôle manquent",type:"error"});
         }else{
             if(
-                this.state.newFirstIsDifferent == 0 &&
-                this.state.newFirstFrequency.length == 0
-            ){
+                this.state.newFirstIsDifferent && this.state.newFirstFrequency.length == 0){
                 this.props.toast({message:"Des informations nécessaire à la création du contrôle manquent",type:"error"});
             }else{
                 this.props.client.mutate({
@@ -143,8 +141,8 @@ export class ControlsAdmin extends Component {
             return this.getPrevPanel()
         }
     }
-    getObliPanel = () => this.state.obliRaw.map(c=> <ControlRow ctrlType="obli" loadControls={this.loadControls} control={c}/> )
-    getPrevPanel = () => this.state.prevRaw.map(c=> <ControlRow ctrlType="prev" loadControls={this.loadControls} control={c}/> )
+    getObliPanel = () => this.state.obliRaw.map(c=> <ControlRow ctrlType="obli" loadControls={()=>this.loadControls("obli")} control={c}/> )
+    getPrevPanel = () => this.state.prevRaw.map(c=> <ControlRow ctrlType="prev" loadControls={()=>this.loadControls("prev")} control={c}/> )
     /*COMPONENTS LIFECYCLE*/
 
     componentDidMount = () => {

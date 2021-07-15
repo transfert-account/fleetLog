@@ -5,7 +5,7 @@ import { UserContext } from '../../contexts/UserContext';
 import BigIconButton from '../elements/BigIconButton';
 import EntretienRow from '../molecules/EntretienRow';
 import CustomFilterSegment from '../molecules/CustomFilterSegment';
-import EntretienMenu from '../molecules/EntretienMenu';
+import M_EntretienMenu from '../molecules/M_EntretienMenu';
 
 import CustomFilter from '../atoms/CustomFilter';
 import VehiclePicker from '../atoms/VehiclePicker';
@@ -253,7 +253,7 @@ class Entretiens extends Component {
     render() {
         return (
             <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto auto 1fr auto",gridTemplateColumns:"auto 1fr"}}>
-                <EntretienMenu active="entretiens"/>
+                <M_EntretienMenu active="entretiens"/>
                 <Input style={{justifySelf:"stretch"}} name="entretienFilter" onChange={this.handleChange} icon='search' placeholder='Rechercher une immatriculation'/>
                 <CustomFilterSegment resetAll={this.resetAll} style={{placeSelf:"stretch",gridRowStart:"2",gridColumnEnd:"span 2"}}>
                     {this.state.filters.map(f=>{

@@ -697,24 +697,25 @@ class Vehicle extends Component {
         if(this.state.obli.concat(this.state.prev).filter(x=>x.control._id == c)[0].selected != v){
             if(this.state.obli.concat(this.state.prev).filter(x=>x.control._id == c)[0].lastOccurrence != "none" && !confirm && !v){
                 this.showDisableControl(c)
-            }
-            this.props.client.mutate({
-                mutation:this.state.updateControlQuery,
-                variables:{
-                    _id:c,
-                    vehicle:this.state.vehicle._id,
-                    value:v
-                }
-            }).then(({data})=>{
-                data.updateControl.map(qrm=>{
-                    if(qrm.status){
-                        this.props.toast({message:qrm.message,type:"success"});
-                        this.loadVehicle();
-                    }else{
-                        this.props.toast({message:qrm.message,type:"error"});
+            }else{
+                this.props.client.mutate({
+                    mutation:this.state.updateControlQuery,
+                    variables:{
+                        _id:c,
+                        vehicle:this.state.vehicle._id,
+                        value:v
                     }
+                }).then(({data})=>{
+                    data.updateControl.map(qrm=>{
+                        if(qrm.status){
+                            this.props.toast({message:qrm.message,type:"success"});
+                            this.loadVehicle();
+                        }else{
+                            this.props.toast({message:qrm.message,type:"error"});
+                        }
+                    })
                 })
-            })
+            }
         }
     }
     uploadDocCg = () => {
@@ -2047,12 +2048,6 @@ class Vehicle extends Component {
                         <Modal.Header>
                             Êtes vous sûr ?
                         </Modal.Header>
-                        <Modal.Content>
-                            <Message color="red">
-                                Attention ! Une occurence est déjà enregistré pour ce contrôle sur ce véhicule.
-                                Confirmer provoquera la suppression des informations du dernier controle.
-                            </Message>
-                        </Modal.Content>
                         <Modal.Actions>
                             <Button color="grey" onClick={this.closeDisableControl}>Annuler</Button>
                             <Button color="red" onClick={()=>{this.switchControl(false,this.state.controlToDisable,true);this.closeDisableControl();}}>Confirmer</Button>

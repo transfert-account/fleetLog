@@ -1,0 +1,31 @@
+type Job{
+    key:String!
+    name:String!
+    lastExecuted:String!
+    executions:[JobExecution]
+}
+
+type JobExecution{
+    _id:String!
+    timeStart:String!
+    timeEnd:String
+    executionTime:String
+    logs:[Log]
+}
+
+type Log{
+    timestamp:String!
+    text:String!
+    type:String!
+    options:String
+}
+
+extend type Query{
+    jobs : [Job]
+    jobExecutions(key:String!) : [JobExecution]
+    jobLogs(_id:String!) : [Log]
+}
+
+extend type Mutation{
+    playJob(key:String!) : [QueryResultComplex]
+}

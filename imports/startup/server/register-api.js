@@ -99,10 +99,13 @@ import ControlResolvers from '../api/control/resolvers.js';
 import InterventionNatureSchema from '../api/interventionNature/InterventionNature.graphql';
 import InterventionNatureResolvers from '../api/interventionNature/resolvers.js';
 
+import JobSchema from '../api/job/Job.graphql';
+import JobResolvers from '../api/job/resolvers.js';
+
 import LogSchema from '../api/log/Log.graphql';
 import LogResolvers from '../api/log/resolvers.js';
 
-// #0560
+// #0581
 
 const typeDefs = [
     UserSchema,
@@ -136,6 +139,7 @@ const typeDefs = [
     ExportTemplateSchema,
     ControlSchema,
     InterventionNatureSchema,
+    JobSchema,
     TestSchema
 ];
 
@@ -171,6 +175,7 @@ const resolvers = merge(
     ExportTemplateResolvers,
     ControlResolvers,
     InterventionNatureResolvers,
+    JobResolvers,
     TestResolvers
 );
 

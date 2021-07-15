@@ -143,6 +143,38 @@ const affectVehicleData = vehicle => {
     }
 }
 
+const affectLocationData = vehicle => {
+    try{
+        if(vehicle.societe != null && vehicle.societe.length > 0){
+            vehicle.societe = Societes.findOne({_id:new Mongo.ObjectID(vehicle.societe)});
+        }else{
+            vehicle.societe = {_id:""};
+        }
+        if(vehicle.shared){
+            vehicle.sharedTo = Societes.findOne({_id:new Mongo.ObjectID(vehicle.sharedTo)});
+        }else{
+            vehicle.sharedTo = {_id:""};
+        }
+        if(vehicle.brand != null && vehicle.brand.length > 0){
+            vehicle.brand = Brands.findOne({_id:new Mongo.ObjectID(vehicle.brand)});
+        }else{
+            vehicle.brand = {_id:""};
+        }
+        if(vehicle.model != null && vehicle.model.length > 0){
+            vehicle.model = Models.findOne({_id:new Mongo.ObjectID(vehicle.model)});
+        }else{
+            vehicle.model = {_id:""};
+        }
+        if(vehicle.energy != null && vehicle.energy.length > 0){
+            vehicle.energy = Energies.findOne({_id:new Mongo.ObjectID(vehicle.energy)});
+        }else{
+            vehicle.energy = {_id:""};
+        }
+    }catch(e){
+        console.error(e)
+    }
+}
+
 export default {
     Query : {
         accident(obj, { _id }, {user}){
@@ -154,7 +186,17 @@ export default {
         },
         accidents(obj, args, {user}){
             let accidents = ACCIDENTS(user);
-            accidents.map(a=>affectData(a))
+            accidents.map(a=>{
+                affectData(a)
+                let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(a.vehicle)})
+                if(vehicle == undefined){
+                    a.vehicle = Locations.findOne({_id:new Mongo.ObjectID(a.vehicle)})
+                    affectLocationData(a.vehicle)
+                }else{
+                    a.vehicle = vehicle
+                    affectVehicleData(a.vehicle)
+                }
+            })
             return accidents;
         },
         accidentsByMonthByVehicle (obj, { year,month }, {user}) {

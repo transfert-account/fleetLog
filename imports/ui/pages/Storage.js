@@ -136,19 +136,23 @@ export class Storage extends Component {
         </div>
       )
     }
+    const cap = this.state.storedObjectsRaw.reduce((a,b)=>a + b.size,0)/1048576;
+    console.log(cap)
+    console.log(cap/5120*100)
     return (
       <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto auto 1fr"}}>
         <div style={{display:"grid",marginBottom:"0",gridTemplateColumns:"auto 1fr", gridGap:"32px"}}>
           <AdministrationMenu active="storage"/>
           <Input name="storageFilter" onChange={this.handleFilter} size='massive' icon='search' placeholder='Rechercher un objet ...' />
         </div>
-        <div style={{display:"grid",gridTemplateColumns:"auto auto auto 1fr auto auto"}}>
+        <div style={{display:"grid",gridTemplateColumns:"auto auto auto 1fr auto auto auto"}}>
           <MultiDropdown onChange={(value)=>this.setState({selectedType:value})} options={this.state.types.map(x=>{return({key:x.obj,text:x.name,value:x.obj,label:{color:x.color,empty:true,circular:true}})})}/>
           <MultiDropdown onChange={(value)=>this.setState({selectedSubtype:value})} options={(this.state.types.filter(x=>x.obj == this.state.selectedType)[0] ? this.state.types.filter(x=>x.obj == this.state.selectedType)[0].types.map(x=>{return({key:x.type,text:x.name,value:x.type,label:{color:x.color,empty:true,circular:true}})}) : [])}/>
           <Button color="red" onClick={()=>this.setState({selectedSubtype:""})}><Icon style={{margin:"0"}} name="cancel"/></Button>
-          <Progress color="green" progress="percent" style={{margin:"auto 32px"}} value={parseInt(parseFloat(((this.state.storedObjectsRaw.reduce((a,b)=>a + b.size,0)/1048576)))/5120*100).toFixed(1)} total={100} />
-          <Label size="large" style={{gridColumnStart:"5",placeSelf:"center",margin:"0 4px"}}>{parseFloat(this.state.storedObjectsRaw.reduce((a,b)=>a + b.size,0)/1048576).toFixed(2)} Mo utilisés</Label>
-          <Label size="large" style={{gridColumnStart:"6",placeSelf:"center",margin:"0 4px"}}>{this.state.storedObjectsRaw.length} objets stockés</Label>
+          <Progress color={(cap/5120*100 >= 85 ? "red" : (cap/5120*100 >= 70 ? "orange" : "green"))} style={{margin:"auto 32px"}} value={parseInt(parseFloat(((cap)))/5120*100)} total={100}/>
+          <Label size="large" style={{gridColumnStart:"5",placeSelf:"center",margin:"0 4px"}}>Capacité : {parseFloat(parseFloat(((cap)))/5120*100).toFixed(3).toString()} %</Label>
+          <Label size="large" style={{gridColumnStart:"6",placeSelf:"center",margin:"0 4px"}}>{parseFloat(cap).toFixed(2)} Mo utilisés</Label>
+          <Label size="large" style={{gridColumnStart:"7",placeSelf:"center",margin:"0 4px"}}>{this.state.storedObjectsRaw.length} objets stockés</Label>
         </div>
         <div style={{display:"block",overflowY:"auto",justifySelf:"stretch"}}>
           <Table compact selectable color="blue">

@@ -54,8 +54,6 @@ import MobileLayout from '../mobile_pages/MobileLayout';
 import M_Entretiens from '../mobile_pages/M_Entretiens';
 import M_Entretien from '../mobile_pages/M_Entretien';
 
-import M_Controls from '../mobile_pages/M_Controls';
-import M_Control from '../mobile_pages/M_Control';
 import M_Curatif from '../mobile_pages/M_Curatif';
 
 import M_Pieces from '../mobile_pages/M_Pieces';
@@ -142,6 +140,7 @@ class PageBody extends Component {
             <Route exact path='/entretien/controls/curatif' component={withoutNavbar(M_Curatif)}/>
             <Route exact path='/entretien/pieces' component={withoutNavbar(M_Pieces)}/>
 
+            <Route exact path='/entretien/entretiens' component={withoutNavbar(M_Entretiens)}/>
             <Route exact path='/entretien/:_id' component={withoutNavbar(M_Entretien)}/>
 
             <Route exact path='/planning/:y/:m' component={withoutNavbar(M_Planning)}/>

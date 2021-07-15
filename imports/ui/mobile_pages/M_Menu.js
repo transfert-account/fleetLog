@@ -8,11 +8,9 @@ export class M_Menu extends Component {
 
     state={
         links:[
-            {name:"Controls",url:"/entretien/controls/obli",icon:"fas fa-clipboard-list",color:"blue"},
-            {name:"Controls",url:"/entretien/controls/prev",icon:"fas fa-clipboard-list",color:"blue"},
+            {name:"Véhicules",url:"/parc/vehicles",icon:"fas fa-truck",color:"blue"},
             {name:"Curatif",url:"/entretien/controls/curatif",icon:"fas fa-plus-square",color:"blue"},
             {name:"Pieces",url:"/entretien/pieces",icon:"fas fa-cogs",color:"blue"},
-            {name:"Entretiens",url:"/entretien/entretiens",icon:"fas fa-tools",color:"blue"},
             {name:"Planning",url:"planning/"+new Date().getFullYear()+"/"+parseInt(new Date().getMonth()+1),icon:"far fa-calendar-alt",color:"blue"}
         ]
     }

@@ -30,6 +30,7 @@ export class Control extends Component {
                         color
                         timing
                         lastOccurrence
+                        echeance
                         entretien
                         vehicle{
                             _id
@@ -96,6 +97,11 @@ export class Control extends Component {
             this.setState({
                 controlRaw:data.vehiclesByControl.control,
                 vehiclesOccurrences:data.vehiclesByControl.vehiclesOccurrences
+            })
+            this.state.vehiclesOccurrences.sort((a,b)=>{
+                return b.echeance - a.echeance
+            }).map(v=>{
+                console.log(v.echeance)
             })
         })
     }
@@ -192,7 +198,7 @@ export class Control extends Component {
                                     </Table.Cell>
                                 </Table.Row>
                                 :
-                                this.state.vehiclesOccurrences.sort((a,b)=>{if(this.state.controlRaw.unit == "km"){return b.echeance.value - a.echeance.value}else{return a.echeance.value - b.echeance.value}}).map(v=>{
+                                this.state.vehiclesOccurrences.sort((a,b)=>{return a.echeance - b.echeance}).map(v=>{
                                     return(
                                         <Table.Row key={v.registration}>
                                             <Table.Cell collapsing textAlign="right">

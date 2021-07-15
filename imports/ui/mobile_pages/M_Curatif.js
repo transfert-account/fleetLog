@@ -5,7 +5,7 @@ import { Modal, Input, Button, Form, Table, Header, Icon } from 'semantic-ui-rea
 import VehiclePicker from '../atoms/VehiclePicker';
 import InterventionNaturePicker from '../atoms/InterventionNaturePicker';
 
-import EntretienMenu from '../molecules/EntretienMenu';
+import M_EntretienMenu from '../molecules/M_EntretienMenu';
 import { UserContext } from '../../contexts/UserContext';
 import { withRouter } from 'react-router-dom';
 import gql from 'graphql-tag';
@@ -173,7 +173,7 @@ export class Curatif extends Component {
     render() {return (
       <Fragment>
         <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto 1fr auto",gridTemplateColumns:"auto 1fr auto"}}>
-          <EntretienMenu active="curatif"/>
+          <M_EntretienMenu active="curatif"/>
           <div style={{gridRowStart:"2",gridColumnEnd:"span 3",display:"grid",gridTemplateColumns:"minmax(320px,auto) 1fr",gridTemplateRows:"auto 1fr auto",overflowY:"auto",justifySelf:"stretch",gridGap:"64px",paddingTop:"16px"}}>
             <Form size="big" style={{display:"grid",gridTemplateRows:"auto auto auto auto 1fr",gridGap:"16px",placeSelf:"stretch",gridRowEnd:"span 3"}}>
               <Form.Field>

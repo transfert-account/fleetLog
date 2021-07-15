@@ -483,15 +483,19 @@ export class ExportSinistres extends Component {
             if(this.state.constatFilter != "all"){
                 accidentsFiltered = accidentsFiltered.filter(a =>{return a.constatSent == this.state.constatFilter})  
             }
+            console.log(accidentsFiltered.length)
             if(this.state.statusFilter != "all"){
                 accidentsFiltered = accidentsFiltered.filter(a =>{return a.status == this.state.statusFilter})  
             }
+            console.log(accidentsFiltered.length)
             if(this.state.responsabiliteFilter != "all"){
                 accidentsFiltered = accidentsFiltered.filter(a =>{return a.responsabilite == this.state.responsabiliteFilter})
             }
+            console.log(accidentsFiltered.length)
             if(this.state.archiveFilter != false){
                 accidentsFiltered = accidentsFiltered.filter(a =>{return a.archived == this.state.archiveFilter})
             }
+            console.log(accidentsFiltered.length)
             if(this.state.docsFilter != "all"){
                 accidentsFiltered = accidentsFiltered.filter(a =>{
                     return (a.rapportExp._id == "" || a.constat._id == "" || a.facture._id == "" || a.questionary._id == "")

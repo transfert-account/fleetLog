@@ -21,7 +21,7 @@ export default {
             if(user._id){
                 try{
                     //NEW
-                    Controls.remove({});
+                    //Controls.remove({});
                     /*Vehicles.update(
                         {},
                         {   $set:{

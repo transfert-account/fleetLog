@@ -1,7 +1,7 @@
 type Control{
     _id:String!
     name:String!
-    firstIsDifferent:String!
+    firstIsDifferent:Boolean!
     firstFrequency:Int!
     frequency:Int!
     unit:String!
@@ -28,6 +28,7 @@ type ControlAndVehiculesEquiped{
 type VehicleAndOccurrence{
     nextOccurrence:String
     label:String
+    echeance:String
     color:String
     timing:String
 
@@ -43,6 +44,7 @@ extend type Query{
 }
 
 extend type Mutation{
-    addControl(name:String!,firstIsDifferent:Boolean!,firstFrequency:Int!,frequency:Int!,unit:String!,alert:Int!,alertUnit:String!,ctrlType:String!) : [QueryResultMessage]
+    addControl(name:String!,firstIsDifferent:Boolean!,firstFrequency:Int,frequency:Int!,unit:String!,alert:Int!,alertUnit:String!,ctrlType:String!) : [QueryResultMessage]
+    updateControlDefinition(_id:String!,name:String!,firstIsDifferent:Boolean!,firstFrequency:Int,frequency:Int!,unit:String!,alert:Int!,alertUnit:String!) : [QueryResultMessage]
     deleteControl(_id:String!) : [QueryResultMessage]
 }
