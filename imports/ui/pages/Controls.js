@@ -10,9 +10,6 @@ import Societes from '../../startup/api/societe/societes';
 export class Controls extends Component {
 
     state={
-        rowActions : c => [
-            {color:"blue",click:()=>{this.navigateToControl(c.control._id)},icon:"arrow right",tooltip:"Voir les véhicules concernés"},
-        ],
         unitsRaw:[
             {type:"distance",unit:"km",label:"km"},
             {type:"time",unit:"d",label:"jours"},
@@ -44,8 +41,8 @@ export class Controls extends Component {
         `
     }
 
-    navigateToControl = _id => {
-        this.props.history.push("/entretien/controls/" + _id);
+    navigateToControl = (_id,filter) => {
+        this.props.history.push("/entretien/control/" + _id + "/" + filter);
     }
     
     /*SHOW AND HIDE MODALS*/
@@ -98,7 +95,7 @@ export class Controls extends Component {
                             <Table.HeaderCell collapsing textAlign="center">A temps</Table.HeaderCell>
                             <Table.HeaderCell collapsing textAlign="center">Limite</Table.HeaderCell>
                             <Table.HeaderCell collapsing textAlign="center">En retard</Table.HeaderCell>
-                            <Table.HeaderCell collapsing textAlign="center">Actions</Table.HeaderCell>
+                            <Table.HeaderCell collapsing textAlign="center"></Table.HeaderCell>
                         </Table.Row>
                     </Table.Header>
                     <Table.Body>
@@ -108,22 +105,24 @@ export class Controls extends Component {
                                     <Table.Cell>{c.control.name}</Table.Cell>
                                     <Table.Cell textAlign="center">{this.getFrequencyLabel(c.control)}</Table.Cell>
                                     <Table.Cell textAlign="center">{c.control.alert + " " + this.getUnitLabel(c.control.alertUnit)}</Table.Cell>
-                                    <Table.Cell textAlign="center">
-                                        <Label>{c.affected + " / " + c.total}</Label>
+                                    <Table.Cell style={{cursor:"pointer"}} onClick={()=>this.navigateToControl(c.control._id,"active")} textAlign="center">
+                                        <Label>{c.affected + " / " + c.total}</Label>       
                                     </Table.Cell>
-                                    <Table.Cell textAlign="center">
+                                    <Table.Cell style={{cursor:"pointer"}} onClick={()=>this.navigateToControl(c.control._id,"inactive")} textAlign="center">
                                         <Label>{c.unaffected + " / " + c.total}</Label>
                                     </Table.Cell>
-                                    <Table.Cell textAlign="center">
+                                    <Table.Cell style={{cursor:"pointer"}} onClick={()=>this.navigateToControl(c.control._id,"inTime")} textAlign="center">
                                         <Label color={(c.inTime == 0 ? "" : "green")}>{c.inTime}</Label>
                                     </Table.Cell>
-                                    <Table.Cell textAlign="center">
+                                    <Table.Cell style={{cursor:"pointer"}} onClick={()=>this.navigateToControl(c.control._id,"soon")} textAlign="center">
                                         <Label color={(c.soon == 0 ? "" : "orange")}>{c.soon}</Label>
                                     </Table.Cell>
-                                    <Table.Cell textAlign="center">
+                                    <Table.Cell style={{cursor:"pointer"}} onClick={()=>this.navigateToControl(c.control._id,"late")} textAlign="center">
                                         <Label color={(c.late == 0 ? "" : "red")}>{c.late}</Label>
                                     </Table.Cell>
-                                    <ActionsGridCell actions={this.state.rowActions(c)}/>
+                                    <Table.Cell style={{cursor:"pointer"}} onClick={()=>this.navigateToControl(c.control._id,"all")} textAlign="center">
+                                        <Label style={{whiteSpace:"nowrap"}}>Voir tout</Label>
+                                    </Table.Cell>
                                 </Table.Row>
                             )
                         })}

@@ -15,7 +15,10 @@ const jobs = [
 export default {
     Query : {
         jobs(obj,arg,{user}){
-            return jobs;
+            return jobs.map(j=>{
+                j.lastExecuted = JobLogs.findOne({job:j.key},{sort:{_id:-1}}).timeStart
+                return j
+            });
         },
         jobExecutions(obj,{key},{user}){
             return JobLogs.find({job:key}).fetch();

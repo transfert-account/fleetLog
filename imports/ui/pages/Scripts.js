@@ -140,7 +140,7 @@ export class Scripts extends Component {
                   return(
                     <Table.Row style={{cursor:"pointer"}} onClick={()=>this.selectJob(j.key)}>
                       <Table.Cell>{j.name}</Table.Cell>
-                      <Table.Cell textAlign="center">dd/mm/yyyy</Table.Cell>
+                      <Table.Cell textAlign="center">{moment(j.lastExecuted).format("DD/MM/YYYY HH:mm:ss")}</Table.Cell>
                     </Table.Row>
                   )
                 })}
@@ -166,7 +166,6 @@ export class Scripts extends Component {
                     </Table.Cell>
                   </Table.Row>
                   {this.state.selectedJobExecutionsRaw.map(e=>{
-                    console.log(e.timeEnd == null)
                     return(
                       <Table.Row positive={(e.timeEnd == null)} key={e._id} style={{cursor:"pointer"}} onClick={()=>this.displayLogs(e._id,true)}>
                         <Table.Cell>
@@ -189,9 +188,15 @@ export class Scripts extends Component {
           <Header as="h1">Aucun job séléctionné</Header>
         )
       }else{
-        return (
-          <Header as="h1">Job : {this.state.jobsRaw.filter(j=>j.key == this.state.selectedJob)[0].name}</Header>
-        )
+        if(this.state.selectedExecution == null){
+          return (
+            <Header as="h1">Job : {this.state.jobsRaw.filter(j=>j.key == this.state.selectedJob)[0].name}</Header>
+          )
+        }else{
+          return (
+            <Header as="h1">Job : {this.state.jobsRaw.filter(j=>j.key == this.state.selectedJob)[0].name}, retour d'execution du {moment(this.state.selectedJobExecutionsRaw.filter(execution=>execution._id == this.state.selectedExecution)[0].timeStart).format("DD/MM/YYYY HH:mm:ss")}</Header>
+          ) 
+        }
       }
     }
     /*COMPONENTS LIFECYCLE*/
@@ -217,14 +222,38 @@ export class Scripts extends Component {
             if(l.type == "text"){
               return(
                 <Fragment>
-                  <p><span style={{color:"#777"}}>{"["+moment(l.timestamp,this.state.msFormat).format("HH:mm:ss.SSS")+"]"}</span> {l.text}</p>
+                  <p>
+                    <span style={{color:"#777"}}>{"["+moment(l.timestamp,this.state.msFormat).format("HH:mm:ss.SSS")+"]"}</span>
+                    {l.text}
+                  </p>
                 </Fragment>
               )
             }
             if(l.type == "link"){
               return(
                 <Fragment>
-                  <p><span style={{color:"#777"}}>{"["+moment(l.timestamp,this.state.msFormat).format("HH:mm:ss.SSS")+"]"}</span>{l.text}<a style={{color:"#74b9ff"}} href="#" onClick={()=>this.props.history.push(l.options.link)}>{l.options.linkLabel}</a></p>
+                  <p>
+                    <span style={{color:"#777"}}>{"["+moment(l.timestamp,this.state.msFormat).format("HH:mm:ss.SSS")+"]"}</span>
+                    {l.text}
+                    <a style={{color:"#74b9ff"}} href="#" onClick={()=>this.props.history.push(l.options.link)}>
+                      {l.options.linkLabel}
+                    </a>
+                  </p>
+                </Fragment>
+              )
+            }
+            if(l.type == "colored"){
+              return(
+                <Fragment>
+                  <p>
+                    <span style={{color:"#777"}}>
+                      {"["+moment(l.timestamp,this.state.msFormat).format("HH:mm:ss.SSS")+"]"}</span>
+                      {l.options.before}
+                      <a style={{color:"#"+l.options.hex}} href="#" onClick={()=>this.props.history.push(l.options.link)}>
+                        {l.options.colored}
+                      </a>
+                      {l.options.after}
+                  </p>
                 </Fragment>
               )
             }

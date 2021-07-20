@@ -78,13 +78,34 @@ export default {
             })
             return controls;
         },
-        vehiclesByControl(obj,{_id},{user}){
+        vehiclesByControl(obj,{_id,societe},{user}){
             let res = {control:{},lastOccurrence:"",vehiclesOccurrences:[]}
             res.control = Controls.findOne({_id:new Mongo.ObjectID(_id)})
-            res.vehiclesOccurrences = VEHICLES(user).filter(v=>v.controls.filter(c=>c._id == _id).length > 0)
+            res.vehiclesOccurrences = VEHICLES(user);
+            if(societe != "noidthisisgroupvisibility"){
+                res.vehiclesOccurrences = res.vehiclesOccurrences.filter(v=>v.societe == societe)
+            }
             res.vehiclesOccurrences.forEach(v=>{affectVehicleData(v)})
             res.vehiclesOccurrences = res.vehiclesOccurrences.map(v=>{
-                return({vehicle:v,lastOccurrence:v.controls.filter(c=>c._id == _id)[0].lastOccurrence,entretien:v.controls.filter(c=>c._id == _id)[0].entretien,...Functions.getControlNextOccurrence(v,res.control,v.controls.filter(c=>c._id == _id)[0])})
+                let control = v.controls.filter(c=>c._id == _id)[0];
+                if(control != null && control != undefined){
+                    return({
+                        vehicle:v,
+                        lastOccurrence:control.lastOccurrence,
+                        entretien:control.entretien,
+                        ...Functions.getControlNextOccurrence(v,res.control,control)
+                    })
+                }else{
+                    return({
+                        vehicle:v,
+                        label:"Non éligible",
+                        color: "grey",
+                        echeance: "-1",
+                        entretien: null,
+                        lastOccurrence: "none",
+                        nextOccurrence: null
+                    })
+                }
             })
             return res;
         },

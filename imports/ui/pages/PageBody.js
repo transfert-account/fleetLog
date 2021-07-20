@@ -88,7 +88,7 @@ class PageBody extends Component {
             <Route exact path='/entretien/controls/obli' component={withNavbar(()=><Controls ctrlType={"obli"}/>)}/>
             <Route exact path='/entretien/controls/prev' component={withNavbar(()=><Controls ctrlType={"prev"}/>)}/>
             <Route exact path='/entretien/controls/curatif' component={withNavbar(Curatif)}/>
-            <Route exact path='/entretien/controls/:_id' component={withNavbar(Control)}/>
+            <Route exact path='/entretien/control/:_id/:filter' component={withNavbar(Control)}/>
             <Route exact path='/entretien/pieces' component={withNavbar(Pieces)}/>
 
             <Route exact path='/entretien/entretiens' component={withNavbar(Entretiens)}/>

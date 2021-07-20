@@ -155,7 +155,7 @@ export class ControlOccurrenceRow extends Component {
                         <Popup position='top center' trigger={<Button style={{marginLeft:"24px"}} disabled={!this.props.c.selected || this.props.c.entretien == null || this.props.c.entretien == ""} color="blue" icon onClick={()=>this.props.history.push("/entretien/"+this.props.c.entretien)} icon="wrench"/>}>
                             Voir l'entretien
                         </Popup>
-                        <Popup position='top center' trigger={<Button disabled={!this.props.c.selected} color="blue" icon onClick={()=>this.props.history.push("/entretien/controls/"+this.props.c.control._id)} icon="clipboard check"/>}>
+                        <Popup position='top center' trigger={<Button disabled={!this.props.c.selected} color="blue" icon onClick={()=>this.props.history.push("/entretien/control/"+this.props.c.control._id+"/all")} icon="clipboard check"/>}>
                             Voir le contrôle
                         </Popup>
                     </Table.Cell>

@@ -34,12 +34,12 @@ type VehicleAndOccurrence{
 
     lastOccurrence:String
     entretien:String
-    vehicle: Vehicle
+    vehicle: Vehicle!
 }
 
 extend type Query{
     ctrlStats(ctrlType:String!,societe:String!) : [ControlStats]
-    vehiclesByControl(_id:String!) : ControlAndVehiculesEquiped
+    vehiclesByControl(_id:String!,societe:String!) : ControlAndVehiculesEquiped
     controls(ctrlType:String!) : [Control]
 }
 

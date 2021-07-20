@@ -80,7 +80,7 @@ pushLog = (_id,text,type,options) => {
             },
         })
     }
-    if(type=="link"){
+    if(type == "link" || type == "colored"){
         JobLogs.update({
             _id:_id
         },{
@@ -175,10 +175,11 @@ getControlNextOccurrence = (v,c,o) => {
         }else{
             label = Math.abs(days) + " jours de retard";
             timing = "late"
-            color="red";
+            color = "red";
         }
     }
-    return {color:color,label:label,echeance:echeance,nextOccurrence:nextOccurrence,timing:timing}
+    let hex = (color == "green" ? "2ecc71" : (color == "orange" ? "f39c12" : (color == "red" ? "ff6b6b" : "777777")))
+    return {color:color,label:label,hex:hex,echeance:echeance,nextOccurrence:nextOccurrence,timing:timing}
 }
 
 export default {
@@ -193,39 +194,35 @@ export default {
             vehicles.forEach(v=>{v.controls.map(cs=>{ // pour chanque controle de chaque vehicules
                 cs.control = Controls.findOne({_id:new Mongo.ObjectID(cs._id)}) // on affecte la definition du controle en remplacement de son _id
             })})
-            pushLog(_id,vehicles.length + " véhicules à traiter","text",{})
+            pushLogBreakLine(_id)
+            pushLog(_id,vehicles.length + " véhicules à traiter.","text",{})
             pushLogBreakLine(_id)
             pushLog(_id,"Calcul des échéances ... ","text",{})
+            pushLogBreakLine(_id)
+            let totalCheck = 0;
             vehicles.map(v=>{
                 v.brand = Brands.findOne({_id:new Mongo.ObjectID(v.brand)})
                 v.model = Models.findOne({_id:new Mongo.ObjectID(v.model)})
-                pushLogBreakLine(_id)
-                pushLog(_id,"==== " + v.registration + " ==== (" + v.brand.name + " "+ v.model.name + "), éligible à " + v.controls.length + " contrôles","text",{})
                 v.controls.map(cs=>{ // pour chanque controle de chaque vehicules
-                cs.creationNeeded = false;
-                if(cs.entretien == null || cs.entretien == ""){
-                    let next =  getControlNextOccurrence(v,cs.control,cs); // on determine l'echeance du prochain entretien
-                    if(next.timing != "inTime"){
-                        pushLog(_id,"Entretien nécessaire pour : " + cs.control.name + " : " + next.label,"text",{})
-                        cs.creationNeeded = true
-                    }
-                    /*if(cs.lastOccurrence != "none" && cs.lastOccurrence != ""){
-                        if(cs.control.unit == "km"){//DISTANCE
-                            if(parseInt(v.km) > parseInt(cs.lastOccurrence) + parseInt(cs.control.frequency) - parseInt(cs.control.alert)){
-                                pushLog(_id,"Création d'un entretien nécessaire pour le contrôle : " + cs.control.name,"text",{})
-                                cs.creationNeeded = true
-                            }
-                        }else{//TIME
-                            if(cs.control.unit == "m"){cs.control.unit = "M"}
-                            if(cs.control.alertUnit == "m"){cs.control.alertUnit = "M"}
-                            if(moment().isAfter(moment(cs.lastOccurrence,"DD/MM/YYYY").add(cs.control.frequency,cs.control.unit).subtract(cs.control.alert,cs.control.alertUnit))){
-                                pushLog(_id,"Création d'un entretien nécessaire pour le contrôle : " + cs.control.name,"text",{})
-                                cs.creationNeeded = true
-                            }
+                    totalCheck++;
+                    cs.creationNeeded = false;
+                    if(cs.entretien == null || cs.entretien == ""){
+                        let next =  getControlNextOccurrence(v,cs.control,cs); // on determine l'echeance du prochain entretien
+                        if(next.timing != "inTime"){
+                            pushLog(_id,"","colored",{
+                                before:v.registration + " (" + v.brand.name + " "+ v.model.name + "), entretien nécessaire pour : " + cs.control.name + " : ",
+                                after:".",
+                                colored:next.label,
+                                hex:next.hex
+                            })
+                            cs.creationNeeded = true
                         }
-                    }*/
-                }
-            })})
+                    }
+                })
+            })
+            pushLogBreakLine(_id)
+            pushLog(_id,"Echéance de " + totalCheck + " contrôles vérifiées.","text",{})
+            pushLog(_id,"Echéance de " + vehicles.reduce((a,v)=>{return a + v.controls.filter(cs=>cs.creationNeeded).length},0) + " contrôles nécessitant un entretien.","text",{})
             pushLogBreakLine(_id)
             pushLog(_id,"Création des entretiens ... ","text",{})
             pushLogBreakLine(_id)
@@ -262,7 +259,10 @@ export default {
                         }
                     }
                 )
-                pushLog(_id,v.registration + " (" + cs.control.name + ") : entretien créé : ","link",{link:"/entretien/"+entretienId._str,linkLabel:" voir l'entretien"})
+                pushLog(_id,v.registration + " (" + cs.control.name + ") : entretien créé : ","link",{
+                    link:"/entretien/"+entretienId._str,
+                    linkLabel:" voir l'entretien"
+                })
             })})
             pushLogBreakLine(_id)
             closeLogBook(_id,key,timeStart)

@@ -137,8 +137,6 @@ export class Storage extends Component {
       )
     }
     const cap = this.state.storedObjectsRaw.reduce((a,b)=>a + b.size,0)/1048576;
-    console.log(cap)
-    console.log(cap/5120*100)
     return (
       <div style={{height:"100%",padding:"8px",display:"grid",gridGap:"16px",gridTemplateRows:"auto auto 1fr"}}>
         <div style={{display:"grid",marginBottom:"0",gridTemplateColumns:"auto 1fr", gridGap:"32px"}}>
