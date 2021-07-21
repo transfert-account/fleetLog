@@ -52,6 +52,7 @@ class EntretienRow extends Component {
         }
     }
     getEntretienOrigin = () => {
+        console.log(this.props.entretien)
         if(this.props.entretien.originNature != null){
             return this.props.entretien.originNature.name
         }else{

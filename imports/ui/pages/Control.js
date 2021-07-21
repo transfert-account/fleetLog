@@ -108,7 +108,7 @@ export class Control extends Component {
                 )
             }else{
                 return(
-                    displayed.sort((a,b)=>{return a.echeance - b.echeance}).map(v=>{
+                    displayed.sort((a,b)=>{if(b.timming == null){return false}else{return a.echeance - b.echeance}}).map(v=>{
                         return(
                             <Table.Row key={v.registration}>
                                 <Table.Cell collapsing textAlign="right">
@@ -146,7 +146,7 @@ export class Control extends Component {
                 displayed = displayed.filter(v=>v.timing == null)
             }
         }
-        displayed.map(v=>{
+        displayed.sort((a,b)=>{if(b.timming == null){return false}else{return a.echeance - b.echeance}}).map(v=>{
             exp.push({
                 "Opéré par":v.vehicle.shared ? v.vehicle.sharedTo.name : v.vehicle.societe.name,
                 "Vehicule":v.vehicle.brand.name + " - " + v.vehicle.model.name + " (" + v.vehicle.energy.name + ")",
