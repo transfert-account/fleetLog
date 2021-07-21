@@ -55,11 +55,15 @@ export class PlanningRow extends Component {
         actions.push({color:"blue",click:()=>{this.navigate()},icon:"arrow right",tooltip:"Voir l'entretien"})
         return (actions)
     }
-    getEntretienOriginCell = () => {
+    getEntretienOrigin = () => {
         if(this.props.entretien.originNature != null){
             return this.props.entretien.originNature.name
         }else{
-            return this.props.entretien.originControl.name
+            if(this.props.entretien.originControl != null){
+                return this.props.entretien.originControl.name
+            }else{
+                return "Le controle à l'origine de cet entretien est introuvable."
+            }
         }
     }
 
@@ -70,7 +74,7 @@ export class PlanningRow extends Component {
                     <Table.Cell textAlign="center">{this.props.entretien.user.firstname + " " +this.props.entretien.user.lastname}<br/>{this.props.entretien.societe.name}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.entretien.vehicle.registration}</Table.Cell>
                     {this.getEntretienTypeCell()}
-                    <Table.Cell textAlign="center">{this.getEntretienOriginCell()}</Table.Cell>
+                    <Table.Cell textAlign="center">{this.getEntretienOrigin()}</Table.Cell>
                     <ActionsGridCell actions={this.getRowActionsAffected()}/>
                 </Table.Row>
             )
@@ -80,7 +84,7 @@ export class PlanningRow extends Component {
                 <Table.Row key={this.props.entretien._id}>
                     <Table.Cell textAlign="center">{this.props.entretien.vehicle.registration}</Table.Cell>
                     {this.getEntretienTypeCell()}
-                    <Table.Cell textAlign="center">{this.getEntretienOriginCell()}</Table.Cell>
+                    <Table.Cell textAlign="center">{this.getEntretienOrigin()}</Table.Cell>
                     <Table.Cell style={{padding:"0"}} textAlign='center'>
                         {this.props.entretien.occurenceDate}
                     </Table.Cell>
@@ -94,7 +98,7 @@ export class PlanningRow extends Component {
                     <Table.Cell textAlign="center">{this.props.entretien.societe.name}</Table.Cell>
                     <Table.Cell textAlign="center">{this.props.entretien.vehicle.registration}</Table.Cell>
                     {this.getEntretienTypeCell()}
-                    <Table.Cell textAlign="center">{this.getEntretienOriginCell()}</Table.Cell>
+                    <Table.Cell textAlign="center">{this.getEntretienOrigin()}</Table.Cell>
                     <ActionsGridCell actions={this.state.rowActionsUnaffected}/>
                 </Table.Row>
             )

@@ -708,8 +708,13 @@ class Entretien extends Component {
             header = this.state.entretienRaw.originNature.name
             content = "Entretien " + this.getTypeLabel()
         }else{
-            header = this.state.entretienRaw.originControl.name
-            content = "Contrôle " + this.getTypeLabel()
+            if(this.state.entretienRaw.originControl != null){
+                header = this.state.entretienRaw.originControl.name
+                content = "Contrôle " + this.getTypeLabel()
+            }else{
+                header = "Le controle à l'origine de cet entretien est introuvable."
+                content = "-"
+            }
         }
         return (
             <Message style={{margin:"0",gridRowStart:"1",gridColumnStart:"2"}} icon='clipboard check' header={header} content={content}/>
