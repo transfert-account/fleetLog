@@ -180,8 +180,14 @@ export default {
         accident(obj, { _id }, {user}){
             let a = Accidents.findOne({_id:new Mongo.ObjectID(_id)});
             affectData(a);
-            a.vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(a.vehicle)})
-            affectVehicleData(a.vehicle)
+            let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(a.vehicle)})
+            if(vehicle == undefined){
+                a.vehicle = Locations.findOne({_id:new Mongo.ObjectID(a.vehicle)})
+                affectLocationData(a.vehicle)
+            }else{
+                a.vehicle = vehicle
+                affectVehicleData(a.vehicle)
+            }
             return a;
         },
         accidents(obj, args, {user}){

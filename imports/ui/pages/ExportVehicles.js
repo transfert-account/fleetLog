@@ -262,7 +262,7 @@ export class ExportVehicles extends Component {
             {key:"brk",active:false,colOrder:-1,label:"En réparation",access:(v)=>(v.broken?"OUI":"NON")},
             {key:"reg",active:false,colOrder:-1,label:"Immatriculation",access:(v)=>v.registration},
             {key:"rgd",active:false,colOrder:-1,label:"Date Immatriculation",access:(v)=>v.firstRegistrationDate},
-            {key:"kms",active:false,colOrder:-1,label:"Kilometrage",access:(v)=>v.km},
+            {key:"kms",active:false,colOrder:-1,label:"Kilometrage",access:(v)=>v.kms[v.kms.length-1].kmValue},
             {key:"kmu",active:false,colOrder:-1,label:"Dernier relevé",access:(v)=>v.lastKmUpdate},
             {key:"brd",active:false,colOrder:-1,label:"Marque",access:(v)=>v.brand.name},
             {key:"mod",active:false,colOrder:-1,label:"Modèle",access:(v)=>v.model.name},

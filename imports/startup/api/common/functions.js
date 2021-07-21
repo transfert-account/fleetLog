@@ -292,7 +292,7 @@ export default {
                 v.model = Models.findOne({_id:new Mongo.ObjectID(v.model)})
                 if(v.km != v.kms[v.kms.length-1].kmValue){
                     pushLog(_id,v.registration + " (" + v.brand.name + " " + v.model.name + ") value=" + v.km + "km, last="  + v.kms[v.kms.length-1].kmValue + "km : ","link",{
-                        link:"/vehicles/"+v._id._str,
+                        link:"/parc/vehicles/"+v._id._str,
                         linkLabel:" voir le véhicule"
                     })
                     inconsistency++;
@@ -302,7 +302,19 @@ export default {
             pushLogBreakLine(_id)
             pushLog(_id,"Km value of " + totalCheck + " vehicles verified.","text",{})
             pushLog(_id,inconsistency + " inconsistency detected.","text",{})
+            pushLog(_id,"Solving inconsistency ... ","text",{})
             pushLogBreakLine(_id)
+            vehicles.map(v=>{
+                if(v.km != v.kms[v.kms.length-1].kmValue){
+                    Vehicles.update({
+                        _id:v._id
+                    },{
+                        $set:{
+                            km : v.kms[v.kms.length-1].kmValue
+                        }
+                    })
+                }
+            })
             closeLogBook(_id,key,timeStart)
         } catch (error) {
             console.log(error)
