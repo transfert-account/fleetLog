@@ -179,7 +179,14 @@ getControlNextOccurrence = (v,c,o) => {
         }
     }
     let hex = (color == "green" ? "2ecc71" : (color == "orange" ? "f39c12" : (color == "red" ? "ff6b6b" : "777777")))
-    return {color:color,label:label,hex:hex,echeance:echeance,nextOccurrence:nextOccurrence,timing:timing}
+    return {
+        color:color,
+        label:label,
+        hex:hex,
+        echeance:echeance,
+        nextOccurrence:nextOccurrence,
+        timing:timing
+    }
 }
 
 export default {
@@ -269,11 +276,37 @@ export default {
         } catch (error) {
             console.log(error)
         }
-
-
-
-
-        
+    },
+    check_km_value_km_report:(key,_id,timeStart) => {
+        try {
+            let vehicles = Vehicles.find().fetch(); // pour chaque vehicule
+            pushLogBreakLine(_id)
+            pushLog(_id,vehicles.length + " vehicles to verify.","text",{})
+            pushLogBreakLine(_id)
+            pushLog(_id,"Verifying consistency ... ","text",{})
+            pushLogBreakLine(_id)
+            let totalCheck = 0;
+            let inconsistency = 0;
+            vehicles.map(v=>{
+                v.brand = Brands.findOne({_id:new Mongo.ObjectID(v.brand)})
+                v.model = Models.findOne({_id:new Mongo.ObjectID(v.model)})
+                if(v.km != v.kms[v.kms.length-1].kmValue){
+                    pushLog(_id,v.registration + " (" + v.brand.name + " " + v.model.name + ") value=" + v.km + "km, last="  + v.kms[v.kms.length-1].kmValue + "km : ","link",{
+                        link:"/vehicles/"+v._id._str,
+                        linkLabel:" voir le véhicule"
+                    })
+                    inconsistency++;
+                }
+                totalCheck++;
+            })
+            pushLogBreakLine(_id)
+            pushLog(_id,"Km value of " + totalCheck + " vehicles verified.","text",{})
+            pushLog(_id,inconsistency + " inconsistency detected.","text",{})
+            pushLogBreakLine(_id)
+            closeLogBook(_id,key,timeStart)
+        } catch (error) {
+            console.log(error)
+        }  
     },
     ////////////////////////////////////
     //////////// CHECK KMS /////////////

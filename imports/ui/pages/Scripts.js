@@ -56,7 +56,7 @@ export class Scripts extends Component {
     /*SHOW AND HIDE MODALS*/
     /*CHANGE HANDLERS*/
     selectJob = key => {
-      this.setState({selectedJob:key})
+      this.setState({selectedJob:key,selectedExecution:null})
       this.loadJobExecutions(key);
     }
     displayLogs = (_id,ended) => {
@@ -105,8 +105,9 @@ export class Scripts extends Component {
         },
         fetchPolicy:"network-only"
       }).then(({data})=>{
+        console.log(data.jobExecutions)
         this.setState({
-          selectedJobExecutionsRaw:data.jobExecutions.reverse()
+          selectedJobExecutionsRaw:data.jobExecutions.sort((a,b) => moment(b.timeStart) - moment(a.timeStart))
         })
       })
     }
@@ -249,9 +250,9 @@ export class Scripts extends Component {
                     <span style={{color:"#777"}}>
                       {"["+moment(l.timestamp,this.state.msFormat).format("HH:mm:ss.SSS")+"]"}</span>
                       {l.options.before}
-                      <a style={{color:"#"+l.options.hex}} href="#" onClick={()=>this.props.history.push(l.options.link)}>
+                      <span style={{color:"#"+l.options.hex}}>
                         {l.options.colored}
-                      </a>
+                      </span>
                       {l.options.after}
                   </p>
                 </Fragment>

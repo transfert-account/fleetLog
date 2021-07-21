@@ -9,6 +9,12 @@ const jobs = [
         name:"Création des entretiens depuis les contrôles",
         function : "entretiensCreationFromControlAlertStep",
         lastExecuted:"dd/mm/yyyy"
+    },
+    {
+        key:"check_km",
+        name:"Vérification cohérence km_value / km last report",
+        function : "check_km_value_km_report",
+        lastExecuted:"dd/mm/yyyy"
     }
 ]
 
@@ -16,7 +22,8 @@ export default {
     Query : {
         jobs(obj,arg,{user}){
             return jobs.map(j=>{
-                j.lastExecuted = JobLogs.findOne({job:j.key},{sort:{_id:-1}}).timeStart
+                let lastExe = JobLogs.findOne({job:j.key},{sort:{_id:-1}})
+                j.lastExecuted = (lastExe ? lastExe.timeStart : "")
                 return j
             });
         },
@@ -36,6 +43,9 @@ export default {
 
                 if(key == "entcont"){
                     Functions.entretiensCreationFromControlAlertStep("entcont",_id,timeStart);
+                }
+                if(key == "check_km"){
+                    Functions.check_km_value_km_report("check_km",_id,timeStart);
                 }
                 return [{status:true,message:key + " running",obj:_id}];
             }
