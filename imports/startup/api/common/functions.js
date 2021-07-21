@@ -128,7 +128,7 @@ getControlNextOccurrence = (v,c,o) => {
         }
     }
     if(c.unit == "km"){
-        if(parseInt(o.lastOccurrence) > parseInt(v.km)){//Kilométrage du contrôle supérieur à celui du véhicule
+        if(parseInt(o.lastOccurrence) > parseInt(v.kms[v.kms.length-1].kmValue)){//Kilométrage du contrôle supérieur à celui du véhicule
             color = "grey"
             label = "Kilométrage du contrôle supérieur à celui du véhicule"
             nextOccurrence = "error"
@@ -136,7 +136,7 @@ getControlNextOccurrence = (v,c,o) => {
             timing="error"
         }else{
             nextOccurrence = parseInt(parseInt(o.lastOccurrence) + parseInt(frequency)).toString() + " km";
-            let left = parseInt((parseInt(o.lastOccurrence) + parseInt(frequency)) - v.km);
+            let left = parseInt((parseInt(o.lastOccurrence) + parseInt(frequency)) - kmValue);
             echeance = left;
             if(left<0){
                 color = "red"
