@@ -53,15 +53,13 @@ class EntretienRow extends Component {
     }
     getEntretienOrigin = () => {
         if(this.props.entretien.originNature != null){
-            console.log("origin nature is not null for entretien : " + this.props.entretien._id + " so will read origin nature name ...")
-            console.log(this.props.entretien)
-            console.log(this.props.entretien.originNature)
             return this.props.entretien.originNature.name
         }else{
-            console.log("origin nature is null for entretien : " + this.props.entretien._id + " so will read origin control name ...")
-            console.log(this.props.entretien)
-            console.log(this.props.entretien.originControl)
-            return this.props.entretien.originControl.name
+            if(this.props.entretien.originControl != null){
+                return this.props.entretien.originControl.name
+            }else{
+                return "Le controle à l'origine de cet entretien est introuvable."
+            }
         }
     }
     getEntretienAffectation = () => {

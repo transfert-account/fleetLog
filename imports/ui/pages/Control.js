@@ -87,14 +87,14 @@ export class Control extends Component {
             {color:"green",value:"inTime",icon:"filter",text:"Dans les temps"},
             {color:"orange",value:"soon",icon:"filter",text:"En alerte"},
             {color:"red",value:"late",icon:"filter",text:"En retard"},
-            {color:"grey",value:"unaffected",icon:"filter",text:"Non éligible"}
+            {color:"grey",value:"inactive",icon:"filter",text:"Non éligible"}
         ],
         getTableBody : () => {
             let displayed = JSON.parse(JSON.stringify(this.state.vehiclesOccurrences));
             if(this.props.match.params.filter == "inTime" || this.props.match.params.filter == "soon" || this.props.match.params.filter == "late"){
                 displayed = displayed.filter(v=>v.timing == this.props.match.params.filter)
             }else{
-                if(this.props.match.params.filter == "unaffected"){
+                if(this.props.match.params.filter == "inactive"){
                     displayed = displayed.filter(v=>v.timing == null)
                 }
             }
@@ -108,7 +108,13 @@ export class Control extends Component {
                 )
             }else{
                 return(
-                    displayed.sort((a,b)=>{if(b.timming == null){return false}else{return a.echeance - b.echeance}}).map(v=>{
+                    displayed.sort((a,b)=>{
+                        if(a.timing == null){
+                            return 1
+                        }else{
+                            return a.echeance - b.echeance
+                        }
+                    }).map(v=>{
                         return(
                             <Table.Row key={v.registration}>
                                 <Table.Cell collapsing textAlign="right">
@@ -146,7 +152,13 @@ export class Control extends Component {
                 displayed = displayed.filter(v=>v.timing == null)
             }
         }
-        displayed.sort((a,b)=>{if(b.timming == null){return false}else{return a.echeance - b.echeance}}).map(v=>{
+        displayed.sort((a,b)=>{
+            if(a.timing == null){
+                return 1
+            }else{
+                return a.echeance - b.echeance
+            }
+        }).map(v=>{
             exp.push({
                 "Opéré par":v.vehicle.shared ? v.vehicle.sharedTo.name : v.vehicle.societe.name,
                 "Vehicule":v.vehicle.brand.name + " - " + v.vehicle.model.name + " (" + v.vehicle.energy.name + ")",
