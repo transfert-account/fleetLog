@@ -136,7 +136,7 @@ getControlNextOccurrence = (v,c,o) => {
             timing="error"
         }else{
             nextOccurrence = parseInt(parseInt(o.lastOccurrence) + parseInt(frequency)).toString() + " km";
-            let left = parseInt((parseInt(o.lastOccurrence) + parseInt(frequency)) - kmValue);
+            let left = parseInt((parseInt(o.lastOccurrence) + parseInt(frequency)) - v.kms[v.kms.length-1].kmValue);
             echeance = left;
             if(left<0){
                 color = "red"
