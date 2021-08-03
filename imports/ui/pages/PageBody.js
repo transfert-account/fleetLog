@@ -51,6 +51,9 @@ import Title from '../pages/Title';
 
 import MobileLayout from '../mobile_pages/MobileLayout';
 
+import M_Vehicles from '../mobile_pages/M_Vehicles';
+import M_Vehicle from '../mobile_pages/M_Vehicle';
+
 import M_Entretiens from '../mobile_pages/M_Entretiens';
 import M_Entretien from '../mobile_pages/M_Entretien';
 
@@ -134,8 +137,8 @@ class PageBody extends Component {
           <Switch>
             <Route exact path='/home' component={withoutNavbar(M_Menu)}/>
 
-            <Route exact path='/parc/vehicles' component={withNavbar(Vehicles)}/>
-            <Route exact path='/parc/vehicle/:_id' component={withNavbar(Vehicle)}/>
+            <Route exact path='/parc/vehicles' component={withoutNavbar(M_Vehicles)}/>
+            <Route exact path='/parc/vehicle/:_id' component={withoutNavbar(M_Vehicle)}/>
 
             <Route exact path='/entretien/controls/curatif' component={withoutNavbar(M_Curatif)}/>
             <Route exact path='/entretien/pieces' component={withoutNavbar(M_Pieces)}/>

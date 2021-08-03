@@ -200,6 +200,54 @@ export class Scripts extends Component {
         }
       }
     }
+
+    getConsole = () => {
+      if(this.state.selectedJob == null || this.state.selectedExecution == null){
+        return <div style={{overflowY:"scroll",gridRowEnd:"span 2",paddingRight:"16px"}} className="console"></div>
+      }else{
+        return (
+          <div style={{overflowY:"scroll",gridRowEnd:"span 2",paddingRight:"16px"}} className="console">
+            {this.state.selectedExecutionLogsRaw.map(l=>{
+              if(l.type == "br"){
+                return <br/>
+              }
+              if(l.type == "text"){
+                return(
+                  <p>
+                    <span style={{color:"#777"}}>{"["+moment(l.timestamp,this.state.msFormat).format("HH:mm:ss.SSS")+"]"}</span>
+                    {l.text}
+                  </p>
+                )
+              }
+              if(l.type == "link"){
+                return(
+                  <p>
+                    <span style={{color:"#777"}}>{"["+moment(l.timestamp,this.state.msFormat).format("HH:mm:ss.SSS")+"]"}</span>
+                    {l.text}
+                    <a style={{color:"#74b9ff"}} href="#" onClick={()=>this.props.history.push(l.options.link)}>
+                      {l.options.linkLabel}
+                    </a>
+                  </p>
+                )
+              }
+              if(l.type == "colored"){
+                return(
+                  <p>
+                    <span style={{color:"#777"}}>
+                      {"["+moment(l.timestamp,this.state.msFormat).format("HH:mm:ss.SSS")+"]"}</span>
+                      {l.options.before}
+                      <span style={{color:"#"+l.options.hex}}>
+                        {l.options.colored}
+                      </span>
+                      {l.options.after}
+                  </p>
+                )
+              }
+            })}
+          </div>
+        )
+      }
+    }
     /*COMPONENTS LIFECYCLE*/
 
     componentDidMount = () => {
@@ -215,51 +263,7 @@ export class Scripts extends Component {
         <Segment style={{margin:"0"}}>
           {this.getJobHeader()}
         </Segment>
-        <div style={{overflowY:"scroll",gridRowEnd:"span 2",paddingRight:"16px"}} className="console">
-          {this.state.selectedExecutionLogsRaw.map(l=>{
-            if(l.type == "br"){
-              return <br/>
-            }
-            if(l.type == "text"){
-              return(
-                <Fragment>
-                  <p>
-                    <span style={{color:"#777"}}>{"["+moment(l.timestamp,this.state.msFormat).format("HH:mm:ss.SSS")+"]"}</span>
-                    {l.text}
-                  </p>
-                </Fragment>
-              )
-            }
-            if(l.type == "link"){
-              return(
-                <Fragment>
-                  <p>
-                    <span style={{color:"#777"}}>{"["+moment(l.timestamp,this.state.msFormat).format("HH:mm:ss.SSS")+"]"}</span>
-                    {l.text}
-                    <a style={{color:"#74b9ff"}} href="#" onClick={()=>this.props.history.push(l.options.link)}>
-                      {l.options.linkLabel}
-                    </a>
-                  </p>
-                </Fragment>
-              )
-            }
-            if(l.type == "colored"){
-              return(
-                <Fragment>
-                  <p>
-                    <span style={{color:"#777"}}>
-                      {"["+moment(l.timestamp,this.state.msFormat).format("HH:mm:ss.SSS")+"]"}</span>
-                      {l.options.before}
-                      <span style={{color:"#"+l.options.hex}}>
-                        {l.options.colored}
-                      </span>
-                      {l.options.after}
-                  </p>
-                </Fragment>
-              )
-            }
-          })}
-        </div>
+        {this.getConsole()}
       </div>
     )}
 }

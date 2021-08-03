@@ -71,7 +71,10 @@
   font-size: 1em !important;
 }
 #mobile{
-  font-size: 1.6em !important;
+  font-size: 2em !important;
+}
+#mobile .button{
+  font-size: 2em !important;
 }
 
 /*//////////////////////////////////
