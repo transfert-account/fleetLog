@@ -330,12 +330,12 @@ export default {
             let totalCheck = 0;
             let inconsistency = 0;
             vehicles.map(v=>{
-                if(v.brand !="" && v.brand != null){if(Brands.findOne({_id:new Mongo.ObjectID(v.brand)}) == null){pushLog(_id,"V: " + v.registration + " failed to fetch v.brand : " + v.brand ,"text",{});inconsistency++;}}
-                if(v.model !="" && v.model != null){if(Models.findOne({_id:new Mongo.ObjectID(v.model)}) == null){pushLog(_id,"V: " + v.registration + " failed to fetch v.model : " + v.model ,"text",{});inconsistency++;}}
-                if(v.energy !="" && v.energy != null){if(Energies.findOne({_id:new Mongo.ObjectID(v.energy)}) == null){pushLog(_id,"V: " + v.registration + " failed to fetch v.energy : " + v.energy ,"text",{});inconsistency++;}}
-                if(v.cv !="" && v.cv != null){if(Documents.findOne({_id:new Mongo.ObjectID(v.cv)}) == null){pushLog(_id,"V: " + v.registration + " failed to fetch v.cv : " + v.cv ,"text",{});inconsistency++;}}
-                if(v.cg !="" && v.cg != null){if(Documents.findOne({_id:new Mongo.ObjectID(v.cg)}) == null){pushLog(_id,"V: " + v.registration + " failed to fetch v.cg : " + v.cg ,"text",{});inconsistency++;}}
-                if(v.payementTime !="" && v.payementTime != null){if(PayementTimes.findOne({_id:new Mongo.ObjectID(v.payementTime)}) == null){pushLog(_id,"V: " + v.registration + " failed to fetch v.payementTime : " + v.payementTime ,"text",{});inconsistency++;}}
+                if(Brands.findOne({_id:new Mongo.ObjectID(v.brand)}) == null){pushLog(_id,"V: " + v.registration + " failed to fetch v.brand : " + v.brand ,"text",{});inconsistency++;}
+                if(Models.findOne({_id:new Mongo.ObjectID(v.model)}) == null){pushLog(_id,"V: " + v.registration + " failed to fetch v.model : " + v.model ,"text",{});inconsistency++;}
+                if(Energies.findOne({_id:new Mongo.ObjectID(v.energy)}) == null){pushLog(_id,"V: " + v.registration + " failed to fetch v.energy : " + v.energy ,"text",{});inconsistency++;}
+                if(Documents.findOne({_id:new Mongo.ObjectID(v.cv)}) == null){pushLog(_id,"V: " + v.registration + " failed to fetch v.cv : " + v.cv ,"text",{});inconsistency++;}
+                if(Documents.findOne({_id:new Mongo.ObjectID(v.cg)}) == null){pushLog(_id,"V: " + v.registration + " failed to fetch v.cg : " + v.cg ,"text",{});inconsistency++;}
+                if(PayementTimes.findOne({_id:new Mongo.ObjectID(v.payementTime)}) == null){pushLog(_id,"V: " + v.registration + " failed to fetch v.payementTime : " + v.payementTime ,"text",{});inconsistency++;}
                 totalCheck = totalCheck + 6;
             })
             pushLogBreakLine(_id)
