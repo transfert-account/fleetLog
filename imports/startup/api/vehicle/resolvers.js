@@ -177,8 +177,13 @@ const affectVehicleData = vehicle => {
 
 const affectMinimalVehicleData = vehicle => {
     try{
-        vehicle.lastKmUpdate = vehicle.kms[vehicle.kms.length-1].reportDate
-        vehicle.km = vehicle.kms[vehicle.kms.length-1].kmValue
+        if(vehicle.kms.length > 0){
+            vehicle.lastKmUpdate = vehicle.kms[vehicle.kms.length-1].reportDate
+            vehicle.km = vehicle.kms[vehicle.kms.length-1].kmValue
+        }else{//ERROR !!!
+            vehicle.lastKmUpdate = ""
+            vehicle.km = 0
+        }
         if(vehicle.societe != null && vehicle.societe.length > 0){
             vehicle.societe = Societes.findOne({_id:new Mongo.ObjectID(vehicle.societe)});
         }else{
