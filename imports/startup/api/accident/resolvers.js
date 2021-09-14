@@ -7,7 +7,7 @@ import Brands from '../brand/brands';
 import Energies from '../energy/energies';
 import Documents from '../document/documents';
 import Functions from '../common/functions';
-import VehicleArchiveJustifications from '../vehicleArchiveJustification';
+import VehicleArchiveJustifications from '../vehicleArchiveJustification/vehicleArchiveJustifications';
 import moment from 'moment';
 import { Mongo } from 'meteor/mongo';
 
