@@ -15,6 +15,12 @@ const jobs = [
         name:"Vérification cohérence km_value / km last report",
         function : "check_km_value_km_report",
         lastExecuted:"dd/mm/yyyy"
+    },
+    {
+        key:"check_vehicles_infos",
+        name:"Vérification de l'intégrité des données véhicules",
+        function : "check_vehicles_infos_integrity",
+        lastExecuted:"dd/mm/yyyy"
     }
 ]
 
@@ -46,6 +52,9 @@ export default {
                 }
                 if(key == "check_km"){
                     Functions.check_km_value_km_report("check_km",_id,timeStart);
+                }
+                if(key == "check_vehicles_infos"){
+                    Functions.check_vehicles_infos_integrity("check_vehicles_infos",_id,timeStart);
                 }
                 return [{status:true,message:key + " running",obj:_id}];
             }
