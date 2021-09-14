@@ -70,8 +70,13 @@ const affectVehicleEntretiens = vehicle => {
 
 const affectVehicleData = vehicle => {
     try{
-        vehicle.lastKmUpdate = vehicle.kms[vehicle.kms.length-1].reportDate
-        vehicle.km = vehicle.kms[vehicle.kms.length-1].kmValue
+        if(vehicle.kms.length > 0){
+            vehicle.lastKmUpdate = vehicle.kms[vehicle.kms.length-1].reportDate
+            vehicle.km = vehicle.kms[vehicle.kms.length-1].kmValue
+        }else{//ERROR !!!
+            vehicle.lastKmUpdate = ""
+            vehicle.km = 0
+        }
         vehicle.kms = Functions.sortKms(vehicle.kms);
         if(vehicle.brokenHistory == null || vehicle.brokenHistory.length == 0){
             vehicle.brokenHistory = [];
