@@ -93,6 +93,13 @@ class VehiclesRow extends Component {
                 </Table.Cell>
             )
         }
+        return (
+            <Table.Cell textAlign="center">
+                <Label color="black"> 
+                    DATE INVALIDE
+                </Label>
+            </Table.Cell>
+        )
     }
     getSpecialCell = () => {
         return(
