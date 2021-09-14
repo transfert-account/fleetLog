@@ -74,6 +74,7 @@ const affectVehicleData = vehicle => {
             vehicle.lastKmUpdate = vehicle.kms[vehicle.kms.length-1].reportDate
             vehicle.km = vehicle.kms[vehicle.kms.length-1].kmValue
         }else{//ERROR !!!
+            console.log("km affectation error on vehicle : " + vehicle.registration)
             vehicle.lastKmUpdate = ""
             vehicle.km = 0
         }
@@ -186,6 +187,7 @@ const affectMinimalVehicleData = vehicle => {
             vehicle.lastKmUpdate = vehicle.kms[vehicle.kms.length-1].reportDate
             vehicle.km = vehicle.kms[vehicle.kms.length-1].kmValue
         }else{//ERROR !!!
+            console.log("km affectation error on vehicle : " + vehicle.registration)
             vehicle.lastKmUpdate = ""
             vehicle.km = 0
         }
