@@ -1424,6 +1424,44 @@ class Vehicle extends Component {
         }
     }
 
+    getControlsMenuItems = () => {
+        if(this.state.vehicle.kms.length == 0){
+            return (
+                <Fragment>
+                    <Popup position="right center" trigger={
+                        <Menu.Item disabled color="blue" active={this.state.activePanel == 'obli'}>
+                            <Label color='red'><Icon style={{margin:0}} name="cancel"/></Label>
+                            Contrôles obligatoires
+                        </Menu.Item>
+                    }>
+                        Indisponible sans un premier relevé kilomètrique
+                    </Popup>
+                    <Popup position="right center" trigger={
+                        <Menu.Item disabled color="blue" active={this.state.activePanel == 'prev'}>
+                            <Label color='red'><Icon style={{margin:0}} name="cancel"/></Label>
+                            Contrôles préventifs
+                        </Menu.Item>
+                    }>
+                        Indisponible sans un premier relevé kilomètrique
+                    </Popup>
+                </Fragment>
+            )
+        }else{
+            return (
+                <Fragment>
+                    <Menu.Item color="blue" active={this.state.activePanel == 'obli'} onClick={()=>{this.setState({activePanel:"obli"})}}>
+                        <Label color={(this.state.obli.filter(o=>o.selected).length == 0 ? "grey" : "green")}>{this.state.obli.filter(o=>o.selected).length}</Label>
+                        Contrôles obligatoires
+                    </Menu.Item>
+                    <Menu.Item color="blue" active={this.state.activePanel == 'prev'} onClick={()=>{this.setState({activePanel:"prev"})}}>
+                        <Label color={(this.state.prev.filter(p=>p.selected).length == 0 ? "grey" : "green")}>{this.state.prev.filter(p=>p.selected).length}</Label>
+                        Contrôles préventifs
+                    </Menu.Item>
+                </Fragment>
+            )
+        }
+    }
+
     //PANELS
     getActivePanel = () => {
         if(this.state.activePanel == "ident"){
@@ -1914,7 +1952,7 @@ class Vehicle extends Component {
                         <div style={{display:"grid",gridColumnEnd:"span 2",gridGap:"32px",gridTemplateColumns:"auto 1fr auto auto"}}>
                             <BigIconButton icon="angle double left" color="black" onClick={()=>{this.props.history.push("/parc/vehicles");}} tooltip="Retour au tableau des véhicules"/>
                             <Message style={{margin:"0"}} icon='truck' header={this.state.vehicle.registration} content={this.state.vehicle.brand.name + " - " + this.state.vehicle.model.name} />
-                            <Message style={{margin:"0"}} header={this.state.vehicle.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " km"} content={"relevé " + moment(this.state.vehicle.lastKmUpdate, "DD/MM/YYYY").fromNow()} />
+                            <Message style={{margin:"0"}} header={this.state.vehicle.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " km"} content={"relevé " + moment(this.state.vehicle.lastKmUpdate, "DD/MM/YYYY").fromNow()}/>
                             <div style={{display:"flex",justifyContent:"flex-end"}}>
                                 <BigIconButton icon="dashboard" color="green" onClick={this.showUpdateKm} tooltip="Mise à jour du kilométrage"/>
                                 <BigIconButton icon="edit" color="blue" onClick={this.showEditIdent} tooltip="Édition du paneau identification"/>
@@ -1947,14 +1985,7 @@ class Vehicle extends Component {
                                         )}
                                         Finances
                                     </Menu.Item>
-                                    <Menu.Item color="blue" active={this.state.activePanel == 'obli'} onClick={()=>{this.setState({activePanel:"obli"})}}>
-                                        <Label color={(this.state.obli.filter(o=>o.selected).length == 0 ? "grey" : "green")}>{this.state.obli.filter(o=>o.selected).length}</Label>
-                                        Contrôles obligatoires
-                                    </Menu.Item>
-                                    <Menu.Item color="blue" active={this.state.activePanel == 'prev'} onClick={()=>{this.setState({activePanel:"prev"})}}>
-                                        <Label color={(this.state.prev.filter(p=>p.selected).length == 0 ? "grey" : "green")}>{this.state.prev.filter(p=>p.selected).length}</Label>
-                                        Contrôles préventifs
-                                    </Menu.Item>
+                                    {this.getControlsMenuItems()}
                                 </Menu>
                                 <Menu size='big' pointing vertical style={{gridColumnStart:"1"}}>
                                     <Menu.Item color="blue" active={this.state.activePanel == 'entretiens'} onClick={()=>{this.setState({activePanel:"entretiens"})}}><Label color='grey'>{this.state.vehicle.entretiens.length}</Label>Entretiens</Menu.Item>

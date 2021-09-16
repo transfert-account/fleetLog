@@ -402,6 +402,11 @@ export class Vehicles extends Component {
                     registration
                     firstRegistrationDate
                     km
+                    kms{
+                        _id
+                        reportDate
+                        kmValue
+                    }
                     lastKmUpdate
                     brand{
                         _id

@@ -66,7 +66,6 @@ class VehiclesRow extends Component {
     }
     getKmCell = () => {
         if(this.props.vehicle.kms.length == 0){
-            return "";
         }else{
             return <Table.Cell textAlign="center">{this.props.vehicle.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km</Table.Cell>
         }

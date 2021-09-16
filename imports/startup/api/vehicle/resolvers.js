@@ -21,27 +21,31 @@ import moment from 'moment';
 import { Mongo } from 'meteor/mongo';
 
 const affectVehicleControls = vehicle => {
-    vehicle.controls = Controls.find().fetch().map(control=>{
-        if(vehicle.controls.filter(co => co._id == control._id).length > 0){
-            let co = vehicle.controls.filter(c => c._id == control._id)[0]
-            let res = Functions.getControlNextOccurrence(vehicle,control,co)
-            return {
-                control:control,
-                selected:true,
-                lastOccurrence:co.lastOccurrence,
-                entretien:co.entretien,
-                nextOccurrence:res.nextOccurrence,
-                label:res.label,
-                color:res.color,
-                timing:res.timing
+    if(vehicle.kms.length == 0){
+        vehicle.controls = []
+    }else{
+        vehicle.controls = Controls.find().fetch().map(control=>{
+            if(vehicle.controls.filter(co => co._id == control._id).length > 0){
+                let co = vehicle.controls.filter(c => c._id == control._id)[0]
+                let res = Functions.getControlNextOccurrence(vehicle,control,co)
+                return {
+                    control:control,
+                    selected:true,
+                    lastOccurrence:co.lastOccurrence,
+                    entretien:co.entretien,
+                    nextOccurrence:res.nextOccurrence,
+                    label:res.label,
+                    color:res.color,
+                    timing:res.timing
+                }
+            }else{
+                return {
+                    control:control,
+                    selected:false
+                }
             }
-        }else{
-            return {
-                control:control,
-                selected:false
-            }
-        }
-    })
+        })
+    }
 }
 
 const affectEntretienData = e => {
@@ -73,6 +77,7 @@ const affectVehicleData = vehicle => {
         if(vehicle.kms.length > 0){
             vehicle.lastKmUpdate = vehicle.kms[vehicle.kms.length-1].reportDate
             vehicle.km = vehicle.kms[vehicle.kms.length-1].kmValue
+            console.log("hey")
         }else{//ERROR !!!
             console.log("km affectation error on vehicle : " + vehicle.registration)
             vehicle.lastKmUpdate = ""
@@ -186,6 +191,7 @@ const affectMinimalVehicleData = vehicle => {
         if(vehicle.kms.length > 0){
             vehicle.lastKmUpdate = vehicle.kms[vehicle.kms.length-1].reportDate
             vehicle.km = vehicle.kms[vehicle.kms.length-1].kmValue
+            console.log("ho")
         }else{//ERROR !!!
             console.log("km affectation error on vehicle : " + vehicle.registration)
             vehicle.lastKmUpdate = ""
@@ -235,12 +241,16 @@ const affectVehicleAccidents = vehicle => {
 export default {
     Query : {
         vehicle(obj, {_id}, { user }){
-            let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(_id)});
-            affectVehicleData(vehicle)
-            affectVehicleControls(vehicle)
-            affectVehicleAccidents(vehicle)
-            affectVehicleEntretiens(vehicle)
-            return vehicle;
+            try{
+                let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(_id)});
+                affectVehicleData(vehicle)
+                affectVehicleControls(vehicle)
+                affectVehicleAccidents(vehicle)
+                affectVehicleEntretiens(vehicle)
+                return vehicle;
+            }catch(e){
+                console.log(e)
+            }
         },
         vehicles(obj, args, { user }){
             let vehicles = VEHICLES(user);
