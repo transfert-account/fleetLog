@@ -64,6 +64,13 @@ class VehiclesRow extends Component {
             )
         }
     }
+    getKmCell = () => {
+        if(this.props.vehicle.kms.length == 0){
+            return "";
+        }else{
+            return <Table.Cell textAlign="center">{this.props.vehicle.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km</Table.Cell>
+        }
+    }
     getLastReportCell = () => {
         let days = parseInt(moment().diff(moment(this.props.vehicle.lastKmUpdate, "DD/MM/YYYY"),'days'));
         if(days < 9){
@@ -93,13 +100,15 @@ class VehiclesRow extends Component {
                 </Table.Cell>
             )
         }
-        return (
-            <Table.Cell textAlign="center">
-                <Label color="black"> 
-                    DATE INVALIDE
-                </Label>
-            </Table.Cell>
-        )
+        if(this.props.vehicle.kms.length == 0){
+            return (
+                <Table.Cell textAlign="center" colSpan="2">
+                    <Label color="black"> 
+                        Aucun relevé de compteur
+                    </Label>
+                </Table.Cell>
+            )
+        }
     }
     getSpecialCell = () => {
         return(
@@ -182,7 +191,7 @@ class VehiclesRow extends Component {
                     <Table.Cell textAlign="center">{this.props.vehicle.societe.name}</Table.Cell>
                     {this.getSpecialCell()}
                     <Table.Cell textAlign="center">{this.props.vehicle.registration}</Table.Cell>
-                    <Table.Cell textAlign="center">{this.props.vehicle.km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} km</Table.Cell>
+                    {this.getKmCell()}
                     {this.getLastReportCell()}
                     {this.getDescCell()}
                     {this.getVolumeCell()}

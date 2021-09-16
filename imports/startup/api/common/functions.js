@@ -352,10 +352,13 @@ export default {
     ////////////////////////////////////
     checkKmsConsistency : (_id,date,value) => {
         let kms = Vehicles.findOne({_id:new Mongo.ObjectID(_id)}).kms // Recupération de la liste des relevé kilométrique
-        if(kms.filter(k=>k.reportDate == date).length > 0){return [{status:false,message:'Un seul relevé kilométrique seulement par jour'}];}
+        if(kms.filter(k=>k.reportDate == date).length > 0){return [{status:false,message:'Un relevé kilométrique par jour seulement'}];}
         kms.push({new:true,reportDate:date,kmValue:value}); // Ajout du nouveau relevé
         kms = kms.sort((a,b) => moment(a.reportDate,"DD/MM/YYYY") - moment(b.reportDate,"DD/MM/YYYY")); // Tri des relevé par date
         let index = kms.map(e => (e.new ? true : false)).indexOf(true); // Récuperation de l'index du nouveau relevé
+        if(kms.length == 0){
+            return [{status:true,message:'Contrôle de cohérence date/kilométrage ok'}]
+        }
         if(kms[index-1].kmValue < kms[index].kmValue && index == kms.length-1){ // Dernier en date
             return [{status:true,message:'Contrôle de cohérence date/kilométrage ok'}]
         }else{

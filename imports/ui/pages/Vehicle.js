@@ -445,7 +445,7 @@ class Vehicle extends Component {
                         {this.state.vehicle.kms.length != 1 ? 
                                 <Button circular style={{color:"#e74c3c"}} inverted icon icon='trash' onClick={()=>{this.showDeleteKm(k._id)}}/>
                             :
-                                ""
+                                <Button circular style={{color:"#e74c3c"}} inverted icon icon='trash' onClick={()=>{this.showDeleteKm(k._id)}}/>
                         }
                     </Table.Cell>
                 </Table.Row>
