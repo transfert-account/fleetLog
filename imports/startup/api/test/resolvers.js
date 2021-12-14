@@ -23,7 +23,18 @@ export default {
                     Vehicles.update(
                         {},
                         {   $set:{
-                                relai:false
+                                relai:false,
+                                relaiSince:""
+                            },
+                        },
+                        {multi:true}
+                    );
+                    Pieces.update(
+                        {
+                            reference:null
+                        },
+                        {   $set:{
+                                reference:""
                             },
                         },
                         {multi:true}

@@ -225,6 +225,7 @@ class Vehicle extends Component {
                     sold
                     soldOnDate
                     relai
+                    relaiSince
                     broken
                     brokenSince
                     brokenHistory{
@@ -2020,6 +2021,13 @@ class Vehicle extends Component {
             )
         }
     }
+    getRelaiMessage = () => {
+        if(this.state.vehicle.relai){
+            return (
+                <Message color="teal" style={{margin:"0"}} icon='share' header={"En relai"} content={"depuis le : " + this.state.vehicle.relaiSince} />
+            )
+        }
+    }
     /*COMPONENTS LIFECYCLE*/
     componentDidMount = () => {
         this.loadVehicle();
@@ -2060,6 +2068,7 @@ class Vehicle extends Component {
                             {this.getSharedMessage()}
                             {this.getSellingMessage()}
                             {this.getBrokenMessage()}
+                            {this.getRelaiMessage()}
                         </div>
                         <div style={{display:"grid",gridTemplateColumns:"auto 1fr",placeSelf:"stretch",gridColumnEnd:"span 2",gridGap:"64px"}}>
                             <div style={{display:"flex",flexDirection:"column",justifyContent:"start",placeSelf:"stretch"}}>

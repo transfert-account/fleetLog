@@ -29,6 +29,10 @@ export class ExportEntretiens extends Component {
                     }
                     vehicle{
                         _id
+                        societe{
+                            _id
+                            name
+                        }
                         registration
                         km
                         brand{
@@ -55,7 +59,7 @@ export class ExportEntretiens extends Component {
                         name
                     }
                     originControl{
-                        key
+                        _id
                         name
                     }
                     notes{
@@ -259,7 +263,7 @@ export class ExportEntretiens extends Component {
             {key:"kms",active:false,colOrder:-1,label:"Kilométrage",access:(e)=>e.vehicle.km},
             {key:"typ",active:false,colOrder:-1,label:"Type",access:(e)=>e.type},
             {key:"sta",active:false,colOrder:-1,label:"Status",access:(e)=>e.status},
-            {key:"org",active:false,colOrder:-1,label:"Origine",access:(e)=>(e.originNature._id ? originNature.name : originControl.name)},
+            {key:"org",active:false,colOrder:-1,label:"Origine",access:(e)=>(e.originNature ? e.originNature.name : e.originControl.name)},
             {key:"tim",active:false,colOrder:-1,label:"Temps passé",access:(e)=>e.time},
             {key:"kaf",active:false,colOrder:-1,label:"Kilométrage à la réalisation",access:(e)=>e.kmAtFinish},
             {key:"cst",active:false,colOrder:-1,label:"Coût des pièces",access:(e)=>e.piecesQty.reduce((a,b)=>a + (b.piece.prixHT*b.qty),0)},

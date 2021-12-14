@@ -67,6 +67,9 @@ export class ExportVehicles extends Component {
                         months
                     }
                     archived
+                    broken
+                    sold
+                    selling
                     shared
                     sharedTo{
                         _id
@@ -306,6 +309,7 @@ export class ExportVehicles extends Component {
         let exp = [];
         this.state.vehiclesFiltered.map(v=>{
             let aVehicle = {};
+            console.log(v)
             this.state.selectedColumns.sort((a,b)=>a.colOrder-b.colOrder).map(c=>{
                 aVehicle[c.label] = c.access(v);
             })

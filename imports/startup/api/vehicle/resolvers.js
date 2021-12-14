@@ -614,7 +614,8 @@ export default {
                         _id: new Mongo.ObjectID(_id)
                     }, {
                         $set: {
-                            "relai":true
+                            "relai":true,
+                            "relaiSince": new Date().getDate().toString().padStart(2,0) + '/' + parseInt(new Date().getMonth()+1).toString().padStart(2,0) + '/' + new Date().getFullYear()
                         }
                     }   
                 )
@@ -630,6 +631,7 @@ export default {
                     }, {
                         $set: {
                             "relai":false,
+                            "sellingSince":""
                         }
                     }   
                 )

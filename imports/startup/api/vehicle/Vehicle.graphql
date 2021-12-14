@@ -42,6 +42,7 @@ type Vehicle{
     brokenHistory:[BrokenHistoryEntry]
     broken:Boolean
     relai:Boolean
+    relaiSince:String
     brokenSince:String
     financialInfosComplete:Boolean
     controls:[ControlOccurrence]
