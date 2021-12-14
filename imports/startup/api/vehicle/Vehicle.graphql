@@ -41,6 +41,7 @@ type Vehicle{
     soldOnDate:String
     brokenHistory:[BrokenHistoryEntry]
     broken:Boolean
+    relai:Boolean
     brokenSince:String
     financialInfosComplete:Boolean
     controls:[ControlOccurrence]
@@ -106,6 +107,8 @@ extend type Mutation{
     unshareVehicle(_id:String!):[QueryResultMessage]
     sellVehicle(_id:String!,sellingReason:String!):[QueryResultMessage]
     unsellVehicle(_id:String!):[QueryResultMessage]
+    relaiVehicle(_id:String!):[QueryResultMessage]
+    unrelaiVehicle(_id:String!):[QueryResultMessage]
     cancelSellVehicle(_id:String!):[QueryResultMessage]
     finishSellVehicle(_id:String!):[QueryResultMessage]
     addHistoryEntry(_id:String!,content:String!):[QueryResultMessage]

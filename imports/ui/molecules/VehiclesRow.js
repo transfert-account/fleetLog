@@ -119,6 +119,9 @@ class VehiclesRow extends Component {
                 <Popup content={(this.props.vehicle.broken ? "Le véhicule est en panne" : "Le véhicule n'est pas en panne")} trigger={
                     <Button color={(this.props.vehicle.broken ? "teal":"")} icon="wrench"/>
                 }/>
+                <Popup content={(this.props.vehicle.relai ? "Le véhicule est en relai" : "Le véhicule n'est pas en relai")} trigger={
+                    <Button color={(this.props.vehicle.relai ? "teal":"")} icon="share"/>
+                }/>
             </Table.Cell>
         )
     }

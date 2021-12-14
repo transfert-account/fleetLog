@@ -77,7 +77,6 @@ const affectVehicleData = vehicle => {
         if(vehicle.kms.length > 0){
             vehicle.lastKmUpdate = vehicle.kms[vehicle.kms.length-1].reportDate
             vehicle.km = vehicle.kms[vehicle.kms.length-1].kmValue
-            console.log("hey")
         }else{//ERROR !!!
             console.log("km affectation error on vehicle : " + vehicle.registration)
             vehicle.lastKmUpdate = ""
@@ -191,7 +190,6 @@ const affectMinimalVehicleData = vehicle => {
         if(vehicle.kms.length > 0){
             vehicle.lastKmUpdate = vehicle.kms[vehicle.kms.length-1].reportDate
             vehicle.km = vehicle.kms[vehicle.kms.length-1].kmValue
-            console.log("ho")
         }else{//ERROR !!!
             console.log("km affectation error on vehicle : " + vehicle.registration)
             vehicle.lastKmUpdate = ""
@@ -602,6 +600,40 @@ export default {
                     }   
                 )
                 return [{status:true,message:'Retrait du véhicule de la vente réussi'}];
+            }
+            throw new Error('Unauthorized');
+        },
+        relaiVehicle(obj, {_id},{user}){
+            if(user._id){
+                let vehicle = Vehicles.findOne({_id:new Mongo.ObjectID(_id)});
+                if(vehicle.archived){
+                    return [{status:false,message:'Impossible de mettre en relai un véhicule archivé'}];
+                }
+                Vehicles.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "relai":true
+                        }
+                    }   
+                )
+                return [{status:true,message:'Mise en relai réussi'}];
+            }
+            throw new Error('Unauthorized');
+        },
+        unrelaiVehicle(obj, {_id},{user}){
+            if(user._id){
+                Vehicles.update(
+                    {
+                        _id: new Mongo.ObjectID(_id)
+                    }, {
+                        $set: {
+                            "relai":false,
+                        }
+                    }   
+                )
+                return [{status:true,message:"Le véhicule n'est plus en relai"}];
             }
             throw new Error('Unauthorized');
         },

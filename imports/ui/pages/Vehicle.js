@@ -75,6 +75,8 @@ class Vehicle extends Component {
         openUnshare:false,
         openSell:false,
         openUnsell:false,
+        openRelai:false,
+        openUnrelai:false,
         openCancelSell:false,
         openAddHistoryEntry:false,
         openDeleteHistoryEntry:false,
@@ -222,6 +224,7 @@ class Vehicle extends Component {
                     sellingSince
                     sold
                     soldOnDate
+                    relai
                     broken
                     brokenSince
                     brokenHistory{
@@ -356,16 +359,32 @@ class Vehicle extends Component {
             }
         `,
         sellVehicleQuery : gql`
-            mutation sellVehicle($_id:String!,$sellingReason:String!){
-                sellVehicle(_id:$_id,sellingReason:$sellingReason){
+        mutation sellVehicle($_id:String!,$sellingReason:String!){
+            sellVehicle(_id:$_id,sellingReason:$sellingReason){
+                status
+                message
+            }
+        }
+        `,
+        unsellVehicleQuery : gql`
+            mutation unsellVehicle($_id:String!){
+                unsellVehicle(_id:$_id){
                     status
                     message
                 }
             }
         `,
-        unsellVehicleQuery : gql`
-            mutation unsellVehicle($_id:String!){
-                unsellVehicle(_id:$_id){
+        relaiVehicleQuery : gql`
+            mutation relaiVehicle($_id:String!){
+                relaiVehicle(_id:$_id){
+                    status
+                    message
+                }
+            }
+        `,
+        unrelaiVehicleQuery : gql`
+            mutation unrelaiVehicle($_id:String!){
+                unrelaiVehicle(_id:$_id){
                     status
                     message
                 }
@@ -547,6 +566,16 @@ class Vehicle extends Component {
             openUnsell:false
         })
     }
+    showUnrelai = () => {
+        this.setState({
+            openUnrelai:true
+        })
+    }
+    closeUnrelai = () => {
+        this.setState({
+            openUnrelai:false
+        })
+    }
     showCancelSell = () => {
         this.setState({
             openCancelSell:true
@@ -565,6 +594,16 @@ class Vehicle extends Component {
     closeSell = () => {
         this.setState({
             openSell:false
+        })
+    }
+    showRelai = () => {
+        this.setState({
+            openRelai:true
+        })
+    }
+    closeRelai = () => {
+        this.setState({
+            openRelai:false
         })
     }
     showAddHistoryEntry = () => {
@@ -994,6 +1033,43 @@ class Vehicle extends Component {
             })
         })
     }
+    relaiVehicle = () => {
+        this.closeArchive();
+        this.props.client.mutate({
+            mutation:this.state.relaiVehicleQuery,
+            variables:{
+                _id:this.state._id,
+            }
+        }).then(({data})=>{
+            data.relaiVehicle.map(qrm=>{
+                if(qrm.status){
+                    this.closeRelai();
+                    this.loadVehicle();
+                    this.props.toast({message:qrm.message,type:"success"});
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
+    unrelaiVehicle = () => {
+        this.props.client.mutate({
+            mutation:this.state.unrelaiVehicleQuery,
+            variables:{
+                _id:this.state._id
+            }
+        }).then(({data})=>{
+            data.unrelaiVehicle.map(qrm=>{
+                if(qrm.status){
+                    this.closeUnrelai();
+                    this.loadVehicle();
+                    this.props.toast({message:qrm.message,type:"success"});
+                }else{
+                    this.props.toast({message:qrm.message,type:"error"});
+                }
+            })
+        })
+    }
     cancelSellVehicle = () => {
         this.props.client.mutate({
             mutation:this.state.cancelSellVehicleQuery,
@@ -1377,7 +1453,7 @@ class Vehicle extends Component {
         }else{
             return(
                 <Fragment>
-                    <BigIconButton icon="handshake" color="teal" onClick={this.showShare} tooltip="Prêter le vehicule"/>
+                    <BigIconButton icon="handshake" onClick={this.showShare} tooltip="Prêter le vehicule"/>
                 </Fragment>
             )
         }
@@ -1393,7 +1469,7 @@ class Vehicle extends Component {
             if(!this.state.vehicle.sold){//MISE EN VENTE
                 return(
                     <Fragment>
-                        <BigIconButton icon="cart" color="teal" onClick={this.showSell} tooltip="Mettre en vente"/>
+                        <BigIconButton icon="cart" onClick={this.showSell} tooltip="Mettre en vente"/>
                     </Fragment>
                 )
             }else{//ANNULATION
@@ -1412,7 +1488,18 @@ class Vehicle extends Component {
             )
         }else{
             return(
-                <BigIconButton icon="wrench" color="teal" onClick={this.showBreak} tooltip="Déclarer une panne"/>
+                <BigIconButton icon="wrench" onClick={this.showBreak} tooltip="Déclarer une panne"/>
+            )
+        }
+    }
+    getRelaiOptions = () => {
+        if(this.state.vehicle.relai){
+            return(
+                <BigIconButton icon="share" color="teal" onClick={this.showUnrelai} tooltip="Annuler le relai"/>
+            )
+        }else{
+            return(
+                <BigIconButton icon="share" onClick={this.showRelai} tooltip="Mettre en relai"/>
             )
         }
     }
@@ -1960,6 +2047,7 @@ class Vehicle extends Component {
                                 {this.getShareOptions()}
                                 {this.getSellOptions()}
                                 {this.getBrokenOptions()}
+                                {this.getRelaiOptions()}
                                 <BigIconButton icon="chat" color="blue" onClick={this.showAddHistoryEntry} tooltip="Ajouter une note à l'historique" spacedFromPrevious/>
                                 <BigIconButton icon="folder" color="purple" onClick={()=>{this.setState({activePanel:"docs"})}} tooltip="Gérer les documents" spacedFromPrevious/>
                                 {this.getSoldDocsOptions()}
@@ -2109,6 +2197,24 @@ class Vehicle extends Component {
                             <Button color="grey" onClick={this.closeUnsell}>Annuler</Button>
                             <Button color="teal" onClick={this.unsellVehicle}>Annuler la vente</Button>
                             <Button color="orange" onClick={this.finishSellVehicle}>Conclure la vente</Button>
+                        </Modal.Actions>
+                    </Modal>
+                    <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openRelai} onClose={this.closeRelai} closeIcon>
+                        <Modal.Header>
+                            Mettre le vehicule {this.state.vehicle.registration} en relai ?
+                        </Modal.Header>
+                        <Modal.Actions>
+                            <Button color="grey" onClick={this.closeRelai}>Annuler</Button>
+                            <Button color="teal" onClick={this.relaiVehicle}>Mettre en relai</Button>
+                        </Modal.Actions>
+                    </Modal>
+                    <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openUnrelai} onClose={this.closeUnrelai} closeIcon>
+                        <Modal.Header>
+                            Annuler le relai du vehicule {this.state.vehicle.registration} ?
+                        </Modal.Header>
+                        <Modal.Actions>
+                            <Button color="grey" onClick={this.closeUnrelai}>Annuler</Button>
+                            <Button color="teal" onClick={this.unrelaiVehicle}>Annuler le relai</Button>
                         </Modal.Actions>
                     </Modal>
                     <Modal size='tiny' closeOnDimmerClick={false} open={this.state.openCancelSell} onClose={this.closeCancelSell} closeIcon>

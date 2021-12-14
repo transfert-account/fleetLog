@@ -20,6 +20,14 @@ export default {
         testThis(obj, args,{user}){
             if(user._id){
                 try{
+                    Vehicles.update(
+                        {},
+                        {   $set:{
+                                relai:false
+                            },
+                        },
+                        {multi:true}
+                    );
                     //NEW
                     //Controls.remove({});
                     /*Vehicles.update(
@@ -312,7 +320,7 @@ export default {
                             }
                         );
                     })*/
-                    return [{status:true,message:'brand null is now empty string and all old controls unaffected and all entretiens deleted'}];
+                    return [{status:true,message:'Empty'}];
                 }catch(e){
                     throw e;
                     return [{status:false,message:e.message}];

@@ -388,6 +388,7 @@ export class Vehicles extends Component {
                     selling
                     sold
                     broken
+                    relai
                 }
             }
         `,
@@ -449,6 +450,7 @@ export class Vehicles extends Component {
                     selling
                     sold
                     broken
+                    relai
                 }
             }
         `,
