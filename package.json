@@ -34,7 +34,7 @@
     "json2csv": "^4.5.1",
     "lodash": "^4.17.15",
     "meteor-node-stubs": "^0.4.1",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "mongodb": "^3.2.2",
     "pathseg": "^1.2.0",
     "react": "^16.14.0",
