@@ -23,7 +23,7 @@
     "chroma-js": "^2.0.3",
     "cors": "^2.8.5",
     "coverflow-react": "^0.1.28",
-    "express": "^4.16.4",
+    "express": "^4.17.3",
     "fbjs": "^1.0.0",
     "file-saver": "^2.0.2",
     "graphql": "^14.3.1",
